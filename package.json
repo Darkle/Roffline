@@ -1,0 +1,55 @@
+{
+  "name": "roffline",
+  "version": "0.1.0",
+  "description": "Roffline allows you to browse Reddit offline",
+  "main": "index.js",
+  "scripts": {},
+  "browserslist": [
+    "Firefox ESR",
+    "last 3 Chrome version",
+    "last 2 safari version",
+    "last 2 ios version"
+  ],
+  "dependencies": {
+    "ramda": "^0.27.1"
+  },
+  "devDependencies": {
+    "@types/browser-sync": "^2.26.2",
+    "@types/ramda": "^0.27.44",
+    "@typescript-eslint/eslint-plugin": "^4.30.0",
+    "@typescript-eslint/parser": "^4.30.0",
+    "ban-sensitive-files": "^1.9.16",
+    "browser-sync": "^2.27.5",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-xo": "^0.38.0",
+    "eslint-plugin-compat": "^3.13.0",
+    "eslint-plugin-disable": "^2.0.1",
+    "eslint-plugin-escompat": "^3.1.0",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-extra-rules": "^0.0.0-development",
+    "eslint-plugin-functional": "^3.7.0",
+    "eslint-plugin-html": "^6.1.2",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-mocha": "^9.0.0",
+    "eslint-plugin-no-secrets": "^0.8.9",
+    "eslint-plugin-ramda": "^2.5.1",
+    "eslint-plugin-security": "^1.4.0",
+    "pre-commit": "^1.2.2",
+    "stylelint": "^13.13.1",
+    "stylelint-config-standard": "^22.0.0",
+    "ttypescript": "^1.5.12",
+    "typescript": "^4.4.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Darkle/Roffline.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Darkle/Roffline/issues"
+  },
+  "homepage": "https://github.com/Darkle/Roffline#readme"
+}
