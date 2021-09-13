@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 
 import createFastify from 'fastify'
 // @ts-expect-error no types available for fastify-disablecache
@@ -18,11 +18,13 @@ import fastifyCsrf from 'fastify-csrf'
 // @ts-expect-error no types available for nunjucks
 import nunjucks from 'nunjucks'
 
-import { isDev } from './utils'
+import { isDev, getEnvFilePath } from './utils'
 
 // type unused = unknown
 
 const port = 3000
+
+const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'] || '')
 
 const fastify = createFastify({ logger: isDev() })
 
@@ -34,6 +36,11 @@ fastify.register(fastifyCompress) // must come before fastifyStatic
 fastify.register(fastifyStatic, {
   root: path.join(process.cwd(), 'frontend', 'static'),
   prefix: '/public/',
+})
+fastify.register(fastifyStatic, {
+  root: postsMediaFolder,
+  prefix: '/posts-media/',
+  decorateReply: false, // the reply decorator has been added by the first plugin registration
 })
 fastify.register(fastifyUrlData)
 fastify.register(templateManager, {

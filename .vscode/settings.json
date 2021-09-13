@@ -1,6 +1,7 @@
 {
   "files.exclude": {
     "hint-report": true,
+    "tsconfig.tsbuildinfo": true,
     "lighthouse-report.html": true,
     "roffline-logs": true,
     "roffline-storage.db": true,
@@ -19,6 +20,7 @@
     "frontend/js/**/*.js.map": true
   },
   "search.exclude": {
+    "tsconfig.tsbuildinfo": true,
     "**/node_modules": true,
     "**/bower_components": true,
     "**/*.code-search": true,
