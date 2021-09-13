@@ -13,27 +13,31 @@ import fastifyCompress from 'fastify-compress'
 import fastifyStatic from 'fastify-static'
 import fastifyUrlData from 'fastify-url-data'
 import templateManager from 'point-of-view'
+import helmet from 'fastify-helmet'
+import fastifyCookie from 'fastify-cookie'
+import fastifyCsrf from 'fastify-csrf'
 // @ts-expect-error no types available for nunjucks
 import nunjucks from 'nunjucks'
 
 import { isDev } from './utils'
 
+// type unused = unknown
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const port = 3000
-// type unused = unknown
 
 const fastify = createFastify({ logger: isDev() })
 
 isDev() && fastify.register(disableCache)
 isDev() && fastify.register(fastifyErrorPage)
-fastify.register(fastifyFavicon, { path: './test', name: 'icon.ico' })
+fastify.register(fastifyFavicon, { path: './frontend/static/images', name: 'favicon.png' })
 fastify.register(noAdditionalProperties)
 fastify.register(fastifyCompress) // must come before fastifyStatic
+console.log(process.cwd())
 fastify.register(fastifyStatic, {
-  root: path.join(__dirname, 'frontend', 'vendor'),
-  prefix: '/public/',
+  root: path.join(__dirname, 'frontend', 'static'),
 })
 fastify.register(fastifyUrlData)
 fastify.register(templateManager, {
@@ -42,25 +46,26 @@ fastify.register(templateManager, {
     nunjucks,
   },
 })
+fastify.register(fastifyCookie)
+fastify.register(fastifyCsrf)
+fastify.register(helmet, {
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // unsafe-eval is for alpine.js library.
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:'],
+    },
+  },
+})
 
-// Declare a route
 // fastify.get('/', async (_, __) => ({ hello: 'world' }))
 fastify.get('/', (_, reply) => {
-  reply.view('server/index.njk', { foo: 'Hello from template' })
+  reply.view('server/views/index.njk', { foo: 'Hello from template' })
 })
 // fastify.get('/', (request, reply) => reply.send({ hello: 'world' }))
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, functional/functional-parameters
-const start = async () => {
-  // eslint-disable-next-line functional/no-try-statement
-  try {
-    await fastify.listen(port)
-  } catch (err) {
-    fastify.log.error(err)
-    process.exit(1)
-  }
-}
+// eslint-disable-next-line functional/functional-parameters
+const startServer = (): Promise<string> => fastify.listen(port)
 
-start().catch(err => {
-  console.error(err)
-})
+export { startServer }
