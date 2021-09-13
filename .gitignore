@@ -1,0 +1,4 @@
+server/**/*.js
+server/**/*.js.map
+frontend/js/**/*.js
+frontend/js/**/*.js.map

@@ -3,14 +3,27 @@
   "version": "0.1.0",
   "description": "Roffline allows you to browse Reddit offline",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {},  
   "browserslist": [
     "Firefox ESR",
     "last 3 Chrome version",
     "last 2 safari version",
     "last 2 ios version"
   ],
+  "type": "module",
   "dependencies": {
+    "fastify": "^3.21.0",
+    "fastify-compress": "^3.6.0",
+    "fastify-disablecache": "^2.0.3",
+    "fastify-error-page": "^4.0.0",
+    "fastify-favicon": "^3.1.0",
+    "fastify-no-additional-properties": "^2.2.0",
+    "fastify-static": "^4.2.3",
+    "fastify-url-data": "^3.0.3",
+    "http-status-codes": "^2.1.4",
+    "nunjucks": "^3.2.3",
+    "pino-pretty": "^7.0.0",
+    "point-of-view": "^4.15.2",
     "ramda": "^0.27.1"
   },
   "devDependencies": {
@@ -18,7 +31,6 @@
     "@types/ramda": "^0.27.44",
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",
-    "ban-sensitive-files": "^1.9.16",
     "browser-sync": "^2.27.5",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
@@ -38,8 +50,9 @@
     "pre-commit": "^1.2.2",
     "stylelint": "^13.13.1",
     "stylelint-config-standard": "^22.0.0",
+    "ts-transform-esm-import": "^0.3.0",
     "ttypescript": "^1.5.12",
-    "typescript": "^4.4.2"
+    "typescript": "^4.4.3"
   },
   "repository": {
     "type": "git",

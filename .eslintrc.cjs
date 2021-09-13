@@ -8,6 +8,7 @@ module.exports = {
     ecmaFeatures: {
       globalReturn: true,
       impliedStrict: true,
+      modules: true,
     },
   },
   processor: 'disable/disable',
@@ -32,7 +33,7 @@ module.exports = {
     'plugin:eslint-comments/recommended',
   ],
   settings: {
-    'html/html-extensions': ['.html'],
+    'html/html-extensions': ['.html', '.eta', '.njk'],
   },
   plugins: ['@typescript-eslint', 'functional', 'extra-rules', 'no-secrets', 'disable', 'html', 'ramda', 'mocha'],
   overrides: [
@@ -45,6 +46,7 @@ module.exports = {
         'xo',
         'plugin:functional/recommended',
         'plugin:import/errors',
+        'plugin:import/typescript',
         'plugin:compat/recommended',
         'plugin:escompat/recommended',
         'plugin:security/recommended',
@@ -60,6 +62,7 @@ module.exports = {
       rules: {
         '@typescript-eslint/default-param-last': ['error'],
         '@typescript-eslint/explicit-function-return-type': ['error'],
+        '@typescript-eslint/no-floating-promises': 'off',
         '@typescript-eslint/no-duplicate-imports': ['error'],
         '@typescript-eslint/no-magic-numbers': [
           'error',
@@ -73,7 +76,7 @@ module.exports = {
         '@typescript-eslint/no-unused-vars': ['error', { args: 'after-used', argsIgnorePattern: '_' }],
         '@typescript-eslint/no-use-before-define': ['error'],
         '@typescript-eslint/no-useless-constructor': ['error'],
-        '@typescript-eslint/prefer-readonly-parameter-types': ['error'],
+        '@typescript-eslint/prefer-readonly-parameter-types': 'off',
         '@typescript-eslint/prefer-readonly': ['error'],
         '@typescript-eslint/prefer-reduce-type-parameter': ['error'],
         '@typescript-eslint/require-await': 'error',
@@ -85,19 +88,21 @@ module.exports = {
           },
         ],
         '@typescript-eslint/space-infix-ops': ['error', { int32Hint: false }],
+        'functional/no-return-void': 'off',
         'functional/no-expression-statement': 'off',
         'functional/no-this-expression': 'off',
         'functional/immutable-data': [
           'error',
           {
             ignoreImmediateMutation: true,
-            ignorePattern: ['res\\.locals', 'app\\.locals\\.'],
+            ignorePattern: [],
           },
         ],
         'functional/prefer-tacit': 'error',
         'import/extensions': 'off',
         'import/newline-after-import': 'off',
         'import/prefer-default-export': 'off',
+        'import/no-unresolved': 'off',
         'extra-rules/potential-point-free': 'error',
         'no-secrets/no-secrets': ['error', { tolerance: 4.5 }],
         'ramda/no-redundant-and': 'off',
@@ -110,6 +115,7 @@ module.exports = {
         complexity: ['error', 4],
         'consistent-return': 'error',
         'comma-dangle': 'off',
+        'no-underscore-dangle': 'off',
         'eol-last': 'off',
         eqeqeq: 'error',
         'function-paren-newline': 'off',
@@ -175,12 +181,13 @@ module.exports = {
   ],
   rules: {
     'functional/no-expression-statement': 'off',
+    'functional/no-return-void': 'off',
     'functional/no-this-expression': 'off',
     'functional/immutable-data': [
       'error',
       {
         ignoreImmediateMutation: true,
-        ignorePattern: ['res\\.locals', 'app\\.locals\\.'],
+        ignorePattern: [],
       },
     ],
     'functional/prefer-tacit': 'error',
