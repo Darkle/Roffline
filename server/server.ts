@@ -1,5 +1,4 @@
-import path, { dirname } from 'path'
-import { fileURLToPath } from 'url'
+import path from 'path'
 
 import createFastify from 'fastify'
 // @ts-expect-error no types available for fastify-disablecache
@@ -23,9 +22,6 @@ import { isDev } from './utils'
 
 // type unused = unknown
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
 const port = 3000
 
 const fastify = createFastify({ logger: isDev() })
@@ -35,9 +31,9 @@ isDev() && fastify.register(fastifyErrorPage)
 fastify.register(fastifyFavicon, { path: './frontend/static/images', name: 'favicon.png' })
 fastify.register(noAdditionalProperties)
 fastify.register(fastifyCompress) // must come before fastifyStatic
-console.log(process.cwd())
 fastify.register(fastifyStatic, {
-  root: path.join(__dirname, 'frontend', 'static'),
+  root: path.join(process.cwd(), 'frontend', 'static'),
+  prefix: '/public/',
 })
 fastify.register(fastifyUrlData)
 fastify.register(templateManager, {

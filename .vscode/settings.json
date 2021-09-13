@@ -1,0 +1,33 @@
+{
+  "files.exclude": {
+    "hint-report": true,
+    "lighthouse-report.html": true,
+    "roffline-logs": true,
+    "roffline-storage.db": true,
+    ".scannerwork": true,
+    "posts-media": true,
+    "frontend-build": true,
+    "*.report.html": true,
+    "*report[0-9].html": true,
+    "test-roffline-storage.db": true,
+    "user-subs-export.txt": true,
+    "*.js": true,
+    "*.js.map": true,
+    "server/**/*.js": true,
+    "server/**/*.js.map": true,
+    "frontend/js/**/*.js": true,
+    "frontend/js/**/*.js.map": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "package-lock.json": true,
+    ".scannerwork": true,
+    "LICENSE": true,
+    "*.report.html": true,
+    "*report[0-9].html": true,
+    "frontend/static": true,
+    "tests/seed-data": true
+  }
+}
