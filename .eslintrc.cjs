@@ -194,6 +194,7 @@ module.exports = {
     'functional/prefer-tacit': 'error',
     'import/extensions': 'off',
     'import/newline-after-import': 'off',
+    'import/no-unresolved': ['error', { ignore: ['^node:'] }],
     'import/prefer-default-export': 'off',
     'extra-rules/potential-point-free': 'error',
     'no-secrets/no-secrets': ['error', { tolerance: 4.5 }],

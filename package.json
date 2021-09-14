@@ -5,7 +5,12 @@
   "main": "index.js",
   "scripts": {
     "update": "ncu --interactive --target minor",
-    "dev": "NODE_ENV=development node ./boot.js",
+    "task": "node ./TasksFile.js",
+    "dev": "NODE_ENV=development node ./TasksFile.js dev:start",
+    "inspect": "NODE_ENV=development node ./TasksFile.js dev:inspect",
+    "test": "node ./TasksFile.js testAll",
+    "eslint": "node ./TasksFile.js tests:eslint",
+    "build": "node ./TasksFile.js buildAll",
     "start": "NODE_ENV=production PUBLIC_FOLDER=frontend-build node ./boot.js"
   },
   "engines": {
@@ -17,6 +22,7 @@
     "last 2 safari version",
     "last 2 ios version"
   ],
+  "pre-commit": [],
   "type": "module",
   "dependencies": {
     "@alpinejs/intersect": "^3.3.3",
@@ -46,11 +52,16 @@
     "ramda-adjunct": "^2.33.0"
   },
   "devDependencies": {
-    "@types/browser-sync": "^2.26.2",
     "@types/ramda": "^0.27.44",
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",
     "browser-sync": "^2.27.5",
+    "bundlesize": "^0.18.1",
+    "chai": "^4.3.4",
+    "check-my-headers": "^0.1.1",
+    "cli-color": "^2.0.0",
+    "concurrently": "^6.2.1",
+    "csso-cli": "^3.0.0",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-xo": "^0.38.0",
@@ -66,10 +77,22 @@
     "eslint-plugin-no-secrets": "^0.8.9",
     "eslint-plugin-ramda": "^2.5.1",
     "eslint-plugin-security": "^1.4.0",
+    "fkill-cli": "^6.2.0",
+    "foreach-cli": "^1.8.1",
+    "hint": "^6.1.4",
+    "lighthouse": "^8.4.0",
+    "mocha": "^9.1.1",
+    "multiview": "^3.0.1",
+    "ncat": "^4.0.2",
+    "ncp": "^2.0.0",
+    "nodemon": "^2.0.12",
     "npm-check-updates": "^11.8.5",
     "pre-commit": "^1.2.2",
+    "snyk": "^1.709.0",
     "stylelint": "^13.13.1",
     "stylelint-config-standard": "^22.0.0",
+    "tasksfile": "^5.1.1",
+    "terser": "^5.8.0",
     "ts-transform-esm-import": "^0.3.0",
     "ttypescript": "^1.5.12",
     "typescript": "^4.4.3"

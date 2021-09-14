@@ -12,7 +12,7 @@
     "*report[0-9].html": true,
     "test-roffline-storage.db": true,
     "user-subs-export.txt": true,
-    "*.js": true,
+    "boot.js": true,
     "*.js.map": true,
     "server/**/*.js": true,
     "server/**/*.js.map": true,

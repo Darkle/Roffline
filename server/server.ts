@@ -24,7 +24,7 @@ import { isDev, getEnvFilePath } from './utils'
 
 const port = 3000
 
-const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'] || '')
+const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
 
 const fastify = createFastify({ logger: isDev() })
 
