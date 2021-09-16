@@ -1,12 +1,9 @@
 import path from 'node:path'
 
 import createFastify from 'fastify'
-// @ts-expect-error no types available for fastify-disablecache
 import disableCache from 'fastify-disablecache'
-// @ts-expect-error no types available for fastify-error-page
 import fastifyErrorPage from 'fastify-error-page'
 import fastifyFavicon from 'fastify-favicon'
-// @ts-expect-error no types available for fastify-no-additional-properties
 import noAdditionalProperties from 'fastify-no-additional-properties'
 import fastifyCompress from 'fastify-compress'
 import fastifyStatic from 'fastify-static'
@@ -15,8 +12,8 @@ import templateManager from 'point-of-view'
 import helmet from 'fastify-helmet'
 import fastifyCookie from 'fastify-cookie'
 import fastifyCsrf from 'fastify-csrf'
-// @ts-expect-error no types available for nunjucks
-import nunjucks from 'nunjucks'
+// import nunjucks from 'nunjucks'
+import * as Eta from 'eta'
 
 import { isDev, getEnvFilePath } from './utils'
 
@@ -43,12 +40,7 @@ fastify.register(fastifyStatic, {
   decorateReply: false, // the reply decorator has been added by the first plugin registration
 })
 fastify.register(fastifyUrlData)
-fastify.register(templateManager, {
-  engine: {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    nunjucks,
-  },
-})
+fastify.register(templateManager, { engine: { eta: Eta } })
 fastify.register(fastifyCookie)
 fastify.register(fastifyCsrf)
 fastify.register(helmet, {
@@ -64,7 +56,7 @@ fastify.register(helmet, {
 
 // fastify.get('/', async (_, __) => ({ hello: 'world' }))
 fastify.get('/', (_, reply) => {
-  reply.view('server/views/index.njk', { foo: 'Hello from template' })
+  reply.view('server/views/index.eta', { foo: 'Hello from template' })
 })
 // fastify.get('/', (request, reply) => reply.send({ hello: 'world' }))
 

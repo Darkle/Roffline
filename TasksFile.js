@@ -26,7 +26,7 @@ const pDelay = ms =>
 
 const dev = {
   start() {
-    const browserync = `browser-sync start --watch --reload-delay 1500 --no-open --no-notify --no-ui --no-ghost-mode --no-inject-changes --files=./frontend/**/* --files=./server/**/* --files=./boot.js --ignore=node_modules --port 8081 --proxy 'localhost:8080' --host '0.0.0.0'`
+    const browserync = `browser-sync start --watch --reload-delay 1500 --no-open --no-notify --no-ui --no-ghost-mode --no-inject-changes --files=./frontend/**/* --files=./server/**/* --files=./boot.js --ignore=node_modules --port 8081 --proxy '127.0.0.1:3000' --host '0.0.0.0'`
     const nodemon = `nodemon ./boot.js --watch server --ext js,njk`
     sh(`concurrently "${nodemon}" "${browserync}"`, shellOptions)
   },
@@ -66,6 +66,9 @@ const tests = {
       `eslint './boot.ts' './server/**/*.ts' './server/**/*.njk' './frontend/js/**/*.ts' './tests/**/*.ts' --report-unused-disable-directives --quiet --rule 'no-console: ["error", { allow: ["error", "info"] }]' --rule "no-warning-comments: ['error', { terms: ['todo', 'fixme', 'hack', 'bug', 'xxx'], location: 'anywhere' }]"`,
       shellOptions
     )
+  },
+  tslint() {
+    sh(`ttsc --noEmit`, shellOptions)
   },
   checkmyheaders() {
     const prodEnvs = `NODE_ENV=production PUBLIC_FOLDER=frontend-build POSTS_MEDIA_DOWNLOAD_DIR='./posts-media' LOGDIR='./roffline-logs'`

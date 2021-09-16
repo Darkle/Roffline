@@ -43,5 +43,5 @@
     "target": "ES2020"
   },
   "exclude": ["node_modules", "**/*.spec.ts"],
-  "include": ["./boot.ts", "frontend/js/**/*", "server/**/*"]
+  "include": ["./boot.ts", "typings.d.ts", "frontend/js/**/*", "server/**/*"]
 }
