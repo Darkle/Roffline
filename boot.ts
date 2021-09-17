@@ -3,8 +3,15 @@ import dotenv from 'dotenv'
 dotenv.config() // this needs to be first
 import { cleanEnv as envVarChecker, str, port } from 'envalid'
 
+import { mainLogger, feedsLogger, mediaDownloadsLogger, dbLogger } from './server/logging'
 import { startServer } from './server/server'
+mainLogger.debug('Hello From Main Logger')
 
+feedsLogger.debug('Hello from feeds logger')
+
+mediaDownloadsLogger.debug('Hello from media downloads logger')
+
+dbLogger.debug('Hello from DB logger')
 envVarChecker(process.env, {
   PORT: port({ default: 8080 }), // eslint-disable-line @typescript-eslint/no-magic-numbers
   PUBLIC_FOLDER: str({ default: './frontend-build' }),

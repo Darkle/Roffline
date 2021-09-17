@@ -12,7 +12,6 @@ import templateManager from 'point-of-view'
 import helmet from 'fastify-helmet'
 import fastifyCookie from 'fastify-cookie'
 import fastifyCsrf from 'fastify-csrf'
-// import nunjucks from 'nunjucks'
 import * as Eta from 'eta'
 
 import { isDev, getEnvFilePath } from './utils'
@@ -23,10 +22,14 @@ const port = 3000
 
 const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
 
-const fastify = createFastify({ logger: isDev() })
+const fastify = createFastify({
+  logger: isDev ? { prettyPrint: true } : false,
+  ignoreTrailingSlash: true,
+  onProtoPoisoning: 'remove',
+})
 
-isDev() && fastify.register(disableCache)
-isDev() && fastify.register(fastifyErrorPage)
+isDev && fastify.register(disableCache)
+isDev && fastify.register(fastifyErrorPage)
 fastify.register(fastifyFavicon, { path: './frontend/static/images', name: 'favicon.png' })
 fastify.register(noAdditionalProperties)
 fastify.register(fastifyCompress) // must come before fastifyStatic
@@ -61,6 +64,6 @@ fastify.get('/', (_, reply) => {
 // fastify.get('/', (request, reply) => reply.send({ hello: 'world' }))
 
 // eslint-disable-next-line functional/functional-parameters
-const startServer = (): Promise<string> => fastify.listen(port)
+const startServer = (): Promise<string> => fastify.listen(port, '0.0.0.0')
 
 export { startServer }

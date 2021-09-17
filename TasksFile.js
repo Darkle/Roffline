@@ -1,4 +1,3 @@
-// @ts-nocheck
 /* eslint-plugin-disable functional */
 /* eslint-disable import/no-extraneous-dependencies, eslint-comments/disable-enable-pair, max-lines-per-function */
 import fs from 'node:fs'
@@ -7,8 +6,9 @@ import path from 'node:path'
 import { cli, sh } from 'tasksfile'
 import clc from 'cli-color'
 import RA from 'ramda-adjunct'
+import esbuild from 'esbuild'
 
-const shellOptions = { nopipe: true }
+const shellOptions = { nopipe: true, async: undefined }
 
 const prepareAndCleanDir = dir => {
   if (fs.existsSync(dir)) fs.rmdirSync(dir, { recursive: true })
@@ -27,8 +27,8 @@ const pDelay = ms =>
 const dev = {
   start() {
     const browserync = `browser-sync start --watch --reload-delay 1500 --no-open --no-notify --no-ui --no-ghost-mode --no-inject-changes --files=./frontend/**/* --files=./server/**/* --files=./boot.js --ignore=node_modules --port 8081 --proxy '127.0.0.1:3000' --host '0.0.0.0'`
-    const nodemon = `nodemon ./boot.js --watch server --ext js,njk`
-    sh(`concurrently "${nodemon}" "${browserync}"`, shellOptions)
+    const nodemon = `nodemon ./boot.js --watch server --ext js,njk,eta`
+    sh(`concurrently --raw --prefix=none "${nodemon}" "${browserync}"`, shellOptions)
   },
   inspect() {
     sh(`node --inspect ./boot.js`, shellOptions)
@@ -38,16 +38,22 @@ const dev = {
 const build = {
   copyToBuild() {
     prepareAndCleanDir('./frontend-build')
-    sh(`ncp ./frontend "./frontend-build"`, shellOptions)
+    sh(`ncp ./frontend/static "./frontend-build/static"`, shellOptions)
   },
   minifyCSS() {
     sh(`foreach --glob "frontend-build/**/*.css" --execute "csso --input #{path} --output #{path}"`, shellOptions)
   },
   minifyJS() {
-    sh(
-      `foreach --glob "frontend-build/**/*.js" --execute "terser #{path} --compress --mangle --comments false --output #{path}"`,
-      shellOptions
-    )
+    require('esbuild')
+      .build({
+        entryPoints: ['app.jsx'],
+        bundle: true,
+        format: 'esm',
+        minify: true,
+        outdir: path.join('frontend-build', 'js'),
+        target: ['es2020', 'chrome58', 'firefox57', 'safari11', 'edge16', 'node12'],
+      })
+      .catch(() => process.exit(1))
   },
 }
 
@@ -63,7 +69,7 @@ const tests = {
   },
   eslint() {
     sh(
-      `eslint './boot.ts' './server/**/*.ts' './server/**/*.njk' './frontend/js/**/*.ts' './tests/**/*.ts' --report-unused-disable-directives --quiet --rule 'no-console: ["error", { allow: ["error", "info"] }]' --rule "no-warning-comments: ['error', { terms: ['todo', 'fixme', 'hack', 'bug', 'xxx'], location: 'anywhere' }]"`,
+      `eslint './boot.ts' './server/**/*.ts' './server/**/*.eta' './frontend/js/**/*.ts' './tests/**/*.ts' --report-unused-disable-directives --quiet --rule 'no-console: ["error", { allow: ["error", "info"] }]' --rule "no-warning-comments: ['error', { terms: ['todo', 'fixme', 'hack', 'bug', 'xxx'], location: 'anywhere' }]"`,
       shellOptions
     )
   },
@@ -132,27 +138,33 @@ const tests = {
     fs.mkdirSync(path.join(process.cwd(), 'lighthouse-reports'))
 
     sh(`${prodEnvs} node ./boot.js &`, shellOptions)
+    // @ts-expect-error
     sh(`sleep 3`, shOptions)
       .then(_ =>
         Promise.all([
           sh(
             `lighthouse http://0.0.0.0:8080 --chrome-flags="--headless" --output-path ./lighthouse-reports/lighthouse-report1.html --view`,
+            // @ts-expect-error
             shOptions
           ),
           sh(
             `lighthouse http://0.0.0.0:8080/search --chrome-flags="--headless" --output-path ./lighthouse-reports/lighthouse-report2.html --view`,
+            // @ts-expect-error
             shOptions
           ),
           sh(
             `lighthouse http://0.0.0.0:8080/settings --chrome-flags="--headless" --output-path ./lighthouse-reports/lighthouse-report3.html --view`,
+            // @ts-expect-error
             shOptions
           ),
           sh(
             `lighthouse http://0.0.0.0:8080/help --chrome-flags="--headless" --output-path ./lighthouse-reports/lighthouse-report4.html --view`,
+            // @ts-expect-error
             shOptions
           ),
           sh(
             `lighthouse http://0.0.0.0:8080/post/${randomPostId} --chrome-flags="--headless" --output-path ./lighthouse-reports/lighthouse-report5.html --view`,
+            // @ts-expect-error
             shOptions
           ),
         ])
@@ -163,11 +175,12 @@ const tests = {
           pDelay(1000).then(() =>
             fs.promises.rmdir(path.join(process.cwd(), 'lighthouse-reports'), { recursive: true })
           ),
+          // @ts-expect-error
           sh(`fkill :8080 --silent`, shOptions),
         ]).catch(err => console.error(err))
       )
   },
-  mocha(skipVideoTests = false) {
+  mocha(options, skipVideoTests = false) {
     const testEnvs = `NODE_ENV=production PUBLIC_FOLDER=frontend-build POSTS_MEDIA_DOWNLOAD_DIR='./test-posts-media' LOGDIR='./roffline-logs' DBPATH='./test-roffline-storage.db'`
     const shOptions = { ...shellOptions, async: true }
 
@@ -177,19 +190,21 @@ const tests = {
       `${testEnvs} mocha --recursive tests --ignore tests/__mocks --ignore tests/seed-data ${
         skipVideoTests ? '--ignore tests/unit/server/updates/download-video.test.js' : ''
       } --recursive --bail --extension .test.js --require tests/hooks.js --exit --diff=off`,
+      // @ts-expect-error
       shOptions
     )
       .catch(RA.noop)
       .finally(_ =>
+        // @ts-expect-error
         sh(`fkill :8080 --silent`, { silent: true, ...shOptions })
           .catch(RA.noop)
           .finally(() => process.exit(0))
       )
   },
   // skip downloadVideo tests as they can take 5-10 mins
-  mochaSansVideoTests() {
+  mochaSansVideoTests(options) {
     const skipVideoTests = true
-    tests.mocha(skipVideoTests)
+    tests.mocha(options, skipVideoTests)
   },
 }
 
