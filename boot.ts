@@ -13,21 +13,25 @@ envVarChecker(process.env, {
   LOGGING_LEVEL: str({ choices: ['debug', 'error'], default: 'error' }),
 })
 
+const twoSecondsInMs = 2000
+
 function bailOnFatalError(err: Error): void {
   console.error(err)
   // eslint-disable-next-line functional/no-try-statement
   try {
     // db.close(RA.noop)
-  } catch (error) {
-  } finally {
-    // eslint-disable-next-line functional/no-try-statement
-    try {
-      mainLogger.fatal(err)
-    } catch (error) {
-    } finally {
-      process.exit(1)
-    }
-  }
+  } catch (error) {}
+
+  // eslint-disable-next-line functional/no-try-statement
+  try {
+    mainLogger.fatal(err)
+  } catch (error) {}
+
+  /*****
+    Delay a little bit before exiting to allow the error to finish being written to log file in
+    the mainLogger.fatal() and db.close() calls above to finish.
+  *****/
+  setTimeout(_ => process.exit(1), twoSecondsInMs)
 }
 
 process.on('unhandledRejection', bailOnFatalError)
