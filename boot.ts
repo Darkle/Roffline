@@ -13,8 +13,6 @@ envVarChecker(process.env, {
   LOGGING_LEVEL: str({ choices: ['debug', 'error'], default: 'error' }),
 })
 
-const twoSecondsInMs = 2000
-
 function bailOnFatalError(err: Error): void {
   console.error(err)
   // eslint-disable-next-line functional/no-try-statement
@@ -27,6 +25,7 @@ function bailOnFatalError(err: Error): void {
     mainLogger.fatal(err)
   } catch (error) {}
 
+  const twoSecondsInMs = 2000
   /*****
     Delay a little bit before exiting to allow the error to finish being written to log file in
     the mainLogger.fatal() and db.close() calls above to finish.

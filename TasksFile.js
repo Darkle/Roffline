@@ -51,7 +51,7 @@ const build = {
         format: 'esm',
         minify: true,
         outdir: path.join('frontend-build', 'js'),
-        target: ['es2020', 'chrome58', 'firefox57', 'safari11', 'edge16', 'node12'],
+        target: ['Firefox78', 'Chrome90', 'Safari14', 'iOS14'],
       })
       .catch(() => process.exit(1))
   },
@@ -86,7 +86,7 @@ const tests = {
   sonarqube() {
     // You need a SONAR_TOKEN env varible set for this to work. You can get one from https://sonarcloud.io/
     sh(
-      `sonar-scanner -Dsonar.organization=coopcoding -Dsonar.projectKey=CoopCoding_Roffline -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.exclusions=frontend/static/**/*`,
+      `sonar-scanner -Dsonar.organization=darkle -Dsonar.projectKey=Roffline -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.exclusions=frontend/static/**/*`,
       shellOptions
     )
     /*****
@@ -181,6 +181,7 @@ const tests = {
       )
   },
   mocha(options, skipVideoTests = false) {
+    //INFO: if using a test.env file, remember that in package.json we are pre-requireing dotenv, so double check package.json <<<<<<<<<<
     const testEnvs = `NODE_ENV=production PUBLIC_FOLDER=frontend-build POSTS_MEDIA_DOWNLOAD_DIR='./test-posts-media' LOGDIR='./roffline-logs' DBPATH='./test-roffline-storage.db'`
     const shOptions = { ...shellOptions, async: true }
 
