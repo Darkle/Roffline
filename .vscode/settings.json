@@ -16,6 +16,8 @@
     "*.js.map": true,
     "server/**/*.js": true,
     "server/**/*.js.map": true,
+    "logging/**/*.js": true,
+    "logging/**/*.js.map": true,
     "frontend/js/**/*.js": true,
     "frontend/js/**/*.js.map": true
   },

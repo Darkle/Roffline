@@ -44,7 +44,7 @@ const build = {
     sh(`foreach --glob "frontend-build/**/*.css" --execute "csso --input #{path} --output #{path}"`, shellOptions)
   },
   minifyJS() {
-    require('esbuild')
+    esbuild
       .build({
         entryPoints: ['app.jsx'],
         bundle: true,

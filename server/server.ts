@@ -15,6 +15,7 @@ import fastifyCsrf from 'fastify-csrf'
 import * as Eta from 'eta'
 
 import { isDev, getEnvFilePath } from './utils'
+import { mainLogger } from '../logging/logging'
 
 // type unused = unknown
 
@@ -23,7 +24,7 @@ const port = 3000
 const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
 
 const fastify = createFastify({
-  logger: isDev ? { prettyPrint: true } : false,
+  logger: isDev ? mainLogger : false,
   ignoreTrailingSlash: true,
   onProtoPoisoning: 'remove',
 })

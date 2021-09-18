@@ -7,13 +7,13 @@
     "update": "ncu --interactive --target minor",
     "task": "node ./TasksFile.js",
     "twatch": "npx ttsc --watch --incremental",
-    "dev": "NODE_ENV=development node ./TasksFile.js dev:start",
-    "inspect": "NODE_ENV=development node ./TasksFile.js dev:inspect",
+    "dev": "NODE_ENV=development LOGGING_LEVEL=debug node ./TasksFile.js dev:start",
+    "inspect": "NODE_ENV=development LOGGING_LEVEL=debug node ./TasksFile.js dev:inspect",
     "test": "node ./TasksFile.js testAll",
     "eslint": "node ./TasksFile.js tests:eslint",
     "build": "node ./TasksFile.js buildAll",
     "updateTypes": "ts-typie",
-    "start": "NODE_ENV=production PUBLIC_FOLDER=frontend-build node ./boot.js"
+    "start": "NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node ./boot.js"
   },
   "engines": {
     "node": ">=14.17.6"
@@ -51,7 +51,8 @@
     "point-of-view": "^4.15.2",
     "pratica": "^2.0.3",
     "ramda": "^0.27.1",
-    "ramda-adjunct": "^2.33.0"
+    "ramda-adjunct": "^2.33.0",
+    "rotating-file-stream": "^2.1.5"
   },
   "devDependencies": {
     "@types/browser-sync": "^2.26.2",
@@ -92,6 +93,7 @@
     "ncp": "^2.0.0",
     "nodemon": "^2.0.12",
     "npm-check-updates": "^11.8.5",
+    "pino-pretty": "^7.0.0",
     "pre-commit": "^1.2.2",
     "snyk": "^1.716.0",
     "stylelint": "^13.13.1",
