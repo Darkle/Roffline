@@ -8,11 +8,9 @@ type Options = {
 
 const maxFiles = 5
 
-export default (options: Options): RotatingFileStream => {
-  console.log(options)
-  return rotatingFileStream.createStream(path.join(options.outDir, 'roffline.log'), {
+export default (options: Options): RotatingFileStream =>
+  rotatingFileStream.createStream(path.join(options.outDir, 'roffline.log'), {
     size: '5M',
     interval: '2d',
     maxFiles,
   })
-}
