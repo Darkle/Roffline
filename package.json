@@ -29,6 +29,7 @@
   "dependencies": {
     "@alpinejs/intersect": "^3.3.4",
     "alpinejs": "^3.3.4",
+    "date-fns": "^2.24.0",
     "dotenv": "^10.0.0",
     "envalid": "^7.2.1",
     "eta": "^1.12.3",
@@ -46,6 +47,7 @@
     "gridjs": "^5.0.2",
     "http-status-codes": "^2.1.4",
     "lazy-object-view": "^1.2.1",
+    "luxon": "^2.0.2",
     "p-tap": "^4.0.0",
     "pino": "^7.0.0-rc.4",
     "point-of-view": "^4.15.2",
