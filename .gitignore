@@ -8,6 +8,8 @@ db/**/*.js
 db/**/*.js.map
 downloads/**/*.js
 downloads/**/*.js.map
+boot.js
+boot.js.map
 frontend-build/**/*
 roffline-logs
 roffline-storage.db
