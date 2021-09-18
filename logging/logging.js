@@ -1,4 +1,5 @@
 import Pino from '../node_modules/pino/pino.js';
+import { getEnvFilePath } from '../server/utils.js';
 const pinoOptions = {
     name: 'roffline',
     level: process.env['LOGGING_LEVEL'],
@@ -14,7 +15,7 @@ const transports = Pino.transport({
         {
             level: process.env['LOGGING_LEVEL'],
             target: './file-logging-transport.js',
-            options: { outDir: process.env['LOGDIR'] },
+            options: { outDir: getEnvFilePath(process.env['LOGDIR']) },
         },
     ],
 });

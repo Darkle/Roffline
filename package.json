@@ -5,15 +5,15 @@
   "main": "index.js",
   "scripts": {
     "update": "ncu --interactive --target minor",
-    "task": "node ./TasksFile.js",
+    "task": "node -r dotenv/config ./TasksFile.js",
     "twatch": "npx ttsc --watch --incremental",
-    "dev": "NODE_ENV=development LOGGING_LEVEL=debug node ./TasksFile.js dev:start",
-    "inspect": "NODE_ENV=development LOGGING_LEVEL=debug node ./TasksFile.js dev:inspect",
+    "dev": "NODE_ENV=development LOGGING_LEVEL=debug node -r dotenv/config ./TasksFile.js dev:start",
+    "inspect": "NODE_ENV=development LOGGING_LEVEL=debug node -r dotenv/config ./TasksFile.js dev:inspect",
     "test": "node ./TasksFile.js testAll",
     "eslint": "node ./TasksFile.js tests:eslint",
     "build": "node ./TasksFile.js buildAll",
     "updateTypes": "ts-typie",
-    "start": "NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node ./boot.js"
+    "start": "NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r dotenv/config ./boot.js"
   },
   "engines": {
     "node": ">=14.17.6"

@@ -1,5 +1,3 @@
-import dotenv from './node_modules/dotenv/lib/main.js';
-dotenv.config();
 import { cleanEnv as envVarChecker, str, port } from 'envalid';
 import { startServer } from './server/server.js';
 import { mainLogger } from './logging/logging.js';

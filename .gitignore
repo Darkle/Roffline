@@ -2,6 +2,12 @@ server/**/*.js
 server/**/*.js.map
 frontend/js/**/*.js
 frontend/js/**/*.js.map
+logging/**/*.js
+logging/**/*.js.map
+db/**/*.js
+db/**/*.js.map
+downloads/**/*.js
+downloads/**/*.js.map
 frontend-build/**/*
 roffline-logs
 roffline-storage.db

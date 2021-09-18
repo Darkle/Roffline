@@ -1,11 +1,18 @@
-import { Writable } from 'node:stream'
+import path from 'node:path'
 
-export default options => {
-  const myTransportStream = new Writable({
-    write(chunk: string | Buffer, _, cb): void {
-      console.log(chunk.toString())
-      cb()
-    },
+import rotatingFileStream, { RotatingFileStream } from 'rotating-file-stream'
+
+type Options = {
+  readonly outDir: string
+}
+
+const maxFiles = 5
+
+export default (options: Options): RotatingFileStream => {
+  console.log(options)
+  return rotatingFileStream.createStream(path.join(options.outDir, 'roffline.log'), {
+    size: '5M',
+    interval: '2d',
+    maxFiles,
   })
-  return myTransportStream
 }

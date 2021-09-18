@@ -1,6 +1,3 @@
-/* eslint-disable import/first, eslint-comments/disable-enable-pair */
-import dotenv from 'dotenv'
-dotenv.config() // this needs to be first
 import { cleanEnv as envVarChecker, str, port } from 'envalid'
 
 import { startServer } from './server/server'
