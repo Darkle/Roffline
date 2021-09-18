@@ -1,4 +1,5 @@
 import Pino, { pino } from 'pino'
+import { formatISO } from 'date-fns'
 
 import { getEnvFilePath } from '../server/utils'
 
@@ -6,6 +7,10 @@ const pinoOptions = {
   name: 'roffline',
   level: process.env['LOGGING_LEVEL'],
   base: undefined,
+  // eslint-disable-next-line functional/functional-parameters
+  timestamp(): string {
+    return `,"time":"${formatISO(new Date(), { representation: 'complete' })}"`
+  },
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -25,9 +30,7 @@ const transports = Pino.transport({
 })
 
 const mainLogger = Pino(pinoOptions, transports)
-mainLogger.debug('hello')
-mainLogger.error(new Error('this is an error'))
-
+mainLogger.error(new Error('hello from here'))
 const feedsLogger = mainLogger.child({ sublogger: 'feeds' })
 
 const mediaDownloadsLogger = mainLogger.child({ sublogger: 'media-downloads' })
