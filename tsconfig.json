@@ -41,8 +41,9 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
+    "strictPropertyInitialization": false,
     "target": "ES2020"
   },
   "exclude": ["node_modules", "**/*.spec.ts"],
-  "include": ["frontend/js/**/*", "server/**/*", "./boot.ts", "typings.d.ts", "logging"]
+  "include": ["frontend/js/**/*", "server/**/*", "./boot.ts", "typings.d.ts", "logging", "downloads", "db"]
 }

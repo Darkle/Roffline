@@ -2,6 +2,7 @@ import { cleanEnv as envVarChecker, str, port } from 'envalid'
 
 import { startServer } from './server/server'
 import { mainLogger } from './logging/logging'
+import { db } from './db/db'
 
 envVarChecker(process.env, {
   PORT: port({ default: 8080 }), // eslint-disable-line @typescript-eslint/no-magic-numbers
@@ -44,8 +45,11 @@ process.on('uncaughtException', bailOnFatalError)
 //     console.error(err)
 //     process.exit(1)
 //   })
-startServer().catch(err => {
-  console.error(err)
-  mainLogger.fatal(err)
-  process.exit(1)
-})
+
+db.init()
+  .then(startServer)
+  .catch(err => {
+    console.error(err)
+    mainLogger.fatal(err)
+    process.exit(1)
+  })

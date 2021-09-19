@@ -19,7 +19,11 @@
     "logging/**/*.js": true,
     "logging/**/*.js.map": true,
     "frontend/js/**/*.js": true,
-    "frontend/js/**/*.js.map": true
+    "frontend/js/**/*.js.map": true,
+    "db/**/*.js": true,
+    "db/**/*.js.map": true,
+    "downloads/**/*.js": true,
+    "downloads/**/*.js.map": true
   },
   "search.exclude": {
     "tsconfig.tsbuildinfo": true,

@@ -54,7 +54,9 @@
     "pratica": "^2.0.3",
     "ramda": "^0.27.1",
     "ramda-adjunct": "^2.33.0",
-    "rotating-file-stream": "^2.1.5"
+    "rotating-file-stream": "^2.1.5",
+    "sqlite3": "^5.0.2",
+    "typeorm": "^0.2.37"
   },
   "devDependencies": {
     "@types/browser-sync": "^2.26.2",
