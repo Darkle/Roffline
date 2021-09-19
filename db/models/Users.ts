@@ -1,7 +1,5 @@
 import { Entity, PrimaryColumn, Column } from 'typeorm'
 
-/* eslint-disable functional/prefer-readonly-type */
-
 @Entity()
 export class Users {
   @PrimaryColumn()

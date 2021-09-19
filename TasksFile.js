@@ -211,7 +211,8 @@ const tests = {
 
 const db = {
   createDBTables() {
-    sh(`sqlite3 ${process.env.DBPATH} < ./db/init.sql`)
+    fs.statSync(process.env.DBPATH || './roffline-storage.db', { throwIfNoEntry: false }) &&
+      sh(`sqlite3 ${process.env.DBPATH} < ./db/init.sql`)
   },
   // clearsubstables() {
   //   const queryForAllSubsTruncate = sh(

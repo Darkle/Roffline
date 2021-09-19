@@ -1,13 +1,12 @@
 import { Entity, PrimaryColumn, Column } from 'typeorm'
 
-/* eslint-disable functional/prefer-readonly-type */
-
 @Entity()
 export class Posts {
   @PrimaryColumn()
-  id: string
+  postId: string
 
-  @Column()
+  // Using COLLATE NOCASE for subreddit column so dont have to deal with case when doing a where clause.
+  @Column({ collation: 'NOCASE' })
   subreddit: string
 
   @Column()

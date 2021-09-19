@@ -1,9 +1,7 @@
-import { Entity, PrimaryGeneratedColumn } from 'typeorm'
-
-/* eslint-disable functional/prefer-readonly-type */
+import { Entity, PrimaryColumn } from 'typeorm'
 
 @Entity()
 export class FeedsToFetch {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   feed: string
 }

@@ -1,8 +1,9 @@
-import path from 'node:path'
-
 import { createConnection, getConnection, Connection } from 'typeorm'
 
+import { models } from './models/index'
 import { firstRun } from './db-first-run'
+
+const threeSecondsInMS = 3000
 
 const db = {
   connection: getConnection,
@@ -10,10 +11,13 @@ const db = {
     return createConnection({
       type: 'sqlite',
       database: process.env['DBPATH'] ? process.env['DBPATH'] : './roffline-storage.db',
-      entities: [path.join(process.cwd(), 'db', '/models/*.js')],
-      synchronize: true,
-      logging: false,
+      entities: [...models],
+      logging: false, //If set to true then query and error logging will be enabled.
+      maxQueryExecutionTime: threeSecondsInMS,
     }).then(firstRun)
+  },
+  close(): Promise<void> {
+    return db.connection().close()
   },
 }
 
