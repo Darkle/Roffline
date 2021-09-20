@@ -1,16 +1,9 @@
-import { Entity, Column, OneToOne, JoinColumn, PrimaryColumn } from 'typeorm'
-
-import { Comments } from './Comments'
+import { Entity, Column, PrimaryColumn } from 'typeorm'
 
 @Entity()
 export class Posts {
   @PrimaryColumn({ type: 'text' })
   postId: string
-
-  // Remove the corresponding comments row from Comments table
-  @OneToOne(() => Comments, { cascade: ['remove'] })
-  @JoinColumn()
-  comments: Comments
 
   // Using COLLATE NOCASE for subreddit column so dont have to deal with case when doing a where clause.
   @Column({ collation: 'NOCASE', type: 'text' })
