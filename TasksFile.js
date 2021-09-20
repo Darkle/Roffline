@@ -211,8 +211,10 @@ const tests = {
 
 const db = {
   createDBTables() {
-    fs.statSync(process.env.DBPATH || './roffline-storage.db', { throwIfNoEntry: false }) &&
-      sh(`sqlite3 ${process.env.DBPATH} < ./db/init.sql`)
+    const dbPath = process.env.DBPATH || './roffline-storage.db'
+    const dbFileDoesNotExist = !fs.statSync(dbPath, { throwIfNoEntry: false })
+
+    dbFileDoesNotExist && sh(`sqlite3 ${dbPath} < ./db/init.sql`)
   },
   // clearsubstables() {
   //   const queryForAllSubsTruncate = sh(

@@ -2,6 +2,6 @@ import { Entity, PrimaryColumn } from 'typeorm'
 
 @Entity()
 export class FeedsToFetch {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'text' })
   feed: string
 }

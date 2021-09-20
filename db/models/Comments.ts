@@ -2,9 +2,9 @@ import { Entity, PrimaryColumn, Column } from 'typeorm'
 
 @Entity()
 export class Comments {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'text' })
   postId: string
 
-  @Column()
+  @Column({ type: 'text' })
   comments: string
 }

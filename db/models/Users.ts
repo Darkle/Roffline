@@ -2,21 +2,21 @@ import { Entity, PrimaryColumn, Column } from 'typeorm'
 
 @Entity()
 export class Users {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'text' })
   name: string
 
-  @Column()
-  subreddits: string
+  @Column({ type: 'simple-array', default: '' })
+  subreddits: string[]
 
-  @Column()
+  @Column({ default: true })
   hideStickiedPosts: boolean
 
-  @Column()
+  @Column({ default: false })
   onlyShowTitlesInFeed: boolean
 
-  @Column()
+  @Column({ default: false })
   infiniteScroll: boolean
 
-  @Column()
+  @Column({ default: false })
   darkModeTheme: boolean
 }

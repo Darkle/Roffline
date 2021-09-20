@@ -4,6 +4,7 @@ import { Entity, PrimaryColumn } from 'typeorm'
 export class SubredditsMasterList {
   @PrimaryColumn({
     collation: 'NOCASE',
+    type: 'text',
   })
   subreddit: string
 }

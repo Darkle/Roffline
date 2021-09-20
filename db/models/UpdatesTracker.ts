@@ -5,6 +5,6 @@ export class UpdatesTracker {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column()
+  @Column({ type: 'text' })
   lastUpdateDateAsString: string
 }

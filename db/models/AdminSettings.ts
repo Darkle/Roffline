@@ -5,30 +5,30 @@ export class AdminSettings {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column()
+  @Column({ default: true })
   downloadComments: boolean
 
-  @Column()
+  @Column({ default: 2 })
   numberDownloadsAtOnce: number
 
-  @Column()
+  @Column({ default: false })
   downloadVideos: boolean
 
-  @Column()
+  @Column({ type: 'text', default: '300' })
   videoDownloadMaxFileSize: string
 
-  @Column()
+  @Column({ type: 'text', default: '480p' })
   videoDownloadResolution: string
 
-  @Column()
+  @Column({ default: true })
   updateAllDay: boolean
 
-  @Column()
+  @Column({ default: 1 })
   updateStartingHour: number
 
-  @Column()
+  @Column({ default: 5 }) // eslint-disable-line @typescript-eslint/no-magic-numbers
   updateEndingHour: number
 
-  @Column()
+  @Column({ default: false })
   firstRun: boolean
 }

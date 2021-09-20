@@ -1,68 +1,72 @@
-import { Entity, PrimaryColumn, Column } from 'typeorm'
+import { Entity, Column, OneToOne, JoinColumn, PrimaryColumn } from 'typeorm'
+
+import { Comments } from './Comments'
 
 @Entity()
 export class Posts {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'text' })
   postId: string
 
+  // Remove the corresponding comments row from Comments table
+  @OneToOne(() => Comments, { cascade: ['remove'] })
+  @JoinColumn()
+  comments: Comments
+
   // Using COLLATE NOCASE for subreddit column so dont have to deal with case when doing a where clause.
-  @Column({ collation: 'NOCASE' })
+  @Column({ collation: 'NOCASE', type: 'text' })
   subreddit: string
 
-  @Column()
+  @Column({ type: 'text' })
   author: string
 
-  @Column()
+  @Column({ type: 'text' })
   title: string
 
-  @Column()
+  @Column({ type: 'text', nullable: true, default: null })
   selftext: string
 
-  @Column()
+  @Column({ type: 'text', nullable: true, default: null })
   selftext_html: string
 
   @Column()
   score: number
 
-  @Column()
+  @Column({ default: false })
   is_reddit_media_domain: boolean
 
-  @Column()
+  @Column({ default: false })
   is_self: boolean
 
   @Column()
   created_utc: number
 
-  @Column()
+  @Column({ type: 'text' })
   domain: string
 
-  @Column()
+  @Column({ default: false })
   is_video: boolean
 
-  @Column()
+  @Column({ default: false })
   stickied: boolean
 
-  @Column()
+  @Column({ default: false })
   media_has_been_downloaded: boolean
 
-  @Column()
+  @Column({ default: 0 })
   mediaDownloadTries: number
 
-  @Column()
+  @Column({ type: 'text', nullable: true, default: null })
   post_hint: string
 
-  @Column()
+  @Column({ type: 'text' })
   permalink: string
 
-  @Column()
+  @Column({ type: 'text' })
   url: string
 
-  @Column()
+  @Column({ type: 'text', nullable: true, default: null })
   media: string
 
-  @Column()
-  comments: string
-
-  @Column()
+  @Column({ type: 'text', nullable: true, default: null })
   crosspost_parent: string
 }
