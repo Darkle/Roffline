@@ -118,7 +118,7 @@ module.exports = {
         camelcase: 'off',
         'capitalized-comments': ['off'],
         complexity: ['error', 4],
-        'consistent-return': 'error',
+        'consistent-return': 'off',
         'comma-dangle': 'off',
         'dot-notation': 'off',
         'no-underscore-dangle': 'off',

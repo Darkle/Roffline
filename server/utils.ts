@@ -6,4 +6,7 @@ const isAbsolutePath = (pth = ''): boolean => pth.startsWith('/')
 
 const getEnvFilePath = (pth = ''): string => (isAbsolutePath(pth) ? pth : path.join(process.cwd(), pth))
 
-export { isDev, getEnvFilePath }
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = (): void => {}
+
+export { isDev, getEnvFilePath, noop }

@@ -1,16 +1,16 @@
-import { Entity, Column, OneToOne, JoinColumn, PrimaryColumn } from 'typeorm'
+import { Entity, Column, OneToOne, JoinColumn, PrimaryColumn, BaseEntity } from 'typeorm'
 
 import { Comments } from './Comments'
 
-@Entity()
-export class Posts {
+@Entity('posts')
+export class Post extends BaseEntity {
   @PrimaryColumn({ type: 'text' })
   postId: string
 
   // Remove the corresponding comments row from Comments table
-  @OneToOne(() => Comments, { eager: false, cascade: ['remove'], onDelete: 'CASCADE' })
+  @OneToOne(() => Comments, { eager: false, onDelete: 'CASCADE' })
   @JoinColumn()
-  comments: Comments
+  comments: Promise<Comments>
 
   // Using COLLATE NOCASE for subreddit column so dont have to deal with case when doing a where clause.
   @Column({ collation: 'NOCASE', type: 'text' })

@@ -1,11 +1,11 @@
 import { AdminSettings } from './AdminSettings'
 import { Comments } from './Comments'
 import { FeedsToFetch } from './FeedsToFetch'
-import { Posts } from './Posts'
+import { Post } from './Posts'
 import { SubredditsMasterList } from './SubredditsMasterList'
 import { UpdatesTracker } from './UpdatesTracker'
-import { Users } from './Users'
+import { User } from './Users'
 
-const models = [AdminSettings, Comments, FeedsToFetch, Posts, SubredditsMasterList, UpdatesTracker, Users]
+const Entities = [AdminSettings, Comments, FeedsToFetch, Post, SubredditsMasterList, UpdatesTracker, User]
 
-export { models }
+export { Entities }

@@ -1,7 +1,7 @@
-import { Entity, PrimaryColumn, Column } from 'typeorm'
+import { Entity, PrimaryColumn, Column, BaseEntity } from 'typeorm'
 
-@Entity()
-export class Users {
+@Entity('users')
+export class User extends BaseEntity {
   @PrimaryColumn({ type: 'text' })
   name: string
 

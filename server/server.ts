@@ -64,7 +64,6 @@ fastify.get('/', (_, reply) => {
 })
 // fastify.get('/', (request, reply) => reply.send({ hello: 'world' }))
 
-// eslint-disable-next-line functional/functional-parameters
 const startServer = (): Promise<string> => fastify.listen(port, '0.0.0.0')
 
 export { startServer }

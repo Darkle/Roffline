@@ -7,6 +7,7 @@ const pinoOptions = {
   name: 'roffline',
   level: process.env['LOGGING_LEVEL'],
   base: undefined,
+  // eslint-disable-next-line functional/functional-parameters
   timestamp(): string {
     return `,"time":"${formatISO(new Date(), { representation: 'complete' })}"`
   },

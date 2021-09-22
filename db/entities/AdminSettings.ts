@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm'
 
 @Entity()
-export class AdminSettings {
+export class AdminSettings extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number
 
@@ -28,7 +28,4 @@ export class AdminSettings {
 
   @Column({ default: 5 }) // eslint-disable-line @typescript-eslint/no-magic-numbers
   updateEndingHour: number
-
-  @Column({ default: false })
-  firstRun: boolean
 }

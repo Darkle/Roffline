@@ -5,7 +5,6 @@ import path from 'node:path'
 
 import { cli, sh } from 'tasksfile'
 import clc from 'cli-color'
-import RA from 'ramda-adjunct'
 import esbuild from 'esbuild'
 
 const shellOptions = { nopipe: true, async: undefined }
@@ -19,6 +18,8 @@ const pDelay = ms =>
   new Promise(resolve => {
     setTimeout(resolve, ms)
   })
+
+const noop = _ => {}
 
 /*****
   You can run any of these tasks manually like this: npx task tests:npmaudit
@@ -122,7 +123,7 @@ const tests = {
         async: true,
       }
     )
-      .catch(RA.noop)
+      .catch(noop)
       .finally(_ => sh(`fkill :8080 --silent`, shellOptions))
   },
   lighthouse() {
@@ -169,7 +170,7 @@ const tests = {
           ),
         ])
       )
-      .catch(RA.noop)
+      .catch(noop)
       .finally(_ =>
         Promise.all([
           pDelay(1000).then(() =>
@@ -194,11 +195,11 @@ const tests = {
       // @ts-expect-error
       shOptions
     )
-      .catch(RA.noop)
+      .catch(noop)
       .finally(_ =>
         // @ts-expect-error
         sh(`fkill :8080 --silent`, { silent: true, ...shOptions })
-          .catch(RA.noop)
+          .catch(noop)
           .finally(() => process.exit(0))
       )
   },
