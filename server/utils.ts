@@ -9,4 +9,27 @@ const getEnvFilePath = (pth = ''): string => (isAbsolutePath(pth) ? pth : path.j
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = (): void => {}
 
-export { isDev, getEnvFilePath, noop }
+const strOrArrayOfStrToLowerCase = (thingOrThings: string | string[]): string | string[] =>
+  Array.isArray(thingOrThings) ? thingOrThings.map(thing => thing.toLowerCase()) : thingOrThings.toLowerCase()
+
+function encaseInArrayIfNotArray<Type>(thing: Type): Type[] {
+  return Array.isArray(thing) ? thing : [thing]
+}
+
+function isNonEmptyArray<Type>(thing: Type): boolean {
+  return Array.isArray(thing) && thing.length > 0
+}
+
+function arrayToLowerCase(arr: string[]): string[] {
+  return arr.map(thing => thing.toLowerCase())
+}
+
+export {
+  isDev,
+  getEnvFilePath,
+  noop,
+  strOrArrayOfStrToLowerCase,
+  isNonEmptyArray,
+  encaseInArrayIfNotArray,
+  arrayToLowerCase,
+}
