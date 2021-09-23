@@ -12,6 +12,7 @@ envVarChecker(process.env, {
   DBPATH: str({ default: './roffline-storage.db' }),
   NODE_ENV: str({ choices: ['development', 'test', 'testing', 'production'] }),
   LOGGING_LEVEL: str({ choices: ['debug', 'error'], default: 'error' }),
+  ADMIN_PASS: str({ default: 'foo' }),
 })
 
 function bailOnFatalError(err: Error): void {
