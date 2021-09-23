@@ -35,9 +35,7 @@ const db = {
     )
   },
   setLastScheduledUpdateTime(date: string | Date): Promise<UpdateResult> {
-    const dateAsString = typeof date === 'string' ? date : date.toString()
-
-    return UpdatesTracker.update(1, { lastUpdateDateAsString: dateAsString })
+    return UpdatesTracker.update(1, { lastUpdateDateAsString: date.toString() })
   },
   getUserSettings(userName: string): Promise<User | Maybe<User>> {
     return User.findOne({ name: userName }).then(MaybeNullable)
