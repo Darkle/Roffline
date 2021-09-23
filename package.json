@@ -12,7 +12,8 @@
     "test": "node ./TasksFile.js testAll",
     "build": "node ./TasksFile.js buildProd",
     "updateTypes": "ts-typie",
-    "start": "NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r dotenv/config ./boot.js"
+    "fixmodules": "./TasksFile.js fixNodeModulesForESModuleSupport:run",
+    "start": "npm run fixmodules && NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r dotenv/config ./boot.js"
   },
   "engines": {
     "node": ">=14.17.6"
