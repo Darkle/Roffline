@@ -1,5 +1,14 @@
 import { Entity, PrimaryColumn, Column, BaseEntity } from 'typeorm'
 
+type UserType = {
+  name: string
+  subreddits: string[]
+  hideStickiedPosts: boolean
+  onlyShowTitlesInFeed: boolean
+  infiniteScroll: boolean
+  darkModeTheme: boolean
+}
+
 @Entity('users')
 export class User extends BaseEntity {
   @PrimaryColumn({ type: 'text' })
@@ -20,3 +29,5 @@ export class User extends BaseEntity {
   @Column({ default: false })
   darkModeTheme: boolean
 }
+
+export { UserType }
