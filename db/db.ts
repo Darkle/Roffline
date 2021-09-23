@@ -2,7 +2,7 @@ import fs from 'node:fs'
 
 import { createConnection, getConnection, UpdateResult } from 'typeorm'
 import * as R from 'ramda'
-import { Maybe, get as MaybeGet, nullable as MaybeNullable, Nothing, Just } from 'pratica'
+import { Maybe, get as MaybeGet, nullable as MaybeNullable } from 'pratica'
 
 import { UpdatesTracker } from './entities/UpdatesTracker'
 import { SubredditsMasterList } from './entities/SubredditsMasterList'
@@ -54,13 +54,13 @@ const db = {
     const isSingleSubredditUpdate = isSubredditSetting && !Array.isArray(settingValue)
 
     return isSingleSubredditUpdate
-      ? db.addUserSubredditSingle(userName, settingValue as string)
+      ? db.addUserSubreddit(userName, settingValue as string)
       : isSubredditSetting
-      ? db.addUserSubreddits(userName, settingValue as string[])
+      ? db.batchAddUserSubreddits(userName, settingValue as string[])
       : User.update({ name: userName }, { [settingName]: [settingValue] })
     // return User.update({ name: userName }, { [settingName]: [settingValue] })
   },
-  addUserSubreddits(username: string, subreddits: string[]): Promise<void | UpdateResult> {
+  batchAddUserSubreddits(username: string, subreddits: string[]): Promise<void | UpdateResult> {
     const subs = R.map(R.toLower, subreddits)
 
     return db
@@ -73,15 +73,15 @@ const db = {
         })
       )
   },
-  addUserSubredditSingle(username: string, subreddit: string): Promise<void | UpdateResult> {
-    return db.addUserSubreddits(username, [subreddit])
+  addUserSubreddit(username: string, subreddit: string): Promise<void | UpdateResult> {
+    return db.batchAddUserSubreddits(username, [subreddit])
   },
   getAllSubreddits(): Promise<Maybe<string[]>> {
     return SubredditsMasterList.find({ select: ['subreddit'] }).then(results =>
       MaybeNullable(results).map(R.pluck('subreddit'))
     )
   },
-  batchAddSubredditsToMasterList(subreddits: string[]): Promise<void | UpdateResult> {
+  batchAddSubredditsToMasterList(subreddits: string[]): Promise<UpdateResult> {
     const subs = subreddits.map(sub => ({ subreddit: sub.toLocaleLowerCase() }))
 
     return getConnection()
