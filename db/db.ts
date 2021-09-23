@@ -2,6 +2,7 @@ import fs from 'node:fs'
 
 import { createConnection, getConnection, UpdateResult } from 'typeorm'
 import * as R from 'ramda'
+import { match } from 'ts-pattern'
 import { Maybe, get as MaybeGet, nullable as MaybeNullable } from 'pratica'
 
 import { UpdatesTracker } from './entities/UpdatesTracker'
@@ -48,15 +49,19 @@ const db = {
     settingName: string,
     settingValue: string | boolean | string[]
   ): Promise<void | UpdateResult> {
-    const isSubredditSetting = settingName === 'subreddits'
-    const isSingleSubredditUpdate = isSubredditSetting && !Array.isArray(settingValue)
+    const update = {
+      settingName,
+      settingValIsArray: Array.isArray(settingValue),
+    }
 
-    return isSingleSubredditUpdate
-      ? db.addUserSubreddit(userName, settingValue as string)
-      : isSubredditSetting
-      ? db.batchAddUserSubreddits(userName, settingValue as string[])
-      : User.update({ name: userName }, { [settingName]: [settingValue] })
-    // return User.update({ name: userName }, { [settingName]: [settingValue] })
+    return match(update)
+      .with({ settingName: 'subreddits', settingValIsArray: false }, () =>
+        db.addUserSubreddit(userName, settingValue as string)
+      )
+      .with({ settingName: 'subreddits', settingValIsArray: true }, () =>
+        db.batchAddUserSubreddits(userName, settingValue as string[])
+      )
+      .otherwise(() => User.update({ name: userName }, { [settingName]: [settingValue] }))
   },
   batchAddUserSubreddits(username: string, subreddits: string[]): Promise<void | UpdateResult> {
     const subs = R.map(R.toLower, subreddits)
