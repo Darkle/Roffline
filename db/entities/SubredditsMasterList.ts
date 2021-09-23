@@ -1,7 +1,7 @@
-import { Entity, PrimaryColumn } from 'typeorm'
+import { Entity, PrimaryColumn, BaseEntity } from 'typeorm'
 
 @Entity()
-export class SubredditsMasterList {
+export class SubredditsMasterList extends BaseEntity {
   @PrimaryColumn({
     collation: 'NOCASE',
     type: 'text',
