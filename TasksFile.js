@@ -65,6 +65,7 @@ const build = {
         bundle: true,
         format: 'esm',
         minify: true,
+        treeShaking: true,
         outdir: path.join('frontend-build', 'js'),
         target: ['Firefox78', 'Chrome90', 'Safari14', 'iOS14'],
       })

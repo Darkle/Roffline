@@ -49,12 +49,12 @@ const db = {
     settingName: string,
     settingValue: string | boolean | string[]
   ): Promise<void | UpdateResult> {
-    const update = {
+    const updateDetails = {
       settingName,
       settingValIsArray: Array.isArray(settingValue),
     }
 
-    return match(update)
+    return match(updateDetails)
       .with({ settingName: 'subreddits', settingValIsArray: false }, () =>
         db.addUserSubreddit(userName, settingValue as string)
       )
@@ -64,7 +64,6 @@ const db = {
       .otherwise(() => User.update({ name: userName }, { [settingName]: [settingValue] }))
   },
   batchAddUserSubreddits(username: string, subreddits: string[]): Promise<void | UpdateResult> {
-    // Have to lowercase this as its stored as json stringified array.
     const subs = R.map(R.toLower, subreddits)
 
     return db
@@ -86,7 +85,7 @@ const db = {
     )
   },
   batchAddSubredditsToMasterList(subreddits: string[]): Promise<UpdateResult> {
-    const subs = subreddits.map(subreddit => ({ subreddit }))
+    const subs = subreddits.map(sub => ({ subreddit: sub.toLocaleLowerCase() }))
 
     return getConnection()
       .createQueryBuilder()
@@ -101,20 +100,24 @@ const db = {
 export { db }
 
 setTimeout(() => {
+  getConnection()
+    .createQueryRunner()
+    .hasTable('users')
+    .then(res => console.log(res))
   // User.save(User.create({ name: 'foo' }))
   //   .then(res => {
   //     console.log(res)
   //   })
   //   .then(() =>
-  db.getAllSubreddits()
-    .then(res => {
-      // console.log(res)
-      res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
-      return db.batchAddSubredditsToMasterList(['derp', 'welp'])
-    })
-    .then(_ => db.getAllSubreddits())
-    // .then(res => console.dir(JSON.stringify(res)))
-    .then(res => res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') }))
+  // db.getAllSubreddits()
+  // .then(res => {
+  // console.log(res)
+  // res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
+  // return db.batchAddSubredditsToMasterList(['derp', 'welp'])
+  // })
+  // .then(_ => db.getAllSubreddits())
+  // .then(res => console.dir(JSON.stringify(res)))
+  // .then(res => res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') }))
   // )
   // console.log(Object.keys(User))
 }, 2000) // eslint-disable-line @typescript-eslint/no-magic-numbers
