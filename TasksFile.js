@@ -28,8 +28,9 @@ const noop = _ => {}
 const dev = {
   start() {
     const browserync = `browser-sync start --watch --reload-delay 1500 --no-open --no-notify --no-ui --no-ghost-mode --no-inject-changes --files=./frontend/**/* --files=./server/**/* --files=./boot.js --ignore=node_modules --port 8081 --proxy '127.0.0.1:3000' --host '0.0.0.0'`
-    const nodemon = `nodemon ./boot.js --watch server --ext js,njk,eta`
-    sh(`concurrently --raw --prefix=none "${nodemon}" "${browserync}"`, shellOptions)
+    // const nodemon = `nodemon ./boot.js --watch server --ext js,njk,eta`
+    const frontendTSWatch = `ttsc --project ./tsconfig-frontend.json --watch --incremental`
+    sh(`concurrently --raw --prefix=none "${frontendTSWatch}" "${browserync}"`, shellOptions)
   },
   inspect() {
     sh(`node --inspect ./boot.js`, shellOptions)
@@ -59,6 +60,10 @@ const build = {
     sh(`foreach --glob "frontend-build/**/*.css" --execute "csso --input #{path} --output #{path}"`, shellOptions)
   },
   minifyJS() {
+    /*****
+      This will also convert frontend TS files to JS
+    *****/
+    // TODO: make esbuild is using the tsconfig-frontend.json and not the tsconfig.json
     esbuild
       .build({
         entryPoints: ['app.jsx'],
@@ -90,7 +95,7 @@ const tests = {
     )
   },
   tslint() {
-    sh(`ttsc --noEmit`, shellOptions)
+    sh(`tsc --noEmit`, shellOptions)
   },
   checkmyheaders() {
     const prodEnvs = `NODE_ENV=production PUBLIC_FOLDER=frontend-build POSTS_MEDIA_DOWNLOAD_DIR='./posts-media' LOGDIR='./roffline-logs'`

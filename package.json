@@ -6,7 +6,6 @@
   "scripts": {
     "update": "ncu --interactive --target minor",
     "task": "node -r dotenv/config ./TasksFile.js",
-    "twatch": "npx ttsc --watch --incremental",
     "dev": "NODE_ENV=development LOGGING_LEVEL=debug node -r dotenv/config ./TasksFile.js dev:start",
     "inspect": "NODE_ENV=development LOGGING_LEVEL=debug node -r dotenv/config ./TasksFile.js dev:inspect",
     "test": "node ./TasksFile.js testAll",
@@ -29,7 +28,6 @@
   "dependencies": {
     "@alpinejs/intersect": "^3.4.1",
     "alpinejs": "^3.4.1",
-    "bookshelf": "^1.2.0",
     "date-fns": "^2.24.0",
     "dotenv": "^10.0.0",
     "envalid": "^7.2.1",
@@ -54,10 +52,8 @@
     "point-of-view": "^4.15.2",
     "pratica": "^2.0.3",
     "ramda": "^0.27.1",
-    "remeda": "^0.0.30",
     "rotating-file-stream": "^2.1.5",
     "sequelize": "^6.6.5",
-    "sqlite3": "^5.0.2",
     "ts-pattern": "^3.3.3"
   },
   "devDependencies": {
