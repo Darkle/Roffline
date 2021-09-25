@@ -33,3 +33,4 @@ frontend-build
 roffline-storage.db-journal
 tsconfig.tsbuildinfo
 roffline-storage-old-typeorm-version.db
+tsconfig-frontend.tsbuildinfo

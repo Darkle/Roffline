@@ -24,7 +24,8 @@
     "db/**/*.js.map": true,
     "downloads/**/*.js": true,
     "downloads/**/*.js.map": true,
-    "roffline-storage-old-typeorm-version.db": true
+    "roffline-storage-old-typeorm-version.db": true,
+    "tsconfig-frontend.tsbuildinfo": true
   },
   "search.exclude": {
     "tsconfig.tsbuildinfo": true,
