@@ -1,33 +1,33 @@
-import { Entity, PrimaryColumn, Column, BaseEntity } from 'typeorm'
+import { PrimaryKey, Property, Entity } from '@mikro-orm/core'
 
 type UserType = {
   name: string
-  subreddits: string[]
+  subreddits: string
   hideStickiedPosts: boolean
   onlyShowTitlesInFeed: boolean
   infiniteScroll: boolean
   darkModeTheme: boolean
 }
 
-@Entity('users')
-export class User extends BaseEntity {
-  @PrimaryColumn({ type: 'text' })
-  name: string
+@Entity({ tableName: 'users' })
+export class User {
+  @PrimaryKey({ columnType: 'text' })
+  name!: string
 
-  @Column({ type: 'simple-array', default: '' })
-  subreddits: string[]
+  @Property({ columnType: 'text', default: '' })
+  subreddits!: string
 
-  @Column({ default: true })
-  hideStickiedPosts: boolean
+  @Property({ default: true })
+  hideStickiedPosts!: boolean
 
-  @Column({ default: false })
-  onlyShowTitlesInFeed: boolean
+  @Property({ default: false })
+  onlyShowTitlesInFeed!: boolean
 
-  @Column({ default: false })
-  infiniteScroll: boolean
+  @Property({ default: false })
+  infiniteScroll!: boolean
 
-  @Column({ default: false })
-  darkModeTheme: boolean
+  @Property({ default: false })
+  darkModeTheme!: boolean
 }
 
 export { UserType }

@@ -55,9 +55,9 @@
     "ramda": "^0.27.1",
     "remeda": "^0.0.30",
     "rotating-file-stream": "^2.1.5",
+    "sequelize": "^6.6.5",
     "sqlite3": "^5.0.2",
-    "ts-pattern": "^3.3.3",
-    "typeorm": "^0.2.37"
+    "ts-pattern": "^3.3.3"
   },
   "devDependencies": {
     "@types/browser-sync": "^2.26.2",

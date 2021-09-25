@@ -1,10 +1,7 @@
-import { Entity, PrimaryColumn, BaseEntity } from 'typeorm'
+import { PrimaryKey, Entity } from '@mikro-orm/core'
 
 @Entity()
-export class SubredditsMasterList extends BaseEntity {
-  @PrimaryColumn({
-    collation: 'NOCASE',
-    type: 'text',
-  })
-  subreddit: string
+export class SubredditsMasterList {
+  @PrimaryKey({ columnType: 'text' })
+  subreddit!: string
 }

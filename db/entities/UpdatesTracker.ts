@@ -1,10 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm'
+import { Property, PrimaryKey, Entity } from '@mikro-orm/core'
 
 @Entity()
-export class UpdatesTracker extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number
+export class UpdatesTracker {
+  @PrimaryKey()
+  id!: number // auto increment PK in SQL drivers
 
-  @Column({ type: 'text' })
-  lastUpdateDateAsString: string
+  @Property({ columnType: 'text' })
+  lastUpdateDateAsString!: string
 }

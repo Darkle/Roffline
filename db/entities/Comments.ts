@@ -1,10 +1,10 @@
-import { Entity, PrimaryColumn, Column, BaseEntity } from 'typeorm'
+import { Property, PrimaryKey, Entity } from '@mikro-orm/core'
 
 @Entity()
-export class Comments extends BaseEntity {
-  @PrimaryColumn({ type: 'text' })
-  postId: string
+export class Comments {
+  @PrimaryKey({ columnType: 'text' })
+  postId!: string
 
-  @Column({ type: 'text' })
-  comments: string
+  @Property({ columnType: 'text' })
+  comments!: string
 }

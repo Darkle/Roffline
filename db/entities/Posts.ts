@@ -1,72 +1,70 @@
-import { Entity, Column, OneToOne, JoinColumn, PrimaryColumn, BaseEntity } from 'typeorm'
+import { Property, PrimaryKey, Entity, OneToOne, Cascade } from '@mikro-orm/core'
 
 import { Comments } from './Comments'
 
-@Entity('posts')
-export class Post extends BaseEntity {
-  @PrimaryColumn({ type: 'text' })
-  postId: string
+@Entity({ tableName: 'posts' })
+export class Post {
+  @PrimaryKey({ columnType: 'text' })
+  postId!: string
 
   // Remove the corresponding comments row from Comments table
-  @OneToOne(() => Comments, { eager: false, onDelete: 'CASCADE' })
-  @JoinColumn()
-  comments: Promise<Comments>
+  @OneToOne({ entity: () => Comments, eager: false, cascade: [Cascade.REMOVE], owner: true, orphanRemoval: true })
+  comments?: Comments
 
-  // Using COLLATE NOCASE for subreddit column so dont have to deal with case when doing a where clause.
-  @Column({ collation: 'NOCASE', type: 'text' })
-  subreddit: string
+  @Property({ columnType: 'text' })
+  subreddit!: string
 
-  @Column({ type: 'text' })
-  author: string
+  @Property({ columnType: 'text' })
+  author!: string
 
-  @Column({ type: 'text' })
-  title: string
+  @Property({ columnType: 'text' })
+  title!: string
 
-  @Column({ type: 'text', nullable: true, default: null })
-  selftext: string
+  @Property({ columnType: 'text', nullable: true, default: null })
+  selftext?: string
 
-  @Column({ type: 'text', nullable: true, default: null })
-  selftext_html: string
+  @Property({ columnType: 'text', nullable: true, default: null })
+  selftext_html?: string
 
-  @Column()
-  score: number
+  @Property()
+  score!: number
 
-  @Column({ default: false })
-  is_reddit_media_domain: boolean
+  @Property({ default: false })
+  is_reddit_media_domain!: boolean
 
-  @Column({ default: false })
-  is_self: boolean
+  @Property({ default: false })
+  is_self!: boolean
 
-  @Column()
-  created_utc: number
+  @Property()
+  created_utc!: number
 
-  @Column({ type: 'text' })
-  domain: string
+  @Property({ columnType: 'text' })
+  domain!: string
 
-  @Column({ default: false })
-  is_video: boolean
+  @Property({ default: false })
+  is_video!: boolean
 
-  @Column({ default: false })
-  stickied: boolean
+  @Property({ default: false })
+  stickied!: boolean
 
-  @Column({ default: false })
-  media_has_been_downloaded: boolean
+  @Property({ default: false })
+  media_has_been_downloaded!: boolean
 
-  @Column({ default: 0 })
-  mediaDownloadTries: number
+  @Property({ default: 0 })
+  mediaDownloadTries!: number
 
-  @Column({ type: 'text', nullable: true, default: null })
-  post_hint: string
+  @Property({ columnType: 'text', nullable: true, default: null })
+  post_hint?: string
 
-  @Column({ type: 'text' })
-  permalink: string
+  @Property({ columnType: 'text' })
+  permalink!: string
 
-  @Column({ type: 'text' })
-  url: string
+  @Property({ columnType: 'text' })
+  url!: string
 
-  @Column({ type: 'text', nullable: true, default: null })
-  media: string
+  @Property({ columnType: 'text', nullable: true, default: null })
+  media?: string
 
-  @Column({ type: 'text', nullable: true, default: null })
-  crosspost_parent: string
+  @Property({ columnType: 'text', nullable: true, default: null })
+  crosspost_parent?: string
 }

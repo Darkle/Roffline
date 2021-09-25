@@ -1,7 +1,7 @@
-import { Entity, PrimaryColumn, BaseEntity } from 'typeorm'
+import { PrimaryKey, Entity } from '@mikro-orm/core'
 
 @Entity()
-export class FeedsToFetch extends BaseEntity {
-  @PrimaryColumn({ type: 'text' })
-  feed: string
+export class FeedsToFetch {
+  @PrimaryKey({ columnType: 'text' })
+  feed!: string
 }
