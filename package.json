@@ -29,6 +29,7 @@
   "dependencies": {
     "@alpinejs/intersect": "^3.4.1",
     "alpinejs": "^3.4.1",
+    "bookshelf": "^1.2.0",
     "date-fns": "^2.24.0",
     "dotenv": "^10.0.0",
     "envalid": "^7.2.1",

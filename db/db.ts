@@ -1,20 +1,20 @@
-import fs from 'node:fs'
+// import fs from 'node:fs'
 
-import * as R from 'ramda'
+// import * as R from 'ramda'
 import { Sequelize } from 'sequelize'
-import { match } from 'ts-pattern'
-import { Maybe, get as MaybeGet, nullable as MaybeNullable } from 'pratica'
+// import { match } from 'ts-pattern'
+// import { Maybe, get as MaybeGet, nullable as MaybeNullable } from 'pratica'
 
-import { UpdatesTracker } from './entities/UpdatesTracker'
-import { SubredditsMasterList } from './entities/SubredditsMasterList'
-import { User } from './entities/Users'
+// import { UpdatesTracker } from './entities/UpdatesTracker'
+// import { SubredditsMasterList } from './entities/SubredditsMasterList'
+// import { User } from './entities/Users'
 import { firstRun } from './db-first-run'
-import { noop } from '../server/utils'
+// import { noop } from '../server/utils'
 import { mainLogger } from '../logging/logging'
 
 // const threeSecondsInMS = 3000
 const dbPath = process.env['DBPATH'] || './roffline-storage.db'
-const dbFileDoesNotExist = !fs.statSync(dbPath, { throwIfNoEntry: false })
+// const dbFileDoesNotExist = !fs.statSync(dbPath, { throwIfNoEntry: false })
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
@@ -25,15 +25,7 @@ const sequelize = new Sequelize({
 const db = {
   sequelize,
   init() {
-    // console.log(orm.em) // access EntityManager via `em` property
-    // return createConnection({
-    //   type: 'sqlite',
-    //   database: dbPath,
-    //   entities: [...Entities],
-    //   logging: false, //If set to true then query and error logging will be enabled.
-    //   maxQueryExecutionTime: threeSecondsInMS,
-    //   synchronize: dbFileDoesNotExist,
-    // }).then(firstRun)
+    return firstRun(sequelize)
   },
   // close(): Promise<void> {
   //   return sequelize.close()

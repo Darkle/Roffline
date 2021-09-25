@@ -24,7 +24,7 @@
         "outDir": "./",
         "resolvers": [
           {
-            "dir": "./",
+            "dir": "./frontend",
             "sourceDir": true
           },
           {

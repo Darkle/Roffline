@@ -1,10 +1,22 @@
-import { Property, PrimaryKey, Entity } from '@mikro-orm/core'
+import { Sequelize, DataTypes, Model } from 'sequelize'
+import { noop } from '../../server/utils'
 
-@Entity()
-export class UpdatesTracker {
-  @PrimaryKey()
-  id!: number // auto increment PK in SQL drivers
+class UpdatesTracker extends Model {}
 
-  @Property({ columnType: 'text' })
-  lastUpdateDateAsString!: string
+const tableSchema = {
+  lastUpdateDateAsString: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
 }
+
+const initUpdatesTrackerModel = (sequelize: Sequelize): Promise<void> => {
+  UpdatesTracker.init(tableSchema, {
+    sequelize,
+    modelName: 'UpdatesTracker',
+    tableName: 'updates_tracker',
+  })
+  return UpdatesTracker.sync().then(noop)
+}
+
+export { initUpdatesTrackerModel, UpdatesTracker }

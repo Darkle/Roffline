@@ -1,70 +1,105 @@
-import { Property, PrimaryKey, Entity, OneToOne, Cascade } from '@mikro-orm/core'
+import { Sequelize, DataTypes, Model } from 'sequelize'
+import { noop } from '../../server/utils'
 
-import { Comments } from './Comments'
+class Post extends Model {}
 
-@Entity({ tableName: 'posts' })
-export class Post {
-  @PrimaryKey({ columnType: 'text' })
-  postId!: string
-
-  // Remove the corresponding comments row from Comments table
-  @OneToOne({ entity: () => Comments, eager: false, cascade: [Cascade.REMOVE], owner: true, orphanRemoval: true })
-  comments?: Comments
-
-  @Property({ columnType: 'text' })
-  subreddit!: string
-
-  @Property({ columnType: 'text' })
-  author!: string
-
-  @Property({ columnType: 'text' })
-  title!: string
-
-  @Property({ columnType: 'text', nullable: true, default: null })
-  selftext?: string
-
-  @Property({ columnType: 'text', nullable: true, default: null })
-  selftext_html?: string
-
-  @Property()
-  score!: number
-
-  @Property({ default: false })
-  is_reddit_media_domain!: boolean
-
-  @Property({ default: false })
-  is_self!: boolean
-
-  @Property()
-  created_utc!: number
-
-  @Property({ columnType: 'text' })
-  domain!: string
-
-  @Property({ default: false })
-  is_video!: boolean
-
-  @Property({ default: false })
-  stickied!: boolean
-
-  @Property({ default: false })
-  media_has_been_downloaded!: boolean
-
-  @Property({ default: 0 })
-  mediaDownloadTries!: number
-
-  @Property({ columnType: 'text', nullable: true, default: null })
-  post_hint?: string
-
-  @Property({ columnType: 'text' })
-  permalink!: string
-
-  @Property({ columnType: 'text' })
-  url!: string
-
-  @Property({ columnType: 'text', nullable: true, default: null })
-  media?: string
-
-  @Property({ columnType: 'text', nullable: true, default: null })
-  crosspost_parent?: string
+const tableSchema = {
+  postId: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    primaryKey: true,
+  },
+  subreddit: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  author: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  title: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  selftext: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null,
+  },
+  selftext_html: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null,
+  },
+  score: {
+    type: DataTypes.NUMBER,
+    allowNull: false,
+  },
+  is_self: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  created_utc: {
+    type: DataTypes.NUMBER,
+    allowNull: false,
+  },
+  domain: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  is_video: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  stickied: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  media_has_been_downloaded: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  mediaDownloadTries: {
+    type: DataTypes.NUMBER,
+    allowNull: false,
+    defaultValue: 0,
+  },
+  post_hint: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null,
+  },
+  permalink: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  url: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  media: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null,
+  },
+  crosspost_parent: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null,
+  },
 }
+
+const initPostModel = (sequelize: Sequelize): Promise<void> => {
+  Post.init(tableSchema, {
+    sequelize,
+    modelName: 'Post',
+    tableName: 'posts',
+  })
+  return Post.sync().then(noop)
+}
+
+export { initPostModel, Post }

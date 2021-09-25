@@ -1,4 +1,7 @@
-import { PrimaryKey, Property, Entity } from '@mikro-orm/core'
+import { Sequelize, DataTypes, Model } from 'sequelize'
+import { noop } from '../../server/utils'
+
+class User extends Model {}
 
 type UserType = {
   name: string
@@ -9,25 +12,46 @@ type UserType = {
   darkModeTheme: boolean
 }
 
-@Entity({ tableName: 'users' })
-export class User {
-  @PrimaryKey({ columnType: 'text' })
-  name!: string
-
-  @Property({ columnType: 'text', default: '' })
-  subreddits!: string
-
-  @Property({ default: true })
-  hideStickiedPosts!: boolean
-
-  @Property({ default: false })
-  onlyShowTitlesInFeed!: boolean
-
-  @Property({ default: false })
-  infiniteScroll!: boolean
-
-  @Property({ default: false })
-  darkModeTheme!: boolean
+const tableSchema = {
+  name: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    primaryKey: true,
+  },
+  subreddits: {
+    type: DataTypes.JSON,
+    allowNull: false,
+    defaultValue: [],
+  },
+  hideStickiedPosts: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  },
+  onlyShowTitlesInFeed: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  infiniteScroll: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  darkModeTheme: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
 }
 
-export { UserType }
+const initUserModel = (sequelize: Sequelize): Promise<void> => {
+  User.init(tableSchema, {
+    sequelize,
+    modelName: 'User',
+    tableName: 'users',
+  })
+  return User.sync().then(noop)
+}
+
+export { initUserModel, UserType, User }
