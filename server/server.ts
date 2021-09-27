@@ -1,4 +1,4 @@
-import path from 'node:path'
+import path from 'path'
 
 import createFastify from 'fastify'
 import disableCache from 'fastify-disablecache'
