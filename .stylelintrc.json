@@ -3,5 +3,5 @@
   "rules": {
     "no-descending-specificity": null
   },
-  "ignoreFiles": ["./.eslintrc.cjs", "node_modules/**/*", "LICENSE"]
+  "ignoreFiles": ["./.eslintrc.cjs", "**/*.cjs", "node_modules/**/*", "LICENSE"]
 }
