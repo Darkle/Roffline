@@ -11,8 +11,7 @@
     "test": "node ./TasksFile.js testAll",
     "build": "node ./TasksFile.js buildProd",
     "updateTypes": "ts-typie",
-    "fixmodules": "./TasksFile.js fixNodeModulesForESModuleSupport:run",
-    "start": "npm run fixmodules && NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r dotenv/config ./boot.js"
+    "start": "npm run buildProd && NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r dotenv/config ./boot.js"
   },
   "engines": {
     "node": ">=14.17.6"
@@ -24,7 +23,6 @@
     "last 2 ios version"
   ],
   "pre-commit": [],
-  "type": "module",
   "dependencies": {
     "@alpinejs/intersect": "^3.4.1",
     "alpinejs": "^3.4.1",
@@ -48,18 +46,19 @@
     "lazy-object-view": "^1.2.1",
     "luxon": "^2.0.2",
     "p-tap": "^4.0.0",
-    "pino": "^7.0.0-rc.6",
+    "pino": "^7.0.0-rc.7",
     "point-of-view": "^4.15.2",
     "pratica": "^2.0.3",
     "ramda": "^0.27.1",
-    "rotating-file-stream": "^2.1.5",
+    "rotating-file-stream": "^2.1.6",
     "sequelize": "^6.6.5",
+    "sqlite3": "^5.0.2",
     "ts-pattern": "^3.3.3"
   },
   "devDependencies": {
     "@types/browser-sync": "^2.26.2",
     "@types/p-tap": "^1.0.1",
-    "@types/ramda": "^0.27.44",
+    "@types/ramda": "^0.27.45",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
     "browser-sync": "^2.27.5",
@@ -89,18 +88,19 @@
     "foreach-cli": "^1.8.1",
     "hint": "^6.1.4",
     "lighthouse": "^8.5.1",
-    "mocha": "^9.1.1",
+    "mocha": "^9.1.2",
     "multiview": "^3.0.1",
     "ncat": "^4.0.2",
     "ncp": "^2.0.0",
-    "nodemon": "^2.0.13",
     "npm-check-updates": "^11.8.5",
     "pino-pretty": "^7.0.1",
     "pre-commit": "^1.2.2",
-    "snyk": "^1.720.0",
+    "snyk": "^1.722.0",
     "stylelint": "^13.13.1",
     "stylelint-config-standard": "^22.0.0",
     "tasksfile": "^5.1.1",
+    "ts-node": "^10.2.1",
+    "ts-node-dev": "^1.1.8",
     "ts-transform-esm-import": "^0.3.0",
     "ts-typie": "^1.1.1",
     "ttypescript": "^1.5.12",
