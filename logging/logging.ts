@@ -22,7 +22,7 @@ const transports = Pino.transport({
     },
     {
       level: process.env['LOGGING_LEVEL'] as pino.Level,
-      target: './file-logging-transport.js',
+      target: './file-logging-transport.cjs',
       options: { outDir: getEnvFilePath(process.env['LOGDIR']) },
     },
   ],
