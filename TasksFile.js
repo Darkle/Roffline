@@ -1,11 +1,11 @@
 /* eslint-plugin-disable functional */
 /* eslint-disable import/no-extraneous-dependencies, eslint-comments/disable-enable-pair, max-lines-per-function */
-import fs from 'node:fs'
-import path from 'node:path'
+const fs = require('fs')
+const path = require('path')
 
-import { cli, sh } from 'tasksfile'
-import clc from 'cli-color'
-import esbuild from 'esbuild'
+const { cli, sh } = require('tasksfile')
+const clc = require('cli-color')
+const esbuild = require('esbuild')
 
 const shellOptions = { nopipe: true, async: undefined }
 
@@ -27,42 +27,43 @@ const noop = _ => {}
 
 const dev = {
   start() {
-    const browserync = `browser-sync start --watch --reload-delay 1500 --no-open --no-notify --no-ui --no-ghost-mode --no-inject-changes --files=./frontend/**/* --files=./server/**/* --files=./boot.js --ignore=node_modules --port 8081 --proxy '127.0.0.1:3000' --host '0.0.0.0'`
-    // const nodemon = `nodemon ./boot.js --watch server --ext js,njk,eta`
-    const frontendTSWatch = `ttsc --project ./tsconfig-frontend.json --watch --incremental`
-    sh(`concurrently --raw --prefix=none "${frontendTSWatch}" "${browserync}"`, shellOptions)
+    const browserync = `browser-sync start --watch --reload-delay 1500 --no-open --no-notify --no-ui --no-ghost-mode --no-inject-changes --files=./frontend/**/* --files=./server/**/* --files=./boot.ts --files=logging/**/* --files=db/**/* --files=downloads/**/* --ignore=node_modules --port 8081 --proxy '127.0.0.1:3000' --host '0.0.0.0'`
+    const frontendTSWatch = `ttsc --project ./tsconfig-frontend.json --watch --incremental --pretty --preserveWatchOutput`
+
+    const tsNodeDev = `ts-node-dev --debug --watch=server/**/*.eta --ignore-watch=frontend ./boot.ts`
+
+    sh(`concurrently --raw --prefix=none "${frontendTSWatch}" "${browserync}" "${tsNodeDev}"`, shellOptions)
   },
   inspect() {
-    sh(`node --inspect ./boot.js`, shellOptions)
+    sh(`node -r ts-node/register --inspect ./boot.js`, shellOptions)
   },
 }
 
-const fixNodeModulesForESModuleSupport = {
-  run() {
-    const librariesToFix = ['ramda']
-    const nodeModulesPath = path.join(process.cwd(), 'node_modules')
+// const fixNodeModulesForESModuleSupport = {
+//   run() {
+//     const librariesToFix = ['ramda', 'mocha']
+//     const nodeModulesPath = path.join(process.cwd(), 'node_modules')
 
-    librariesToFix.forEach(lib => {
-      const libFolderPackageJsonPath = path.join(nodeModulesPath, lib, 'package.json')
-      const packageObj = JSON.parse(fs.readFileSync(libFolderPackageJsonPath, { encoding: 'utf-8' }))
-      packageObj.type = 'module'
-      fs.writeFileSync(libFolderPackageJsonPath, JSON.stringify(packageObj, null, 2))
-    })
-  },
-}
+//     librariesToFix.forEach(lib => {
+//       const libFolderPackageJsonPath = path.join(nodeModulesPath, lib, 'package.json')
+//       const packageObj = JSON.parse(fs.readFileSync(libFolderPackageJsonPath, { encoding: 'utf-8' }))
+//       packageObj.type = 'module'
+//       fs.writeFileSync(libFolderPackageJsonPath, JSON.stringify(packageObj, null, 2))
+//     })
+//   },
+// }
 
 const build = {
-  copyToBuild() {
+  prepareBuildDir() {
     prepareAndCleanDir('./frontend-build')
+  },
+  copyStaticDirToBuild() {
     sh(`ncp ./frontend/static "./frontend-build/static"`, shellOptions)
   },
-  minifyCSS() {
+  minifyCSSToBuildDir() {
     sh(`foreach --glob "frontend-build/**/*.css" --execute "csso --input #{path} --output #{path}"`, shellOptions)
   },
-  minifyJS() {
-    /*****
-      This will also convert frontend TS files to JS
-    *****/
+  TStoJSandMinifyJSToBuildDir() {
     // TODO: make esbuild is using the tsconfig-frontend.json and not the tsconfig.json
     esbuild
       .build({
@@ -285,5 +286,5 @@ cli({
   dbquickclear1,
   testAll,
   buildProd,
-  fixNodeModulesForESModuleSupport,
+  // fixNodeModulesForESModuleSupport,
 })
