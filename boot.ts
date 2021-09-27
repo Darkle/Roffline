@@ -3,6 +3,7 @@ import { cleanEnv as envVarChecker, str, port } from 'envalid'
 import { startServer } from './server/server'
 import { mainLogger } from './logging/logging'
 import { db } from './db/db'
+import { ensurePostsMediaDownloadFolderExists } from './server/utils'
 
 envVarChecker(process.env, {
   PORT: port({ default: 8080 }), // eslint-disable-line @typescript-eslint/no-magic-numbers
@@ -48,6 +49,7 @@ process.on('uncaughtException', bailOnFatalError)
 //   })
 
 db.init()
+  .then(ensurePostsMediaDownloadFolderExists)
   .then(startServer)
   .catch(err => {
     console.error(err)
