@@ -8,7 +8,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["ES2020", "DOM"],
+    "lib": ["ES2020"],
     "module": "ES2020",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
@@ -20,11 +20,20 @@
     "removeComments": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "strict": true,
     "strictPropertyInitialization": false,
     "target": "ES2020"
   },
-  "exclude": ["node_modules", "**/*.spec.ts"],
+  "ts-node": {
+    "files": true,
+    "pretty": true,
+    "compilerOptions": {
+      "sourceMap": true,
+      "module": "CommonJS"
+    },
+    "ignore": ["(?:^|/)node_modules/"]
+  },
+  "exclude": ["node_modules", "**/*.spec.ts", "logging/file-logging-transport.js"],
   "include": ["frontend/js/**/*", "server/**/*", "./boot.ts", "typings.d.ts", "logging", "downloads", "db"]
 }
