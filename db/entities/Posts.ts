@@ -10,7 +10,12 @@ const tableSchema = {
     primaryKey: true,
   },
   subreddit: {
-    type: DataTypes.TEXT,
+    /*****
+      CITEXT is case-insesitive text column (aka TEXT COLLATE NOCASE)
+      https://sequelize.org/master/class/lib/data-types.js~CITEXT.html
+      https://sequelize.org/v5/file/lib/dialects/sqlite/data-types.js.html#lineNumber87
+    *****/
+    type: DataTypes.CITEXT,
     allowNull: false,
   },
   author: {
@@ -82,7 +87,7 @@ const tableSchema = {
     allowNull: false,
   },
   media: {
-    type: DataTypes.TEXT,
+    type: DataTypes.JSON,
     allowNull: true,
     defaultValue: null,
   },

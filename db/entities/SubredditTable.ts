@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes } from 'sequelize'
+import { Sequelize, DataTypes, ModelType } from 'sequelize'
 
 type SubredditTableType = {
   posts_Default: string | null
@@ -13,7 +13,7 @@ type SubredditTableType = {
   Since the subreddit tables are created dynamically, we need to store a reference to their
   models somewhere. A Map seems like a good idea for that.
 *****/
-const subredditTables = new Map()
+const subredditTablesMap: Map<string, ModelType> = new Map()
 
 const tableSchema = {
   posts_Default: {
@@ -48,17 +48,15 @@ const tableSchema = {
   },
 }
 
-function createSubredditTable(subreddit: string, sequelize: Sequelize): Promise<void> {
-  const sub = subreddit.toLowerCase()
+function createSubredditTable(subreddit: string, sequelize: Sequelize): Promise<void | Map<string, ModelType>> {
+  const sub = `subreddit_table_${subreddit.toLowerCase()}`
 
   const subModel = sequelize.define(sub, tableSchema, {
     modelName: sub,
     tableName: sub,
   })
 
-  return subModel.sync().then(() => {
-    subredditTables.set(sub, subModel)
-  })
+  return subModel.sync().then(() => subredditTablesMap.set(sub, subModel))
 }
 
 export { SubredditTableType, createSubredditTable }
