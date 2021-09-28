@@ -1,10 +1,10 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 
-type UpdatesTrackerType = {
+type UpdatesTracker = {
   lastUpdateDateAsString: string
 }
 
-class UpdatesTracker extends Model {}
+class UpdatesTrackerModel extends Model {}
 
 const tableSchema = {
   lastUpdateDateAsString: {
@@ -13,13 +13,13 @@ const tableSchema = {
   },
 }
 
-const initUpdatesTrackerModel = (sequelize: Sequelize): Promise<UpdatesTracker> => {
-  UpdatesTracker.init(tableSchema, {
+const initUpdatesTrackerModel = (sequelize: Sequelize): Promise<UpdatesTrackerModel> => {
+  UpdatesTrackerModel.init(tableSchema, {
     sequelize,
-    modelName: 'UpdatesTracker',
+    modelName: 'UpdatesTrackerModel',
     tableName: 'updates_tracker',
   })
-  return UpdatesTracker.sync()
+  return UpdatesTrackerModel.sync()
 }
 
-export { initUpdatesTrackerModel, UpdatesTracker, UpdatesTrackerType }
+export { initUpdatesTrackerModel, UpdatesTrackerModel, UpdatesTracker }

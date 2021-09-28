@@ -4,12 +4,12 @@ import { noop } from '../server/utils'
 // import { noop } from '../server/utils'
 // import { AdminSettings } from './entities/AdminSettings'
 // import { UpdatesTracker } from './entities/UpdatesTracker'
-import { initAdminSettingsModel, AdminSettings } from './entities/AdminSettings'
+import { initAdminSettingsModel, AdminSettingsModel } from './entities/AdminSettings'
 import { initCommentsModel } from './entities/Comments'
 import { initFeedsToFetchModel } from './entities/FeedsToFetch'
 import { initPostModel } from './entities/Posts'
 import { initSubredditsMasterListModel } from './entities/SubredditsMasterList'
-import { initUpdatesTrackerModel, UpdatesTracker } from './entities/UpdatesTracker'
+import { initUpdatesTrackerModel, UpdatesTrackerModel } from './entities/UpdatesTracker'
 import { initUserModel } from './entities/Users'
 
 const defaultAdminSettings = {
@@ -30,8 +30,8 @@ const defaultUpdatesTrackerSettings = {
 async function populateTablesOnFirstRun(sequelize: Sequelize): Promise<void> {
   const t = await sequelize.transaction()
 
-  AdminSettings.create(defaultAdminSettings)
-  UpdatesTracker.create(defaultUpdatesTrackerSettings)
+  AdminSettingsModel.create(defaultAdminSettings)
+  UpdatesTrackerModel.create(defaultUpdatesTrackerSettings)
 
   await t.commit()
 }
@@ -50,7 +50,7 @@ async function createTables(sequelize: Sequelize): Promise<void> {
 
 function firstRun(sequelize: Sequelize): Promise<void> {
   return createTables(sequelize).then(() =>
-    AdminSettings.findByPk(1).then(result => (result ? noop() : populateTablesOnFirstRun(sequelize)))
+    AdminSettingsModel.findByPk(1).then(result => (result ? noop() : populateTablesOnFirstRun(sequelize)))
   )
 }
 

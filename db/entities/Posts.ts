@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 
-type PostType = {
+type Post = {
   postId: string
   subreddit: string
   author: string
@@ -22,7 +22,7 @@ type PostType = {
   crosspost_parent: string
 }
 
-class Post extends Model {}
+class PostModel extends Model {}
 
 const tableSchema = {
   postId: {
@@ -119,13 +119,13 @@ const tableSchema = {
   },
 }
 
-const initPostModel = (sequelize: Sequelize): Promise<Post> => {
-  Post.init(tableSchema, {
+const initPostModel = (sequelize: Sequelize): Promise<PostModel> => {
+  PostModel.init(tableSchema, {
     sequelize,
-    modelName: 'Post',
+    modelName: 'PostModel',
     tableName: 'posts',
   })
-  return Post.sync()
+  return PostModel.sync()
 }
 
-export { initPostModel, Post, PostType }
+export { initPostModel, PostModel, Post }

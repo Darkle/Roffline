@@ -1,19 +1,26 @@
-import { AdminSettings, AdminSettingsType } from './AdminSettings'
-import { Comments, CommentsType } from './Comments'
-import { FeedsToFetch, FeedsToFetchType } from './FeedsToFetch'
-import { Post, PostType } from './Posts'
-import { SubredditsMasterList, SubredditsMasterListType } from './SubredditsMasterList'
-import { UpdatesTracker, UpdatesTrackerType } from './UpdatesTracker'
-import { User, UserType } from './Users'
+import { AdminSettingsModel, AdminSettings } from './AdminSettings'
+import { CommentsModel, Comments } from './Comments'
+import { FeedsToFetchModel, FeedsToFetch } from './FeedsToFetch'
+import { PostModel, Post } from './Posts'
+import { SubredditsMasterListModel, SubredditsMasterList } from './SubredditsMasterList'
+import { UpdatesTrackerModel, UpdatesTracker } from './UpdatesTracker'
+import { UserModel, User } from './Users'
 
-type TableModels = AdminSettings | Comments | FeedsToFetch | Post | SubredditsMasterList | UpdatesTracker | User
+type TableModels =
+  | AdminSettingsModel
+  | CommentsModel
+  | FeedsToFetchModel
+  | PostModel
+  | SubredditsMasterListModel
+  | UpdatesTrackerModel
+  | UserModel
 type TableModelTypes =
-  | CommentsType
-  | AdminSettingsType
-  | FeedsToFetchType
-  | PostType
-  | SubredditsMasterListType
-  | UpdatesTrackerType
-  | UserType
+  | Comments
+  | AdminSettings
+  | FeedsToFetch
+  | Post
+  | SubredditsMasterList
+  | UpdatesTracker
+  | User
 
 export { TableModels, TableModelTypes }

@@ -1,10 +1,10 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 
-type FeedsToFetchType = {
+type FeedsToFetch = {
   feed: string
 }
 
-class FeedsToFetch extends Model {}
+class FeedsToFetchModel extends Model {}
 
 const tableSchema = {
   feed: {
@@ -14,13 +14,13 @@ const tableSchema = {
   },
 }
 
-const initFeedsToFetchModel = (sequelize: Sequelize): Promise<FeedsToFetch> => {
-  FeedsToFetch.init(tableSchema, {
+const initFeedsToFetchModel = (sequelize: Sequelize): Promise<FeedsToFetchModel> => {
+  FeedsToFetchModel.init(tableSchema, {
     sequelize,
-    modelName: 'FeedsToFetch',
+    modelName: 'FeedsToFetchModel',
     tableName: 'feeds_to_fetch',
   })
-  return FeedsToFetch.sync()
+  return FeedsToFetchModel.sync()
 }
 
-export { initFeedsToFetchModel, FeedsToFetch, FeedsToFetchType }
+export { initFeedsToFetchModel, FeedsToFetchModel, FeedsToFetch }

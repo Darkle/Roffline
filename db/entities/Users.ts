@@ -1,8 +1,8 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 
-class User extends Model {}
+class UserModel extends Model {}
 
-type UserType = {
+type User = {
   name: string
   subreddits: string[]
   hideStickiedPosts: boolean
@@ -44,13 +44,13 @@ const tableSchema = {
   },
 }
 
-const initUserModel = (sequelize: Sequelize): Promise<User> => {
-  User.init(tableSchema, {
+const initUserModel = (sequelize: Sequelize): Promise<UserModel> => {
+  UserModel.init(tableSchema, {
     sequelize,
-    modelName: 'User',
+    modelName: 'UserModel',
     tableName: 'users',
   })
-  return User.sync()
+  return UserModel.sync()
 }
 
-export { initUserModel, UserType, User }
+export { initUserModel, User, UserModel }

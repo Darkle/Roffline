@@ -4,13 +4,12 @@ import { Sequelize } from 'sequelize'
 import { match } from 'ts-pattern'
 import { Maybe, get as MaybeGet, Just, Nothing, nullable as MaybeNullable } from 'pratica'
 
-import { SubredditsMasterList } from './entities/SubredditsMasterList'
+import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { firstRun } from './db-first-run'
 import { noop } from '../server/utils'
 import { mainLogger } from '../logging/logging'
-import { UpdatesTracker } from './entities/UpdatesTracker'
-import { User, UserType } from './entities/Users'
-// import { TableModelTypes } from './entities/entity-types'
+import { UpdatesTrackerModel } from './entities/UpdatesTracker'
+import { User, UserModel } from './entities/Users'
 
 const dbPath = process.env['DBPATH'] || './roffline-storage.db'
 
@@ -34,28 +33,25 @@ const db = {
     return sequelize.close()
   },
   getLastScheduledUpdateTime(): Promise<Maybe<string>> {
-    return UpdatesTracker.findByPk(1, { attributes: ['lastUpdateDateAsString'] }).then(
+    return UpdatesTrackerModel.findByPk(1, { attributes: ['lastUpdateDateAsString'] }).then(
       MaybeGet(['lastUpdateDateAsString'])
     )
   },
   async setLastScheduledUpdateTime(date: string | Date): Promise<void> {
-    await UpdatesTracker.update({ lastUpdateDateAsString: date.toString() }, { where: { id: 1 } })
+    await UpdatesTrackerModel.update({ lastUpdateDateAsString: date.toString() }, { where: { id: 1 } })
   },
-  getUserSettings(userName: string): Promise<Maybe<UserType>> {
-    return User.findOne({ where: { name: userName } })
-      .then(user => user?.get() as UserType)
+  getUserSettings(userName: string): Promise<Maybe<User>> {
+    return UserModel.findOne({ where: { name: userName } })
+      .then(user => user?.get() as User)
       .then(MaybeNullable)
   },
-  getUserSpecificSetting(
-    userName: string,
-    settingName: keyof UserType
-  ): Promise<Maybe<UserType[keyof UserType]>> {
-    return User.findOne({ where: { name: userName } }).then(MaybeGet([settingName]))
+  getUserSpecificSetting(userName: string, settingName: keyof User): Promise<Maybe<User[keyof User]>> {
+    return UserModel.findOne({ where: { name: userName } }).then(MaybeGet([settingName]))
   },
   async setUserSpecificSetting(
     userName: string,
-    settingName: keyof UserType,
-    settingValue: UserType[keyof UserType]
+    settingName: keyof User,
+    settingValue: User[keyof User]
   ): Promise<void> {
     const updateDetails = {
       settingName,
@@ -69,7 +65,7 @@ const db = {
       .with({ settingName: 'subreddits', settingValIsArray: true }, () =>
         db.batchAddUserSubreddits(userName, settingValue as string[])
       )
-      .otherwise(() => User.update({ [settingName]: [settingValue] }, { where: { name: userName } }))
+      .otherwise(() => UserModel.update({ [settingName]: [settingValue] }, { where: { name: userName } }))
   },
   async batchAddUserSubreddits(username: string, subreddits: string[]): Promise<void> {
     const subs = R.map(R.toLower, subreddits)
@@ -78,7 +74,10 @@ const db = {
 
     await maybeUserSubs.cata({
       Just: userSubs =>
-        User.update({ subreddits: R.uniq([...(userSubs as string[]), ...subs]) }, { where: { name: username } }),
+        UserModel.update(
+          { subreddits: R.uniq([...(userSubs as string[]), ...subs]) },
+          { where: { name: username } }
+        ),
       Nothing: noop,
     })
   },
@@ -86,7 +85,7 @@ const db = {
     return db.batchAddUserSubreddits(username, [subreddit])
   },
   getAllSubreddits(): Promise<Maybe<string[]>> {
-    return SubredditsMasterList.findAll({ attributes: ['subreddit'] }).then(results =>
+    return SubredditsMasterListModel.findAll({ attributes: ['subreddit'] }).then(results =>
       R.isEmpty(results)
         ? Nothing
         : Just(results).map((subs): string[] => subs.map(item => item.get('subreddit') as string))
@@ -95,7 +94,7 @@ const db = {
   async batchAddSubredditsToMasterList(subreddits: string[]): Promise<void> {
     const subs = subreddits.map(sub => ({ subreddit: sub.toLocaleLowerCase() }))
 
-    await SubredditsMasterList.bulkCreate(subs, { ignoreDuplicates: true, fields: ['subreddit'] })
+    await SubredditsMasterListModel.bulkCreate(subs, { ignoreDuplicates: true, fields: ['subreddit'] })
   },
 }
 

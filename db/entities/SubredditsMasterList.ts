@@ -1,10 +1,10 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 
-type SubredditsMasterListType = {
+type SubredditsMasterList = {
   subreddit: string
 }
 
-class SubredditsMasterList extends Model {}
+class SubredditsMasterListModel extends Model {}
 
 const tableSchema = {
   subreddit: {
@@ -19,13 +19,13 @@ const tableSchema = {
   },
 }
 
-const initSubredditsMasterListModel = (sequelize: Sequelize): Promise<SubredditsMasterList> => {
-  SubredditsMasterList.init(tableSchema, {
+const initSubredditsMasterListModel = (sequelize: Sequelize): Promise<SubredditsMasterListModel> => {
+  SubredditsMasterListModel.init(tableSchema, {
     sequelize,
-    modelName: 'SubredditsMasterList',
+    modelName: 'SubredditsMasterListModel',
     tableName: 'subreddits_master_list',
   })
-  return SubredditsMasterList.sync()
+  return SubredditsMasterListModel.sync()
 }
 
-export { initSubredditsMasterListModel, SubredditsMasterList, SubredditsMasterListType }
+export { initSubredditsMasterListModel, SubredditsMasterListModel, SubredditsMasterList }

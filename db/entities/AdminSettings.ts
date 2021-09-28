@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 
-type AdminSettingsType = {
+type AdminSettings = {
   downloadComments: boolean
   numberDownloadsAtOnce: number
   downloadVideos: boolean
@@ -11,7 +11,7 @@ type AdminSettingsType = {
   updateEndingHour: number
 }
 
-class AdminSettings extends Model {}
+class AdminSettingsModel extends Model {}
 
 const tableSchema = {
   downloadComments: {
@@ -56,13 +56,13 @@ const tableSchema = {
   },
 }
 
-const initAdminSettingsModel = (sequelize: Sequelize): Promise<AdminSettings> => {
-  AdminSettings.init(tableSchema, {
+const initAdminSettingsModel = (sequelize: Sequelize): Promise<AdminSettingsModel> => {
+  AdminSettingsModel.init(tableSchema, {
     sequelize,
-    modelName: 'AdminSettings',
+    modelName: 'AdminSettingsModel',
     tableName: 'admin_settings',
   })
-  return AdminSettings.sync()
+  return AdminSettingsModel.sync()
 }
 
-export { initAdminSettingsModel, AdminSettings, AdminSettingsType }
+export { initAdminSettingsModel, AdminSettingsModel, AdminSettings }

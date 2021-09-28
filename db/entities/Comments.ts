@@ -1,11 +1,11 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 
-type CommentsType = {
+type Comments = {
   postId: string
   comments: string
 }
 
-class Comments extends Model {}
+class CommentsModel extends Model {}
 
 const tableSchema = {
   postId: {
@@ -19,13 +19,13 @@ const tableSchema = {
   },
 }
 
-const initCommentsModel = (sequelize: Sequelize): Promise<Comments> => {
-  Comments.init(tableSchema, {
-    sequelize, // We need to pass the connection instance
-    modelName: 'Comments', // We need to choose the model name
+const initCommentsModel = (sequelize: Sequelize): Promise<CommentsModel> => {
+  CommentsModel.init(tableSchema, {
+    sequelize,
+    modelName: 'CommentsModel',
     tableName: 'comments',
   })
-  return Comments.sync()
+  return CommentsModel.sync()
 }
 
-export { initCommentsModel, Comments, CommentsType }
+export { initCommentsModel, CommentsModel, Comments }

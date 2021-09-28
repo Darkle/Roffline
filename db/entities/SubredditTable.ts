@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, ModelType } from 'sequelize'
 
-type SubredditTableType = {
+type SubredditTable = {
   posts_Default: string | null
   topPosts_Day: string | null
   topPosts_Week: string | null
@@ -56,4 +56,4 @@ function createSubredditTable(subreddit: string, sequelize: Sequelize): Promise<
   return subModel.sync().then(() => subredditTablesMap.set(sub, subModel))
 }
 
-export { SubredditTableType, createSubredditTable }
+export { SubredditTable, createSubredditTable }
