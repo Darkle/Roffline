@@ -59,7 +59,7 @@ const tableSchema = {
 const initAdminSettingsModel = (sequelize: Sequelize): Promise<AdminSettings> => {
   AdminSettings.init(tableSchema, {
     sequelize,
-    modelName: 'User',
+    modelName: 'AdminSettings',
     tableName: 'admin_settings',
   })
   return AdminSettings.sync()
