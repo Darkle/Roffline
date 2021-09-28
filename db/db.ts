@@ -38,28 +38,31 @@ const db = {
       MaybeGet(['lastUpdateDateAsString'])
     )
   },
-  setLastScheduledUpdateTime(date: string | Date): Promise<[number, UpdatesTracker[]]> {
-    return UpdatesTracker.update({ lastUpdateDateAsString: date.toString() }, { where: { id: 1 } })
+  async setLastScheduledUpdateTime(date: string | Date): Promise<void> {
+    await UpdatesTracker.update({ lastUpdateDateAsString: date.toString() }, { where: { id: 1 } })
   },
   getUserSettings(userName: string): Promise<Maybe<UserType>> {
     return User.findOne({ where: { name: userName } })
       .then(user => user?.get() as UserType)
       .then(MaybeNullable)
   },
-  getUserSpecificSetting(userName: string, settingName: string): Promise<Maybe<string | string[] | boolean>> {
+  getUserSpecificSetting(
+    userName: string,
+    settingName: keyof UserType
+  ): Promise<Maybe<UserType[keyof UserType]>> {
     return User.findOne({ where: { name: userName } }).then(MaybeGet([settingName]))
   },
-  setUserSpecificSetting(
+  async setUserSpecificSetting(
     userName: string,
-    settingName: string,
-    settingValue: string | boolean | string[]
-  ): Promise<void | [number, User[]]> {
+    settingName: keyof UserType,
+    settingValue: UserType[keyof UserType]
+  ): Promise<void> {
     const updateDetails = {
       settingName,
       settingValIsArray: Array.isArray(settingValue),
     }
 
-    return match(updateDetails)
+    await match(updateDetails)
       .with({ settingName: 'subreddits', settingValIsArray: false }, () =>
         db.addUserSubreddit(userName, settingValue as string)
       )
@@ -68,18 +71,18 @@ const db = {
       )
       .otherwise(() => User.update({ [settingName]: [settingValue] }, { where: { name: userName } }))
   },
-  async batchAddUserSubreddits(username: string, subreddits: string[]): Promise<void | [number, User[]]> {
+  async batchAddUserSubreddits(username: string, subreddits: string[]): Promise<void> {
     const subs = R.map(R.toLower, subreddits)
 
     const maybeUserSubs = await db.getUserSpecificSetting(username, 'subreddits')
 
-    return maybeUserSubs.cata({
+    await maybeUserSubs.cata({
       Just: userSubs =>
         User.update({ subreddits: R.uniq([...(userSubs as string[]), ...subs]) }, { where: { name: username } }),
       Nothing: noop,
     })
   },
-  addUserSubreddit(username: string, subreddit: string): Promise<void | [number, User[]]> {
+  addUserSubreddit(username: string, subreddit: string): Promise<void> {
     return db.batchAddUserSubreddits(username, [subreddit])
   },
   getAllSubreddits(): Promise<Maybe<string[]>> {
@@ -89,10 +92,10 @@ const db = {
         : Just(results).map((subs): string[] => subs.map(item => item.get('subreddit') as string))
     )
   },
-  batchAddSubredditsToMasterList(subreddits: string[]): Promise<Array<SubredditsMasterList>> {
+  async batchAddSubredditsToMasterList(subreddits: string[]): Promise<void> {
     const subs = subreddits.map(sub => ({ subreddit: sub.toLocaleLowerCase() }))
 
-    return SubredditsMasterList.bulkCreate(subs, { ignoreDuplicates: true, fields: ['subreddit'] })
+    await SubredditsMasterList.bulkCreate(subs, { ignoreDuplicates: true, fields: ['subreddit'] })
   },
 }
 
