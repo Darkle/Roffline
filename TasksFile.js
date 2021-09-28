@@ -66,23 +66,30 @@ const build = {
     sh(`foreach --glob "frontend-build/**/*.css" --execute "csso --input #{path} --output #{path}"`, shellOptions)
   },
   frontendJS() {
-    // We transpile the TS to JS, treeshake, minify and output to ./frontend-build/js
-    esbuild
-      .build({
-        entryPoints: ['app.jsx'],
-        bundle: true,
-        format: 'esm',
-        minify: true,
-        tsconfig: 'tsconfig-frontend.json',
-        loader: {
-          '.ts': 'ts',
-        },
-        platform: 'browser',
-        treeShaking: true,
-        outdir: path.join('frontend-build', 'js'),
-        target: ['Firefox78', 'Chrome90', 'Safari14', 'iOS14'],
+    const shOptions = { nopipe: true, async: true }
+    // @ts-expect-error
+    sh(`ttsc --project ./tsconfig-frontend.json`, shOptions) // need to run this first to get ts-transform-esm-import to convert lib imports
+      .then(() =>
+        // We transpile the TS to JS, treeshake, minify and output to ./frontend-build/js
+        esbuild.build({
+          entryPoints: ['app.jsx'],
+          bundle: true,
+          format: 'esm',
+          minify: true,
+          tsconfig: 'tsconfig-frontend.json',
+          loader: {
+            '.ts': 'ts',
+          },
+          platform: 'browser',
+          treeShaking: true,
+          outdir: path.join('frontend-build', 'js'),
+          target: ['Firefox78', 'Chrome90', 'Safari14', 'iOS14'],
+        })
+      )
+      .catch(err => {
+        console.error(err)
+        process.exit(1)
       })
-      .catch(() => process.exit(1))
   },
   backendJS() {
     // We transpile the TS to JS and treeshake
@@ -100,7 +107,10 @@ const build = {
         treeShaking: true,
         outdir: '.',
       })
-      .catch(() => process.exit(1))
+      .catch(err => {
+        console.error(err)
+        process.exit(1)
+      })
   },
 }
 
