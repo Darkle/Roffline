@@ -18,7 +18,7 @@ type PostType = {
   post_hint: string
   permalink: string
   url: string
-  media: any
+  media: any // eslint-disable-line @typescript-eslint/no-explicit-any
   crosspost_parent: string
 }
 
