@@ -4,6 +4,8 @@ frontend/js/**/*.js
 frontend/js/**/*.js.map
 db/**/*.js
 db/**/*.js.map
+logging/**/*.js
+logging/**/*.js.map
 downloads/**/*.js
 downloads/**/*.js.map
 boot.js
