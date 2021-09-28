@@ -36,8 +36,8 @@ async function populateTablesOnFirstRun(sequelize: Sequelize): Promise<void> {
   await t.commit()
 }
 
-const createTables = (sequelize: Sequelize): Promise<[void, void, void, void, void, void, void]> =>
-  Promise.all([
+async function createTables(sequelize: Sequelize): Promise<void> {
+  await Promise.all([
     initAdminSettingsModel(sequelize),
     initCommentsModel(sequelize),
     initFeedsToFetchModel(sequelize),
@@ -46,6 +46,7 @@ const createTables = (sequelize: Sequelize): Promise<[void, void, void, void, vo
     initUpdatesTrackerModel(sequelize),
     initUserModel(sequelize),
   ])
+}
 
 function firstRun(sequelize: Sequelize): Promise<void> {
   return createTables(sequelize).then(() =>

@@ -1,5 +1,8 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
-import { noop } from '../../server/utils'
+
+type SubredditsMasterListType = {
+  subreddit: string
+}
 
 class SubredditsMasterList extends Model {}
 
@@ -16,13 +19,13 @@ const tableSchema = {
   },
 }
 
-const initSubredditsMasterListModel = (sequelize: Sequelize): Promise<void> => {
+const initSubredditsMasterListModel = (sequelize: Sequelize): Promise<SubredditsMasterList> => {
   SubredditsMasterList.init(tableSchema, {
     sequelize,
     modelName: 'SubredditsMasterList',
     tableName: 'subreddits_master_list',
   })
-  return SubredditsMasterList.sync().then(noop)
+  return SubredditsMasterList.sync()
 }
 
-export { initSubredditsMasterListModel, SubredditsMasterList }
+export { initSubredditsMasterListModel, SubredditsMasterList, SubredditsMasterListType }

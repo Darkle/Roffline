@@ -1,5 +1,26 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
-import { noop } from '../../server/utils'
+
+type PostType = {
+  postId: string
+  subreddit: string
+  author: string
+  title: string
+  selftext: string
+  selftext_html: string
+  score: number
+  is_self: boolean
+  created_utc: number
+  domain: string
+  is_video: boolean
+  stickied: boolean
+  media_has_been_downloaded: boolean
+  mediaDownloadTries: number
+  post_hint: string
+  permalink: string
+  url: string
+  media: any
+  crosspost_parent: string
+}
 
 class Post extends Model {}
 
@@ -98,13 +119,13 @@ const tableSchema = {
   },
 }
 
-const initPostModel = (sequelize: Sequelize): Promise<void> => {
+const initPostModel = (sequelize: Sequelize): Promise<Post> => {
   Post.init(tableSchema, {
     sequelize,
     modelName: 'Post',
     tableName: 'posts',
   })
-  return Post.sync().then(noop)
+  return Post.sync()
 }
 
-export { initPostModel, Post }
+export { initPostModel, Post, PostType }

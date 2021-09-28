@@ -1,5 +1,9 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
-import { noop } from '../../server/utils'
+
+type CommentsType = {
+  postId: string
+  comments: string
+}
 
 class Comments extends Model {}
 
@@ -15,13 +19,13 @@ const tableSchema = {
   },
 }
 
-const initCommentsModel = (sequelize: Sequelize): Promise<void> => {
+const initCommentsModel = (sequelize: Sequelize): Promise<Comments> => {
   Comments.init(tableSchema, {
     sequelize, // We need to pass the connection instance
     modelName: 'Comments', // We need to choose the model name
     tableName: 'comments',
   })
-  return Comments.sync().then(noop)
+  return Comments.sync()
 }
 
-export { initCommentsModel, Comments }
+export { initCommentsModel, Comments, CommentsType }

@@ -53,6 +53,7 @@
     "point-of-view": "^4.15.2",
     "pratica": "^2.0.3",
     "ramda": "^0.27.1",
+    "ramda-adjunct": "^2.33.0",
     "rotating-file-stream": "^2.1.6",
     "sequelize": "^6.6.5",
     "sqlite3": "^5.0.2",

@@ -1,5 +1,4 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
-import { noop } from '../../server/utils'
 
 class User extends Model {}
 
@@ -45,13 +44,13 @@ const tableSchema = {
   },
 }
 
-const initUserModel = (sequelize: Sequelize): Promise<void> => {
+const initUserModel = (sequelize: Sequelize): Promise<User> => {
   User.init(tableSchema, {
     sequelize,
     modelName: 'User',
     tableName: 'users',
   })
-  return User.sync().then(noop)
+  return User.sync()
 }
 
 export { initUserModel, UserType, User }

@@ -1,5 +1,8 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
-import { noop } from '../../server/utils'
+
+type UpdatesTrackerType = {
+  lastUpdateDateAsString: string
+}
 
 class UpdatesTracker extends Model {}
 
@@ -10,13 +13,13 @@ const tableSchema = {
   },
 }
 
-const initUpdatesTrackerModel = (sequelize: Sequelize): Promise<void> => {
+const initUpdatesTrackerModel = (sequelize: Sequelize): Promise<UpdatesTracker> => {
   UpdatesTracker.init(tableSchema, {
     sequelize,
     modelName: 'UpdatesTracker',
     tableName: 'updates_tracker',
   })
-  return UpdatesTracker.sync().then(noop)
+  return UpdatesTracker.sync()
 }
 
-export { initUpdatesTrackerModel, UpdatesTracker }
+export { initUpdatesTrackerModel, UpdatesTracker, UpdatesTrackerType }

@@ -1,5 +1,15 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
-import { noop } from '../../server/utils'
+
+type AdminSettingsType = {
+  downloadComments: boolean
+  numberDownloadsAtOnce: number
+  downloadVideos: boolean
+  videoDownloadMaxFileSize: string
+  videoDownloadResolution: string
+  updateAllDay: boolean
+  updateStartingHour: number
+  updateEndingHour: number
+}
 
 class AdminSettings extends Model {}
 
@@ -46,13 +56,13 @@ const tableSchema = {
   },
 }
 
-const initAdminSettingsModel = (sequelize: Sequelize): Promise<void> => {
+const initAdminSettingsModel = (sequelize: Sequelize): Promise<AdminSettings> => {
   AdminSettings.init(tableSchema, {
     sequelize,
     modelName: 'User',
     tableName: 'admin_settings',
   })
-  return AdminSettings.sync().then(noop)
+  return AdminSettings.sync()
 }
 
-export { initAdminSettingsModel, AdminSettings }
+export { initAdminSettingsModel, AdminSettings, AdminSettingsType }

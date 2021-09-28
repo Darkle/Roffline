@@ -1,7 +1,11 @@
 import path from 'path'
 import fs from 'fs'
 
+// import * as R from 'ramda'
 // type unused = unknown
+
+import { TableModels, TableModelTypes } from '../db/entities/entity-types'
+
 const isDev = process.env['NODE_ENV'] === 'development'
 
 const isAbsolutePath = (pth = ''): boolean => pth.startsWith('/')
@@ -41,6 +45,11 @@ async function ensurePostsMediaDownloadFolderExists(): Promise<void | fs.Stats> 
   }
 }
 
+// const pluckProp = R.curry((prop: string, arr): any[] => arr.map(item => item[prop]))
+
+const toPOJO = (model: TableModels | undefined): TableModelTypes | undefined =>
+  model?.get() as TableModelTypes | undefined
+
 export {
   isDev,
   getEnvFilePath,
@@ -50,4 +59,6 @@ export {
   encaseInArrayIfNotArray,
   arrayToLowerCase,
   ensurePostsMediaDownloadFolderExists,
+  toPOJO,
+  // pluckProp,
 }

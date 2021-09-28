@@ -1,5 +1,8 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
-import { noop } from '../../server/utils'
+
+type FeedsToFetchType = {
+  feed: string
+}
 
 class FeedsToFetch extends Model {}
 
@@ -11,13 +14,13 @@ const tableSchema = {
   },
 }
 
-const initFeedsToFetchModel = (sequelize: Sequelize): Promise<void> => {
+const initFeedsToFetchModel = (sequelize: Sequelize): Promise<FeedsToFetch> => {
   FeedsToFetch.init(tableSchema, {
     sequelize,
     modelName: 'FeedsToFetch',
     tableName: 'feeds_to_fetch',
   })
-  return FeedsToFetch.sync().then(noop)
+  return FeedsToFetch.sync()
 }
 
-export { initFeedsToFetchModel, FeedsToFetch }
+export { initFeedsToFetchModel, FeedsToFetch, FeedsToFetchType }
