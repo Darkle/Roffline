@@ -4,7 +4,7 @@ class User extends Model {}
 
 type UserType = {
   name: string
-  subreddits: string
+  subreddits: string[]
   hideStickiedPosts: boolean
   onlyShowTitlesInFeed: boolean
   infiniteScroll: boolean
