@@ -48,13 +48,10 @@ const tableSchema = {
   },
 }
 
-function createSubredditTable(subreddit: string, sequelize: Sequelize): Promise<void | Map<string, ModelType>> {
+function createSubredditTable(subreddit: string, sequelize: Sequelize): Promise<Map<string, ModelType>> {
   const sub = `subreddit_table_${subreddit.toLowerCase()}`
 
-  const subModel = sequelize.define(sub, tableSchema, {
-    modelName: sub,
-    tableName: sub,
-  })
+  const subModel = sequelize.define(sub, tableSchema, { tableName: sub })
 
   return subModel.sync().then(() => subredditTablesMap.set(sub, subModel))
 }
