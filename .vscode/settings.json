@@ -22,6 +22,8 @@
     "db/**/*.js.map": true,
     "downloads/**/*.js": true,
     "downloads/**/*.js.map": true,
+    "logging/**/*.js": true,
+    "logging/**/*.js.map": true,
     "roffline-storage-old-typeorm-version.db": true,
     "tsconfig-frontend.tsbuildinfo": true
   },
