@@ -6,6 +6,7 @@ const path = require('path')
 const { cli, sh } = require('tasksfile')
 const clc = require('cli-color')
 const esbuild = require('esbuild')
+const { globPlugin } = require('esbuild-plugin-glob')
 
 const shellOptions = { nopipe: true, async: undefined }
 
@@ -27,10 +28,11 @@ const noop = _ => {}
 
 const dev = {
   start() {
-    const browserync = `browser-sync start --watch --reload-delay 1500 --no-open --no-notify --no-ui --no-ghost-mode --no-inject-changes --files=./frontend/**/* --files=./server/**/* --files=./boot.ts --files=logging/**/* --files=db/**/* --files=downloads/**/* --ignore=node_modules --port 8081 --proxy '127.0.0.1:3000' --host '0.0.0.0'`
+    const browserync = `browser-sync start --watch --reload-delay 1500 --no-open --no-notify --no-ui --no-ghost-mode --no-inject-changes --files=./frontend/**/* --files=./server/**/* --files=./boot.ts --files=logging/**/* --files=db/**/* --files=downloads/**/* --ignore=node_modules --port 8081 --proxy 'http://0.0.0.0:3000' --host '0.0.0.0'`
+
     const frontendTSWatch = `ttsc --project ./tsconfig-frontend.json --watch --incremental --pretty --preserveWatchOutput`
 
-    const tsNodeDev = `ts-node-dev --debug --watch=server/**/*.eta --ignore-watch=frontend ./boot.ts`
+    const tsNodeDev = `ts-node-dev --watch=server/**/*.eta --ignore-watch=frontend ./boot.ts`
 
     sh(`concurrently --raw --prefix=none "${frontendTSWatch}" "${browserync}" "${tsNodeDev}"`, shellOptions)
   },
@@ -63,17 +65,40 @@ const build = {
   minifyCSSToBuildDir() {
     sh(`foreach --glob "frontend-build/**/*.css" --execute "csso --input #{path} --output #{path}"`, shellOptions)
   },
-  TStoJSandMinifyJSToBuildDir() {
-    // TODO: make esbuild is using the tsconfig-frontend.json and not the tsconfig.json
+  frontendJS() {
+    // We transpile the TS to JS, treeshake, minify and output to ./frontend-build/js
     esbuild
       .build({
         entryPoints: ['app.jsx'],
         bundle: true,
         format: 'esm',
         minify: true,
+        tsconfig: 'tsconfig-frontend.json',
+        loader: {
+          '.ts': 'ts',
+        },
+        platform: 'browser',
         treeShaking: true,
         outdir: path.join('frontend-build', 'js'),
         target: ['Firefox78', 'Chrome90', 'Safari14', 'iOS14'],
+      })
+      .catch(() => process.exit(1))
+  },
+  backendJS() {
+    // We transpile the TS to JS and treeshake
+    esbuild
+      .build({
+        entryPoints: ['boot.ts', 'db/**/*.ts', 'downloads/**/*.ts', 'logging/**/*.ts', 'server/**/*.ts'],
+        plugins: [globPlugin()],
+        bundle: false,
+        tsconfig: 'tsconfig.json',
+        loader: {
+          '.ts': 'ts',
+        },
+        format: 'cjs',
+        platform: 'node',
+        treeShaking: true,
+        outdir: '.',
       })
       .catch(() => process.exit(1))
   },
@@ -91,7 +116,7 @@ const tests = {
   },
   eslint() {
     sh(
-      `eslint './boot.ts' './server/**/*.ts' './server/**/*.eta' './frontend/js/**/*.ts' './tests/**/*.ts' --report-unused-disable-directives --quiet --rule 'no-console: ["error", { allow: ["error", "info"] }]' --rule "no-warning-comments: ['error', { terms: ['todo', 'fixme', 'hack', 'bug', 'xxx'], location: 'anywhere' }]"`,
+      `eslint './boot.ts' './server/**/*.ts' './logging/**/*.ts' './downloads/**/*.ts' './db/**/*.ts' './server/**/*.eta' './frontend/js/**/*.ts' './tests/**/*.ts' --report-unused-disable-directives --quiet --rule 'no-console: ["error", { allow: ["error", "info"] }]' --rule "no-warning-comments: ['error', { terms: ['todo', 'fixme', 'hack', 'bug', 'xxx'], location: 'anywhere' }]"`,
       shellOptions
     )
   },
@@ -285,6 +310,7 @@ cli({
   db,
   dbquickclear1,
   testAll,
+  build,
   buildProd,
   // fixNodeModulesForESModuleSupport,
 })
