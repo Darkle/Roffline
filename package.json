@@ -63,6 +63,7 @@
     "@types/browser-sync": "^2.26.2",
     "@types/p-tap": "^1.0.1",
     "@types/ramda": "^0.27.45",
+    "@types/validator": "^13.6.3",
     "@typescript-eslint/eslint-plugin": "^4.32.0",
     "@typescript-eslint/parser": "^4.32.0",
     "browser-sync": "^2.27.5",
