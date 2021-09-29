@@ -41,20 +41,6 @@ const dev = {
   },
 }
 
-// const fixNodeModulesForESModuleSupport = {
-//   run() {
-//     const librariesToFix = ['ramda', 'mocha']
-//     const nodeModulesPath = path.join(process.cwd(), 'node_modules')
-
-//     librariesToFix.forEach(lib => {
-//       const libFolderPackageJsonPath = path.join(nodeModulesPath, lib, 'package.json')
-//       const packageObj = JSON.parse(fs.readFileSync(libFolderPackageJsonPath, { encoding: 'utf-8' }))
-//       packageObj.type = 'module'
-//       fs.writeFileSync(libFolderPackageJsonPath, JSON.stringify(packageObj, null, 2))
-//     })
-//   },
-// }
-
 const build = {
   prepareBuildDir() {
     prepareAndCleanDir('./frontend-build')
