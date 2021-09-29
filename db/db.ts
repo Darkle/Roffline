@@ -38,7 +38,7 @@ const db = {
     )
   },
   async setLastScheduledUpdateTime(date: string | Date): Promise<void> {
-    await UpdatesTrackerModel.update({ lastUpdateDateAsString: date.toString() }, { where: { id: 1 } })
+    await UpdatesTrackerModel.update({ lastUpdateDateAsString: date }, { where: { id: 1 } })
   },
   getUserSettings(userName: string): Promise<Maybe<User>> {
     return UserModel.findOne({ where: { name: userName } })
@@ -68,14 +68,12 @@ const db = {
       .otherwise(() => UserModel.update({ [settingName]: [settingValue] }, { where: { name: userName } }))
   },
   async batchAddUserSubreddits(username: string, subreddits: string[]): Promise<void> {
-    const subs = R.map(R.toLower, subreddits)
-
     const maybeUserSubs = await db.getUserSpecificSetting(username, 'subreddits')
 
     await maybeUserSubs.cata({
       Just: userSubs =>
         UserModel.update(
-          { subreddits: R.uniq([...(userSubs as string[]), ...subs]) },
+          { subreddits: R.uniq([...(userSubs as string[]), ...subreddits]) },
           { where: { name: username } }
         ),
       Nothing: noop,

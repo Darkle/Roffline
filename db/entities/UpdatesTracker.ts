@@ -4,7 +4,15 @@ type UpdatesTracker = {
   lastUpdateDateAsString: string
 }
 
-class UpdatesTrackerModel extends Model {}
+class UpdatesTrackerModel extends Model {
+  get lastUpdateDateAsString(): string {
+    return this.getDataValue('lastUpdateDateAsString') as string
+  }
+
+  set lastUpdateDateAsString(date: string | Date) {
+    this.setDataValue('lastUpdateDateAsString', date.toString())
+  }
+}
 
 const tableSchema = {
   lastUpdateDateAsString: {
