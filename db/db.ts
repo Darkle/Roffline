@@ -10,7 +10,12 @@ import { noop, omitDuplicateSubs } from '../server/utils'
 import { mainLogger } from '../logging/logging'
 import { UpdatesTrackerModel } from './entities/UpdatesTracker'
 import { User, UserModel } from './entities/Users'
-import { createSubredditTable } from './entities/SubredditTable'
+import {
+  createSubredditTable,
+  loadSubredditTableModels,
+  subredditTablesMap,
+  SubredditMapModel,
+} from './entities/SubredditTable'
 
 const dbPath = process.env['DBPATH'] || './roffline-storage.db'
 
@@ -35,7 +40,7 @@ const sequelize = new Sequelize({
 const db = {
   sequelize,
   init(): Promise<void> {
-    return firstRun(sequelize)
+    return firstRun(sequelize).then(() => loadSubredditTableModels(sequelize))
   },
   close(): Promise<void> {
     return sequelize.close()
@@ -130,32 +135,38 @@ const db = {
 export { db }
 
 setTimeout(() => {
+  const awwSub = subredditTablesMap.get('aww') as SubredditMapModel
+  awwSub
+    .create({ posts_Default: 'foo' })
+    .then(result => console.log(result))
+    .catch(err => console.error(err))
+
   // UserModel.create({ name: 'Kermit' })
   // db.batchAddSubredditsToMasterList(['aww', 'dogs', 'cats']).catch(err => console.error(err))
   // db.batchAddSubredditsToMasterList(['cats', 'dogs', 'fish', 'rabbits']).then(res => {
-  db.getAllSubreddits()
-    .then(res => {
-      // console.log(res)
-      res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
-    })
-    // .then(() =>
-    //   db.getUserSpecificSetting('Kermit', 'subreddits').then(res => {
-    //     // console.log(res)
-    //     res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
-    //   })
-    // )
-    // .then(() => db.addSubreddit('Kermit', 'aww'))
-    // .then(() => db.getAllSubreddits())
-    // .then(res => {
-    //   // console.log(res)
-    //   res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
-    // })
-    // .then(() => db.getUserSpecificSetting('Kermit', 'subreddits'))
-    // .then(res => {
-    //   // console.log(res)
-    //   res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
-    // })
-    .catch(err => console.error(err))
+  // db.getAllSubreddits()
+  //   .then(res => {
+  //     // console.log(res)
+  //     res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
+  //   })
+  //   .then(() =>
+  //     db.getUserSpecificSetting('Kermit', 'subreddits').then(res => {
+  //       // console.log(res)
+  //       res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
+  //     })
+  //   )
+  //   .then(() => db.addSubreddit('Kermit', 'aww'))
+  //   .then(() => db.getAllSubreddits())
+  //   .then(res => {
+  //     // console.log(res)
+  //     res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
+  //   })
+  // .then(() => db.getUserSpecificSetting('Kermit', 'subreddits'))
+  // .then(res => {
+  //   // console.log(res)
+  //   res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
+  // })
+  // .catch(err => console.error(err))
   // AdminSettings.findByPk(1).then(result => {
   //   console.log(result?.toJSON())
   // })

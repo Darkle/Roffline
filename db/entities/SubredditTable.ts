@@ -1,7 +1,5 @@
-import * as R from 'ramda'
-import { Sequelize, DataTypes, ModelType } from 'sequelize'
+import { Sequelize, DataTypes, ModelCtor, Model } from 'sequelize'
 
-import { noop } from '../../server/utils'
 import { SubredditsMasterListModel } from './SubredditsMasterList'
 
 type SubredditTable = {
@@ -12,12 +10,17 @@ type SubredditTable = {
   topPosts_Year: string | null
   topPosts_All: string | null
 }
+/*****
+  From ModelCtor type definition: ModelCtor<M extends Model> = typeof Model & { new(): M };
+  Its mostly just Model type.
+*****/
+type SubredditMapModel = ModelCtor<Model>
 
 /*****
   Since the subreddit tables are created dynamically, we need to store a reference to their
   models somewhere. A Map seems like a good idea for that.
 *****/
-const subredditTablesMap: Map<string, ModelType> = new Map()
+const subredditTablesMap: Map<string, SubredditMapModel> = new Map()
 
 const tableSchema = {
   posts_Default: {
@@ -53,20 +56,22 @@ const tableSchema = {
 }
 
 async function createSubredditTable(subreddit: string, sequelize: Sequelize): Promise<void> {
-  const subTableName = `subreddit_table_${subreddit.toLowerCase()}`
+  const subLower = subreddit.toLowerCase()
+  const subTableName = `subreddit_table_${subLower}`
 
   const subModel = sequelize.define(subTableName, tableSchema, {
     tableName: subTableName,
     timestamps: false,
   })
-
-  await subModel.sync().then(() => subredditTablesMap.set(subTableName, subModel))
+  console.log(typeof subModel)
+  console.log(subModel)
+  await subModel.sync().then(() => subredditTablesMap.set(subLower, subModel))
 }
 
 async function loadSubredditTableModels(sequelize: Sequelize): Promise<void> {
   await SubredditsMasterListModel.findAll({ attributes: ['subreddit'] }).then(subreddits =>
-    R.empty(subreddits) ? noop() : Promise.all(subreddits.map(sub => createSubredditTable(sub, sequelize)))
+    Promise.all(subreddits.map(sub => createSubredditTable(sub.get('subreddit') as string, sequelize)))
   )
 }
 
-export { SubredditTable, createSubredditTable, loadSubredditTableModels, subredditTablesMap }
+export { SubredditTable, createSubredditTable, loadSubredditTableModels, subredditTablesMap, SubredditMapModel }
