@@ -24,6 +24,7 @@ type Comments = {
 //     sequelize,
 //     modelName: 'CommentsModel',
 //     tableName: 'comments',
+// timestamps: false,
 //   })
 //   return CommentsModel.sync()
 // }
