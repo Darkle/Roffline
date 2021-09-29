@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 
-// import * as R from 'ramda'
+import * as R from 'ramda'
 // type unused = unknown
 
 import { TableModels, TableModelTypes } from '../db/entities/entity-types'
@@ -50,6 +50,15 @@ async function ensurePostsMediaDownloadFolderExists(): Promise<void | fs.Stats> 
 const toPOJO = (model: TableModels | undefined): TableModelTypes | undefined =>
   model?.get() as TableModelTypes | undefined
 
+function omitDuplicateSubs(currentSubs: string[], newSubs: string[]): string[] {
+  //  We have a getter in the UserModel that capatilises subs, so gotta lowercase then for this comparison.
+  const currentSubsLowercase = currentSubs.length ? currentSubs.map((sub: string) => sub.toLowerCase()) : []
+  // Also do same for new subs in cause they misstype and add a duplicate - e.g. Cats and then CAts
+  const newSubsLowercase = newSubs.map((sub: string) => sub.toLowerCase())
+
+  return R.uniq([...currentSubsLowercase, ...newSubsLowercase])
+}
+
 export {
   isDev,
   getEnvFilePath,
@@ -59,6 +68,7 @@ export {
   encaseInArrayIfNotArray,
   arrayToLowerCase,
   ensurePostsMediaDownloadFolderExists,
+  omitDuplicateSubs,
   toPOJO,
   // pluckProp,
 }
