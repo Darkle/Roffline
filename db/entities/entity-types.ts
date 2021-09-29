@@ -1,5 +1,5 @@
 import { AdminSettingsModel, AdminSettings } from './AdminSettings'
-import { CommentsModel, Comments } from './Comments'
+// import { CommentsModel, Comments } from './Comments'
 import { FeedsToFetchModel, FeedsToFetch } from './FeedsToFetch'
 import { PostModel, Post } from './Posts'
 import { SubredditsMasterListModel, SubredditsMasterList } from './SubredditsMasterList'
@@ -8,14 +8,14 @@ import { UserModel, User } from './Users'
 
 type TableModels =
   | AdminSettingsModel
-  | CommentsModel
+  // | CommentsModel
   | FeedsToFetchModel
   | PostModel
   | SubredditsMasterListModel
   | UpdatesTrackerModel
   | UserModel
 type TableModelTypes =
-  | Comments
+  // | Comments
   | AdminSettings
   | FeedsToFetch
   | Post
