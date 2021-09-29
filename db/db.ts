@@ -1,21 +1,29 @@
 import * as R from 'ramda'
 // import * as RA from 'ramda-adjunct'
-import { Sequelize } from 'sequelize'
+import { Sequelize, Transaction } from 'sequelize'
 import { match } from 'ts-pattern'
 import { Maybe, get as MaybeGet, Just, Nothing, nullable as MaybeNullable } from 'pratica'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { firstRun } from './db-first-run'
-import { noop } from '../server/utils'
+import { noop, omitDuplicateSubs } from '../server/utils'
 import { mainLogger } from '../logging/logging'
 import { UpdatesTrackerModel } from './entities/UpdatesTracker'
 import { User, UserModel } from './entities/Users'
+import { createSubredditTable } from './entities/SubredditTable'
 
 const dbPath = process.env['DBPATH'] || './roffline-storage.db'
 
+type TransactionType = Transaction | null | undefined
+
+export { TransactionType }
+
 /*****
-  Until this (https://github.com/sequelize/sequelize/issues/12575) is fixed, we have to map
-    over results and use .get() to get raw objects instead of model instances
+  Notes:
+    * Until this (https://github.com/sequelize/sequelize/issues/12575) is fixed, we have to map
+      over results and use .get() to get raw objects instead of model instances
+    * Gotta use getterMethods and setterMethods instead of regular get()/set() in classes because of
+        this: https://github.com/sequelize/sequelize/issues/8953
 *****/
 
 const sequelize = new Sequelize({
@@ -67,20 +75,24 @@ const db = {
       )
       .otherwise(() => UserModel.update({ [settingName]: [settingValue] }, { where: { name: userName } }))
   },
-  async batchAddUserSubreddits(username: string, subreddits: string[]): Promise<void> {
-    const maybeUserSubs = await db.getUserSpecificSetting(username, 'subreddits')
+  async batchAddUserSubreddits(
+    userName: string,
+    subreddits: string[],
+    transaction: TransactionType = null
+  ): Promise<void> {
+    const maybeUserSubs = await db.getUserSpecificSetting(userName, 'subreddits')
 
     await maybeUserSubs.cata({
       Just: userSubs =>
         UserModel.update(
-          { subreddits: R.uniq([...(userSubs as string[]), ...subreddits]) },
-          { where: { name: username } }
+          { subreddits: omitDuplicateSubs(userSubs as string[], subreddits) },
+          { where: { name: userName }, transaction }
         ),
       Nothing: noop,
     })
   },
-  addUserSubreddit(username: string, subreddit: string): Promise<void> {
-    return db.batchAddUserSubreddits(username, [subreddit])
+  addUserSubreddit(userName: string, subreddit: string, transaction: TransactionType = null): Promise<void> {
+    return db.batchAddUserSubreddits(userName, [subreddit], transaction)
   },
   getAllSubreddits(): Promise<Maybe<string[]>> {
     return SubredditsMasterListModel.findAll({ attributes: ['subreddit'] }).then(results =>
@@ -90,30 +102,60 @@ const db = {
     )
   },
   async batchAddSubredditsToMasterList(subreddits: string[]): Promise<void> {
-    const subs = subreddits.map(sub => ({ subreddit: sub.toLocaleLowerCase() }))
+    const subs = subreddits.map(subreddit => ({ subreddit }))
 
     await SubredditsMasterListModel.bulkCreate(subs, { ignoreDuplicates: true, fields: ['subreddit'] })
+  },
+  async addSingleSubredditToMasterList(newSub: string, transaction: TransactionType = null): Promise<void> {
+    await SubredditsMasterListModel.create(
+      { subreddit: newSub },
+      { ignoreDuplicates: true, fields: ['subreddit'], transaction }
+    )
+  },
+  async addSubreddit(userName: string, newSub: string): Promise<void> {
+    await sequelize.transaction(async transaction => {
+      await Promise.all([
+        db.addSingleSubredditToMasterList(newSub, transaction),
+        db.addUserSubreddit(userName, newSub, transaction),
+        /*****
+          Looks like theres no way to make Model.sync() part of a transaction, so createSubredditTable
+          is a seperate db call.
+        *****/
+        createSubredditTable(newSub, sequelize),
+      ])
+    })
   },
 }
 
 export { db }
 
 setTimeout(() => {
-  // User.create({ name: 'Kermit' }).catch(err => console.error(err))
+  // UserModel.create({ name: 'Kermit' })
   // db.batchAddSubredditsToMasterList(['aww', 'dogs', 'cats']).catch(err => console.error(err))
   // db.batchAddSubredditsToMasterList(['cats', 'dogs', 'fish', 'rabbits']).then(res => {
-  db.getUserSpecificSetting('Kermit', 'hideStickiedPosts').then(res => {
-    // console.log(res)
-    res
-      //   //   // .map(thing => {
-      //   //   //   // @ts-expect-error
-      //   //   //   console.log(thing.subreddit)
-      //   //   //   // @ts-expect-error
-      //   //   //   return thing.subreddit // eslint-disable-line
-      //   //   // })
-      .cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
-    // return db.batchAddSubredditsToMasterList(['derp', 'welp'])
-  })
+  db.getAllSubreddits()
+    .then(res => {
+      // console.log(res)
+      res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
+    })
+    // .then(() =>
+    //   db.getUserSpecificSetting('Kermit', 'subreddits').then(res => {
+    //     // console.log(res)
+    //     res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
+    //   })
+    // )
+    // .then(() => db.addSubreddit('Kermit', 'aww'))
+    // .then(() => db.getAllSubreddits())
+    // .then(res => {
+    //   // console.log(res)
+    //   res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
+    // })
+    // .then(() => db.getUserSpecificSetting('Kermit', 'subreddits'))
+    // .then(res => {
+    //   // console.log(res)
+    //   res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
+    // })
+    .catch(err => console.error(err))
   // AdminSettings.findByPk(1).then(result => {
   //   console.log(result?.toJSON())
   // })
