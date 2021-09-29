@@ -23,6 +23,7 @@ const tableSchema = {
     type: DataTypes.NUMBER,
     allowNull: false,
     defaultValue: 2,
+    validate: { min: 1 },
   },
   downloadVideos: {
     type: DataTypes.BOOLEAN,
@@ -33,11 +34,13 @@ const tableSchema = {
     type: DataTypes.TEXT,
     allowNull: false,
     defaultValue: '300',
+    validate: { notEmpty: true },
   },
   videoDownloadResolution: {
     type: DataTypes.TEXT,
     allowNull: false,
     defaultValue: '480p',
+    validate: { isIn: [['240p', '360p', '480p', '720p', '1080p', '1440p', '2160p']] },
   },
   updateAllDay: {
     type: DataTypes.BOOLEAN,
@@ -48,11 +51,13 @@ const tableSchema = {
     type: DataTypes.NUMBER,
     allowNull: false,
     defaultValue: 1,
+    validate: { min: 1, max: 24 }, // eslint-disable-line @typescript-eslint/no-magic-numbers
   },
   updateEndingHour: {
     type: DataTypes.NUMBER,
     allowNull: false,
     defaultValue: 5, // eslint-disable-line @typescript-eslint/no-magic-numbers
+    validate: { min: 1, max: 24 }, // eslint-disable-line @typescript-eslint/no-magic-numbers
   },
 }
 
@@ -61,6 +66,12 @@ const initAdminSettingsModel = (sequelize: Sequelize): Promise<AdminSettingsMode
     sequelize,
     modelName: 'AdminSettingsModel',
     tableName: 'admin_settings',
+    timestamps: false,
+    defaultScope: {
+      where: {
+        id: 1,
+      },
+    },
   })
   return AdminSettingsModel.sync()
 }
