@@ -4,15 +4,7 @@ type UpdatesTracker = {
   lastUpdateDateAsString: string
 }
 
-class UpdatesTrackerModel extends Model {
-  get lastUpdateDateAsString(): string {
-    return this.getDataValue('lastUpdateDateAsString') as string
-  }
-
-  set lastUpdateDateAsString(date: string | Date) {
-    this.setDataValue('lastUpdateDateAsString', date.toString())
-  }
-}
+class UpdatesTrackerModel extends Model {}
 
 const tableSchema = {
   lastUpdateDateAsString: {
@@ -26,6 +18,17 @@ const initUpdatesTrackerModel = (sequelize: Sequelize): Promise<UpdatesTrackerMo
     sequelize,
     modelName: 'UpdatesTrackerModel',
     tableName: 'updates_tracker',
+    timestamps: false,
+    defaultScope: {
+      where: {
+        id: 1,
+      },
+    },
+    setterMethods: {
+      lastUpdateDateAsString(date: string | Date): void {
+        this.setDataValue('lastUpdateDateAsString', date.toString())
+      },
+    },
   })
   return UpdatesTrackerModel.sync()
 }
