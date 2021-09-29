@@ -1,4 +1,8 @@
+import * as R from 'ramda'
 import { Sequelize, DataTypes, ModelType } from 'sequelize'
+
+import { noop } from '../../server/utils'
+import { SubredditsMasterListModel } from './SubredditsMasterList'
 
 type SubredditTable = {
   posts_Default: string | null
@@ -48,12 +52,21 @@ const tableSchema = {
   },
 }
 
-function createSubredditTable(subreddit: string, sequelize: Sequelize): Promise<Map<string, ModelType>> {
+async function createSubredditTable(subreddit: string, sequelize: Sequelize): Promise<void> {
   const subTableName = `subreddit_table_${subreddit.toLowerCase()}`
 
-  const subModel = sequelize.define(subTableName, tableSchema, { tableName: subTableName })
+  const subModel = sequelize.define(subTableName, tableSchema, {
+    tableName: subTableName,
+    timestamps: false,
+  })
 
-  return subModel.sync().then(() => subredditTablesMap.set(subTableName, subModel))
+  await subModel.sync().then(() => subredditTablesMap.set(subTableName, subModel))
 }
 
-export { SubredditTable, createSubredditTable }
+async function loadSubredditTableModels(sequelize: Sequelize): Promise<void> {
+  await SubredditsMasterListModel.findAll({ attributes: ['subreddit'] }).then(subreddits =>
+    R.empty(subreddits) ? noop() : Promise.all(subreddits.map(sub => createSubredditTable(sub, sequelize)))
+  )
+}
+
+export { SubredditTable, createSubredditTable, loadSubredditTableModels, subredditTablesMap }
