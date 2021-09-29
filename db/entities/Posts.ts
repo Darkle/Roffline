@@ -58,6 +58,7 @@ const tableSchema = {
     *****/
     type: DataTypes.CITEXT,
     allowNull: false,
+    validate: { notEmpty: true },
   },
   author: {
     type: DataTypes.TEXT,
@@ -113,6 +114,7 @@ const tableSchema = {
     type: DataTypes.NUMBER,
     allowNull: false,
     defaultValue: 0,
+    validate: { min: 0, max: 3 }, // eslint-disable-line @typescript-eslint/no-magic-numbers
   },
   post_hint: {
     type: DataTypes.TEXT,
@@ -126,6 +128,7 @@ const tableSchema = {
   url: {
     type: DataTypes.TEXT,
     allowNull: false,
+    validate: { isUrl: true },
   },
   media: {
     type: DataTypes.JSON,
@@ -144,6 +147,7 @@ const initPostModel = (sequelize: Sequelize): Promise<PostModel> => {
     sequelize,
     modelName: 'PostModel',
     tableName: 'posts',
+    timestamps: false,
   })
   return PostModel.sync()
 }
