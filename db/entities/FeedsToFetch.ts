@@ -11,6 +11,7 @@ const tableSchema = {
     type: DataTypes.TEXT,
     allowNull: false,
     primaryKey: true,
+    validate: { isUrl: true },
   },
 }
 
@@ -19,6 +20,7 @@ const initFeedsToFetchModel = (sequelize: Sequelize): Promise<FeedsToFetchModel>
     sequelize,
     modelName: 'FeedsToFetchModel',
     tableName: 'feeds_to_fetch',
+    timestamps: false,
   })
   return FeedsToFetchModel.sync()
 }
