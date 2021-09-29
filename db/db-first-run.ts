@@ -28,12 +28,12 @@ const defaultUpdatesTrackerSettings = {
 }
 
 async function populateTablesOnFirstRun(sequelize: Sequelize): Promise<void> {
-  const t = await sequelize.transaction()
-
-  AdminSettingsModel.create(defaultAdminSettings)
-  UpdatesTrackerModel.create(defaultUpdatesTrackerSettings)
-
-  await t.commit()
+  await sequelize.transaction(async transaction => {
+    await Promise.all([
+      AdminSettingsModel.create(defaultAdminSettings, { transaction }),
+      UpdatesTrackerModel.create(defaultUpdatesTrackerSettings, { transaction }),
+    ])
+  })
 }
 
 async function createTables(sequelize: Sequelize): Promise<void> {
