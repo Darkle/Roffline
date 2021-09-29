@@ -1,5 +1,25 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
 
+type Oembed = {
+  provider_url: string
+  version: string
+  title: string
+  type: string
+  thumbnail_width: number
+  height: number
+  width: number
+  html: string
+  provider_name: string
+  thumbnail_url: string
+  thumbnail_height: number
+  author_url: string
+}
+
+type PostMediaKey = {
+  type: string
+  oembed: Oembed
+}
+
 type Post = {
   postId: string
   subreddit: string
@@ -18,7 +38,7 @@ type Post = {
   post_hint: string
   permalink: string
   url: string
-  media: any // eslint-disable-line @typescript-eslint/no-explicit-any
+  media: PostMediaKey
   crosspost_parent: string
 }
 
