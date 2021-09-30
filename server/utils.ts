@@ -51,9 +51,8 @@ const toPOJO = (model: TableModels | undefined): TableModelTypes | undefined =>
   model?.get() as TableModelTypes | undefined
 
 function omitDuplicateSubs(currentSubs: string[], newSubs: string[]): string[] {
-  //  We have a getter in the UserModel that capatilises subs, so gotta lowercase then for this comparison.
   const currentSubsLowercase = currentSubs.length ? currentSubs.map((sub: string) => sub.toLowerCase()) : []
-  // Also do same for new subs in cause they misstype and add a duplicate - e.g. Cats and then CAts
+  // Lowercase new subs in case they misstype and add a duplicate - e.g. Cats and then CAts
   const newSubsLowercase = newSubs.map((sub: string) => sub.toLowerCase())
 
   return R.uniq([...currentSubsLowercase, ...newSubsLowercase])

@@ -45,20 +45,12 @@ const tableSchema = {
   },
 }
 
-// eslint-disable-next-line max-lines-per-function
 const initUserModel = (sequelize: Sequelize): Promise<UserModel> => {
   UserModel.init(tableSchema, {
     sequelize,
     modelName: 'UserModel',
     tableName: 'users',
     timestamps: false,
-    getterMethods: {
-      subreddits(): string[] {
-        const subs = this.getDataValue('subreddits') as string[]
-        // Capitalise each subreddit
-        return Array.isArray(subs) ? subs.map(sub => sub.charAt(0).toUpperCase() + sub.slice(1)) : []
-      },
-    },
     setterMethods: {
       subreddits(subs: string[]): void {
         this.setDataValue(

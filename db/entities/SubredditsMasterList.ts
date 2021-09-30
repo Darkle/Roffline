@@ -26,13 +26,6 @@ const initSubredditsMasterListModel = (sequelize: Sequelize): Promise<Subreddits
     modelName: 'SubredditsMasterListModel',
     tableName: 'subreddits_master_list',
     timestamps: false,
-    getterMethods: {
-      subreddit(): string {
-        const sub = this.getDataValue('subreddit') as string
-        // Capitalise each subreddit
-        return sub.charAt(0).toUpperCase() + sub.slice(1)
-      },
-    },
   })
   return SubredditsMasterListModel.sync()
 }
