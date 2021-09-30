@@ -11,7 +11,7 @@ import { mainLogger } from '../logging/logging'
 import { UpdatesTrackerModel } from './entities/UpdatesTracker'
 import { User, UserModel } from './entities/Users'
 import {
-  createSubredditTable,
+  createAndSyncSubredditTable,
   loadSubredditTableModels,
   subredditTablesMap,
   SubredditMapModel,
@@ -20,8 +20,6 @@ import {
 const dbPath = process.env['DBPATH'] || './roffline-storage.db'
 
 type TransactionType = Transaction | null | undefined
-
-export { TransactionType }
 
 /*****
   Notes:
@@ -122,11 +120,7 @@ const db = {
       await Promise.all([
         db.addSingleSubredditToMasterList(newSub, transaction),
         db.addUserSubreddit(userName, newSub, transaction),
-        /*****
-          Looks like theres no way to make Model.sync() part of a transaction, so createSubredditTable
-          is a seperate db call.
-        *****/
-        createSubredditTable(newSub, sequelize),
+        createAndSyncSubredditTable(newSub, sequelize, transaction),
       ])
     })
   },
@@ -140,8 +134,7 @@ setTimeout(() => {
     .create({ posts_Default: 'foo' })
     .then(result => console.log(result))
     .catch(err => console.error(err))
-
-  // UserModel.create({ name: 'Kermit' })
+  // UserModel.create({ name: 'Kermit' }).catch(err => console.error(err))
   // db.batchAddSubredditsToMasterList(['aww', 'dogs', 'cats']).catch(err => console.error(err))
   // db.batchAddSubredditsToMasterList(['cats', 'dogs', 'fish', 'rabbits']).then(res => {
   // db.getAllSubreddits()
@@ -149,24 +142,24 @@ setTimeout(() => {
   //     // console.log(res)
   //     res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
   //   })
-  //   .then(() =>
-  //     db.getUserSpecificSetting('Kermit', 'subreddits').then(res => {
-  //       // console.log(res)
-  //       res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
-  //     })
-  //   )
+  //   //   .then(() =>
+  //   //     db.getUserSpecificSetting('Kermit', 'subreddits').then(res => {
+  //   //       // console.log(res)
+  //   //       res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
+  //   //     })
+  //   //   )
   //   .then(() => db.addSubreddit('Kermit', 'aww'))
   //   .then(() => db.getAllSubreddits())
   //   .then(res => {
   //     // console.log(res)
   //     res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
   //   })
-  // .then(() => db.getUserSpecificSetting('Kermit', 'subreddits'))
-  // .then(res => {
-  //   // console.log(res)
-  //   res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
-  // })
-  // .catch(err => console.error(err))
+  //   // .then(() => db.getUserSpecificSetting('Kermit', 'subreddits'))
+  //   // .then(res => {
+  //   //   // console.log(res)
+  //   //   res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
+  //   // })
+  //   .catch(err => console.error(err))
   // AdminSettings.findByPk(1).then(result => {
   //   console.log(result?.toJSON())
   // })
