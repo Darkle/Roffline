@@ -92,6 +92,12 @@ async function loadSubredditTableModels(sequelize: Sequelize): Promise<void> {
   })
 }
 
+async function removeSubredditTable(subredditToRemove: string): Promise<void> {
+  const subModel = subredditTablesMap.get(subredditToRemove) as SubredditMapModel
+  await subModel.drop()
+  subredditTablesMap.delete(subredditToRemove)
+}
+
 export {
   SubredditTable,
   createSubredditTable,
@@ -99,4 +105,5 @@ export {
   subredditTablesMap,
   SubredditMapModel,
   createAndSyncSubredditTable,
+  removeSubredditTable,
 }
