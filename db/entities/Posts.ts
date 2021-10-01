@@ -29,6 +29,7 @@ type Post = {
   selftext_html: string
   score: number
   is_self: boolean
+  //  created_utc is a unix timestamp (ie the number of seconds since the epoch)
   created_utc: number
   domain: string
   is_video: boolean
@@ -40,6 +41,7 @@ type Post = {
   url: string
   media: PostMediaKey
   crosspost_parent: string
+  commentsDownloaded: boolean
 }
 
 class PostModel extends Model {}
@@ -87,6 +89,7 @@ const tableSchema = {
     allowNull: false,
     defaultValue: false,
   },
+  //  created_utc is a unix timestamp (ie the number of seconds since the epoch)
   created_utc: {
     type: DataTypes.NUMBER,
     allowNull: false,
@@ -139,6 +142,11 @@ const tableSchema = {
     type: DataTypes.TEXT,
     allowNull: true,
     defaultValue: null,
+  },
+  commentsDownloaded: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
   },
 }
 
