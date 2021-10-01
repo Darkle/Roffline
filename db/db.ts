@@ -2,7 +2,7 @@ import * as R from 'ramda'
 // import * as RA from 'ramda-adjunct'
 import { Sequelize, Transaction, Op } from 'sequelize'
 import { match } from 'ts-pattern'
-import { Maybe, get as MaybeGet, Just, Nothing, nullable as MaybeNullable } from 'pratica'
+// import { Maybe, get as MaybeGet, Just, Nothing, nullable as MaybeNullable } from 'pratica'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { firstRun } from './db-first-run'
@@ -42,9 +42,9 @@ const db = {
   close(): Promise<void> {
     return sequelize.close()
   },
-  getLastScheduledUpdateTime(): Promise<Maybe<string>> {
+  getLastScheduledUpdateTime(): Promise<string> {
     return UpdatesTrackerModel.findByPk(1, { attributes: ['lastUpdateDateAsString'] }).then(
-      MaybeGet(['lastUpdateDateAsString'])
+      item => item?.get('lastUpdateDateAsString') as string
     )
   },
   async setLastScheduledUpdateTime(date: string | Date): Promise<void> {
@@ -53,17 +53,15 @@ const db = {
   async createUser(userName: string): Promise<void> {
     await UserModel.create({ name: userName }, { ignoreDuplicates: true })
   },
-  getUserSettings(userName: string): Promise<Maybe<User>> {
-    return UserModel.findOne({ where: { name: userName } })
-      .then(userAsModel => userAsModel?.get() as User)
-      .then(MaybeNullable)
+  getUserSettings(userName: string): Promise<User> {
+    return UserModel.findOne({ where: { name: userName } }).then(userAsModel => userAsModel?.get() as User)
   },
-  getUserSpecificSetting(userName: string, settingName: keyof User): Promise<Maybe<User[keyof User]>> {
+  getUserSpecificSetting(userName: string, settingName: keyof User): Promise<User[keyof User]> {
     return UserModel.findOne({ where: { name: userName }, attributes: [settingName] }).then(
-      MaybeGet([settingName])
+      user => user?.get(settingName) as User[keyof User]
     )
   },
-  getUserSubreddits(userName: string): Promise<Maybe<User[keyof User]>> {
+  getUserSubreddits(userName: string): Promise<User[keyof User]> {
     return this.getUserSpecificSetting(userName, 'subreddits')
   },
   async setUserSpecificSetting(
@@ -90,59 +88,56 @@ const db = {
     subreddits: string[],
     transaction: TransactionType = null
   ): Promise<void> {
-    const maybeUserSubs = await db.getUserSubreddits(userName)
+    const userSubs = await db.getUserSubreddits(userName)
 
-    await maybeUserSubs.cata({
-      Just: userSubs =>
-        UserModel.update(
-          { subreddits: omitDuplicateSubs(userSubs as string[], subreddits) },
-          { where: { name: userName }, transaction }
-        ),
-      Nothing: noop,
-    })
+    await UserModel.update(
+      { subreddits: omitDuplicateSubs(userSubs as string[], subreddits) },
+      { where: { name: userName }, transaction }
+    )
   },
   addUserSubreddit(userName: string, subreddit: string, transaction: TransactionType = null): Promise<void> {
     return db.batchAddUserSubreddits(userName, [subreddit], transaction)
   },
-  // eslint-disable-next-line max-lines-per-function
-  async removeUserSubreddit(userName: string, subreddit: string): Promise<void> {
-    const subredditToRemove = subreddit.toLowerCase()
-    const transaction = await sequelize.transaction()
-
-    const maybeUserSubs = await this.getUserSubreddits(userName)
-
-    await maybeUserSubs.cata({
-      Just: userSubs =>
-        UserModel.update(
-          { subreddits: R.without([subredditToRemove], userSubs as string[]) },
-          { where: { name: userName }, transaction }
-        ),
-      Nothing: noop,
-    })
-
-    const allUsersSubreddits = await UserModel.findAll({
+  getAllUsersSubredditsBarOneUser(userToOmit: string, transaction: TransactionType = null): Promise<string[]> {
+    return UserModel.findAll({
       attributes: ['subreddits'],
-      where: { name: { [Op.not]: userName } },
+      where: { name: { [Op.not]: userToOmit } },
       transaction,
     }).then((users): string[] =>
       users.flatMap(userModelSubsAttr => userModelSubsAttr.get('subreddits') as string[])
     )
+  },
+  // eslint-disable-next-line max-lines-per-function
+  async removeUserSubreddit(userName: string, subreddit: string): Promise<void> {
+    const subredditToRemove = subreddit.toLowerCase()
 
-    await transaction.commit()
+    const removeSubFromUser = async (userSubs: string[], transaction: Transaction): Promise<void> => {
+      await UserModel.update(
+        { subreddits: R.without([subredditToRemove], userSubs) },
+        { where: { name: userName }, transaction }
+      )
+    }
 
     const noOtherUserHasSubreddit = (allUsersSubs: string[], subToRemove: string): boolean =>
       !allUsersSubs.includes(subToRemove)
 
-    // eslint-disable-next-line functional/no-conditional-statement
-    if (noOtherUserHasSubreddit(allUsersSubreddits, subredditToRemove)) {
-      await removeSubredditTable(subredditToRemove)
-    }
+    await sequelize
+      .transaction(async transaction => {
+        await this.getUserSubreddits(userName).then((maybeUserSubs: User[keyof User]) =>
+          removeSubFromUser(maybeUserSubs as string[], transaction)
+        )
+
+        return this.getAllUsersSubredditsBarOneUser(userName, transaction)
+      })
+      .then(allUsersSubreddits =>
+        noOtherUserHasSubreddit(allUsersSubreddits, subredditToRemove)
+          ? removeSubredditTable(subredditToRemove)
+          : noop()
+      )
   },
-  getAllSubreddits(): Promise<Maybe<string[]>> {
-    return SubredditsMasterListModel.findAll({ attributes: ['subreddit'] }).then(results =>
-      R.isEmpty(results)
-        ? Nothing
-        : Just(results).map((subs): string[] => subs.map(subModelAttr => subModelAttr.get('subreddit') as string))
+  getAllSubreddits(): Promise<string[]> {
+    return SubredditsMasterListModel.findAll({ attributes: ['subreddit'] }).then(subs =>
+      subs.map(subModelAttr => subModelAttr.get('subreddit') as string)
     )
   },
   async batchAddSubredditsToMasterList(subreddits: string[], transaction: TransactionType = null): Promise<void> {
@@ -194,7 +189,7 @@ setTimeout(() => {
   //   .then(() => db.createUser('Ben'))
   //   .then(() => db.createUser('Karen'))
   //   .then(() => db.createUser('Liz'))
-  db.removeUserSubreddit('Ben', 'poop').catch(err => console.error(err))
+  // db.removeUserSubreddit('Ben', 'poop').catch(err => console.error(err))
   // db.batchAddSubredditsToMasterList(['aww', 'dogs', 'cats']).catch(err => console.error(err))
   // db.batchAddSubredditsToMasterList(['cats', 'dogs', 'fish', 'rabbits']).then(res => {
   // db.getAllSubreddits()
