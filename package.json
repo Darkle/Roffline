@@ -57,6 +57,7 @@
     "rotating-file-stream": "^2.1.6",
     "sequelize": "^6.6.5",
     "sqlite3": "^5.0.2",
+    "timer-node": "^5.0.5",
     "ts-pattern": "^3.3.3"
   },
   "devDependencies": {
