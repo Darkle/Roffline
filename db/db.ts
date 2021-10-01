@@ -1,24 +1,33 @@
 import * as R from 'ramda'
-// import * as RA from 'ramda-adjunct'
 import { Sequelize, Transaction, Op } from 'sequelize'
 import { match } from 'ts-pattern'
+import { Timer } from 'timer-node'
 // import { Maybe, get as MaybeGet, Just, Nothing, nullable as MaybeNullable } from 'pratica'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { firstRun } from './db-first-run'
 import { noop, omitDuplicateSubs } from '../server/utils'
-import { mainLogger } from '../logging/logging'
+import { dbLogger, mainLogger } from '../logging/logging'
 import { UpdatesTrackerModel } from './entities/UpdatesTracker'
 import { User, UserModel } from './entities/Users'
+import { Post, PostModel } from './entities/Posts'
 import {
   createAndSyncSubredditTable,
   loadSubredditTableModels,
   removeSubredditTable,
 } from './entities/SubredditTable'
+import {
+  getPostsPaginated,
+  getPostsPaginatedForSubreddit,
+  getTopPostsPaginated,
+  getTopPostsPaginatedForSubreddit,
+} from './db-get-posts-paginated'
+import { searchPosts, SearchLimitedPostType } from './db-search-posts'
 
 const dbPath = process.env['DBPATH'] || './roffline-storage.db'
 
 type TransactionType = Transaction | null | undefined
+type TopFilterType = 'day' | 'week' | 'month' | 'year' | 'all'
 
 /*****
   Notes:
@@ -173,11 +182,118 @@ const db = {
       ])
     )
   },
+  getSinglePostData(postId: string): Promise<Post> {
+    return PostModel.findByPk(postId).then(post => post?.get() as Post)
+  },
+  getPostsPaginated(page = 1, topFilter: null | TopFilterType = null): Promise<{ count: number; rows: Post[] }> {
+    return topFilter ? getTopPostsPaginated(page, topFilter) : getPostsPaginated(page)
+  },
+  getPostsPaginatedForSubreddit(
+    subreddit: string,
+    page = 1,
+    topFilter: null | TopFilterType = null
+  ): Promise<{ count: number; rows: Post[] }> {
+    return topFilter
+      ? getTopPostsPaginatedForSubreddit(subreddit, page, topFilter)
+      : getPostsPaginatedForSubreddit(subreddit, page)
+  },
+  searchPosts(
+    searchTerm: string,
+    page = 1,
+    fuzzySearch = false
+  ): Promise<{ rows: SearchLimitedPostType[]; count: number }> {
+    return searchPosts(sequelize, searchTerm, page, fuzzySearch)
+  },
+  getAllPostIds(): Promise<string[]> {
+    return PostModel.findAll({ attributes: ['postId'] }).then(items =>
+      items.map(item => item.get('postId') as string)
+    )
+  },
+  getPostIdsWithNoCommentsYetFetched(): Promise<string[]> {
+    return PostModel.findAll({ where: { commentsDownloaded: false }, attributes: ['postId'] }).then(items =>
+      items.map(item => item.get('postId') as string)
+    )
+  },
+  getPostsWithMediaStillToDownload(): Promise<Post[]> {
+    return PostModel.findAll({ where: { media_has_been_downloaded: false }, attributes: ['postId'] }).then(
+      items => items.map(item => item.get() as Post)
+    )
+  },
+  getCountOfAllPostsWithMediaStillToDownload(): Promise<number> {
+    return PostModel.count({ where: { media_has_been_downloaded: false }, attributes: ['postId'] })
+  },
+  async setMediaDownloadedTrueForPost(postId: string): Promise<void> {
+    await PostModel.update({ media_has_been_downloaded: true }, { where: { postId } })
+  },
+  async incrementPostMediaDownloadTry(postId: string): Promise<void> {
+    await PostModel.increment('mediaDownloadTries', { where: { postId } })
+  },
+  async batchRemovePosts(postsToRemove: string[]): Promise<void> {
+    await PostModel.destroy({ where: { postId: { [Op.in]: postsToRemove } } })
+  },
+  // eslint-disable-next-line max-lines-per-function
+  async batchAddNewPosts(postsToAdd: Post[]): Promise<void> {
+    // eslint-disable-next-line functional/no-conditional-statement
+    if (R.isEmpty(postsToAdd)) return Promise.resolve()
+
+    const timer = new Timer()
+    timer.start()
+
+    const postsInDB: string[] = await sequelize.transaction(transaction =>
+      PostModel.findAll({ attributes: ['postId'], transaction }).then(items =>
+        items.map(item => item.get('postId') as string)
+      )
+    )
+
+    const numNewPostsSansExisting = R.differenceWith(
+      (x: Post, postId: string) => x.postId === postId,
+      postsToAdd,
+      postsInDB
+    ).length
+
+    await PostModel.bulkCreate(postsToAdd, { ignoreDuplicates: true, validate: true })
+
+    dbLogger.debug(
+      `db.batchAddNewPosts knex.batchInsert for ${numNewPostsSansExisting} posts took ${timer.format(
+        '[%s] seconds [%ms] ms'
+      )} to complete`
+    )
+
+    timer.clear()
+  },
 }
 
 export { db }
 
 setTimeout(() => {
+  // PostModel.create({
+  //   postId: 'asd',
+  //   subreddit: 'aww',
+  //   author: 'foo',
+  //   title: 'the return of christ',
+  //   score: 99, // eslint-disable-line @typescript-eslint/no-magic-numbers
+  //   created_utc: 1,
+  //   domain: 'foo.com',
+  //   permalink: '/r/foo',
+  //   url: 'http://google.com',
+  // }).catch(err => console.error(err))
+  // const arrayLength = 5000
+  // db.batchAddNewPosts(
+  //   // @ts-expect-error
+  //   Array.from({ length: arrayLength }, (_, i) => ({
+  //     postId: i,
+  //     subreddit: 'aww',
+  //     author: 'foo',
+  //     title: 'the return of christ',
+  //     score: 99, // eslint-disable-line @typescript-eslint/no-magic-numbers
+  //     created_utc: 1,
+  //     domain: 'foo.com',
+  //     permalink: '/r/foo',
+  //     url: 'http://google.com',
+  //   }))
+  // )
+  //   // .then(response => console.log(response))
+  //   .catch(err => console.error(err))
   // const awwSub = subredditTablesMap.get('aww') as SubredditMapModel
   // awwSub
   //   .create({ posts_Default: 'foo' })
@@ -189,13 +305,12 @@ setTimeout(() => {
   //   .then(() => db.createUser('Ben'))
   //   .then(() => db.createUser('Karen'))
   //   .then(() => db.createUser('Liz'))
-  // db.removeUserSubreddit('Ben', 'poop').catch(err => console.error(err))
+  // db.removeUserSubreddit('Michael', 'abruptchaos').catch(err => console.error(err))
   // db.batchAddSubredditsToMasterList(['aww', 'dogs', 'cats']).catch(err => console.error(err))
   // db.batchAddSubredditsToMasterList(['cats', 'dogs', 'fish', 'rabbits']).then(res => {
-  // db.getAllSubreddits()
+  // db.getSinglePostData('asd')
   //   .then(res => {
-  //     // console.log(res)
-  //     res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
+  //     console.log(res)
   //   })
   //   //   .then(() =>
   //   //     db.getUserSpecificSetting('Kermit', 'subreddits').then(res => {
@@ -209,15 +324,14 @@ setTimeout(() => {
   //   )
   //   .then(() => db.getAllSubreddits())
   //   .then(res => {
-  //     // console.log(res)
-  //     res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
+  //     console.log(res)
   //   })
   //   // .then(() => db.getUserSpecificSetting('Kermit', 'subreddits'))
   //   // .then(res => {
   //   //   // console.log(res)
   //   //   res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
   //   // })
-  //   .catch(err => console.error(err))
+  // .catch(err => console.error(err))
   // AdminSettings.findByPk(1).then(result => {
   //   console.log(result?.toJSON())
   // })
