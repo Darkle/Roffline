@@ -21,7 +21,7 @@ function bailOnFatalError(err: Error): void {
   console.error(err)
   // eslint-disable-next-line functional/no-try-statement
   try {
-    // db.close(RA.noop)
+    db.close()
   } catch (error) {}
 
   // eslint-disable-next-line functional/no-try-statement
