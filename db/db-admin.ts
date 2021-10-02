@@ -84,6 +84,7 @@ async function adminSearchAnyDBTable(
 
   const onlyTextColumns = (columns: ColumnInfoType[]): ColumnInfoType[] =>
     columns.filter((item: ColumnInfoType) => item?.type?.toLowerCase() === 'text')
+
   const getColumnName = (columns: ColumnInfoType[]): string[] => columns.map(column => column.name)
 
   const textColumnNamesForTable = await sequelize
