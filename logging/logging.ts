@@ -1,5 +1,5 @@
 import Pino, { pino } from 'pino'
-import { formatISO } from 'date-fns'
+import { DateTime } from 'luxon'
 
 import { getEnvFilePath } from '../server/utils'
 
@@ -8,7 +8,7 @@ const pinoOptions = {
   level: process.env['LOGGING_LEVEL'],
   base: undefined,
   timestamp(): string {
-    return `,"time":"${formatISO(new Date(), { representation: 'complete' })}"`
+    return `,"time":"${DateTime.now().toISO({ includeOffset: true })}"`
   },
 }
 

@@ -1,5 +1,5 @@
 import { Op } from 'sequelize'
-import DateTime from 'date-fns'
+import { DateTime } from 'luxon'
 
 import { Post, PostModel } from './entities/Posts'
 
@@ -36,7 +36,11 @@ function getPostsPaginated(page: number): Promise<{ count: number; rows: Post[] 
 }
 
 const getFilteredTimeAsUnixTimestamp = (topFilter: string): number =>
-  Math.round(DateTime.getUnixTime(DateTime.sub(new Date(), { [`${topFilter}s`]: 1 })))
+  Math.round(
+    DateTime.now()
+      .minus({ [topFilter]: 1 })
+      .toSeconds()
+  )
 
 function getTopPostsPaginated(page: number, topFilter: TopFilterType): Promise<{ count: number; rows: Post[] }> {
   const offset = (page - 1) * postsPerPage
