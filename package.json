@@ -45,6 +45,8 @@
     "gridjs": "^5.0.2",
     "http-status-codes": "^2.1.4",
     "lazy-object-view": "^1.2.1",
+    "lmdb": "^1.6.8",
+    "lmdb-store": "^1.6.8",
     "luxon": "^2.0.2",
     "p-tap": "^4.0.0",
     "pino": "^7.0.0-rc.7",

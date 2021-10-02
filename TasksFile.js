@@ -225,7 +225,7 @@ const tests = {
   },
   mocha(options, skipVideoTests = false) {
     //INFO: if using a test.env file, remember that in package.json we are pre-requireing dotenv, so double check package.json <<<<<<<<<<
-    const testEnvs = `NODE_ENV=production PUBLIC_FOLDER=frontend-build POSTS_MEDIA_DOWNLOAD_DIR='./test-posts-media' LOGDIR='./roffline-logs' DBPATH='./test-roffline-storage.db'`
+    const testEnvs = `NODE_ENV=production PUBLIC_FOLDER=frontend-build POSTS_MEDIA_DOWNLOAD_DIR='./test-posts-media' LOGDIR='./roffline-logs' SQLITE_DBPATH='./roffline-sqlite.db' COMMENTS_DBPATH='./roffline-comments-lmdb.db'`
     const shOptions = { ...shellOptions, async: true }
 
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
@@ -253,12 +253,12 @@ const tests = {
 }
 
 const db = {
-  createDBTables() {
-    const dbPath = process.env.DBPATH || './roffline-storage.db'
-    const dbFileDoesNotExist = !fs.statSync(dbPath, { throwIfNoEntry: false })
+  // createDBTables() {
+  //   const dbPath = process.env.DBPATH || './roffline-storage.db'
+  //   const dbFileDoesNotExist = !fs.statSync(dbPath, { throwIfNoEntry: false })
 
-    dbFileDoesNotExist && sh(`sqlite3 ${dbPath} < ./db/init.sql`)
-  },
+  //   dbFileDoesNotExist && sh(`sqlite3 ${dbPath} < ./db/init.sql`)
+  // },
   // clearsubstables() {
   //   const queryForAllSubsTruncate = sh(
   //     `sqlite3 -batch roffline-storage.db "SELECT name FROM sqlite_master WHERE type ='table' AND name != 'posts' AND name != 'subreddits' AND name != 'updates_tracker' AND name != 'http429s' ;"`,

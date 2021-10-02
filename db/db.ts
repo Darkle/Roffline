@@ -2,6 +2,8 @@ import * as R from 'ramda'
 import { Sequelize, Transaction, Op } from 'sequelize'
 import { match } from 'ts-pattern'
 import { Timer } from 'timer-node'
+import { open } from 'lmdb'
+
 // import { Maybe, get as MaybeGet, Just, Nothing, nullable as MaybeNullable } from 'pratica'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
@@ -35,7 +37,8 @@ import {
   adminListTablesInDB,
 } from './db-admin'
 
-const dbPath = process.env['DBPATH'] || './roffline-storage.db'
+const sqliteDBPath = process.env['SQLITE_DBPATH'] || './roffline-sqlite.db'
+const commentsDBPath = process.env['COMMENTS_DBPATH'] || './roffline-comments-lmdb.db'
 
 type TransactionType = Transaction | null | undefined
 type TopFilterType = 'day' | 'week' | 'month' | 'year' | 'all'
@@ -53,8 +56,14 @@ type SubsPostsIdDataType = {
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: dbPath,
+  storage: sqliteDBPath,
   logging: (msg): void => mainLogger.trace(msg),
+})
+
+const commentsDB = open({
+  path: commentsDBPath,
+  compression: true,
+  encoding: 'string',
 })
 
 const db = {
@@ -62,8 +71,9 @@ const db = {
   init(): Promise<void> {
     return firstRun(sequelize).then(() => loadSubredditTableModels(sequelize))
   },
-  close(): Promise<void> {
-    return sequelize.close()
+  async close(): Promise<void> {
+    await sequelize.close()
+    commentsDB.close()
   },
   getLastScheduledUpdateTime(): Promise<string> {
     return UpdatesTrackerModel.findByPk(1, { attributes: ['lastUpdateDateAsString'] }).then(
@@ -243,7 +253,24 @@ const db = {
     await PostModel.increment('mediaDownloadTries', { where: { postId } })
   },
   async batchRemovePosts(postsToRemove: string[]): Promise<void> {
+    const timer = new Timer()
+    timer.start()
+
     await PostModel.destroy({ where: { postId: { [Op.in]: postsToRemove } } })
+
+    await commentsDB.transactionAsync(() => {
+      postsToRemove.forEach(postId => {
+        commentsDB.remove(postId)
+      })
+    })
+
+    dbLogger.debug(
+      `db.batchRemovePosts for ${postsToRemove.length} posts and their comments took ${timer.format(
+        '[%s] seconds [%ms] ms'
+      )} to complete`
+    )
+
+    timer.clear()
   },
   // eslint-disable-next-line max-lines-per-function
   async batchAddNewPosts(postsToAdd: Post[]): Promise<void> {
@@ -268,9 +295,36 @@ const db = {
     await PostModel.bulkCreate(postsToAdd, { ignoreDuplicates: true, validate: true })
 
     dbLogger.debug(
-      `db.batchAddNewPosts knex.batchInsert for ${numNewPostsSansExisting} new posts (${
-        postsToAdd.length
-      } total) took ${timer.format('[%s] seconds [%ms] ms')} to complete`
+      `db.batchAddNewPosts for ${numNewPostsSansExisting} posts (${postsToAdd.length} total) took ${timer.format(
+        '[%s] seconds [%ms] ms'
+      )} to complete`
+    )
+
+    timer.clear()
+  },
+  // eslint-disable-next-line max-lines-per-function
+  async batchSaveComments(postsComments: { postId: string; comments: string }[]): Promise<void> {
+    const timer = new Timer()
+    timer.start()
+
+    await sequelize.transaction(async transaction =>
+      Promise.all([
+        postsComments.map(({ postId }) =>
+          PostModel.update({ commentsDownloaded: true }, { transaction, where: { postId } })
+        ),
+      ])
+    )
+
+    await commentsDB.transactionAsync(() => {
+      postsComments.forEach(({ postId, comments }) => {
+        commentsDB.put(postId, comments)
+      })
+    })
+
+    dbLogger.debug(
+      `db.batchAddCommentsToPosts for ${postsComments.length} posts comments took ${timer.format(
+        '[%s] seconds [%ms] ms'
+      )} to complete`
     )
 
     timer.clear()
@@ -279,7 +333,9 @@ const db = {
     await sequelize.transaction(transaction =>
       Promise.all(
         Object.keys(subsPostsIdData).map(subreddit =>
-          subredditTablesMap.get(subreddit.toLowerCase())?.bulkCreate(subsPostsIdData[subreddit], { transaction })
+          subredditTablesMap
+            .get(subreddit.toLowerCase())
+            ?.bulkCreate(subsPostsIdData[subreddit], { ignoreDuplicates: true, transaction })
         )
       )
     )
@@ -365,9 +421,9 @@ setTimeout(() => {
   //     url: 'http://google.com',
   //   }))
   // )
-  db.getDBStats()
-    .then(response => console.log(response))
-    .catch(err => console.error(err))
+  // db.getDBStats()
+  //   .then(response => console.log(response))
+  //   .catch(err => console.error(err))
   // db.adminSearchDBTable('admin_settings', '300')
   //   .then(response => console.log(response))
   //   .catch(err => console.error(err))
