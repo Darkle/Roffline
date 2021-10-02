@@ -28,7 +28,7 @@ function adminListTablesInDB(sequelize: Sequelize): Promise<{ name: string }[]> 
   return sequelize.showAllSchemas({ logging: false }) as Promise<{ name: string }[]>
 }
 
-function adminGetPaginatedTableData(
+function adminGetAnyTableDataPaginated(
   sequelize: Sequelize,
   tableName: string,
   page = 1
@@ -71,7 +71,7 @@ type ColumnInfoType = {
   pk: number
 }
 
-async function adminSearchDBTable(
+async function adminSearchAnyDBTable(
   sequelize: Sequelize,
   tableName: string,
   searchTerm: string,
@@ -135,6 +135,6 @@ export {
   getSingleAdminSetting,
   adminListTablesInDB,
   setAdminData,
-  adminGetPaginatedTableData,
-  adminSearchDBTable,
+  adminGetAnyTableDataPaginated,
+  adminSearchAnyDBTable,
 }

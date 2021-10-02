@@ -30,8 +30,8 @@ import {
   getAdminSettings,
   getSingleAdminSetting,
   setAdminData,
-  adminGetPaginatedTableData,
-  adminSearchDBTable,
+  adminGetAnyTableDataPaginated,
+  adminSearchAnyDBTable,
   adminListTablesInDB,
 } from './db-admin'
 
@@ -296,14 +296,14 @@ const db = {
     return adminListTablesInDB(sequelize)
   },
   adminGetPaginatedTableData(tableName: string, page = 1): Promise<{ rows: TableModelTypes[]; count: number }> {
-    return adminGetPaginatedTableData(sequelize, tableName, page)
+    return adminGetAnyTableDataPaginated(sequelize, tableName, page)
   },
   adminSearchDBTable(
     tableName: string,
     searchTerm: string,
     page = 1
   ): Promise<{ rows: TableModelTypes[]; count: number }> {
-    return adminSearchDBTable(sequelize, tableName, searchTerm, page)
+    return adminSearchAnyDBTable(sequelize, tableName, searchTerm, page)
   },
 }
 
