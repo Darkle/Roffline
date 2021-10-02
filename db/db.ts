@@ -25,6 +25,15 @@ import {
   getTopPostsPaginatedForSubreddit,
 } from './db-get-posts-paginated'
 import { searchPosts, SearchLimitedPostType } from './db-search-posts'
+import { TableModelTypes } from './entities/entity-types'
+import {
+  getAdminSettings,
+  getSingleAdminSetting,
+  setAdminData,
+  adminGetPaginatedTableData,
+  adminSearchDBTable,
+  adminListTablesInDB,
+} from './db-admin'
 
 const dbPath = process.env['DBPATH'] || './roffline-storage.db'
 
@@ -280,6 +289,22 @@ const db = {
       Promise.all(subs.map(sub => subredditTablesMap.get(sub.toLowerCase())?.truncate({ transaction })))
     )
   },
+  getAdminSettings,
+  getSingleAdminSetting,
+  setAdminData,
+  adminListTablesInDB(): Promise<{ name: string }[]> {
+    return adminListTablesInDB(sequelize)
+  },
+  adminGetPaginatedTableData(tableName: string, page = 1): Promise<{ rows: TableModelTypes[]; count: number }> {
+    return adminGetPaginatedTableData(sequelize, tableName, page)
+  },
+  adminSearchDBTable(
+    tableName: string,
+    searchTerm: string,
+    page = 1
+  ): Promise<{ rows: TableModelTypes[]; count: number }> {
+    return adminSearchDBTable(sequelize, tableName, searchTerm, page)
+  },
 }
 
 export { db }
@@ -311,8 +336,9 @@ setTimeout(() => {
   //     url: 'http://google.com',
   //   }))
   // )
-  //   // .then(response => console.log(response))
-  //   .catch(err => console.error(err))
+  db.adminSearchDBTable('admin_settings', '300')
+    .then(response => console.log(response))
+    .catch(err => console.error(err))
   // const awwSub = subredditTablesMap.get('aww') as SubredditMapModel
   // awwSub
   //   .create({ posts_Default: 'foo' })
@@ -324,6 +350,7 @@ setTimeout(() => {
   //   .then(() => db.createUser('Ben'))
   //   .then(() => db.createUser('Karen'))
   //   .then(() => db.createUser('Liz'))
+  //   .catch(err => console.error(err))
   // db.removeUserSubreddit('Michael', 'abruptchaos').catch(err => console.error(err))
   // db.batchAddSubredditsToMasterList(['aww', 'dogs', 'cats']).catch(err => console.error(err))
   // db.batchAddSubredditsToMasterList(['cats', 'dogs', 'fish', 'rabbits']).then(res => {
@@ -339,7 +366,7 @@ setTimeout(() => {
   //   //   )
   //   // eslint-disable-next-line max-lines-per-function
   //   .then(() =>
-  //     db.batchAddSubreddits('Ben', ['poop', 'bike', 'cars', 'doors', 'light', 'television', 'speakers'])
+  // db.batchAddSubreddits('Ben', ['poop', 'bike', 'cars', 'doors', 'light', 'television', 'speakers'])
   //   )
   //   .then(() => db.getAllSubreddits())
   //   .then(res => {
