@@ -58,9 +58,10 @@ const tableSchema = {
   },
 }
 
+const genSubTableName = (subreddit: string): string => `subreddit_table_${subreddit.toLowerCase()}`
+
 function createSubredditTable(subreddit: string, sequelize: Sequelize): SubredditMapModel {
-  const subLower = subreddit.toLowerCase()
-  const subTableName = `subreddit_table_${subLower}`
+  const subTableName = genSubTableName(subreddit)
 
   return sequelize.define(subTableName, tableSchema, {
     tableName: subTableName,
