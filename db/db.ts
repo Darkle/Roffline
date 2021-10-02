@@ -15,6 +15,8 @@ import {
   createAndSyncSubredditTable,
   loadSubredditTableModels,
   removeSubredditTable,
+  SubredditTable,
+  subredditTablesMap,
 } from './entities/SubredditTable'
 import {
   getPostsPaginated,
@@ -28,6 +30,9 @@ const dbPath = process.env['DBPATH'] || './roffline-storage.db'
 
 type TransactionType = Transaction | null | undefined
 type TopFilterType = 'day' | 'week' | 'month' | 'year' | 'all'
+type SubsPostsIdDataType = {
+  [key: string]: SubredditTable[]
+}
 
 /*****
   Notes:
@@ -254,12 +259,26 @@ const db = {
     await PostModel.bulkCreate(postsToAdd, { ignoreDuplicates: true, validate: true })
 
     dbLogger.debug(
-      `db.batchAddNewPosts knex.batchInsert for ${numNewPostsSansExisting} posts took ${timer.format(
-        '[%s] seconds [%ms] ms'
-      )} to complete`
+      `db.batchAddNewPosts knex.batchInsert for ${numNewPostsSansExisting} new posts (${
+        postsToAdd.length
+      } total) took ${timer.format('[%s] seconds [%ms] ms')} to complete`
     )
 
     timer.clear()
+  },
+  async batchAddSubredditsPostIdData(subsPostsIdData: SubsPostsIdDataType): Promise<void> {
+    await sequelize.transaction(transaction =>
+      Promise.all(
+        Object.keys(subsPostsIdData).map(subreddit =>
+          subredditTablesMap.get(subreddit.toLowerCase())?.bulkCreate(subsPostsIdData[subreddit], { transaction })
+        )
+      )
+    )
+  },
+  async batchClearSubredditsPostIdData(subs: string[]): Promise<void> {
+    await sequelize.transaction(transaction =>
+      Promise.all(subs.map(sub => subredditTablesMap.get(sub.toLowerCase())?.truncate({ transaction })))
+    )
   },
 }
 
