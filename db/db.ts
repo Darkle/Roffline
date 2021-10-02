@@ -305,6 +305,35 @@ const db = {
   ): Promise<{ rows: TableModelTypes[]; count: number }> {
     return adminSearchAnyDBTable(sequelize, tableName, searchTerm, page)
   },
+  // eslint-disable-next-line max-lines-per-function
+  getDBStats(): Promise<{
+    subsMasterListTableNumRows: number
+    postsTableNumRows: number
+    usersTableNumRows: number
+    totalDBsizeInBytes: number
+  }> {
+    return sequelize
+      .transaction(transaction =>
+        Promise.all([
+          SubredditsMasterListModel.count({ transaction }),
+          PostModel.count({ transaction }),
+          UserModel.count({ transaction }),
+          // DB size
+          sequelize
+            .query(`SELECT page_count * page_size as size FROM pragma_page_count(), pragma_page_size();`, {
+              transaction,
+            })
+            // @ts-expect-error Typescript thinks the arg is [unknown[], unknown]
+            .then((result: [[{ size: number }], any]): number => result[0][0].size), // eslint-disable-line @typescript-eslint/no-explicit-any
+        ])
+      )
+      .then(sizes => ({
+        subsMasterListTableNumRows: sizes[0],
+        postsTableNumRows: sizes[1],
+        usersTableNumRows: sizes[2],
+        totalDBsizeInBytes: sizes[3],
+      }))
+  },
 }
 
 export { db }
@@ -336,9 +365,12 @@ setTimeout(() => {
   //     url: 'http://google.com',
   //   }))
   // )
-  db.adminSearchDBTable('admin_settings', '300')
+  db.getDBStats()
     .then(response => console.log(response))
     .catch(err => console.error(err))
+  // db.adminSearchDBTable('admin_settings', '300')
+  //   .then(response => console.log(response))
+  //   .catch(err => console.error(err))
   // const awwSub = subredditTablesMap.get('aww') as SubredditMapModel
   // awwSub
   //   .create({ posts_Default: 'foo' })
