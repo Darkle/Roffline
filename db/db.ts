@@ -4,8 +4,6 @@ import { match } from 'ts-pattern'
 import { Timer } from 'timer-node'
 import * as lmdb from 'lmdb'
 
-// import { Maybe, get as MaybeGet, Just, Nothing, nullable as MaybeNullable } from 'pratica'
-
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { firstRun } from './db-first-run'
 import { noop, omitDuplicateSubs } from '../server/utils'
@@ -344,6 +342,10 @@ const db = {
     await sequelize.transaction(transaction =>
       Promise.all(subs.map(sub => subredditTablesMap.get(sub.toLowerCase())?.truncate({ transaction })))
     )
+  },
+  getPostComments(postId: string): Promise<string> {
+    // Make it promise based. Confusing if one db is sync and other is promise.
+    return Promise.resolve(commentsDB.get(postId))
   },
   getAdminSettings,
   getSingleAdminSetting,
