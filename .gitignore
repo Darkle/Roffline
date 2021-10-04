@@ -36,3 +36,4 @@ roffline-storage-old-typeorm-version.db
 tsconfig-frontend.tsbuildinfo
 roffline-comments-lmdb.db-lock
 roffline-comments-lmdb.db
+roffline-sqlite.db

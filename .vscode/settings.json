@@ -27,7 +27,8 @@
     "roffline-storage-old-typeorm-version.db": true,
     "tsconfig-frontend.tsbuildinfo": true,
     "roffline-comments-lmdb.db-lock": true,
-    "roffline-comments-lmdb.db": true
+    "roffline-comments-lmdb.db": true,
+    "roffline-sqlite.db": true
   },
   "search.exclude": {
     "tsconfig.tsbuildinfo": true,
