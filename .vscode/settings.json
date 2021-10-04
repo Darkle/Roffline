@@ -25,7 +25,9 @@
     "logging/**/*.js": true,
     "logging/**/*.js.map": true,
     "roffline-storage-old-typeorm-version.db": true,
-    "tsconfig-frontend.tsbuildinfo": true
+    "tsconfig-frontend.tsbuildinfo": true,
+    "roffline-comments-lmdb.db-lock": true,
+    "roffline-comments-lmdb.db": true
   },
   "search.exclude": {
     "tsconfig.tsbuildinfo": true,
