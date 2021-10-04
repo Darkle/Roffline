@@ -2,7 +2,7 @@ import * as R from 'ramda'
 import { Sequelize, Transaction, Op } from 'sequelize'
 import { match } from 'ts-pattern'
 import { Timer } from 'timer-node'
-import { open } from 'lmdb'
+import * as lmdb from 'lmdb'
 
 // import { Maybe, get as MaybeGet, Just, Nothing, nullable as MaybeNullable } from 'pratica'
 
@@ -60,7 +60,7 @@ const sequelize = new Sequelize({
   logging: (msg): void => mainLogger.trace(msg),
 })
 
-const commentsDB = open({
+const commentsDB = lmdb.open({
   path: commentsDBPath,
   compression: true,
   encoding: 'string',
@@ -375,12 +375,14 @@ const db = {
           PostModel.count({ transaction }),
           UserModel.count({ transaction }),
           // DB size
-          sequelize
-            .query(`SELECT page_count * page_size as size FROM pragma_page_count(), pragma_page_size();`, {
-              transaction,
-            })
-            // @ts-expect-error Typescript thinks the arg is [unknown[], unknown]
-            .then((result: [[{ size: number }], any]): number => result[0][0].size), // eslint-disable-line @typescript-eslint/no-explicit-any
+          (
+            sequelize.query(
+              `SELECT page_count * page_size as size FROM pragma_page_count(), pragma_page_size();`,
+              {
+                transaction,
+              }
+            ) as Promise<[[{ size: number }], unknown]>
+          ).then((result: [[{ size: number }], unknown]): number => result[0][0].size),
         ])
       )
       .then(sizes => ({
@@ -395,6 +397,11 @@ const db = {
 export { db }
 
 setTimeout(() => {
+  // db.close()
+  //   .then(() => {
+  //     console.log('finished')
+  //   })
+  //   .catch(err => console.log(err))
   // PostModel.create({
   //   postId: 'asd',
   //   subreddit: 'aww',

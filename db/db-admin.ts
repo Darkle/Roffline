@@ -43,20 +43,19 @@ function adminGetAnyTableDataPaginated(
         replacements: [tableName, limit, offset],
         transaction,
         ...defaultQueryOptions,
-      }),
+      }) as Promise<TableModelTypes[]>,
       sequelize.query('SELECT COUNT(*) as `count` from ?', {
         replacements: [tableName],
         transaction,
         ...defaultQueryOptions,
-      }),
+      }) as Promise<[[{ count: number }], unknown]>,
     ]).then(
-      // @ts-expect-error Typescrpt thinks this arg is [unkown, unkown]
-      ([rows, count]: [TableModelTypes[], [{ count: number }]]): {
+      ([rows, count]: [TableModelTypes[], [[{ count: number }], unknown]]): {
         rows: TableModelTypes[]
         count: number
       } => ({
         rows,
-        ...count[0],
+        count: count[0][0].count,
       })
     )
   )
