@@ -5,21 +5,11 @@ import { Post, PostModel } from './entities/Posts'
 
 const postsPerPage = 30
 
-type DefaultFindOptions = {
-  offset?: number
-  limit: number
-  order: string[]
-}
 type TopFilterType = 'day' | 'week' | 'month' | 'year' | 'all'
 
 /*****
   `created_utc` is a unix timestamp (ie the number of seconds since the epoch)
 *****/
-
-const genDefaultFindOptions = (page: number, offset: number): DefaultFindOptions =>
-  page === 1
-    ? { limit: postsPerPage, order: ['created_utc', 'DESC'] }
-    : { offset, limit: postsPerPage, order: ['created_utc', 'DESC'] }
 
 const formatFindAllAndCountResponse = (resp: {
   count: number
@@ -32,7 +22,9 @@ const formatFindAllAndCountResponse = (resp: {
 function getPostsPaginated(page: number): Promise<{ count: number; rows: Post[] }> {
   const offset = (page - 1) * postsPerPage
 
-  return PostModel.findAndCountAll({ ...genDefaultFindOptions(page, offset) }).then(formatFindAllAndCountResponse)
+  return PostModel.findAndCountAll({ offset, limit: postsPerPage, order: [['created_utc', 'DESC']] }).then(
+    formatFindAllAndCountResponse
+  )
 }
 
 const getFilteredTimeAsUnixTimestamp = (topFilter: string): number =>
@@ -52,7 +44,9 @@ function getTopPostsPaginated(page: number, topFilter: TopFilterType): Promise<{
         [Op.gt]: filterTime,
       },
     },
-    ...genDefaultFindOptions(page, offset),
+    offset,
+    limit: postsPerPage,
+    order: [['created_utc', 'DESC']],
   }).then(formatFindAllAndCountResponse)
 }
 
@@ -62,9 +56,12 @@ function getPostsPaginatedForSubreddit(
 ): Promise<{ count: number; rows: Post[] }> {
   const offset = (page - 1) * postsPerPage
 
-  return PostModel.findAndCountAll({ where: { subreddit }, ...genDefaultFindOptions(page, offset) }).then(
-    formatFindAllAndCountResponse
-  )
+  return PostModel.findAndCountAll({
+    where: { subreddit },
+    offset,
+    limit: postsPerPage,
+    order: [['created_utc', 'DESC']],
+  }).then(formatFindAllAndCountResponse)
 }
 
 function getTopPostsPaginatedForSubreddit(
@@ -82,7 +79,9 @@ function getTopPostsPaginatedForSubreddit(
         [Op.gt]: filterTime,
       },
     },
-    ...genDefaultFindOptions(page, offset),
+    offset,
+    limit: postsPerPage,
+    order: [['created_utc', 'DESC']],
   }).then(formatFindAllAndCountResponse)
 }
 
