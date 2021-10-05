@@ -86,14 +86,13 @@ async function adminSearchAnyDBTable(
 
   const getColumnName = (columns: ColumnInfoType[]): string[] => columns.map(column => column.name)
 
-  const textColumnNamesForTable = await sequelize
-    .query(`PRAGMA table_info(?)`, {
+  const textColumnNamesForTable = await (
+    sequelize.query(`PRAGMA table_info(?)`, {
       replacements: [tableName],
       ...defaultQueryOptions,
-    })
-    // @ts-expect-error Typescript thinks the arg is [unknown[], unknown]
-    .then(onlyTextColumns as ColumnInfoType[])
-    // @ts-expect-error Typescript thinks the arg is [unknown[], unknown]
+    }) as Promise<ColumnInfoType[]>
+  )
+    .then(onlyTextColumns)
     .then(getColumnName)
 
   const tableColumnSearchQueries = textColumnNamesForTable
