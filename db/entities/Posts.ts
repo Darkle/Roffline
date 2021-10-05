@@ -21,7 +21,7 @@ type PostMediaKey = {
 }
 
 type Post = {
-  postId: string
+  id: string
   subreddit: string
   author: string
   title: string
@@ -47,7 +47,7 @@ type Post = {
 class PostModel extends Model {}
 
 const tableSchema = {
-  postId: {
+  id: {
     type: DataTypes.TEXT,
     allowNull: false,
     primaryKey: true,

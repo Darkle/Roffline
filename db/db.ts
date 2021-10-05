@@ -231,34 +231,32 @@ const db = {
     return searchPosts(sequelize, searchTerm, page, fuzzySearch)
   },
   getAllPostIds(): Promise<string[]> {
-    return PostModel.findAll({ attributes: ['postId'] }).then(items =>
-      items.map(item => item.get('postId') as string)
-    )
+    return PostModel.findAll({ attributes: ['id'] }).then(items => items.map(item => item.get('id') as string))
   },
   getPostIdsWithNoCommentsYetFetched(): Promise<string[]> {
-    return PostModel.findAll({ where: { commentsDownloaded: false }, attributes: ['postId'] }).then(items =>
-      items.map(item => item.get('postId') as string)
+    return PostModel.findAll({ where: { commentsDownloaded: false }, attributes: ['id'] }).then(items =>
+      items.map(item => item.get('id') as string)
     )
   },
   getPostsWithMediaStillToDownload(): Promise<Post[]> {
-    return PostModel.findAll({ where: { media_has_been_downloaded: false }, attributes: ['postId'] }).then(
-      items => items.map(item => item.get() as Post)
+    return PostModel.findAll({ where: { media_has_been_downloaded: false }, attributes: ['id'] }).then(items =>
+      items.map(item => item.get() as Post)
     )
   },
   getCountOfAllPostsWithMediaStillToDownload(): Promise<number> {
-    return PostModel.count({ where: { media_has_been_downloaded: false }, attributes: ['postId'] })
+    return PostModel.count({ where: { media_has_been_downloaded: false }, attributes: ['id'] })
   },
   async setMediaDownloadedTrueForPost(postId: string): Promise<void> {
-    await PostModel.update({ media_has_been_downloaded: true }, { where: { postId } })
+    await PostModel.update({ media_has_been_downloaded: true }, { where: { id: postId } })
   },
   async incrementPostMediaDownloadTry(postId: string): Promise<void> {
-    await PostModel.increment('mediaDownloadTries', { where: { postId } })
+    await PostModel.increment('mediaDownloadTries', { where: { id: postId } })
   },
   async batchRemovePosts(postsToRemove: string[]): Promise<void> {
     const timer = new Timer()
     timer.start()
 
-    await PostModel.destroy({ where: { postId: { [Op.in]: postsToRemove } } })
+    await PostModel.destroy({ where: { id: { [Op.in]: postsToRemove } } })
 
     await commentsDB.transactionAsync(() => {
       postsToRemove.forEach(postId => {
@@ -283,13 +281,13 @@ const db = {
     timer.start()
 
     const postsInDB: string[] = await sequelize.transaction(transaction =>
-      PostModel.findAll({ attributes: ['postId'], transaction }).then(items =>
-        items.map(item => item.get('postId') as string)
+      PostModel.findAll({ attributes: ['id'], transaction }).then(items =>
+        items.map(item => item.get('id') as string)
       )
     )
 
     const numNewPostsSansExisting = R.differenceWith(
-      (x: Post, postId: string) => x.postId === postId,
+      (x: Post, postId: string) => x.id === postId,
       postsToAdd,
       postsInDB
     ).length
@@ -312,7 +310,7 @@ const db = {
     await sequelize.transaction(async transaction =>
       Promise.all([
         postsComments.map(({ postId }) =>
-          PostModel.update({ commentsDownloaded: true }, { transaction, where: { postId } })
+          PostModel.update({ commentsDownloaded: true }, { transaction, where: { id: postId } })
         ),
       ])
     )
@@ -403,30 +401,46 @@ const db = {
 
 export { db }
 
+//// eslint-disable-next-line import/order,import/first
+// import got from 'got'
+
 setTimeout(() => {
   // Promise.all([
-  //   db.createUser('Kermit'),
-  //   db.createUser('Kevin'),
-  //   db.createUser('Alex'),
-  //   db.createUser('Miss-Piggy'),
+  //   db.createUser('Merp'),
+  //   // db.createUser('Kermit'),
+  //   // db.createUser('Kevin'),
+  //   // db.createUser('Alex'),
+  //   // db.createUser('Miss-Piggy'),
   // ])
   //   .then(() =>
-  // Promise.all([
-  //   db.batchAddSubreddits('Merp', ['aww', 'cats', 'dogs', 'bikes', 'cars', 'planes']),
-  //   db.batchAddSubreddits('Kermit', ['dogs', 'bikes', 'cars', 'planes']),
-  //   db.batchAddSubreddits('Kevin', ['cats', 'dogs', 'television']),
-  //   db.batchAddSubreddits('Alex', ['aww', 'cats', 'dogs', 'bikes', 'tables']),
-  //   db.batchAddSubreddits('Miss-Piggy', ['phones', 'chair', 'seats']),
-  // ])
+  //     Promise.all([
+  //       db.batchAddSubreddits('Merp', ['aww', 'cats', 'dogs', 'bikes', 'cars', 'planes']),
+  //       // db.batchAddSubreddits('Kermit', ['dogs', 'bikes', 'cars', 'planes']),
+  //       // db.batchAddSubreddits('Kevin', ['cats', 'dogs', 'television']),
+  //       // db.batchAddSubreddits('Alex', ['aww', 'cats', 'dogs', 'bikes', 'tables']),
+  //       // db.batchAddSubreddits('Miss-Piggy', ['phones', 'chair', 'seats']),
+  //     ])
   //   )
   // UserModel.update({ hideStickiedPosts: false }, { where: { name: 'Merp' } })
   // db.setUserSpecificSetting('Merp', 'hideStickiedPosts', true)
-  // db.getAdminSettings()
-  //   .then(result => console.log(result))
-  //   .then(() => db.setAdminData('downloadComments', true))
-  //   .then(() => db.getAdminSettings())
-  db.removeUserSubreddit('Miss-Piggy', 'phones')
+  // db.addSubreddit('Merp', 'slevin')
+  //// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  // PostModel.findAndCountAll({ limit: 10, offset: 1, order: [['created_utc', 'DESC']] })
+  //   .then(thing => thing.rows.map(item => item.get())) // eslint-disable-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
+  db.searchPosts('cancer')
+    // got('https://www.reddit.com/r/cats/top/.json?t=month')
+    // .json()
+    //// @ts-expect-error asasd
+    // .then(postsData => db.batchAddNewPosts(postsData.data.children.map(item => item.data))) // eslint-disable-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
+    // .then(postsData => console.log(postsData.data.children)) // eslint-disable-line @typescript-eslint/no-unsafe-member-access
     // .then(result => console.log(result))
+    //   .then(() => db.setAdminData('downloadComments', true))
+    //   .then(() => db.getAdminSettings())
+    // db.removeUserSubreddit('Merp', 'cats')
+    .then(result => {
+      console.log(result)
+      console.log(result.rows.length)
+    })
     // .then(() => db.getAllUsersSubredditsBarOneUser('Miss-Piggy'))
     // //   // db.getLastScheduledUpdateTime()
     // .then(result => console.log(result))

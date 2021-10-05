@@ -6,7 +6,7 @@ const postsPerPage = 30
 
 type SearchLimitedPostType = {
   title: string
-  postId: string
+  id: string
   score: number
   subreddit: string
   created_utc: number
@@ -35,7 +35,7 @@ function searchPosts(
       Promise.all([
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         sequelize.query(
-          `SELECT title, postId, score, subreddit, created_utc, author, permalink FROM posts WHERE (' ' || title || ' ') LIKE ? LIMIT ? ${
+          `SELECT title, id, score, subreddit, created_utc, author, permalink FROM posts WHERE (' ' || title || ' ') LIKE ? LIMIT ? ${
             page > 1 ? 'OFFSET ?' : ''
           }`,
           {
@@ -45,7 +45,7 @@ function searchPosts(
             type: QueryTypes.SELECT,
           }
         ) as Promise<SearchLimitedPostType[]>,
-        sequelize.query("SELECT COUNT(postId) as `count` from posts WHERE (' ' || title || ' ') LIKE ?", {
+        sequelize.query("SELECT COUNT(id) as `count` from posts WHERE (' ' || title || ' ') LIKE ?", {
           replacements: [searchTermSQL],
           transaction,
           raw: true,
