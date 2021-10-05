@@ -6,7 +6,7 @@ import * as lmdb from 'lmdb'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { firstRun } from './db-first-run'
-import { noop, omitDuplicateSubs } from '../server/utils'
+import { omitDuplicateSubs } from '../server/utils'
 import { dbLogger, mainLogger } from '../logging/logging'
 import { UpdatesTrackerModel } from './entities/UpdatesTracker'
 import { User, UserModel } from './entities/Users'
@@ -161,10 +161,13 @@ const db = {
 
         return this.getAllUsersSubredditsBarOneUser(userName, transaction)
       })
-      .then(allUsersSubreddits =>
-        noOtherUserHasSubreddit(allUsersSubreddits, subredditToRemove)
-          ? removeSubredditTable(subredditToRemove)
-          : noop()
+      .then(
+        (allUsersSubreddits): Promise<number | void> =>
+          noOtherUserHasSubreddit(allUsersSubreddits, subredditToRemove)
+            ? removeSubredditTable(subredditToRemove).then(() =>
+                SubredditsMasterListModel.destroy({ where: { subreddit: subredditToRemove } })
+              )
+            : Promise.resolve()
       )
   },
   getAllSubreddits(): Promise<string[]> {
@@ -408,21 +411,22 @@ setTimeout(() => {
   //   db.createUser('Miss-Piggy'),
   // ])
   //   .then(() =>
-  //     Promise.all([
-  //       db.batchAddUserSubreddits('Kermit', ['aww', 'cats', 'dogs', 'bikes', 'cars', 'planes']),
-  //       db.batchAddUserSubreddits('Kevin', ['cats', 'dogs', 'television']),
-  //       db.batchAddUserSubreddits('Alex', ['aww', 'cats', 'dogs', 'bikes', 'tables']),
-  //       db.batchAddUserSubreddits('Miss-Piggy', ['phones', 'chair', 'seats']),
-  //     ])
+  // Promise.all([
+  //   db.batchAddSubreddits('Merp', ['aww', 'cats', 'dogs', 'bikes', 'cars', 'planes']),
+  //   db.batchAddSubreddits('Kermit', ['dogs', 'bikes', 'cars', 'planes']),
+  //   db.batchAddSubreddits('Kevin', ['cats', 'dogs', 'television']),
+  //   db.batchAddSubreddits('Alex', ['aww', 'cats', 'dogs', 'bikes', 'tables']),
+  //   db.batchAddSubreddits('Miss-Piggy', ['phones', 'chair', 'seats']),
+  // ])
   //   )
   // UserModel.update({ hideStickiedPosts: false }, { where: { name: 'Merp' } })
-  db.setUserSpecificSetting('Merp', 'hideStickiedPosts', true)
-    // db.getAdminSettings()
-    //   .then(result => console.log(result))
-    //   .then(() => db.setAdminData('downloadComments', true))
-    //   .then(() => db.getAdminSettings())
-    // db.removeUserSubreddit('Kermit', 'cats')
-    .then(result => console.log(result))
+  // db.setUserSpecificSetting('Merp', 'hideStickiedPosts', true)
+  // db.getAdminSettings()
+  //   .then(result => console.log(result))
+  //   .then(() => db.setAdminData('downloadComments', true))
+  //   .then(() => db.getAdminSettings())
+  db.removeUserSubreddit('Miss-Piggy', 'phones')
+    // .then(result => console.log(result))
     // .then(() => db.getAllUsersSubredditsBarOneUser('Miss-Piggy'))
     // //   // db.getLastScheduledUpdateTime()
     // .then(result => console.log(result))
