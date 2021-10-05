@@ -34,6 +34,7 @@ import {
   adminSearchAnyDBTable,
   adminListTablesInDB,
 } from './db-admin'
+import { StructuredComments } from './entities/Comments'
 
 const sqliteDBPath = process.env['SQLITE_DBPATH'] || './roffline-sqlite.db'
 const commentsDBPath = process.env['COMMENTS_DBPATH'] || './roffline-comments-lmdb.db'
@@ -343,9 +344,10 @@ const db = {
       Promise.all(subs.map(sub => subredditTablesMap.get(sub.toLowerCase())?.truncate({ transaction })))
     )
   },
-  getPostComments(postId: string): Promise<string> {
-    // Make it promise based. Confusing if one db is sync and other is promise.
-    return Promise.resolve(commentsDB.get(postId))
+  getPostComments(postId: string): Promise<StructuredComments> {
+    const postCommentsAsString = commentsDB.get(postId) as string
+    // Make it promise based. Confusing if one db is promise based and other is sync.
+    return Promise.resolve(JSON.parse(postCommentsAsString) as StructuredComments)
   },
   getAdminSettings,
   getSingleAdminSetting,
