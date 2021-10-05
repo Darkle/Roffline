@@ -113,7 +113,7 @@ const db = {
       .with({ settingName: 'subreddits', settingValIsArray: true }, () =>
         db.batchAddUserSubreddits(userName, settingValue as string[])
       )
-      .otherwise(() => UserModel.update({ [settingName]: [settingValue] }, { where: { name: userName } }))
+      .otherwise(() => UserModel.update({ [settingName]: settingValue }, { where: { name: userName } }))
   },
   async batchAddUserSubreddits(
     userName: string,
@@ -155,8 +155,8 @@ const db = {
 
     await sequelize
       .transaction(async transaction => {
-        await this.getUserSubreddits(userName).then((maybeUserSubs: User[keyof User]) =>
-          removeSubFromUser(maybeUserSubs as string[], transaction)
+        await this.getUserSubreddits(userName).then((userSubs: User[keyof User]) =>
+          removeSubFromUser(userSubs as string[], transaction)
         )
 
         return this.getAllUsersSubredditsBarOneUser(userName, transaction)
@@ -401,120 +401,34 @@ const db = {
 export { db }
 
 setTimeout(() => {
-  // db.close()
-  //   .then(() => {
-  //     console.log('finished')
-  //   })
-  //   .catch(err => console.log(err))
-  // PostModel.create({
-  //   postId: 'asd',
-  //   subreddit: 'aww',
-  //   author: 'foo',
-  //   title: 'the return of christ',
-  //   score: 99, // eslint-disable-line @typescript-eslint/no-magic-numbers
-  //   created_utc: 1,
-  //   domain: 'foo.com',
-  //   permalink: '/r/foo',
-  //   url: 'http://google.com',
-  // }).catch(err => console.error(err))
-  // const arrayLength = 5000
-  // db.batchAddNewPosts(
-  //   // @ts-expect-error
-  //   Array.from({ length: arrayLength }, (_, i) => ({
-  //     postId: i,
-  //     subreddit: 'aww',
-  //     author: 'foo',
-  //     title: 'the return of christ',
-  //     score: 99, // eslint-disable-line @typescript-eslint/no-magic-numbers
-  //     created_utc: 1,
-  //     domain: 'foo.com',
-  //     permalink: '/r/foo',
-  //     url: 'http://google.com',
-  //   }))
-  // )
-  // db.getDBStats()
-  //   .then(response => console.log(response))
-  //   .catch(err => console.error(err))
-  // db.adminSearchDBTable('admin_settings', '300')
-  //   .then(response => console.log(response))
-  //   .catch(err => console.error(err))
-  // const awwSub = subredditTablesMap.get('aww') as SubredditMapModel
-  // awwSub
-  //   .create({ posts_Default: 'foo' })
-  //   .then(result => console.log(result))
-  //   .catch(err => console.error(err))
-  // db.createUser('Merp')
-  //   .then(() => db.createUser('Kermit'))
-  //   .then(() => db.createUser('Michael'))
-  //   .then(() => db.createUser('Ben'))
-  //   .then(() => db.createUser('Karen'))
-  //   .then(() => db.createUser('Liz'))
-  //   .catch(err => console.error(err))
-  // db.removeUserSubreddit('Michael', 'abruptchaos').catch(err => console.error(err))
-  // db.batchAddSubredditsToMasterList(['aww', 'dogs', 'cats']).catch(err => console.error(err))
-  // db.batchAddSubredditsToMasterList(['cats', 'dogs', 'fish', 'rabbits']).then(res => {
-  // db.getSinglePostData('asd')
-  //   .then(res => {
-  //     console.log(res)
-  //   })
-  //   //   .then(() =>
-  //   //     db.getUserSpecificSetting('Kermit', 'subreddits').then(res => {
-  //   //       // console.log(res)
-  //   //       res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
-  //   //     })
-  //   //   )
-  //   // eslint-disable-next-line max-lines-per-function
+  // Promise.all([
+  //   db.createUser('Kermit'),
+  //   db.createUser('Kevin'),
+  //   db.createUser('Alex'),
+  //   db.createUser('Miss-Piggy'),
+  // ])
   //   .then(() =>
-  // db.batchAddSubreddits('Ben', ['poop', 'bike', 'cars', 'doors', 'light', 'television', 'speakers'])
+  //     Promise.all([
+  //       db.batchAddUserSubreddits('Kermit', ['aww', 'cats', 'dogs', 'bikes', 'cars', 'planes']),
+  //       db.batchAddUserSubreddits('Kevin', ['cats', 'dogs', 'television']),
+  //       db.batchAddUserSubreddits('Alex', ['aww', 'cats', 'dogs', 'bikes', 'tables']),
+  //       db.batchAddUserSubreddits('Miss-Piggy', ['phones', 'chair', 'seats']),
+  //     ])
   //   )
-  //   .then(() => db.getAllSubreddits())
-  //   .then(res => {
-  //     console.log(res)
-  //   })
-  //   // .then(() => db.getUserSpecificSetting('Kermit', 'subreddits'))
-  //   // .then(res => {
-  //   //   // console.log(res)
-  //   //   res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
-  //   // })
-  // .catch(err => console.error(err))
-  // AdminSettings.findByPk(1).then(result => {
-  //   console.log(result?.toJSON())
-  // })
-  // getConnection()
-  //   .createQueryRunner()
-  //   .hasTable('users')
-  //   .then(res => console.log(res))
-  // db.getLastScheduledUpdateTime()
-  //   .then(res => {
-  //     // console.log(res)
-  //     res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
-  //     // return db.batchAddSubredditsToMasterList(['derp', 'welp'])
-  //   })
-  //   .then(() => db.setLastScheduledUpdateTime(new Date()))
-  //   .then(res => {
-  //     console.log(res)
-  //   })
-  //   .then(() => db.getLastScheduledUpdateTime())
-  //   .then(res => {
-  //     // console.log(res)
-  //     res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') })
-  //     // return db.batchAddSubredditsToMasterList(['derp', 'welp'])
-  //   })
-  // .then(_ => db.getAllSubreddits())
-  // .then(res => console.dir(JSON.stringify(res)))
-  // .then(res => res.cata({ Just: thing => console.log(thing), Nothing: () => console.log('got nothing') }))
-  // )
-  // console.log(Object.keys(User))
+  // UserModel.update({ hideStickiedPosts: false }, { where: { name: 'Merp' } })
+  db.setUserSpecificSetting('Merp', 'hideStickiedPosts', true)
+    // db.getAdminSettings()
+    //   .then(result => console.log(result))
+    //   .then(() => db.setAdminData('downloadComments', true))
+    //   .then(() => db.getAdminSettings())
+    // db.removeUserSubreddit('Kermit', 'cats')
+    .then(result => console.log(result))
+    // .then(() => db.getAllUsersSubredditsBarOneUser('Miss-Piggy'))
+    // //   // db.getLastScheduledUpdateTime()
+    // .then(result => console.log(result))
+    //   //   .then(() => db.setLastScheduledUpdateTime(new Date()))
+    //   .then(() => db.getUserSubreddits('Merp'))
+    //   .then(result => console.log(result))
+    .then(() => console.log('finished'))
+    .catch(err => console.error(err))
 }, 2000) // eslint-disable-line @typescript-eslint/no-magic-numbers
-// setTimeout(() => {
-//   db.getLastScheduledUpdateTime()
-//     .then(res => {
-//       console.log(res)
-//       return db.setLastScheduledUpdateTime(new Date())
-//     })
-//     .then(() =>
-//       db.getLastScheduledUpdateTime().then(res => {
-//         console.log(res)
-//       })
-//     )
-// }, 3000) // eslint-disable-line @typescript-eslint/no-magic-numbersrs
