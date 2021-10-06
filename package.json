@@ -54,6 +54,7 @@
     "pino-pretty": "^7.0.1",
     "point-of-view": "^4.15.2",
     "pratica": "^2.0.3",
+    "prray": "^0.8.2",
     "ramda": "^0.27.1",
     "ramda-adjunct": "^2.34.0",
     "rotating-file-stream": "^2.1.6",
