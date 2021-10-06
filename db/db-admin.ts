@@ -35,27 +35,29 @@ function adminGetAnyTableDataPaginated(
 ): Promise<{ rows: TableModelTypes[]; count: number }> {
   const limit = 200
   const offset = (page - 1) * limit
-  const defaultQueryOptions = { raw: true, type: QueryTypes.SELECT }
 
   return sequelize.transaction(transaction =>
     Promise.all([
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       sequelize.query(`SELECT * FROM ? LIMIT ? ${page > 1 ? 'OFFSET ?' : ''}`, {
         replacements: [tableName, limit, offset],
         transaction,
-        ...defaultQueryOptions,
+        raw: true,
+        type: QueryTypes.SELECT,
       }) as Promise<TableModelTypes[]>,
       sequelize.query('SELECT COUNT(*) as `count` from ?', {
         replacements: [tableName],
         transaction,
-        ...defaultQueryOptions,
-      }) as Promise<[[{ count: number }], unknown]>,
+        raw: true,
+        type: QueryTypes.SELECT,
+      }) as Promise<[{ count: number }]>,
     ]).then(
-      ([rows, count]: [TableModelTypes[], [[{ count: number }], unknown]]): {
+      ([rows, count]: [TableModelTypes[], [{ count: number }]]): {
         rows: TableModelTypes[]
         count: number
       } => ({
         rows,
-        count: count[0][0].count,
+        count: count[0].count,
       })
     )
   )
@@ -78,7 +80,6 @@ async function adminSearchAnyDBTable(
 ): Promise<{ rows: TableModelTypes[]; count: number }> {
   const limit = 200
   const offset = (page - 1) * limit
-  const defaultQueryOptions = { raw: true, type: QueryTypes.SELECT }
   const wrappedSearchTerm = `%${searchTerm}%`
 
   const onlyTextColumns = (columns: ColumnInfoType[]): ColumnInfoType[] =>
@@ -86,10 +87,13 @@ async function adminSearchAnyDBTable(
 
   const getColumnName = (columns: ColumnInfoType[]): string[] => columns.map(column => column.name)
 
+  // prettier-ignore
   const textColumnNamesForTable = await (
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     sequelize.query(`PRAGMA table_info(?)`, {
       replacements: [tableName],
-      ...defaultQueryOptions,
+      raw: true,
+      type: QueryTypes.SELECT,
     }) as Promise<ColumnInfoType[]>
   )
     .then(onlyTextColumns)
@@ -101,6 +105,7 @@ async function adminSearchAnyDBTable(
 
   return sequelize.transaction(transaction =>
     Promise.all([
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       sequelize.query(
         `SELECT * FROM :tableName WHERE ${tableColumnSearchQueries} LIMIT :limit ${
           page > 1 ? 'OFFSET :offset' : ''
@@ -108,21 +113,23 @@ async function adminSearchAnyDBTable(
         {
           replacements: { tableName, wrappedSearchTerm, limit, offset },
           transaction,
-          ...defaultQueryOptions,
+          raw: true,
+          type: QueryTypes.SELECT,
         }
       ) as Promise<TableModelTypes[]>,
       sequelize.query(`SELECT COUNT(*) as count FROM :tableName WHERE ${tableColumnSearchQueries}`, {
         replacements: { tableName, wrappedSearchTerm },
         transaction,
-        ...defaultQueryOptions,
-      }) as Promise<[[{ count: number }], unknown]>,
+        raw: true,
+        type: QueryTypes.SELECT,
+      }) as Promise<[{ count: number }]>,
     ]).then(
-      ([rows, count]: [TableModelTypes[], [[{ count: number }], unknown]]): {
+      ([rows, count]: [TableModelTypes[], [{ count: number }]]): {
         rows: TableModelTypes[]
         count: number
       } => ({
         rows,
-        count: count[0][0].count,
+        count: count[0].count,
       })
     )
   )

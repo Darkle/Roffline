@@ -13,7 +13,7 @@ type SearchLimitedPostType = {
   author: string
   permalink: string
 }
-type SearchReturnType = [SearchLimitedPostType[], [[{ count: number }], unknown]]
+type SearchReturnType = [SearchLimitedPostType[], [{ count: number }]]
 
 /*****
   Inspired by https://stackoverflow.com/a/16450642/2785644
@@ -50,14 +50,14 @@ function searchPosts(
           transaction,
           raw: true,
           type: QueryTypes.SELECT,
-        }) as Promise<[[{ count: number }], unknown]>,
+        }) as Promise<[{ count: number }]>,
       ]).then(
         ([rows, count]: SearchReturnType): {
           rows: SearchLimitedPostType[]
           count: number
         } => ({
           rows,
-          count: count[0][0].count,
+          count: count[0].count,
         })
       )
   )
