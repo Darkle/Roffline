@@ -1,5 +1,5 @@
 import * as R from 'ramda'
-import { Sequelize, Transaction, Op } from 'sequelize'
+import { Sequelize, Transaction, Op, QueryTypes } from 'sequelize'
 import { match } from 'ts-pattern'
 import { Timer } from 'timer-node'
 import * as lmdb from 'lmdb'
@@ -56,7 +56,7 @@ type SubsPostsIdDataType = {
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: sqliteDBPath,
-  logging: (msg): void => mainLogger.trace(msg),
+  logging: (msg): void => mainLogger.debug(msg),
 })
 
 const commentsDB = lmdb.open({
@@ -385,9 +385,11 @@ const db = {
               `SELECT page_count * page_size as size FROM pragma_page_count(), pragma_page_size();`,
               {
                 transaction,
+                raw: true,
+                type: QueryTypes.SELECT,
               }
-            ) as Promise<[[{ size: number }], unknown]>
-          ).then((result: [[{ size: number }], unknown]): number => result[0][0].size),
+            ) as Promise<[{ size: number }]>
+          ).then((result: [{ size: number }]): number => result[0].size),
         ])
       )
       .then(sizes => ({
@@ -427,7 +429,7 @@ setTimeout(() => {
   //// eslint-disable-next-line @typescript-eslint/no-magic-numbers
   // PostModel.findAndCountAll({ limit: 10, offset: 1, order: [['created_utc', 'DESC']] })
   //   .then(thing => thing.rows.map(item => item.get())) // eslint-disable-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
-  db.searchPosts('cancer')
+  db.searchPosts('and')
     // got('https://www.reddit.com/r/cats/top/.json?t=month')
     // .json()
     //// @ts-expect-error asasd
