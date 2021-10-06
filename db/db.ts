@@ -56,7 +56,7 @@ type SubsPostsIdDataType = {
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: sqliteDBPath,
-  logging: (msg): void => mainLogger.debug(msg),
+  logging: (msg): void => mainLogger.trace(msg),
 })
 
 const commentsDB = lmdb.open({
@@ -303,21 +303,19 @@ const db = {
     timer.clear()
   },
   // eslint-disable-next-line max-lines-per-function
-  async batchSaveComments(postsComments: { postId: string; comments: string }[]): Promise<void> {
+  async batchSaveComments(postsComments: { id: string; comments: string }[]): Promise<void> {
     const timer = new Timer()
     timer.start()
 
-    await sequelize.transaction(async transaction =>
-      Promise.all([
-        postsComments.map(({ postId }) =>
-          PostModel.update({ commentsDownloaded: true }, { transaction, where: { id: postId } })
-        ),
-      ])
+    const postIds = postsComments.map(({ id }) => id)
+
+    await sequelize.transaction(transaction =>
+      PostModel.update({ commentsDownloaded: true }, { transaction, where: { id: { [Op.in]: postIds } } })
     )
 
     await commentsDB.transactionAsync(() => {
-      postsComments.forEach(({ postId, comments }) => {
-        commentsDB.put(postId, comments)
+      postsComments.forEach(({ id, comments }) => {
+        commentsDB.put(id, comments)
       })
     })
 
@@ -403,9 +401,12 @@ const db = {
 
 export { db }
 
-//// eslint-disable-next-line import/order,import/first
-// import got from 'got'
+// eslint-disable-next-line import/order,import/first
+import Prray from 'prray'
+// eslint-disable-next-line import/order,import/first
+import got from 'got'
 
+// eslint-disable-next-line max-lines-per-function
 setTimeout(() => {
   // Promise.all([
   //   db.createUser('Merp'),
@@ -429,7 +430,91 @@ setTimeout(() => {
   //// eslint-disable-next-line @typescript-eslint/no-magic-numbers
   // PostModel.findAndCountAll({ limit: 10, offset: 1, order: [['created_utc', 'DESC']] })
   //   .then(thing => thing.rows.map(item => item.get())) // eslint-disable-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
-  db.searchPosts('and')
+  Prray.from([
+    '9ko0du',
+    'phongr',
+    'phu7xn',
+    'phzhpn',
+    'pi9vmq',
+    'pifwjd',
+    'pizsk1',
+    'pjdkp1',
+    'pjlp5l',
+    'pkc5fz',
+    'pkevox',
+    'pl0cz3',
+    'pljkd2',
+    'pmwy9t',
+    'pn0b0y',
+    'pn2sj0',
+    'pnnlx1',
+    'pntpsl',
+    'po42ty',
+    'po494s',
+    'poszkd',
+    'pprzl0',
+    'pq62m6',
+    'pqmgrx',
+    'pqr95p',
+    'pr5mvh',
+    'prfv8a',
+    'prrki0',
+    'ps4c0t',
+    'psfhv0',
+    'psixco',
+    'ptr7wn',
+    'puqdgj',
+    'pvezlc',
+    'pvfzyr',
+    'pvlr2w',
+    'pvsogd',
+    'pwd8f7',
+    'pwjvog',
+    'pxerk4',
+    'pxh8fq',
+    'pxhunp',
+    'py4j49',
+    'pyk4y1',
+    'pysjdt',
+    'pz58z0',
+    'pzfnfq',
+    'pzh6n9',
+    'pzk6xp',
+    'pzst2z',
+    'pzxhns',
+    'q066xg',
+    'q0vcs5',
+    'q0yzx7',
+    'q10pud',
+    'q12zet',
+    'q137a8',
+    'q13rnw',
+    'q146w0',
+    'q153vf',
+    'q16z7r',
+    'q16zfp',
+    'q17j3d',
+    'q19vo3',
+    'q1a37d',
+    'q1ae9u',
+    'q1b0ym',
+    'q1cadb',
+    'q1cqno',
+    'q1eibl',
+    'q1eik6',
+    'q1h0c7',
+    'q1iuta',
+    'q1j5qc',
+    'q1jfuk',
+    'q1k2d4',
+    'q1ksx7',
+  ])
+    .mapAsync(postId =>
+      got(`https://www.reddit.com/comments/${postId}.json`).then(resp => ({ comments: resp.body, id: postId }))
+    )
+    .then(comments => db.batchSaveComments(comments))
+    // .then(db.batchSaveComments)
+    // db.getAllPostIds()
     // got('https://www.reddit.com/r/cats/top/.json?t=month')
     // .json()
     //// @ts-expect-error asasd
@@ -441,7 +526,7 @@ setTimeout(() => {
     // db.removeUserSubreddit('Merp', 'cats')
     .then(result => {
       console.log(result)
-      console.log(result.rows.length)
+      // console.log(result.length)
     })
     // .then(() => db.getAllUsersSubredditsBarOneUser('Miss-Piggy'))
     // //   // db.getLastScheduledUpdateTime()
