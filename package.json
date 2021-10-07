@@ -40,7 +40,7 @@
     "fastify-favicon": "^3.1.0",
     "fastify-helmet": "^5.3.2",
     "fastify-no-additional-properties": "^2.2.0",
-    "fastify-static": "^4.2.3",
+    "fastify-static": "^4.2.4",
     "fastify-url-data": "^3.0.3",
     "got": "^11.8.2",
     "gridjs": "^5.0.2",
