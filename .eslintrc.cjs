@@ -69,6 +69,7 @@ module.exports = {
           { ignoreArrayIndexes: true, enforceConst: true, detectObjects: true, ignore: [0, 1, 2, -1] },
         ],
         '@typescript-eslint/no-shadow': ['error'],
+        '@typescript-eslint/no-unnecessary-type-assertion': 'off',
         '@typescript-eslint/no-unused-expressions': [
           'error',
           { allowTernary: true, allowTaggedTemplates: true, allowShortCircuit: true },
