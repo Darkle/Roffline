@@ -38,7 +38,6 @@ function adminGetAnyTableDataPaginated(
 
   return sequelize.transaction(transaction =>
     Promise.all([
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       sequelize.query(`SELECT * FROM ? LIMIT ? ${page > 1 ? 'OFFSET ?' : ''}`, {
         replacements: [tableName, limit, offset],
         transaction,
@@ -89,7 +88,6 @@ async function adminSearchAnyDBTable(
 
   // prettier-ignore
   const textColumnNamesForTable = await (
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     sequelize.query(`PRAGMA table_info(?)`, {
       replacements: [tableName],
       raw: true,
@@ -105,7 +103,6 @@ async function adminSearchAnyDBTable(
 
   return sequelize.transaction(transaction =>
     Promise.all([
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       sequelize.query(
         `SELECT * FROM :tableName WHERE ${tableColumnSearchQueries} LIMIT :limit ${
           page > 1 ? 'OFFSET :offset' : ''

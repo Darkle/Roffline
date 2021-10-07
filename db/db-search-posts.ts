@@ -33,7 +33,6 @@ function searchPosts(
     // eslint-disable-next-line max-lines-per-function
     transaction =>
       Promise.all([
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
         sequelize.query(
           `SELECT title, id, score, subreddit, created_utc, author, permalink FROM posts WHERE (' ' || title || ' ') LIKE ? LIMIT ? ${
             page > 1 ? 'OFFSET ?' : ''
