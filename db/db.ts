@@ -16,6 +16,7 @@ import {
   loadSubredditTableModels,
   removeSubredditTable,
   SubredditTable,
+  TopPostsRowType,
   subredditTablesMap,
 } from './entities/SubredditTable'
 import {
@@ -41,8 +42,9 @@ const commentsDBPath = process.env['COMMENTS_DBPATH'] || './roffline-comments-lm
 
 type TransactionType = Transaction | null | undefined
 type TopFilterType = 'day' | 'week' | 'month' | 'year' | 'all'
+
 type SubsPostsIdDataType = {
-  [key: string]: SubredditTable[]
+  [subreddit: string]: TopPostsRowType[]
 }
 
 /*****
@@ -327,18 +329,18 @@ const db = {
 
     timer.clear()
   },
-  async batchAddSubredditsPostIdData(subsPostsIdData: SubsPostsIdDataType): Promise<void> {
+  async batchAddSubredditsPostIdReferences(subsPostsIdRefs: SubsPostsIdDataType): Promise<void> {
     await sequelize.transaction(transaction =>
       Promise.all(
-        Object.keys(subsPostsIdData).map(subreddit =>
+        Object.keys(subsPostsIdRefs).map(subreddit =>
           subredditTablesMap
             .get(subreddit.toLowerCase())
-            ?.bulkCreate(subsPostsIdData[subreddit], { ignoreDuplicates: true, transaction })
+            ?.bulkCreate(subsPostsIdRefs[subreddit] as SubredditTable[], { ignoreDuplicates: true, transaction })
         )
       )
     )
   },
-  async batchClearSubredditsPostIdData(subs: string[]): Promise<void> {
+  async batchClearSubredditsPostIdReferences(subs: string[]): Promise<void> {
     await sequelize.transaction(transaction =>
       Promise.all(subs.map(sub => subredditTablesMap.get(sub.toLowerCase())?.truncate({ transaction })))
     )
@@ -430,91 +432,200 @@ setTimeout(() => {
   //// eslint-disable-next-line @typescript-eslint/no-magic-numbers
   // PostModel.findAndCountAll({ limit: 10, offset: 1, order: [['created_utc', 'DESC']] })
   //   .then(thing => thing.rows.map(item => item.get())) // eslint-disable-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
-  Prray.from([
-    '9ko0du',
-    'phongr',
-    'phu7xn',
-    'phzhpn',
-    'pi9vmq',
-    'pifwjd',
-    'pizsk1',
-    'pjdkp1',
-    'pjlp5l',
-    'pkc5fz',
-    'pkevox',
-    'pl0cz3',
-    'pljkd2',
-    'pmwy9t',
-    'pn0b0y',
-    'pn2sj0',
-    'pnnlx1',
-    'pntpsl',
-    'po42ty',
-    'po494s',
-    'poszkd',
-    'pprzl0',
-    'pq62m6',
-    'pqmgrx',
-    'pqr95p',
-    'pr5mvh',
-    'prfv8a',
-    'prrki0',
-    'ps4c0t',
-    'psfhv0',
-    'psixco',
-    'ptr7wn',
-    'puqdgj',
-    'pvezlc',
-    'pvfzyr',
-    'pvlr2w',
-    'pvsogd',
-    'pwd8f7',
-    'pwjvog',
-    'pxerk4',
-    'pxh8fq',
-    'pxhunp',
-    'py4j49',
-    'pyk4y1',
-    'pysjdt',
-    'pz58z0',
-    'pzfnfq',
-    'pzh6n9',
-    'pzk6xp',
-    'pzst2z',
-    'pzxhns',
-    'q066xg',
-    'q0vcs5',
-    'q0yzx7',
-    'q10pud',
-    'q12zet',
-    'q137a8',
-    'q13rnw',
-    'q146w0',
-    'q153vf',
-    'q16z7r',
-    'q16zfp',
-    'q17j3d',
-    'q19vo3',
-    'q1a37d',
-    'q1ae9u',
-    'q1b0ym',
-    'q1cadb',
-    'q1cqno',
-    'q1eibl',
-    'q1eik6',
-    'q1h0c7',
-    'q1iuta',
-    'q1j5qc',
-    'q1jfuk',
-    'q1k2d4',
-    'q1ksx7',
-  ])
-    .mapAsync(postId =>
-      got(`https://www.reddit.com/comments/${postId}.json`).then(resp => ({ comments: resp.body, id: postId }))
+  // Prray.from([
+  //   '9ko0du',
+  //   'phongr',
+  //   'phu7xn',
+  //   'phzhpn',
+  //   'pi9vmq',
+  //   'pifwjd',
+  //   'pizsk1',
+  //   'pjdkp1',
+  //   'pjlp5l',
+  //   'pkc5fz',
+  //   'pkevox',
+  //   'pl0cz3',
+  //   'pljkd2',
+  //   'pmwy9t',
+  //   'pn0b0y',
+  //   'pn2sj0',
+  //   'pnnlx1',
+  //   'pntpsl',
+  //   'po42ty',
+  //   'po494s',
+  //   'poszkd',
+  //   'pprzl0',
+  //   'pq62m6',
+  //   'pqmgrx',
+  //   'pqr95p',
+  //   'pr5mvh',
+  //   'prfv8a',
+  //   'prrki0',
+  //   'ps4c0t',
+  //   'psfhv0',
+  //   'psixco',
+  //   'ptr7wn',
+  //   'puqdgj',
+  //   'pvezlc',
+  //   'pvfzyr',
+  //   'pvlr2w',
+  //   'pvsogd',
+  //   'pwd8f7',
+  //   'pwjvog',
+  //   'pxerk4',
+  //   'pxh8fq',
+  //   'pxhunp',
+  //   'py4j49',
+  //   'pyk4y1',
+  //   'pysjdt',
+  //   'pz58z0',
+  //   'pzfnfq',
+  //   'pzh6n9',
+  //   'pzk6xp',
+  //   'pzst2z',
+  //   'pzxhns',
+  //   'q066xg',
+  //   'q0vcs5',
+  //   'q0yzx7',
+  //   'q10pud',
+  //   'q12zet',
+  //   'q137a8',
+  //   'q13rnw',
+  //   'q146w0',
+  //   'q153vf',
+  //   'q16z7r',
+  //   'q16zfp',
+  //   'q17j3d',
+  //   'q19vo3',
+  //   'q1a37d',
+  //   'q1ae9u',
+  //   'q1b0ym',
+  //   'q1cadb',
+  //   'q1cqno',
+  //   'q1eibl',
+  //   'q1eik6',
+  //   'q1h0c7',
+  //   'q1iuta',
+  //   'q1j5qc',
+  //   'q1jfuk',
+  //   'q1k2d4',
+  //   'q1ksx7',
+  // ])
+  //   .mapAsync(postId =>
+  //     got(`https://www.reddit.com/comments/${postId}.json`).then(resp => ({ comments: resp.body, id: postId }))
+  //   )
+  //   .then(comments => db.batchSaveComments(comments))
+  // .then(db.batchSaveComments)
+  // {
+  //   aww: [
+  //     {posts_Default: string},
+  //     {posts_Default: string},
+  //     ...
+  //     {topPosts_Day: string},
+  //     {topPosts_Day: string},
+  //     ...
+  //   ]
+  // }
+  // eslint-disable-next-line max-lines-per-function,@typescript-eslint/explicit-function-return-type
+  function foo(sub: string, urls: string[]) {
+    return (
+      Prray.from(urls)
+        .mapAsync(item => got(item).json())
+        // eslint-disable-next-line max-lines-per-function
+        .then(results => {
+          const thing = {
+            [sub]: [],
+          }
+          // eslint-disable-next-line max-lines-per-function
+          results.forEach((result: any, indexOuter: number) => {
+            // eslint-disable-next-line complexity,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,max-lines-per-function
+            result?.data?.children?.forEach((post: any, indexInnner: number) => {
+              // eslint-disable-next-line functional/no-let
+              let feedCategory = null
+              // eslint-disable-next-line functional/no-conditional-statement
+              if (indexOuter === 0) {
+                feedCategory = 'posts_Default'
+              }
+
+              // eslint-disable-next-line functional/no-conditional-statement
+              if (indexOuter === 1) {
+                feedCategory = 'topPosts_Day'
+              }
+
+              // eslint-disable-next-line functional/no-conditional-statement
+              if (indexOuter === 2) {
+                feedCategory = 'topPosts_Week'
+              }
+
+              // eslint-disable-next-line functional/no-conditional-statement,@typescript-eslint/no-magic-numbers
+              if (indexOuter === 3) {
+                feedCategory = 'topPosts_Month'
+              }
+
+              // eslint-disable-next-line functional/no-conditional-statement,@typescript-eslint/no-magic-numbers
+              if (indexOuter === 4) {
+                feedCategory = 'topPosts_Year'
+              }
+
+              // eslint-disable-next-line functional/no-conditional-statement,@typescript-eslint/no-magic-numbers
+              if (indexOuter === 5) {
+                feedCategory = 'topPosts_All'
+              }
+
+              /* eslint-disable functional/immutable-data, @typescript-eslint/no-unsafe-member-access, functional/no-conditional-statement */
+
+              // @ts-expect-error assad
+              if (!thing[sub][indexInnner]) {
+                // @ts-expect-error assad
+                thing[sub][indexInnner] = {}
+              }
+
+              // @ts-expect-error asdd
+              thing[sub][indexInnner][feedCategory] = post.data.id as string
+            })
+          })
+          /* eslint-enable functional/immutable-data, @typescript-eslint/no-unsafe-member-access, functional/no-conditional-statement */
+          return thing
+        })
     )
-    .then(comments => db.batchSaveComments(comments))
-    // .then(db.batchSaveComments)
-    // db.getAllPostIds()
+  }
+
+  Promise.all([
+    foo('cats', [
+      'https://www.reddit.com/r/cats/.json',
+      'https://www.reddit.com/r/cats/top/.json?t=day',
+      'https://www.reddit.com/r/cats/top/.json?t=week',
+      'https://www.reddit.com/r/cats/top/.json?t=month',
+      'https://www.reddit.com/r/cats/top/.json?t=year',
+      'https://www.reddit.com/r/cats/top/.json?t=all',
+    ]),
+    foo('aww', [
+      'https://www.reddit.com/r/aww/.json',
+      'https://www.reddit.com/r/aww/top/.json?t=day',
+      'https://www.reddit.com/r/aww/top/.json?t=week',
+      'https://www.reddit.com/r/aww/top/.json?t=month',
+      'https://www.reddit.com/r/aww/top/.json?t=year',
+      'https://www.reddit.com/r/aww/top/.json?t=all',
+    ]),
+  ])
+    .then(result => ({ ...result[0], ...result[1] }))
+    .then(result => db.batchAddSubredditsPostIdReferences(result))
+    // db.batchRemovePosts([
+    //   '9ko0du',
+    //   'pxh8fq',
+    //   'q1cqno',
+    //   'q16zfp',
+    //   'q1b0ym',
+    //   'q153vf',
+    //   'q1jfuk',
+    //   'q16z7r',
+    //   'q1ksx7',
+    //   'q1cadb',
+    //   'q1eibl',
+    //   'q13rnw',
+    //   'q1eik6',
+    //   'q146w0',
+    // ])
     // got('https://www.reddit.com/r/cats/top/.json?t=month')
     // .json()
     //// @ts-expect-error asasd
@@ -524,10 +635,10 @@ setTimeout(() => {
     //   .then(() => db.setAdminData('downloadComments', true))
     //   .then(() => db.getAdminSettings())
     // db.removeUserSubreddit('Merp', 'cats')
-    .then(result => {
-      console.log(result)
-      // console.log(result.length)
-    })
+    // .then(result => {
+    //   console.log(result)
+    //   // console.log(result.length)
+    // })
     // .then(() => db.getAllUsersSubredditsBarOneUser('Miss-Piggy'))
     // //   // db.getLastScheduledUpdateTime()
     // .then(result => console.log(result))
