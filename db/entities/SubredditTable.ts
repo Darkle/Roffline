@@ -2,13 +2,25 @@ import { Sequelize, DataTypes, ModelCtor, Model, Transaction } from 'sequelize'
 
 import { SubredditsMasterListModel } from './SubredditsMasterList'
 
+type TopPostsTypeKeys =
+  | 'posts_Default'
+  | 'topPosts_Day'
+  | 'topPosts_Week'
+  | 'topPosts_Month'
+  | 'topPosts_Year'
+  | 'topPosts_All'
+
 type SubredditTable = {
-  posts_Default: string | null
-  topPosts_Day: string | null
-  topPosts_Week: string | null
-  topPosts_Month: string | null
-  topPosts_Year: string | null
-  topPosts_All: string | null
+  [K in TopPostsTypeKeys]: string | null
+}
+
+type TopPostsRowType = {
+  posts_Default?: string
+  topPosts_Day?: string
+  topPosts_Week?: string
+  topPosts_Month?: string
+  topPosts_Year?: string
+  topPosts_All?: string
 }
 
 /*****
@@ -107,4 +119,6 @@ export {
   SubredditMapModel,
   createAndSyncSubredditTable,
   removeSubredditTable,
+  TopPostsTypeKeys,
+  TopPostsRowType,
 }
