@@ -13,9 +13,14 @@ import helmet from 'fastify-helmet'
 import fastifyCookie from 'fastify-cookie'
 import fastifyCsrf from 'fastify-csrf'
 import * as Eta from 'eta'
+import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 
 import { isDev, getEnvFilePath } from './utils'
 import { mainLogger } from '../logging/logging'
+import { pageRoutes } from './routes/page-router'
+// import { apiRoutes } from './routes/api-router'
+// import { adminRoutes } from './routes/admin-router'
+// import { adminApiRoutes } from './routes/admin-api-router'
 
 // type unused = unknown
 
@@ -41,7 +46,7 @@ fastify.register(fastifyStatic, {
 fastify.register(fastifyStatic, {
   root: postsMediaFolder,
   prefix: '/posts-media/',
-  decorateReply: false, // the reply decorator has been added by the first plugin registration
+  decorateReply: false, // the reply decorator has been added by the first fastifyStatic plugin registration
 })
 fastify.register(fastifyUrlData)
 fastify.register(templateManager, { engine: { eta: Eta } })
@@ -58,11 +63,18 @@ fastify.register(helmet, {
   },
 })
 
-// fastify.get('/', async (_, __) => ({ hello: 'world' }))
-fastify.get('/', (_, reply) => {
-  reply.view('server/views/index.eta', { foo: 'Hello from template' })
+fastify.setErrorHandler((err, _, reply) => {
+  mainLogger.error(err)
+
+  reply
+    .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+    .send(`${HttpStatusCode.INTERNAL_SERVER_ERROR} Internal Server Error`)
 })
-// fastify.get('/', (request, reply) => reply.send({ hello: 'world' }))
+
+fastify.register(pageRoutes)
+// fastify.register(apiRoutes, { prefix: '/api' })
+// fastify.register(adminRoutes, { prefix: '/admin' })
+// fastify.register(adminApiRoutes, { prefix: '/admin/api' })
 
 const startServer = (): Promise<string> => fastify.listen(port, '0.0.0.0')
 

@@ -8,6 +8,8 @@
     <title>Document</title>
   </head>
   <body>
-    <p><%= it.foo %></p>
+    <p><%= it.basePath %></p>
+    <p><%= it.isSubPage %></p>
+    <p><%= it.currentSubredditBrowsing %></p>
   </body>
 </html>

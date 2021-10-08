@@ -37,7 +37,7 @@ const dev = {
     sh(`concurrently --raw --prefix=none "${frontendTSWatch}" "${browserync}" "${tsNodeDev}"`, shellOptions)
   },
   inspect() {
-    sh(`node -r ts-node/register --inspect ./boot.js`, shellOptions)
+    sh(`ttsc --project ./tsconfig-frontend.json && node -r ts-node/register --inspect ./boot.ts`, shellOptions)
   },
 }
 

@@ -7,7 +7,7 @@ import * as lmdb from 'lmdb'
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { firstRun } from './db-first-run'
 import { omitDuplicateSubs } from '../server/utils'
-import { dbLogger, mainLogger } from '../logging/logging'
+import { dbLogger } from '../logging/logging'
 import { UpdatesTrackerModel } from './entities/UpdatesTracker'
 import { User, UserModel } from './entities/Users'
 import { Post, PostModel } from './entities/Posts'
@@ -58,7 +58,7 @@ type SubsPostsIdDataType = {
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: sqliteDBPath,
-  logging: (msg): void => mainLogger.trace(msg),
+  logging: (msg): void => dbLogger.trace(msg),
 })
 
 const commentsDB = lmdb.open({
