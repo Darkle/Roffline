@@ -100,7 +100,7 @@ module.exports = {
           'error',
           {
             ignoreImmediateMutation: true,
-            ignorePattern: [],
+            ignorePattern: ['window\\.loginPage'],
           },
         ],
         'functional/functional-parameters': 'off',
