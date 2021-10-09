@@ -8,17 +8,17 @@ import { urlInfoForTemplate } from '../controllers/url-info'
 
 type SubParams = { subreddit: string }
 
+const mainPreHandlers = [checkUserLoggedIn, urlInfoForTemplate, getUserSettings]
+
 // eslint-disable-next-line max-lines-per-function
 const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) => void): void => {
-  fastify.addHook('preHandler', checkUserLoggedIn)
-
   fastify.get('/login', (_, reply) => {
     reply.view('login-page', { pageTitle: 'Roffline - Login', uniqueUsername: generatePassPhrase() })
   })
 
   fastify.get('/logout', logUserOut)
 
-  fastify.get('/', { preHandler: [urlInfoForTemplate, getUserSettings] }, (_, reply) => {
+  fastify.get('/', { preHandler: mainPreHandlers }, (_, reply) => {
     reply.view('index', {
       pageTitle: 'Roffline Home Page',
     })
@@ -32,27 +32,27 @@ const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) =
     reply.redirect(`https://www.reddit.com${urlData.path as string}`)
   })
 
-  fastify.get('/post/:postId/', { preHandler: [urlInfoForTemplate, getUserSettings] }, (_, reply) => {
+  fastify.get('/post/:postId/', { preHandler: mainPreHandlers }, (_, reply) => {
     reply.view('post')
   })
 
-  fastify.get('/sub/:subreddit/', { preHandler: [urlInfoForTemplate, getUserSettings] }, (req, reply) => {
+  fastify.get('/sub/:subreddit/', { preHandler: mainPreHandlers }, (req, reply) => {
     reply.view('index', { pageTitle: `${(req.params as SubParams).subreddit} - Roffline` })
   })
 
-  fastify.get('/settings', { preHandler: [urlInfoForTemplate, getUserSettings] }, (_, reply) => {
+  fastify.get('/settings', { preHandler: mainPreHandlers }, (_, reply) => {
     reply.view('settings-page', { pageTitle: 'Roffline Settings' })
   })
 
-  fastify.get('/sub-management', { preHandler: [urlInfoForTemplate, getUserSettings] }, (_, reply) => {
+  fastify.get('/sub-management', { preHandler: mainPreHandlers }, (_, reply) => {
     reply.view('sub-management-page', { pageTitle: 'Roffline - Subreddit Management' })
   })
 
-  fastify.get('/search', { preHandler: [urlInfoForTemplate, getUserSettings] }, (_, reply) => {
+  fastify.get('/search', { preHandler: mainPreHandlers }, (_, reply) => {
     reply.view('search-page', { pageTitle: 'Search Roffline' })
   })
 
-  fastify.get('/help', { preHandler: [urlInfoForTemplate, getUserSettings] }, (_, reply) => {
+  fastify.get('/help', { preHandler: mainPreHandlers }, (_, reply) => {
     reply.view('help-page', { pageTitle: 'Roffline Help' })
   })
 
