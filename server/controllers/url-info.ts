@@ -1,4 +1,4 @@
-import { FastifyReply, FastifyRequest } from 'fastify'
+import { FastifyRequest, FastifyReply } from 'fastify'
 
 // eslint-disable-next-line functional/prefer-type-literal
 interface FastifyReplyWithLocals extends FastifyReply {
