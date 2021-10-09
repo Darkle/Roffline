@@ -1,0 +1,34 @@
+:root,
+body {
+  --font-family-sans: 'Open Sans', sans-serif;
+  --font-family-mono: 'Hack', monospace;
+
+  font-size: calc(0.94em + 0.2vw);
+  line-height: calc(1.1em + 0.5vw);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Poppins', sans-serif;
+  line-height: calc(1.1em + 0.5vw);
+}
+
+body {
+  width: 90vw;
+  min-width: 16rem;
+  max-width: 70rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+[x-cloak] {
+  display: none !important;
+}
