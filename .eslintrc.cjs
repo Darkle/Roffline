@@ -143,6 +143,7 @@ module.exports = {
         'no-confusing-arrow': 'off',
         'no-else-return': 'error',
         'no-duplicate-imports': 'off',
+        'no-extra-semi': 'off',
         'no-eq-null': 'error',
         'no-magic-numbers': 'off',
         'no-nested-ternary': 'off',
@@ -150,7 +151,7 @@ module.exports = {
           'error',
           {
             props: true,
-            ignorePropertyModificationsFor: ['store', 'res'],
+            ignorePropertyModificationsFor: ['store', 'res', 'reply'],
           },
         ],
         'no-plusplus': 'error',
