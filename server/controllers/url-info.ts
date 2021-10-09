@@ -15,13 +15,12 @@ function urlInfoForTemplate(request: FastifyRequest, reply: FastifyReply, done: 
   const path = request.urlData().path as string
   const basePath = path.split('/')[1]
 
-  /* eslint-disable functional/immutable-data,no-param-reassign,semi-style */
+  // eslint-disable-next-line functional/immutable-data,semi-style
   ;(reply as FastifyReplyWithLocals).locals = {
     basePath: path === '/' ? 'index' : (basePath as string),
     isSubPage: request.url.startsWith('/sub/'),
     currentSubredditBrowsing: request.url.split('/')[2]?.split('?')[0] as string,
   }
-  /* eslint-enable functional/immutable-data,no-param-reassign,semi-style */
 
   done()
 }
