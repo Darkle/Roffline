@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%~ includeFile('partials/head', {pageTitle: it.pageTitle, uniqueUsername: it.uniqueUsername}) %>
+  <body class="login-page" x-data="loginPage()">
+    <h2 class="title">Roffline Login</h2>
+    <nav class="nav">
+      <div class="nav-left">
+        <div class="tabs">
+          <a href="#" x-bind:class="{ 'active': userIsLoggingIn }" @click="userIsLoggingIn = true">Login</a>
+          <a href="#" x-bind:class="{ 'active': !userIsLoggingIn }" @click="userIsLoggingIn = false">Sign Up</a>
+        </div>
+      </div>
+    </nav>
+    <main>
+      <form
+        x-bind:class="{ 'is-hidden': !userIsLoggingIn }"
+        class="login-form"
+        action="/api/login-user"
+        method="post"
+      >
+        <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+        <input type="text" name="loginUsername" id="loginUsernameInput" placeholder="Username" />
+        <button class="button primary" id="loginUsernameButton">Login</button>
+      </form>
+      <form
+        x-cloak
+        x-bind:class="{ 'is-hidden': userIsLoggingIn }"
+        class="signup-form"
+        action="/api/create-user"
+        method="post"
+      >
+        <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+        <input
+          type="text"
+          id="signupUsernameInput"
+          name="signupUsername"
+          x-ref="signupUsernameInput"
+          value="{{ uniqueUsername }}"
+        />
+        <p>Roffline doesn't use passwords, but rather unique usernames.</p>
+        <p>Copy the username below & save it. Then click the signup button.</p>
+        <div class="new-username">
+          <pre>{{ uniqueUsername }}</pre>
+          <svg
+            class="copy-to-clipboard-button"
+            @click.prevent="copyNewUsernameToClipboard"
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewBox="0,0,1024,1024"
+          >
+            <title>Copy to clipboard</title>
+            <!-- prettier-ignore -->
+            <g fill="currentColor" fill-rule="nonzero" style="mix-blend-mode: normal;">
+              <path
+                d="M896,298.67v597.33c0,46.93 -38.4,85.33 -85.33,85.33h-469.34c-46.93,0 -85.33,-38.4 -85.33,-85.33v-597.33c0,-46.93 38.4,-85.34 85.33,-85.34h469.34c46.93,0 85.33,38.41 85.33,85.34zM682.67,128h-512v597.33h-85.34v-597.33c0,-46.93 38.41,-85.33 85.34,-85.33h512zM810.67,298.67h-469.34v597.33h469.34z"
+              />
+            </g>
+          </svg>
+        </div>
+        <button class="button primary" id="signupUsernameButton">Sign Up</button>
+      </form>
+    </main>
+    {% render 'footer.liquid', csrfToken: csrfToken %}
+    <script src="{{ '/js/login-page.js' | cachebust }}" type="module"></script>
+    <script defer src="{{ '/static/vendor/js/alpinejs@3.2.2.min.js' | cachebust }}"></script>
+  </body>
+</html>
