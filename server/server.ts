@@ -48,9 +48,9 @@ fastify.register(fastifyStatic, {
   prefix: '/posts-media/',
   decorateReply: false, // the reply decorator has been added by the first fastifyStatic plugin registration
 })
-fastify.register(fastifyUrlData)
-fastify.register(templateManager, { engine: { eta: Eta } })
 fastify.register(fastifyCookie)
+fastify.register(fastifyUrlData)
+fastify.register(templateManager, { engine: { eta: Eta }, viewExt: 'eta', root: path.join('server', 'views') })
 fastify.register(fastifyCsrf)
 fastify.register(helmet, {
   contentSecurityPolicy: {
