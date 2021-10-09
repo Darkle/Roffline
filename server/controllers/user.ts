@@ -1,4 +1,4 @@
-import { FastifyReply, FastifyRequest } from 'fastify'
+import { FastifyRequest, FastifyReply } from 'fastify'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 import { Maybe } from 'pratica'
 import R from 'ramda'
@@ -6,6 +6,22 @@ import * as RA from 'ramda-adjunct'
 
 import { db } from '../../db/db'
 import { User } from '../../db/entities/Users'
+
+type CookieProps = {
+  httpOnly: boolean
+  sameSite: boolean
+  expires: Date
+}
+
+const fourYearsInMilliseconds = 125798400000
+const getCookieProperties = (): CookieProps => ({
+  httpOnly: true,
+  sameSite: true,
+  expires: new Date(Date.now() + fourYearsInMilliseconds),
+})
+const isApiRoute = R.startsWith('/api/')
+const isValidCookie = RA.isNotNilOrEmpty
+const isLoginLogoutPage = (path: string): boolean => path === '/login' || path === '/logout'
 
 // eslint-disable-next-line functional/prefer-type-literal
 interface FastifyReplyWithLocals extends FastifyReply {
@@ -25,28 +41,23 @@ async function getUserSettings(req: FastifyRequest, reply: FastifyReply): Promis
   })
 }
 
-// eslint-disable-next-line functional/prefer-type-literal
-interface FastifyReqWithSettingsBody extends Body {
+type RequestWithSettingsBody = {
   settingName: keyof User
   settingValue: User[keyof User]
 }
 
 async function updateUserSetting(req: FastifyRequest, reply: FastifyReply): Promise<FastifyReply> {
-  const { settingName, settingValue } = req.body as FastifyReqWithSettingsBody
+  const { settingName, settingValue } = req.body as RequestWithSettingsBody
   const user = req.cookies['loggedInUser'] as string
 
   await db.setUserSpecificSetting(user, settingName, settingValue)
 
-  return reply.status(HttpStatusCode.OK).send()
+  return reply.code(HttpStatusCode.OK).send()
 }
 
 function logUserOut(_: unknown, reply: FastifyReply): void {
   reply.clearCookie('loggedInUser').redirect('/login')
 }
-
-const isApiRoute = R.startsWith('/api/')
-const isValidCookie = RA.isNotNilOrEmpty
-const isLoginLogoutPage = (path: string): boolean => path === '/login' || path === '/logout'
 
 function checkUserLoggedIn(req: FastifyRequest, reply: FastifyReply): FastifyReply | void {
   const loggedInUser = req.cookies['loggedInUser'] as string | null
@@ -56,32 +67,31 @@ function checkUserLoggedIn(req: FastifyRequest, reply: FastifyReply): FastifyRep
   if (isValidCookie(loggedInUser) || isLoginLogoutPage(path)) return
 
   return isApiRoute(path)
-    ? reply.status(HttpStatusCode.UNAUTHORIZED).send()
-    : reply.status(HttpStatusCode.UNAUTHORIZED).redirect('/login')
+    ? reply.code(HttpStatusCode.UNAUTHORIZED).send()
+    : reply.code(HttpStatusCode.TEMPORARY_REDIRECT).redirect('/login')
 }
 
-// eslint-disable-next-line functional/prefer-type-literal
-interface FastifyReqWithUsernameBody extends FastifyRequest {
-  username: string
+type RequestWithUsernameBody = {
+  userName: string
 }
 
 async function logUserIn(req: FastifyRequest, reply: FastifyReply): Promise<void> {
-  const { username } = req.body as FastifyReqWithUsernameBody
+  const { userName } = req.body as RequestWithUsernameBody
 
-  const maybeUser: Maybe<User> = await db.findUser(username)
+  const maybeUser: Maybe<User> = await db.findUser(userName)
 
   maybeUser.cata({
-    Just: () => reply.setCookie('loggedInUser', username, getCookieProperties()).redirect('/'),
-    Nothing: () => reply.status(HttpStatusCode.BAD_REQUEST).send('User Does Not Exist'),
+    Just: () => reply.setCookie('loggedInUser', userName, getCookieProperties()).redirect('/'),
+    Nothing: () => reply.code(HttpStatusCode.BAD_REQUEST).send('User Does Not Exist'),
   })
 }
 
 async function createUser(req: FastifyRequest, reply: FastifyReply): Promise<void> {
-  const { userName } = req.body as FastifyReqWithUsernameBody
+  const { userName } = req.body as RequestWithUsernameBody
 
   await db.createUser(userName)
 
-  reply.status(HttpStatusCode.CREATED).cookie('loggedInUser', userName, getCookieProperties()).redirect('/')
+  reply.code(HttpStatusCode.CREATED).cookie('loggedInUser', userName, getCookieProperties()).redirect('/')
 }
 
 export { getUserSettings, updateUserSetting, logUserOut, checkUserLoggedIn, logUserIn, createUser }
