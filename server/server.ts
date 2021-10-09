@@ -16,17 +16,21 @@ import * as Eta from 'eta'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 
 import { isDev, getEnvFilePath } from './utils'
+import cacheBust from './eta-plugins/eta-plugin-cachebust'
 import { mainLogger } from '../logging/logging'
 import { pageRoutes } from './routes/page-router'
 // import { apiRoutes } from './routes/api-router'
 // import { adminRoutes } from './routes/admin-router'
 // import { adminApiRoutes } from './routes/admin-api-router'
 
-// type unused = unknown
-
 const port = 3000
 
 const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
+
+Eta.configure({
+  plugins: [cacheBust],
+  cache: false,
+})
 
 const fastify = createFastify({
   logger: mainLogger,
@@ -67,7 +71,7 @@ fastify.setErrorHandler((err, _, reply) => {
   mainLogger.error(err)
 
   reply
-    .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+    .code(HttpStatusCode.INTERNAL_SERVER_ERROR)
     .send(`${HttpStatusCode.INTERNAL_SERVER_ERROR} Internal Server Error`)
 })
 
