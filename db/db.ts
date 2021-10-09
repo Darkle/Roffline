@@ -3,6 +3,7 @@ import { Sequelize, Transaction, Op, QueryTypes } from 'sequelize'
 import { match } from 'ts-pattern'
 import { Timer } from 'timer-node'
 import * as lmdb from 'lmdb'
+import { nullable as MaybeNullable, Maybe } from 'pratica'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { firstRun } from './db-first-run'
@@ -86,6 +87,9 @@ const db = {
   },
   async createUser(userName: string): Promise<void> {
     await UserModel.create({ name: userName }, { ignoreDuplicates: true })
+  },
+  findUser(userName: string): Promise<Maybe<User>> {
+    return this.getUserSettings(userName).then(MaybeNullable)
   },
   getUserSettings(userName: string): Promise<User> {
     return UserModel.findOne({ where: { name: userName } }).then(userAsModel => userAsModel?.get() as User)

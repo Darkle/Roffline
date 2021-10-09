@@ -1,14 +1,23 @@
 import { FastifyInstance } from 'fastify'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
+import { generate as generatePassPhrase } from 'generate-passphrase'
 
 import { mainLogger } from '../../logging/logging'
-import { getUserSettings } from '../controllers/user'
+import { getUserSettings, logUserOut, checkUserLoggedIn } from '../controllers/user'
 import { urlInfoForTemplate } from '../controllers/url-info'
 
 type SubParams = { subreddit: string }
 
 // eslint-disable-next-line max-lines-per-function
 const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) => void): void => {
+  fastify.addHook('preHandler', checkUserLoggedIn)
+
+  fastify.get('/login', (_, reply) => {
+    reply.view('login-page', { pageTitle: 'Roffline - Login', uniqueUsername: generatePassPhrase() })
+  })
+
+  fastify.get('/logout', logUserOut)
+
   fastify.get('/', { preHandler: [urlInfoForTemplate, getUserSettings] }, (_, reply) => {
     reply.view('index', {
       pageTitle: 'Roffline Home Page',

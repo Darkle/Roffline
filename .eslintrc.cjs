@@ -63,6 +63,7 @@ module.exports = {
         '@typescript-eslint/default-param-last': ['error'],
         '@typescript-eslint/explicit-function-return-type': ['error'],
         '@typescript-eslint/no-floating-promises': 'off',
+        '@typescript-eslint/unbound-method': 'off',
         '@typescript-eslint/no-duplicate-imports': ['error'],
         '@typescript-eslint/no-magic-numbers': [
           'error',
