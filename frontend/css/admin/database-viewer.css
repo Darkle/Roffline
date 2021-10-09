@@ -1,0 +1,161 @@
+body.database-viewer-page {
+  flex-direction: column;
+  align-items: center;
+  max-width: 90vw;
+}
+
+.database-viewer-page main {
+  margin-top: 3rem;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8rem;
+  align-items: center;
+}
+
+.database-viewer-page main .console-note-aside {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.database-viewer-page main .console-note-aside small {
+  margin-bottom: 1rem;
+}
+
+.database-viewer-page main label[for='table-select'] {
+  margin-bottom: 1rem;
+}
+
+.database-viewer-page main #table-select {
+  text-align-last: center;
+  margin-bottom: 1rem;
+}
+
+.database-viewer-page main .gridjs-head {
+  font-size: 0.8rem;
+}
+
+.database-viewer-page main .gridjs-container {
+  max-width: 80vw;
+}
+
+.database-viewer-page main .gridjs-wrapper {
+  max-height: 70vh;
+}
+
+.database-viewer-page main table.gridjs-table {
+  max-height: 70vh;
+  table-layout: initial;
+  font-size: 0.8rem;
+  max-width: 80vw;
+}
+
+.database-viewer-page main table.gridjs-table td.gridjs-td {
+  padding: 0.4rem;
+  max-width: 500px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.database-viewer-page main table.gridjs-table td[data-column-id='clipboard'] {
+  text-align: center;
+}
+
+.database-viewer-page main table.gridjs-table .object-view-open-button {
+  font-size: 0.8rem;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  line-height: 0.9rem;
+  transform: initial;
+  color: var(--color-grey);
+}
+
+.database-viewer-page main table.gridjs-table .object-view-open-button:hover {
+  color: var(--color-darkGrey);
+  opacity: 1;
+}
+
+.database-viewer-page main table.gridjs-table .copy-to-clipboard-button {
+  font-size: 1.2rem;
+  width: 26px;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  line-height: 0.9rem;
+  transform: initial;
+  background: none;
+  border: none;
+  color: var(--color-grey);
+}
+
+.database-viewer-page main table.gridjs-table .copy-to-clipboard-button:hover {
+  cursor: pointer;
+  color: var(--color-darkGrey);
+}
+
+.database-viewer-page main .gridjs-footer > * {
+  font-size: 0.8rem;
+}
+
+.database-viewer-page main .gridjs-footer .gridjs-pages button {
+  font-size: 0.8rem;
+}
+
+.database-viewer-page .json-object-view-wrapper {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: absolute;
+  background-color: white;
+  padding-top: 1rem;
+  padding-bottom: 3rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  box-shadow: 5px 10px var(--color-darkGrey);
+  width: 96vw;
+  max-height: 70vh;
+  overflow: scroll;
+}
+
+.database-viewer-page .json-object-view-wrapper .close-button {
+  font-size: 3rem;
+  margin-right: 1rem;
+  margin-bottom: 2rem;
+  align-self: flex-end;
+  position: sticky;
+  top: 0;
+}
+
+.database-viewer-page .json-object-view-wrapper .close-button:hover {
+  cursor: pointer;
+  color: var(--color-grey);
+}
+
+.database-viewer-page .json-object-view {
+  max-height: 50vh;
+}
+
+.database-viewer-page .json-object-view > .key-value:last-of-type {
+  padding-bottom: 2rem;
+}
+
+.database-viewer-page .json-object-view * {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.database-viewer-page .json-object-view .key::before {
+  margin-right: 0.3rem;
+}
+
+.database-viewer-page .clipboardInput {
+  position: absolute;
+  top: -99999999999999px;
+}

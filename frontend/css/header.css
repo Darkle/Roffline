@@ -1,0 +1,81 @@
+header {
+  position: fixed;
+  width: 100vw;
+  max-width: 70rem;
+  border-bottom: 1px solid var(--color-lightGrey);
+  background-color: var(--bg-color);
+  top: 0;
+  z-index: 10;
+  padding-bottom: 0.3rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+header .top-filter summary {
+  font-size: inherit;
+  padding: 0.8rem 1rem;
+  display: list-item;
+}
+
+header nav ul .subs-dropdown summary {
+  font-size: inherit;
+  padding: 0.8rem 1rem;
+  display: list-item;
+}
+
+header .top-filter summary:focus:not(:focus-visible) {
+  outline: none;
+}
+
+header .top-filter .card {
+  position: absolute;
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-width: calc(100vw - 2vw);
+  max-height: calc(100vh - 30vh);
+  z-index: 99;
+}
+
+header nav ul {
+  list-style-type: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  padding-left: 0;
+  font-family: 'Poppins', sans-serif;
+  margin-top: 9px;
+}
+
+header nav ul li {
+  margin-top: 1rem;
+}
+
+header nav ul li:not(:last-child) {
+  margin-right: 20px;
+}
+
+header nav ul .subs-dropdown summary:focus:not(:focus-visible) {
+  outline: none;
+}
+
+header nav ul .subs-dropdown .card {
+  position: absolute;
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-width: calc(100vw - 2vw);
+  max-height: calc(100vh - 30vh);
+  z-index: 99;
+}
+
+header nav ul li hr {
+  margin-bottom: -1rem;
+  position: relative;
+  top: -0.6rem;
+}
+
+header nav ul li details hr {
+  margin-bottom: 0.5rem;
+  position: relative;
+  top: -0.4rem;
+}

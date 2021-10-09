@@ -1,0 +1,17 @@
+@font-face {
+  font-family: 'Open Sans';
+  src: url('../../static/vendor/fonts/OpenSans-Regular.ttf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../../static/vendor/fonts/Poppins-Regular.ttf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hack';
+  src: url('../../static/vendor/fonts/Hack-Regular.ttf');
+  font-display: swap;
+}

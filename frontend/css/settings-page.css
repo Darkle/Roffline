@@ -1,0 +1,136 @@
+.settings-page main {
+  margin-top: 9rem;
+  max-width: 65vw;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8rem;
+  align-items: center;
+}
+
+@media only screen and (max-width: 566px) {
+  .settings-page main {
+    margin-top: 11rem;
+  }
+}
+
+@media only screen and (max-width: 297px) {
+  .settings-page main {
+    margin-top: 13rem;
+  }
+}
+
+@media only screen and (max-width: 239px) {
+  .settings-page main {
+    margin-top: 15rem;
+  }
+}
+
+.settings-page fieldset {
+  margin-bottom: 2rem;
+}
+
+.settings-page button,
+.settings-page .export-subs {
+  font-size: calc(0.94em + 0.2vw);
+}
+
+.settings-page .checkbox-label {
+  display: flex;
+  align-items: center;
+}
+
+.settings-page .checkbox-label > input {
+  margin-right: 0.4rem;
+}
+
+.settings-page .subreddits p {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-page .subreddits hr {
+  margin-top: 2rem;
+  margin-bottom: 1.3rem;
+}
+
+.settings-page .subreddits p.bulk-howto-link-container {
+  flex-direction: row;
+  justify-content: center;
+  text-align: center;
+  margin-top: 1.4rem;
+}
+
+.settings-page .subreddits textarea {
+  margin-top: 0.3rem;
+}
+
+.settings-page .subreddits .import-subreddits {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.settings-page .subreddits .importing-subs-result {
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+}
+
+.settings-page .subreddits .importing-subs-result svg {
+  margin-right: 0.4rem;
+  width: 1.2rem;
+}
+
+.settings-page .subreddits .importing-subs-success {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+  justify-content: center;
+}
+
+.settings-page .subreddits .importing-subs-error {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+  justify-content: center;
+}
+
+/* .settings-page input[type='submit'] {
+  font-size: calc(0.94em + 0.2vw);
+  width: 100%;
+} */
+
+.settings-page .admin-button-seperator {
+  width: 100%;
+  margin-top: 3rem;
+  margin-bottom: 5rem;
+}
+
+.settings-page .admin-button {
+  font-size: calc(0.94em + 0.2vw);
+}
+
+.settings-page .downloads input:not(#enable-video-downloads) {
+  margin-top: 0.3rem;
+}
+
+.settings-page .downloads > p:nth-of-type(1) {
+  margin-top: 1rem;
+}
+
+.settings-page .downloads select {
+  margin-top: 0.3rem;
+}
+
+.settings-page .feed-updating .updates-description {
+  margin-top: 0.3rem;
+  max-width: 630px;
+}
+
+.settings-page .feed-updating #update-starting-hour {
+  margin-top: 0.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.settings-page .feed-updating #update-ending-hour {
+  margin-top: 0.3rem;
+}

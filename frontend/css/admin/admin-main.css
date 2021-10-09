@@ -1,0 +1,49 @@
+:root,
+body {
+  --font-family-sans: monospace;
+  --font-family-mono: 'Hack', monospace;
+  --color-primary: #3f4144;
+
+  font-size: calc(0.94em + 0.2vw);
+  line-height: calc(1.1em + 0.5vw);
+}
+
+body {
+  width: 90vw;
+  min-width: 16rem;
+  max-width: 70rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+[x-cloak] {
+  display: none !important;
+}
+
+body > .title {
+  margin-top: 2.2rem;
+  line-height: 2rem;
+  text-align: center;
+}
+
+.admin-menu {
+  justify-content: center;
+}
+
+.admin-menu .nav-left {
+  flex: initial;
+}
+
+.admin-menu .tabs {
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+.admin-menu a {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}

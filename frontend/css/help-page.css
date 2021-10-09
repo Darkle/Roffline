@@ -1,0 +1,80 @@
+.help-page main {
+  margin-top: 9rem;
+  max-width: 65vw;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8rem;
+  align-items: center;
+}
+
+@media only screen and (max-width: 566px) {
+  .help-page main {
+    margin-top: 11rem;
+  }
+}
+
+@media only screen and (max-width: 297px) {
+  .help-page main {
+    margin-top: 13rem;
+  }
+}
+
+@media only screen and (max-width: 239px) {
+  .help-page main {
+    margin-top: 15rem;
+  }
+}
+
+.help-page main > hr {
+  width: 100%;
+  margin-top: 3rem;
+}
+
+.help-page main .roffline-logotitle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.help-page main .roffline-logotitle svg {
+  max-height: 256px;
+  height: 50vw;
+}
+
+.help-page main .roffline-logotitle h1 {
+  margin-bottom: 0;
+}
+
+.help-page main .external-link-container {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.help-page main .bitcoin-donation {
+  display: flex;
+  align-items: center;
+  max-width: 65vw;
+}
+
+.help-page main .bitcoin-donation span {
+  margin-right: 1rem;
+}
+
+.help-page main .faq-header {
+  margin-top: 3rem;
+}
+
+.help-page main .faq {
+  max-width: 65vw;
+}
+
+.help-page main .faq * {
+  overflow-wrap: break-word;
+}
+
+.help-page main .faq h4 {
+  text-align: center;
+  margin-bottom: 1.4rem;
+}

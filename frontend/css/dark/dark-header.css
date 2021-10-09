@@ -1,0 +1,7 @@
+body.dark-theme header .top-filter summary {
+  color: var(--color-lightGrey);
+}
+
+body.dark-theme header nav ul .subs-dropdown summary {
+  color: var(--color-lightGrey);
+}
