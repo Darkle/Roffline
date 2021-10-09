@@ -8,8 +8,15 @@
     <title>Document</title>
   </head>
   <body>
-    <p><%= it.basePath %></p>
-    <p><%= it.isSubPage %></p>
-    <p><%= it.currentSubredditBrowsing %></p>
+    <p>basePath: <%= it.basePath %></p>
+    <p>isSubPage: <%= it.isSubPage %></p>
+    <p>currentSubredditBrowsing: <%= it.currentSubredditBrowsing %></p>
+    <p>userSettings.name: <%= it.userSettings.name %></p>
+    <p>userSettings.hideStickiedPosts: <%= it.userSettings.hideStickiedPosts %></p>
+    <p>userSettings.hideStickiedPosts: <%= it.userSettings.hideStickiedPosts %></p>
+    <p>userSettings.onlyShowTitlesInFeed: <%= it.userSettings.onlyShowTitlesInFeed %></p>
+    <p>userSettings.infiniteScroll: <%= it.userSettings.infiniteScroll %></p>
+    <p>userSettings.darkModeTheme: <%= it.userSettings.darkModeTheme %></p>
+    <p>userSettings.subreddits: <%= JSON.stringify(it.userSettings.subreddits) %></p>
   </body>
 </html>
