@@ -52,7 +52,7 @@ fastify.register(templateManager, {
   viewExt: 'njk',
   root: path.join(process.cwd(), 'server', 'views'),
 })
-fastify.register(fastifyCsrf)
+fastify.register(fastifyCsrf, { cookieKey: 'csrfToken' })
 fastify.register(helmet, {
   contentSecurityPolicy: {
     directives: {
