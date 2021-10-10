@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  {% extends "partials/head.njk" %}
+  {% include "partials/head.njk" %}
   <body>
     <p>basePath: {{ pageTitle }}</p>
     <p>isSubPage: {{ isSubPage }}</p>
@@ -12,5 +12,6 @@
     <p>userSettings.infiniteScroll: {{ userSettings.infiniteScroll }}</p>
     <p>userSettings.darkModeTheme: {{ userSettings.darkModeTheme }}</p>
     <p>userSettings.subreddits: {{ userSettings.subreddits | dump }}</p>
+    <p>userSettings.subreddits: {{ csrfToken }}</p>
   </body>
 </html>
