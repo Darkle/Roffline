@@ -3,12 +3,12 @@ import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 import { generate as generatePassPhrase } from 'generate-passphrase'
 
 import { mainLogger } from '../../logging/logging'
-import { getUserSettings, logUserOut, checkUserLoggedIn } from '../controllers/user'
-import { urlInfoForTemplate } from '../controllers/url-info'
+import { getUserSettings, logUserOut } from '../controllers/user'
+import { setDefaultTemplateProps } from '../controllers/default-template-props'
 
 type SubParams = { subreddit: string }
 
-const mainPreHandlers = [checkUserLoggedIn, urlInfoForTemplate, getUserSettings]
+const mainPreHandlers = [setDefaultTemplateProps, getUserSettings]
 
 // eslint-disable-next-line max-lines-per-function
 const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) => void): void => {
