@@ -40,15 +40,6 @@ function bailOnFatalError(err: Error): void {
 process.on('unhandledRejection', bailOnFatalError)
 process.on('uncaughtException', bailOnFatalError)
 
-// db.init()
-//   .then(scheduleUpdates)
-//   .then(regularlyTrimReddit429Responses)
-//   .then(startServer)
-//   .catch(err => {
-//     console.error(err)
-//     process.exit(1)
-//   })
-
 db.init()
   .then(ensurePostsMediaDownloadFolderExists)
   .then(startServer)
