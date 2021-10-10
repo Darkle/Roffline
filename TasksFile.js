@@ -8,7 +8,11 @@ const clc = require('cli-color')
 const esbuild = require('esbuild')
 const { globPlugin } = require('esbuild-plugin-glob')
 
+const { version: appVersion } = require('./package.json')
+
 const shellOptions = { nopipe: true, async: undefined }
+
+const isDev = process.env['NODE_ENV'] !== 'production'
 
 const prepareAndCleanDir = dir => {
   if (fs.existsSync(dir)) fs.rmdirSync(dir, { recursive: true })
@@ -98,6 +102,17 @@ const build = {
         process.exit(1)
       })
   },
+  // cachebustImportMap() {
+  //   const importMapsFile = path.join(process.cwd(), 'frontend', 'js', 'import-map.json')
+  //   const data = JSON.parse(fs.readFileSync(importMapsFile, { encoding: 'utf8' }))
+
+  //   Object.keys(data.imports).forEach(key => {
+  //     // eslint-disable-next-line prefer-template
+  //     data.imports[key] = data.imports[key] + '?cachebust=' + (isDev ? `${Date.now()}` : appVersion)
+  //   })
+
+  //   fs.writeFileSync(importMapsFile, JSON.stringify(data, null, 2))
+  // },
 }
 
 const tests = {
