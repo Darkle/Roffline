@@ -1,3 +1,15 @@
+import Vue from 'vue'
+
+const Counter = {
+  data(): { counter: number } {
+    return {
+      counter: 0,
+    }
+  },
+}
+
+Vue.createApp(Counter).mount('#counter')
+
 // function copyNewUsernameToClipboard(): void {
 //   ;(this as Alpine).$refs.signupUsernameInput.select()
 //   document.execCommand('copy')
