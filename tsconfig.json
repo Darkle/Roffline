@@ -30,7 +30,7 @@
     "files": true,
     "pretty": true,
     "compilerOptions": {
-      "sourceMap": true,
+      "sourceMap": false,
       "module": "CommonJS"
     },
     "ignore": ["(?:^|/)node_modules/"]

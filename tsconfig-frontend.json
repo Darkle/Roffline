@@ -20,23 +20,16 @@
     "noUncheckedIndexedAccess": true,
     "plugins": [
       {
+        "transform": "@magic-works/ttypescript-browser-like-import-transformer",
         "after": true,
-        "afterDeclarations": true,
-        "outDir": "./",
-        "resolvers": [
-          {
-            "dir": "./frontend",
-            "sourceDir": true
-          },
-          {
-            "dir": "./node_modules"
-          }
-        ],
-        "rootDir": "./",
-        "transform": "ts-transform-esm-import",
-        "type": "config"
+        "importMap": {
+          "type": "path",
+          "mapPath": "./frontend/js/import-map.json",
+          "simulateRuntimeImportMapPosition": "../../"
+        }
       }
     ],
+    "rootDir": "./",
     "removeComments": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
