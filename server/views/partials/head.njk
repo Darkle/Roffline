@@ -2,17 +2,17 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <meta name="referrer" content="no-referrer" />
-  <title>{{ pageTitle }}</title>
+  <title><# pageTitle #></title>
   <link rel="icon" href="/static/images/favicon.png" />
-  <link rel="stylesheet" href="/static/vendor/css/modern-normalize@v1.1.0.min.css{{ cacheBustString }}" />
-  <link rel="stylesheet" href="/static/vendor/css/chota@0.8.0.min.css{{ cacheBustString }}" />
+  <link rel="stylesheet" href="/static/vendor/css/modern-normalize@v1.1.0.min.css<# cacheBustString #>" />
+  <link rel="stylesheet" href="/static/vendor/css/chota@0.8.0.min.css<# cacheBustString #>" />
   {% if isLogsViewerPage or isDatabaseViewerPage %}
-  <link rel="stylesheet" href="/static/vendor/css/gridjs@5.0.2.mermaid.min.css{{ cacheBustString }}" />
+  <link rel="stylesheet" href="/static/vendor/css/gridjs@5.0.2.mermaid.min.css<# cacheBustString #>" />
   {% endif %}
   <!-- prettier-ignore  -->
   {% if isAdminPage %}
-  <link rel="stylesheet" href="/css/admin/admin-index.css{{ cacheBustString }}" />
+  <link rel="stylesheet" href="/css/admin/admin-index.css<# cacheBustString #>" />
   {% else %}
-  <link rel="stylesheet" href="/css/index.css{{ cacheBustString }}" />
+  <link rel="stylesheet" href="/css/index.css<# cacheBustString #>" />
   {% endif %}
 </head>
