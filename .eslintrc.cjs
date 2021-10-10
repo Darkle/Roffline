@@ -33,7 +33,7 @@ module.exports = {
     'plugin:eslint-comments/recommended',
   ],
   settings: {
-    'html/html-extensions': ['.html', '.eta', '.njk'],
+    'html/html-extensions': ['.html', '.eta', '.njk', 'marko'],
   },
   plugins: ['@typescript-eslint', 'functional', 'extra-rules', 'no-secrets', 'disable', 'html', 'ramda', 'mocha'],
   overrides: [

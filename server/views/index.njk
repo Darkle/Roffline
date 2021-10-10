@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% extends "partials/head.njk" %}
+  <body>
+    <p>basePath: {{ pageTitle }}</p>
+    <p>isSubPage: {{ isSubPage }}</p>
+    <p>currentSubredditBrowsing: {{ currentSubredditBrowsing }}</p>
+    <p>userSettings.name: {{ userSettings.name }}</p>
+    <p>userSettings.hideStickiedPosts: {{ userSettings.hideStickiedPosts }}</p>
+    <p>userSettings.hideStickiedPosts: {{ userSettings.hideStickiedPosts }}</p>
+    <p>userSettings.onlyShowTitlesInFeed: {{ userSettings.onlyShowTitlesInFeed }}</p>
+    <p>userSettings.infiniteScroll: {{ userSettings.infiniteScroll }}</p>
+    <p>userSettings.darkModeTheme: {{ userSettings.darkModeTheme }}</p>
+    <p>userSettings.subreddits: {{ userSettings.subreddits | dump }}</p>
+  </body>
+</html>

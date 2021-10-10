@@ -32,7 +32,7 @@ const dev = {
 
     const frontendTSWatch = `ttsc --project ./tsconfig-frontend.json --watch --incremental --pretty --preserveWatchOutput`
 
-    const tsNodeDev = `ts-node-dev --watch=server/**/*.eta --ignore-watch=frontend ./boot.ts`
+    const tsNodeDev = `ts-node-dev --watch=server/**/*.njk --ignore-watch=frontend ./boot.ts`
 
     sh(`concurrently --raw --prefix=none "${frontendTSWatch}" "${browserync}" "${tsNodeDev}"`, shellOptions)
   },
@@ -112,7 +112,7 @@ const tests = {
   },
   eslint() {
     sh(
-      `eslint './boot.ts' './server/**/*.ts' './logging/**/*.ts' './downloads/**/*.ts' './db/**/*.ts' './server/**/*.eta' './frontend/js/**/*.ts' './tests/**/*.ts' --report-unused-disable-directives --quiet --rule 'no-console: ["error", { allow: ["error", "info"] }]' --rule "no-warning-comments: ['error', { terms: ['todo', 'fixme', 'hack', 'bug', 'xxx'], location: 'anywhere' }]"`,
+      `eslint './boot.ts' './server/**/*.ts' './logging/**/*.ts' './downloads/**/*.ts' './db/**/*.ts' './server/**/*.njk' './frontend/js/**/*.ts' './tests/**/*.ts' --report-unused-disable-directives --quiet --rule 'no-console: ["error", { allow: ["error", "info"] }]' --rule "no-warning-comments: ['error', { terms: ['todo', 'fixme', 'hack', 'bug', 'xxx'], location: 'anywhere' }]"`,
       shellOptions
     )
   },

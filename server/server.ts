@@ -12,11 +12,10 @@ import templateManager from 'point-of-view'
 import helmet from 'fastify-helmet'
 import fastifyCookie from 'fastify-cookie'
 import fastifyCsrf from 'fastify-csrf'
-import * as Eta from 'eta'
+import nunjucks from 'nunjucks'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 
 import { isDev, getEnvFilePath } from './utils'
-import cacheBust from './eta-plugins/eta-plugin-cachebust'
 import { mainLogger } from '../logging/logging'
 import { pageRoutes } from './routes/page-router'
 // import { apiRoutes } from './routes/api-router'
@@ -26,11 +25,6 @@ import { pageRoutes } from './routes/page-router'
 const port = 3000
 
 const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
-
-Eta.configure({
-  plugins: [cacheBust],
-  cache: false,
-})
 
 const fastify = createFastify({
   logger: mainLogger,
@@ -44,8 +38,7 @@ fastify.register(fastifyFavicon, { path: './frontend/static/images', name: 'favi
 fastify.register(noAdditionalProperties)
 fastify.register(fastifyCompress) // must come before fastifyStatic
 fastify.register(fastifyStatic, {
-  root: path.join(process.cwd(), 'frontend', 'static'),
-  prefix: '/public/',
+  root: path.join(process.cwd(), 'frontend'),
 })
 fastify.register(fastifyStatic, {
   root: postsMediaFolder,
@@ -54,7 +47,11 @@ fastify.register(fastifyStatic, {
 })
 fastify.register(fastifyCookie)
 fastify.register(fastifyUrlData)
-fastify.register(templateManager, { engine: { eta: Eta }, viewExt: 'eta', root: path.join('server', 'views') })
+fastify.register(templateManager, {
+  engine: { nunjucks },
+  viewExt: 'njk',
+  root: path.join(process.cwd(), 'server', 'views'),
+})
 fastify.register(fastifyCsrf)
 fastify.register(helmet, {
   contentSecurityPolicy: {

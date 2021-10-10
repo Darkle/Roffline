@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  <%~ includeFile('partials/head', {pageTitle: it.pageTitle, uniqueUsername: it.uniqueUsername}) %>
+  {% extends "partials/head.njk" %}
   <body class="login-page" x-data="loginPage()">
     <h2 class="title">Roffline Login</h2>
     <nav class="nav">
