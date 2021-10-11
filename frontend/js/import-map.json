@@ -1,5 +1,5 @@
 {
   "imports": {
-    "vue": "node_modules/vue/dist/vue.esm-browser.prod.js"
+    "vue": "/node_modules/vue/dist/vue.esm-browser.prod.js"
   }
 }

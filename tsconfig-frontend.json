@@ -24,8 +24,8 @@
         "after": true,
         "importMap": {
           "type": "path",
-          "mapPath": "./frontend/js/import-map.json",
-          "simulateRuntimeImportMapPosition": "../../"
+          "mapPath": "frontend/js/import-map.json",
+          "simulateRuntimeImportMapPosition": ""
         }
       }
     ],
