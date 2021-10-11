@@ -8,7 +8,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["ES2021"],
+    "lib": ["ES2021", "DOM"],
     "module": "ES2020",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
@@ -35,6 +35,6 @@
     },
     "ignore": ["(?:^|/)node_modules/"]
   },
-  "exclude": ["node_modules", "logging/file-logging-transport.js"],
+  "exclude": ["node_modules", "logging/file-logging-transport.cjs"],
   "include": ["frontend/js/**/*", "server/**/*", "./boot.ts", "typings.d.ts", "logging", "downloads", "db"]
 }
