@@ -1,46 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-  {% extends "partials/head.njk" %}
-  <body class="login-page" x-data="loginPage()">
+  {% include "partials/head.njk" %}
+  <body class="login-page">
     <h2 class="title">Roffline Login</h2>
     <nav class="nav">
       <div class="nav-left">
         <div class="tabs">
-          <a href="#" x-bind:class="{ 'active': userIsLoggingIn }" @click="userIsLoggingIn = true">Login</a>
-          <a href="#" x-bind:class="{ 'active': !userIsLoggingIn }" @click="userIsLoggingIn = false">Sign Up</a>
+          <a href="#" v-bind:class="{ active: userIsLoggingIn }" @click="setUserIsLoggingIn(true)">Login</a>
+          <a href="#" v-bind:class="{ active: !userIsLoggingIn }" @click="setUserIsLoggingIn(false)">Sign Up</a>
         </div>
       </div>
     </nav>
     <main>
       <form
-        x-bind:class="{ 'is-hidden': !userIsLoggingIn }"
+        v-bind:class="{ 'is-hidden': !userIsLoggingIn }"
         class="login-form"
         action="/api/login-user"
         method="post"
       >
-        <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+        <input type="hidden" name="_csrf" value="<# csrfToken #>" />
         <input type="text" name="loginUsername" id="loginUsernameInput" placeholder="Username" />
         <button class="button primary" id="loginUsernameButton">Login</button>
       </form>
       <form
         x-cloak
-        x-bind:class="{ 'is-hidden': userIsLoggingIn }"
+        v-bind:class="{ 'is-hidden': userIsLoggingIn }"
         class="signup-form"
         action="/api/create-user"
         method="post"
       >
-        <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
-        <input
-          type="text"
-          id="signupUsernameInput"
-          name="signupUsername"
-          x-ref="signupUsernameInput"
-          value="{{ uniqueUsername }}"
-        />
+        <input type="hidden" name="_csrf" value="<# csrfToken #>" />
+        <input type="text" id="signupUsernameInput" name="signupUsername" value="<# uniqueUsername #>" />
         <p>Roffline doesn't use passwords, but rather unique usernames.</p>
         <p>Copy the username below & save it. Then click the signup button.</p>
         <div class="new-username">
-          <pre>{{ uniqueUsername }}</pre>
+          <pre><# uniqueUsername #></pre>
           <svg
             class="copy-to-clipboard-button"
             @click.prevent="copyNewUsernameToClipboard"
@@ -61,8 +55,7 @@
         <button class="button primary" id="signupUsernameButton">Sign Up</button>
       </form>
     </main>
-    {% render 'footer.liquid', csrfToken: csrfToken %}
-    <script src="{{ '/js/login-page.js' | cachebust }}" type="module"></script>
-    <script defer src="{{ '/static/vendor/js/alpinejs@3.2.2.min.js' | cachebust }}"></script>
+    {% include "partials/csrf.njk" %}
+    <script src="js/login-page.js<# cacheBustString #>" type="module"></script>
   </body>
 </html>
