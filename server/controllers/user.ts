@@ -78,7 +78,7 @@ type RequestWithUsernameBody = {
 async function logUserIn(req: FastifyRequest, reply: FastifyReply): Promise<void> {
   const { userName } = req.body as RequestWithUsernameBody
 
-  const maybeUser: Maybe<User> = await db.findUser(userName)
+  const maybeUser: Maybe<User> = await db.findUser(userName.trim())
 
   maybeUser.cata({
     Just: () => reply.setCookie('loggedInUser', userName, getCookieProperties()).redirect('/'),
