@@ -100,7 +100,7 @@ module.exports = {
           'error',
           {
             ignoreImmediateMutation: true,
-            ignorePattern: ['window\\.loginPage', 'window\\.csrfToken '],
+            ignorePattern: ['window\\.loginPage', 'window\\.csrfToken', 'this\\.userIsLoggingIn'],
           },
         ],
         'functional/functional-parameters': 'off',
