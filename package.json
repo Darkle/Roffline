@@ -64,7 +64,7 @@
     "vue": "^3.2.20"
   },
   "devDependencies": {
-    "@magic-works/ttypescript-browser-like-import-transformer": "^3.0.0",
+    "@magic-works/ttypescript-browser-like-import-transformer": "^3.0.1",
     "@types/browser-sync": "^2.26.2",
     "@types/luxon": "^2.0.5",
     "@types/nunjucks": "^3.2.0",
@@ -96,6 +96,7 @@
     "eslint-plugin-no-secrets": "^0.8.9",
     "eslint-plugin-ramda": "^2.5.1",
     "eslint-plugin-security": "^1.4.0",
+    "eslint-plugin-vue": "^7.19.1",
     "fkill-cli": "^6.2.0",
     "foreach-cli": "^1.8.1",
     "hint": "^6.1.4",
