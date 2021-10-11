@@ -27,11 +27,22 @@ body.login-page {
 
 .login-page main {
   margin-top: 3rem;
-  max-width: 30vw;
   display: flex;
   flex-direction: column;
   margin-bottom: 8rem;
   align-items: center;
+}
+
+@media only screen and (max-width: 480px) {
+  .login-page main {
+    margin-top: 1rem;
+  }
+}
+
+@media only screen and (max-width: 294px) {
+  .login-page main {
+    margin-top: 2rem;
+  }
 }
 
 .login-page main form {
@@ -62,13 +73,9 @@ body.login-page {
   justify-self: center;
 }
 
-.login-page main .signup-form .new-username span {
-  margin-right: 1rem;
+.login-page main .signup-form #unique-username {
+  white-space: pre-wrap;
 }
-
-/* .login-page main .signup-form #loginUsernameInput {
-  margin-bottom: 1rem;
-} */
 
 .login-page main .signup-form .copy-to-clipboard-button {
   height: 2.1rem;
