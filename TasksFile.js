@@ -39,7 +39,7 @@ const dev = {
     const tsNodeDev = `ts-node-dev --watch=server/**/*.njk --ignore-watch=frontend ./boot.ts`
 
     /*****
-      For some reason ttsc wont output a file initially when using --incremental, so gotta run it once without those flags first.
+      For some reason ttsc wont output a file initially when using --incremental, so gotta run it once without that flags first.
     *****/
     sh(
       `ttsc --project ./tsconfig-frontend.json &&  concurrently --raw --prefix=none "${frontendTSWatch}" "${browserync}" "${tsNodeDev}"`,

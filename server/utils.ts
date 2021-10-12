@@ -45,9 +45,7 @@ async function ensurePostsMediaDownloadFolderExists(): Promise<void | fs.Stats> 
   }
 }
 
-// const pluckProp = R.curry((prop: string, arr): any[] => arr.map(item => item[prop]))
-
-const toPOJO = (model: TableModels | undefined): TableModelTypes | undefined =>
+const ModeltoPOJO = (model: TableModels | undefined): TableModelTypes | undefined =>
   model?.get() as TableModelTypes | undefined
 
 function omitDuplicateSubs(currentSubs: string[], newSubs: string[]): string[] {
@@ -83,6 +81,6 @@ export {
   arrayToLowerCase,
   ensurePostsMediaDownloadFolderExists,
   omitDuplicateSubs,
-  toPOJO,
+  ModeltoPOJO,
   getTextPropCurried,
 }

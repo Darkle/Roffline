@@ -36,8 +36,8 @@ async function getUserSettings(req: FastifyRequest, reply: FastifyReply): Promis
   const user = req.cookies['loggedInUser'] as string
 
   await db.getUserSettings(user).then(userSettings => {
-    // eslint-disable-next-line functional/immutable-data,@typescript-eslint/no-extra-semi
-    ;(reply as FastifyReplyWithLocals).locals.userSettings = userSettings
+    const replyWithLocals = reply as FastifyReplyWithLocals
+    replyWithLocals.locals.userSettings = userSettings
   })
 }
 
