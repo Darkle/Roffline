@@ -1,8 +1,10 @@
 import R from 'ramda'
 import RA from 'ramda-adjunct'
 import { decode } from 'html-entities'
+import { compose } from 'ts-functional-pipe'
 
 import { isCrossPost } from '../../../downloads/media/posts-media-categorizers'
+import { Post } from '../../../db/entities/Posts'
 
 /* eslint-disable security/detect-unsafe-regex */
 const containsImageFile = R.any(R.test(/\.(png|jpe?g|gif|webp|svg|apng|avif|bmp|tiff?|avif|heif|heic)(\?.*)?$/u))
@@ -15,34 +17,50 @@ const containsWebpageScreenshot = R.any(R.test(/^screenshot\.jpg$/u))
 
 const doesNotcontainHTMLFile = R.complement(containsHTMLFile)
 
-const isScrapedArticle = R.compose(
-  R.anyPass([containsHTMLFile, containsWebpageScreenshot]),
-  R.prop('downloadedFiles')
-)
+type PostWithDownloadedFiles = Post & { downloadedFiles: string[] }
+
+const getDownloadedFilesProp = (post: PostWithDownloadedFiles): string[] => post.downloadedFiles
+
+const getPostUrlProp = (post: Post): string => post.url
+
+const getPostSelfTextProp = (post: Post): string => post.selftext_html
+
+const isScrapedArticle = compose(R.anyPass([containsHTMLFile, containsWebpageScreenshot]), getDownloadedFilesProp)
 
 const downloadedFilesAreMediaFiles = R.anyPass([containsImageFile, containsVideoFile])
 
-const constructATagUrl = ({ url }) => `<a href="${url}">${url}</a>`
+const constructATagUrl = ({ url }: { url: string }): string => `<a href="${url}">${url}</a>`
 
-const isInlineMediaPost = R.compose(
+const isInlineMediaPost = compose(
   R.allPass([downloadedFilesAreMediaFiles, doesNotcontainHTMLFile, RA.isNonEmptyArray]),
-  R.prop('downloadedFiles')
+  getDownloadedFilesProp
 )
 
-const hasSelfTextHTML_simple = R.compose(RA.isNotNil, R.prop('selftext_html'))
+const hasSelfTextHTML_simple = compose(RA.isNotNil, getPostSelfTextProp)
 
 // The R.objOf('post') is to create {post}, as that is the parameter the post media categorizers need.
-const isACrossPost = R.compose(isCrossPost, R.objOf('post'))
+const isACrossPost = compose(isCrossPost, R.objOf('post'))
 
-const postHasUrl = R.compose(RA.isNotNil, R.prop('url'))
+const postHasUrl = compose(RA.isNotNil, getPostUrlProp)
+
+const safeEncodeURIComponent = (str: string | undefined): string => encodeURIComponent(str || '')
 
 /*****
   Cant lazy-load gallery images as it messes with the carousel library. Most images are not gallery images though, so still
   see benifit in using lazy loading attr for single image.
 *****/
-const createImageGalleryHtml = ({ downloadedFiles, id: postId, title }) =>
+// eslint-disable-next-line max-lines-per-function
+const createImageGalleryHtml = ({
+  downloadedFiles,
+  id: postId,
+  title,
+}: {
+  downloadedFiles: string[]
+  id: string
+  title: string
+}): string =>
   downloadedFiles.length === 1
-    ? /*html*/ `<div class="single-image"><img loading=lazy alt="Image for the post: ${title}" src="/posts-media/${postId}/${encodeURIComponent(
+    ? /*html*/ `<div class="single-image"><img loading=lazy alt="Image for the post: ${title}" src="/posts-media/${postId}/${safeEncodeURIComponent(
         downloadedFiles[0]
       )}" /></div>`
     : /*html*/ `
@@ -51,9 +69,9 @@ const createImageGalleryHtml = ({ downloadedFiles, id: postId, title }) =>
       <div class="embla__container">
         ${downloadedFiles.reduce(
           (acc, imageFile, index) => /*html*/ `${acc}<div class="embla__slide">
-            <img alt="Image ${index + 1} for the post: ${title}" src="/posts-media/${postId}/${encodeURIComponent(
-            imageFile
-          )}" />
+            <img alt="Image ${
+              index + 1
+            } for the post: ${title}" src="/posts-media/${postId}/${safeEncodeURIComponent(imageFile)}" />
             </div>`,
           ''
         )}
@@ -63,16 +81,29 @@ const createImageGalleryHtml = ({ downloadedFiles, id: postId, title }) =>
   </div>
 `
 
-const createVideoHtml = ({ downloadedFiles, id: postId }) => /*html*/ `
+const createVideoHtml = ({
+  downloadedFiles,
+  id: postId,
+}: {
+  downloadedFiles: string[]
+  id: string
+}): string => /*html*/ `
   <video 
     class="video-postid-${postId}" 
     preload="auto" 
     controls 
-    src="/posts-media/${postId}/${encodeURIComponent(downloadedFiles[0])}">
+    src="/posts-media/${postId}/${safeEncodeURIComponent(downloadedFiles[0])}">
     </video>
 `
 
-function createOfflineArticleLinks({ downloadedFiles, id: postId }) {
+// eslint-disable-next-line max-lines-per-function
+function createOfflineArticleLinks({
+  downloadedFiles,
+  id: postId,
+}: {
+  downloadedFiles: string[]
+  id: string
+}): string {
   const isHtmlFile = R.test(/.*\.(htm$|html$)/u)
 
   return /*html*/ `
@@ -83,7 +114,7 @@ function createOfflineArticleLinks({ downloadedFiles, id: postId }) {
             <div class="offline-article-link">
               <span class="${isHtmlFile(file) ? 'html-offline-link' : ''}">${isHtmlFile(file) ? '⎋' : '※'}</span>
               
-              <a href="/posts-media/${postId}/${encodeURIComponent(file)}">
+              <a href="/posts-media/${postId}/${safeEncodeURIComponent(file)}">
                 ${isHtmlFile(file) ? 'Offline Article Link' : 'Screenshot Of Article'}
               </a>
             </div>`,
@@ -93,13 +124,13 @@ function createOfflineArticleLinks({ downloadedFiles, id: postId }) {
 }
 
 const createMediaPost = R.ifElse(
-  R.compose(containsImageFile, R.prop('downloadedFiles')),
+  compose(containsImageFile, getDownloadedFilesProp),
   createImageGalleryHtml,
   createVideoHtml
 )
 
 const createPostContentHtml = R.cond([
-  [hasSelfTextHTML_simple, R.compose(decode, R.prop('selftext_html'))],
+  [hasSelfTextHTML_simple, compose(decode, getPostSelfTextProp)],
   [isACrossPost, constructATagUrl],
   [isScrapedArticle, createOfflineArticleLinks],
   [isInlineMediaPost, createMediaPost],
@@ -107,6 +138,4 @@ const createPostContentHtml = R.cond([
   [R.T, R.always('')],
 ])
 
-module.exports = {
-  createPostContentHtml,
-}
+export { createPostContentHtml }
