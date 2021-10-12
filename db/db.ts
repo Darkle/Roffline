@@ -21,9 +21,9 @@ import {
   subredditTablesMap,
 } from './entities/SubredditTable'
 import {
-  getPostsPaginated,
+  getPostsPaginatedForAllSubsOfUser,
   getPostsPaginatedForSubreddit,
-  getTopPostsPaginated,
+  getTopPostsPaginatedForAllSubsOfUser,
   getTopPostsPaginatedForSubreddit,
 } from './db-get-posts-paginated'
 import { searchPosts, SearchLimitedPostType } from './db-search-posts'
@@ -99,8 +99,8 @@ const db = {
       user => user?.get(settingName) as User[keyof User]
     )
   },
-  getUserSubreddits(userName: string): Promise<User[keyof User]> {
-    return this.getUserSpecificSetting(userName, 'subreddits')
+  getUserSubreddits(userName: string): Promise<string[]> {
+    return this.getUserSpecificSetting(userName, 'subreddits') as Promise<string[]>
   },
   async setUserSpecificSetting(
     userName: string,
@@ -217,8 +217,16 @@ const db = {
   getSinglePostData(postId: string): Promise<Post> {
     return PostModel.findByPk(postId).then(post => post?.get() as Post)
   },
-  getPostsPaginated(page = 1, topFilter: null | TopFilterType = null): Promise<{ count: number; rows: Post[] }> {
-    return topFilter ? getTopPostsPaginated(page, topFilter) : getPostsPaginated(page)
+  getPostsPaginatedForAllSubsOfUser(
+    userName: string,
+    page = 1,
+    topFilter: null | TopFilterType = null
+  ): Promise<{ count: number; rows: Post[] }> {
+    return this.getUserSubreddits(userName).then(userSubs =>
+      topFilter
+        ? getTopPostsPaginatedForAllSubsOfUser(userSubs, page, topFilter)
+        : getPostsPaginatedForAllSubsOfUser(userSubs, page)
+    )
   },
   getPostsPaginatedForSubreddit(
     subreddit: string,

@@ -19,12 +19,22 @@ const formatFindAllAndCountResponse = (resp: {
   rows: resp.rows.map(item => item.get() as Post),
 })
 
-function getPostsPaginated(page: number): Promise<{ count: number; rows: Post[] }> {
+function getPostsPaginatedForAllSubsOfUser(
+  userSubs: string[],
+  page: number
+): Promise<{ count: number; rows: Post[] }> {
   const offset = (page - 1) * postsPerPage
 
-  return PostModel.findAndCountAll({ offset, limit: postsPerPage, order: [['created_utc', 'DESC']] }).then(
-    formatFindAllAndCountResponse
-  )
+  return PostModel.findAndCountAll({
+    offset,
+    limit: postsPerPage,
+    order: [['created_utc', 'DESC']],
+    where: {
+      subreddit: {
+        [Op.in]: userSubs,
+      },
+    },
+  }).then(formatFindAllAndCountResponse)
 }
 
 const getFilteredTimeAsUnixTimestamp = (topFilter: string): number =>
@@ -34,7 +44,11 @@ const getFilteredTimeAsUnixTimestamp = (topFilter: string): number =>
       .toSeconds()
   )
 
-function getTopPostsPaginated(page: number, topFilter: TopFilterType): Promise<{ count: number; rows: Post[] }> {
+function getTopPostsPaginatedForAllSubsOfUser(
+  userSubs: string[],
+  page: number,
+  topFilter: TopFilterType
+): Promise<{ count: number; rows: Post[] }> {
   const offset = (page - 1) * postsPerPage
   const filterTime = topFilter === 'all' ? 0 : getFilteredTimeAsUnixTimestamp(topFilter)
 
@@ -42,6 +56,9 @@ function getTopPostsPaginated(page: number, topFilter: TopFilterType): Promise<{
     where: {
       created_utc: {
         [Op.gt]: filterTime,
+      },
+      subreddit: {
+        [Op.in]: userSubs,
       },
     },
     offset,
@@ -86,8 +103,8 @@ function getTopPostsPaginatedForSubreddit(
 }
 
 export {
-  getPostsPaginated,
-  getTopPostsPaginated,
+  getPostsPaginatedForAllSubsOfUser,
+  getTopPostsPaginatedForAllSubsOfUser,
   getPostsPaginatedForSubreddit,
   getTopPostsPaginatedForSubreddit,
 }
