@@ -5,7 +5,7 @@ import { generate as generatePassPhrase } from 'generate-passphrase'
 import { mainLogger } from '../../logging/logging'
 import { getUserSettings, logUserOut } from '../controllers/user'
 import { setDefaultTemplateProps } from '../controllers/default-template-props'
-import { getPostsPaginated } from '../controllers/posts/posts'
+import { getPostsPaginated, getPostsPaginatedForSubreddit } from '../controllers/posts/posts'
 
 type SubParams = { subreddit: string }
 
@@ -37,9 +37,13 @@ const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) =
     reply.view('post')
   })
 
-  fastify.get('/sub/:subreddit/', { preHandler: mainPreHandlers }, (req, reply) => {
-    reply.view('index', { pageTitle: `${(req.params as SubParams).subreddit} - Roffline` })
-  })
+  fastify.get(
+    '/sub/:subreddit/',
+    { preHandler: [getPostsPaginatedForSubreddit, ...mainPreHandlers] },
+    (req, reply) => {
+      reply.view('index', { pageTitle: `${(req.params as SubParams).subreddit} - Roffline` })
+    }
+  )
 
   fastify.get('/settings', { preHandler: mainPreHandlers }, (_, reply) => {
     reply.view('settings-page', { pageTitle: 'Roffline Settings' })
