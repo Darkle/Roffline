@@ -58,6 +58,21 @@ function omitDuplicateSubs(currentSubs: string[], newSubs: string[]): string[] {
   return R.uniq([...currentSubsLowercase, ...newSubsLowercase])
 }
 
+// function getProperty<K extends keyof T, T>(propertyName: K, o: T): T[K] {
+//   return o[propertyName] // o[propertyName] is of type T[K]
+// }
+
+type GetTextPropCurriedReturnType = string | ((obj: Record<string, unknown>) => string)
+
+function getTextPropCurried(propertyName: string, obj: Record<string, unknown>): GetTextPropCurriedReturnType {
+  return arguments.length === 2
+    ? (obj[propertyName] as string)
+    : // eslint-disable-next-line @typescript-eslint/no-shadow
+      function (obj: Record<string, unknown>): string {
+        return obj[propertyName] as string
+      }
+}
+
 export {
   isDev,
   getEnvFilePath,
@@ -69,5 +84,5 @@ export {
   ensurePostsMediaDownloadFolderExists,
   omitDuplicateSubs,
   toPOJO,
-  // pluckProp,
+  getTextPropCurried,
 }
