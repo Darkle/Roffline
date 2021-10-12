@@ -5,6 +5,7 @@ import { generate as generatePassPhrase } from 'generate-passphrase'
 import { mainLogger } from '../../logging/logging'
 import { getUserSettings, logUserOut } from '../controllers/user'
 import { setDefaultTemplateProps } from '../controllers/default-template-props'
+import { getPostsPaginated } from '../controllers/posts/posts'
 
 type SubParams = { subreddit: string }
 
@@ -18,7 +19,7 @@ const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) =
 
   fastify.get('/logout', logUserOut)
 
-  fastify.get('/', { preHandler: mainPreHandlers }, (_, reply) => {
+  fastify.get('/', { preHandler: [getPostsPaginated, ...mainPreHandlers] }, (_, reply) => {
     reply.view('index', {
       pageTitle: 'Roffline Home Page',
     })
