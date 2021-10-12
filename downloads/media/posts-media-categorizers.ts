@@ -1,7 +1,7 @@
 import R from 'ramda'
 import RA from 'ramda-adjunct'
 import { compose } from 'ts-functional-pipe'
-import { Post, PostMediaKey } from '../../db/entities/Posts'
+import { Post, PostMediaKey, Oembed } from '../../db/entities/Posts'
 
 import { User } from '../../db/entities/Users'
 
@@ -84,17 +84,17 @@ const isTextPostWithNoUrlInPost = R.pathSatisfies(
   ['post', 'isTextPostWithNoUrlsInPost']
 )
 
+type MediaObj = {
+  oembed?: Oembed
+}
 /*****
-  We use posts-media-categorizers when initially downloading posts (where media will be a string)
-    and also in other places where the posts are already in the db (where media will be an JSON object)
+  We use posts-media-categorizers when initially downloading posts (where media will be a JSON as a string)
+    and also in other places where the posts are already in the db (where media will be a JS object)
 *****/
 const isVideoEmbed = ({ media }: { media: PostMediaKey | string }): boolean => {
-  // eslint-disable-next-line functional/no-conditional-statement
-  if (!media) return false
-  // eslint-disable-next-line functional/no-conditional-statement,@typescript-eslint/no-unsafe-member-access
-  if (typeof media === 'string') return JSON.parse(media)?.oembed?.type === 'video'
+  const mediaObj: MediaObj = !media ? {} : typeof media === 'string' ? (JSON.parse(media) as PostMediaKey) : media
 
-  return media?.oembed?.type === 'video'
+  return mediaObj?.oembed?.type === 'video'
 }
 
 const isOneOf = R.curry((domains: string[], domain: string) => domains.includes(domain))
