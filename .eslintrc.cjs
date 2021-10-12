@@ -148,6 +148,7 @@ module.exports = {
         'no-eq-null': 'error',
         'no-magic-numbers': 'off',
         'no-nested-ternary': 'off',
+        'no-negated-condition': 'off',
         'no-param-reassign': [
           'error',
           {
