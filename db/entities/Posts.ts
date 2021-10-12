@@ -160,4 +160,4 @@ const initPostModel = (sequelize: Sequelize): Promise<PostModel> => {
   return PostModel.sync()
 }
 
-export { initPostModel, PostModel, Post }
+export { initPostModel, PostModel, Post, PostMediaKey }
