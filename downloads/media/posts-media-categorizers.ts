@@ -88,11 +88,11 @@ type MediaObj = {
   oembed?: Oembed
 }
 /*****
-  We use posts-media-categorizers when initially downloading posts (where media will be a JSON as a string)
+  We use posts-media-categorizers when initially downloading posts (where media will be JSON as a string)
     and also in other places where the posts are already in the db (where media will be a JS object)
 *****/
-const isVideoEmbed = ({ media }: { media: PostMediaKey | string }): boolean => {
-  const mediaObj: MediaObj = !media ? {} : typeof media === 'string' ? (JSON.parse(media) as PostMediaKey) : media
+const isVideoEmbed = ({ media = {} }: { media: MediaObj | string }): boolean => {
+  const mediaObj: MediaObj = typeof media === 'string' ? (JSON.parse(media) as PostMediaKey) : media
 
   return mediaObj?.oembed?.type === 'video'
 }
