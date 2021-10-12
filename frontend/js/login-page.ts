@@ -14,8 +14,9 @@ const Counter = Vue.defineComponent({
       this.userIsLoggingIn = val
     },
     copyNewUsernameToClipboard() {
-      // eslint-disable-next-line @typescript-eslint/no-extra-semi
-      ;(document.querySelector('#signupUsernameInput') as HTMLInputElement)?.select()
+      const signupInput = document.querySelector('#signupUsernameInput') as HTMLInputElement
+
+      signupInput?.select()
       document.execCommand('copy')
     },
   },
