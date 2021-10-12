@@ -21,16 +21,16 @@ async function setDefaultTemplateProps(request: FastifyRequest, reply: FastifyRe
   const basePath = path.split('/')[1]
   const csrfToken = await reply.generateCsrf()
 
-  // eslint-disable-next-line functional/immutable-data,semi-style
-  ;(reply as FastifyReplyWithLocals).locals = {
-    basePath: path === '/' ? 'index' : (basePath as string),
-    isSubPage: request.url.startsWith('/sub/'),
-    currentSubredditBrowsing: request.url.split('/')[2]?.split('?')[0] as string,
-    cacheBustString: `?cachebust=${isDev ? `${Date.now()}` : appVersion}`,
-    csrfToken,
-  }
-  // ;// eslint-disable-next-line functional/immutable-data,no-param-reassign
-  // (request.body as { _csrf: string })._csrf = csrfToken
+  const replyWithLocals = reply as FastifyReplyWithLocals
+
+  replyWithLocals.locals.basePath = path === '/' ? 'index' : (basePath as string)
+  replyWithLocals.locals.isSubPage = request.url.startsWith('/sub/')
+  replyWithLocals.locals.currentSubredditBrowsing = request.url.split('/')[2]?.split('?')[0] as string
+  replyWithLocals.locals.cacheBustString = `?cachebust=${isDev ? `${Date.now()}` : appVersion}`
+  replyWithLocals.locals.csrfToken = csrfToken
+
+  // eslint-disable-next-line functional/immutable-data,no-param-reassign,semi-style
+  ;(request.body as { _csrf: string })._csrf = csrfToken
 }
 
 export { setDefaultTemplateProps }
