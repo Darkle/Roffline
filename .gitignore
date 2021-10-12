@@ -6,6 +6,7 @@ db/**/*.js
 db/**/*.js.map
 logging/**/*.js
 logging/**/*.js.map
+!downloads
 downloads/**/*.js
 downloads/**/*.js.map
 boot.js
