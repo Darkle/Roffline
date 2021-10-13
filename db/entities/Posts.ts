@@ -1,4 +1,5 @@
 import { Sequelize, DataTypes, Model } from 'sequelize'
+import { StructuredComments } from './Comments'
 
 type Oembed = {
   provider_url: string
@@ -43,6 +44,10 @@ type Post = {
   crosspost_parent: string
   commentsDownloaded: boolean
 }
+
+type PostWithComments = {
+  comments: StructuredComments
+} & Post
 
 class PostModel extends Model {}
 
@@ -160,4 +165,4 @@ const initPostModel = (sequelize: Sequelize): Promise<PostModel> => {
   return PostModel.sync()
 }
 
-export { initPostModel, PostModel, Post, PostMediaKey, Oembed }
+export { initPostModel, PostModel, Post, PostMediaKey, Oembed, PostWithComments }
