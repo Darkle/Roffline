@@ -36,5 +36,5 @@
     "ignore": ["(?:^|/)node_modules/"]
   },
   "exclude": ["node_modules", "logging/file-logging-transport.cjs"],
-  "include": ["frontend/js/**/*", "server/**/*", "./boot.ts", "typings.d.ts", "logging", "downloads", "db"]
+  "include": ["frontend/**/*.ts", "server/**/*", "./boot.ts", "typings.d.ts", "logging", "downloads", "db"]
 }
