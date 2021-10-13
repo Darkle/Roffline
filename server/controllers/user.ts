@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 import { Maybe } from 'pratica'
-import R from 'ramda'
+import * as R from 'ramda'
 import * as RA from 'ramda-adjunct'
 
 import { db } from '../../db/db'

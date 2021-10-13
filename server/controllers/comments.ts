@@ -1,5 +1,5 @@
 import { decode as decodeHTML } from 'html-entities'
-import RA from 'ramda-adjunct'
+import * as RA from 'ramda-adjunct'
 import { DateTime } from 'luxon'
 import jsAgo from 'js-ago'
 

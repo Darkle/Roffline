@@ -1,4 +1,4 @@
-import R from 'ramda'
+import * as R from 'ramda'
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { DateTime } from 'luxon'
 import jsAgo from 'js-ago'

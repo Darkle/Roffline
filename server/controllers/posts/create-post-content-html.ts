@@ -1,5 +1,5 @@
-import R from 'ramda'
-import RA from 'ramda-adjunct'
+import * as R from 'ramda'
+import * as RA from 'ramda-adjunct'
 import { decode } from 'html-entities'
 import { compose } from 'ts-functional-pipe'
 

@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
-import R from 'ramda'
+import * as R from 'ramda'
 import { compose } from 'ts-functional-pipe'
 
 import { db } from '../../../db/db'
