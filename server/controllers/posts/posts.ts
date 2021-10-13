@@ -28,6 +28,7 @@ type Locals = {
   topFilter?: TopFilterType
   pageNumber?: number
   pagination?: number
+  totalResults?: number
   posts?: PostWithPostContentAndDownloadedFilesAndPrettyDate[]
   subreddit: string
 }
@@ -50,6 +51,7 @@ function addPaginationDataToTemplateLocals(
 ): Post[] {
   reply.locals.pageNumber = pageNumber
   reply.locals.pagination = Math.ceil(count / postsPerPage)
+  reply.locals.totalResults = count
 
   return pageWorthOfPosts
 }
@@ -117,4 +119,4 @@ async function getPostsPaginatedForSubreddit(request: FastifyRequest, reply: Fas
     .then(saveFinalizedPostsDataToTemplateLocals(replyWithLocals))
 }
 
-export { getPostsPaginated, getPostsPaginatedForSubreddit }
+export { getPostsPaginated, getPostsPaginatedForSubreddit, createPostContentHtmlForPosts }
