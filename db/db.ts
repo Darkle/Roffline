@@ -7,7 +7,6 @@ import { nullable as MaybeNullable, Maybe } from 'pratica'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { firstRun } from './db-first-run'
-import { omitDuplicateSubs } from '../server/utils'
 import { dbLogger } from '../logging/logging'
 import { UpdatesTrackerModel } from './entities/UpdatesTracker'
 import { User, UserModel } from './entities/Users'
@@ -127,6 +126,14 @@ const db = {
     transaction: TransactionType = null
   ): Promise<void> {
     const userSubs = await db.getUserSubreddits(userName)
+
+    const omitDuplicateSubs = (currentSubs: string[], newSubs: string[]): string[] => {
+      const currentSubsLowercase = currentSubs.length ? currentSubs.map((sub: string) => sub.toLowerCase()) : []
+      // Lowercase new subs in case they misstype and add a duplicate - e.g. Cats and then CAts
+      const newSubsLowercase = newSubs.map((sub: string) => sub.toLowerCase())
+
+      return R.uniq([...currentSubsLowercase, ...newSubsLowercase])
+    }
 
     await UserModel.update(
       { subreddits: omitDuplicateSubs(userSubs as string[], subreddits) },

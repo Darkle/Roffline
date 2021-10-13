@@ -1,7 +1,6 @@
 import path from 'path'
 import fs from 'fs'
 
-import * as R from 'ramda'
 // type unused = unknown
 
 import { TableModels, TableModelTypes } from '../db/entities/entity-types'
@@ -48,14 +47,6 @@ async function ensurePostsMediaDownloadFolderExists(): Promise<void | fs.Stats> 
 const ModeltoPOJO = (model: TableModels | undefined): TableModelTypes | undefined =>
   model?.get() as TableModelTypes | undefined
 
-function omitDuplicateSubs(currentSubs: string[], newSubs: string[]): string[] {
-  const currentSubsLowercase = currentSubs.length ? currentSubs.map((sub: string) => sub.toLowerCase()) : []
-  // Lowercase new subs in case they misstype and add a duplicate - e.g. Cats and then CAts
-  const newSubsLowercase = newSubs.map((sub: string) => sub.toLowerCase())
-
-  return R.uniq([...currentSubsLowercase, ...newSubsLowercase])
-}
-
 // function getProperty<K extends keyof T, T>(propertyName: K, o: T): T[K] {
 //   return o[propertyName] // o[propertyName] is of type T[K]
 // }
@@ -80,7 +71,6 @@ export {
   encaseInArrayIfNotArray,
   arrayToLowerCase,
   ensurePostsMediaDownloadFolderExists,
-  omitDuplicateSubs,
   ModeltoPOJO,
   getTextPropCurried,
 }
