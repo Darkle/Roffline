@@ -1,8 +1,3 @@
-type Comments = {
-  postId: string
-  comments: string
-}
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 type Media = {
@@ -149,7 +144,7 @@ type PostData = {
   modhash: any
   geo_filter: any
   before: string | null
-  children: [ChildrenPostData]
+  children: ChildrenPostData[]
 }
 
 type PostContainer = {
@@ -170,7 +165,7 @@ type ActualCommentsData = {
   subreddit: string
   author_flair_template_id: any
   likes: any
-  replies: CommentsContainer
+  replies: CommentsOuterContainer
   user_reports: any[]
   saved: boolean
   id: string
@@ -230,7 +225,7 @@ type ActualCommentsData = {
   ups: number
 }
 
-type CommentsPostData = {
+type CommentsContainer = {
   kind: string
   data: ActualCommentsData
 }
@@ -241,14 +236,14 @@ type CommentsData = {
   modhash: any
   geo_filter: any
   before: string | null
-  children: [CommentsPostData]
+  children: CommentsContainer[]
 }
 
-type CommentsContainer = {
+type CommentsOuterContainer = {
   kind: string
   data: CommentsData
 }
 
-type StructuredComments = [PostContainer, CommentsContainer]
+type StructuredComments = [PostContainer, CommentsOuterContainer]
 
-export { Comments, StructuredComments }
+export { StructuredComments, CommentsContainer, CommentsOuterContainer }
