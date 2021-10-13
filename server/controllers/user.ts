@@ -14,19 +14,22 @@ type CookieProps = {
 }
 
 const fourYearsInMilliseconds = 125798400000
+
 const getCookieProperties = (): CookieProps => ({
   httpOnly: true,
   sameSite: true,
   expires: new Date(Date.now() + fourYearsInMilliseconds),
 })
+
 const isApiRoute = R.startsWith('/api/')
+
 const isValidCookie = RA.isNotNilOrEmpty
+
 const isLoginLogoutPage = (path: string): boolean => path === '/login' || path === '/logout'
 
-// eslint-disable-next-line functional/prefer-type-literal
-interface FastifyReplyWithLocals extends FastifyReply {
+type FastifyReplyWithLocals = {
   locals: ReplyLocals
-}
+} & FastifyReply
 
 type ReplyLocals = {
   userSettings: User

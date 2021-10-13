@@ -5,10 +5,9 @@ import querystring from 'querystring'
 import { version as appVersion } from '../../package.json'
 import { isDev } from '../utils'
 
-// eslint-disable-next-line functional/prefer-type-literal
-interface FastifyReplyWithLocals extends FastifyReply {
+type FastifyReplyWithLocals = {
   locals: ReplyLocals
-}
+} & FastifyReply
 
 type ReplyLocals = {
   basePath: string

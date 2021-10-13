@@ -8,10 +8,9 @@ import { Post } from '../../../db/entities/Posts'
 import { findAnyMediaFilesForPosts, PostWithDownloadedFiles } from './find-posts-media-files'
 import { createPostContentHtml } from './create-post-content-html'
 
-// eslint-disable-next-line functional/prefer-type-literal
-interface FastifyReplyWithLocals extends FastifyReply {
+type FastifyReplyWithLocals = {
   locals: Locals
-}
+} & FastifyReply
 
 type TopFilterType = 'day' | 'week' | 'month' | 'year' | 'all'
 
