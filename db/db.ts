@@ -11,7 +11,7 @@ import { omitDuplicateSubs } from '../server/utils'
 import { dbLogger } from '../logging/logging'
 import { UpdatesTrackerModel } from './entities/UpdatesTracker'
 import { User, UserModel } from './entities/Users'
-import { Post, PostModel } from './entities/Posts'
+import { Post, PostModel, PostWithComments } from './entities/Posts'
 import {
   createAndSyncSubredditTable,
   loadSubredditTableModels,
@@ -214,8 +214,15 @@ const db = {
       ])
     )
   },
-  getSinglePostData(postId: string): Promise<Post> {
-    return PostModel.findByPk(postId).then(post => post?.get() as Post)
+  getSinglePostData(postId: string): Promise<PostWithComments> {
+    return Promise.all([
+      PostModel.findByPk(postId).then(post => post?.get() as Post),
+      this.getPostComments(postId),
+    ]).then(([postData, commentsData]) => {
+      const post = postData as PostWithComments
+      post.comments = commentsData
+      return post
+    })
   },
   getPostsPaginatedForAllSubsOfUser(
     userName: string,
@@ -238,11 +245,12 @@ const db = {
       : getPostsPaginatedForSubreddit(subreddit, page)
   },
   searchPosts(
+    userName: string,
     searchTerm: string,
     page = 1,
     fuzzySearch = false
   ): Promise<{ rows: SearchLimitedPostType[]; count: number }> {
-    return searchPosts(sequelize, searchTerm, page, fuzzySearch)
+    return searchPosts({ userName, sequelize, searchTerm, page, fuzzySearch })
   },
   getAllPostIds(): Promise<string[]> {
     return PostModel.findAll({ attributes: ['id'] }).then(items => items.map(item => item.get('id') as string))
