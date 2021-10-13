@@ -3,5 +3,12 @@
   "rules": {
     "no-descending-specificity": null
   },
-  "ignoreFiles": ["./.eslintrc.cjs", "**/*.cjs", "node_modules/**/*", "LICENSE", "**/*.js"]
+  "ignoreFiles": [
+    "./.eslintrc.cjs",
+    "**/*.cjs",
+    "node_modules/**/*",
+    "LICENSE",
+    "**/*.js",
+    "**/index-page-globals.njk"
+  ]
 }
