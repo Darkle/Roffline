@@ -6,6 +6,7 @@ import { mainLogger } from '../../logging/logging'
 import { getUserSettings, logUserOut } from '../controllers/user'
 import { setDefaultTemplateProps } from '../controllers/default-template-props'
 import { getPostsPaginated, getPostsPaginatedForSubreddit } from '../controllers/posts/posts'
+import { searchPosts } from '../controllers/search'
 
 type SubParams = { subreddit: string }
 
@@ -19,7 +20,7 @@ const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) =
 
   fastify.get('/logout', logUserOut)
 
-  fastify.get('/', { preHandler: [getPostsPaginated, ...mainPreHandlers] }, (_, reply) => {
+  fastify.get('/', { preHandler: [...mainPreHandlers, getPostsPaginated] }, (_, reply) => {
     reply.view('index', {
       pageTitle: 'Roffline Home Page',
     })
@@ -39,7 +40,7 @@ const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) =
 
   fastify.get(
     '/sub/:subreddit/',
-    { preHandler: [getPostsPaginatedForSubreddit, ...mainPreHandlers] },
+    { preHandler: [...mainPreHandlers, getPostsPaginatedForSubreddit] },
     (req, reply) => {
       reply.view('index', { pageTitle: `${(req.params as SubParams).subreddit} - Roffline` })
     }
@@ -53,7 +54,7 @@ const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) =
     reply.view('sub-management-page', { pageTitle: 'Roffline - Subreddit Management' })
   })
 
-  fastify.get('/search', { preHandler: mainPreHandlers }, (_, reply) => {
+  fastify.get('/search', { preHandler: [...mainPreHandlers, searchPosts] }, (_, reply) => {
     reply.view('search-page', { pageTitle: 'Search Roffline' })
   })
 
