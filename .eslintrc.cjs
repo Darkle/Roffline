@@ -106,6 +106,7 @@ module.exports = {
               'this\\.userIsLoggingIn',
               'reply\\.locals\\.',
               'replyWithLocals\\.locals\\.',
+              'post\\.comments',
             ],
           },
         ],
