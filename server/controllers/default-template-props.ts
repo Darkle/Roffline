@@ -1,4 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
+// eslint-disable-next-line no-restricted-imports
+import querystring from 'querystring'
 
 import { version as appVersion } from '../../package.json'
 import { isDev } from '../utils'
@@ -14,8 +16,10 @@ type ReplyLocals = {
   currentSubredditBrowsing: string
   cacheBustString: string
   csrfToken: string
+  decodeHTML: (str: string) => string
 }
 
+// eslint-disable-next-line max-lines-per-function,complexity
 async function setDefaultTemplateProps(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const path = request.urlData().path as string
   const basePath = path.split('/')[1]
@@ -23,14 +27,24 @@ async function setDefaultTemplateProps(request: FastifyRequest, reply: FastifyRe
 
   const replyWithLocals = reply as FastifyReplyWithLocals
 
-  replyWithLocals.locals.basePath = path === '/' ? 'index' : (basePath as string)
-  replyWithLocals.locals.isSubPage = request.url.startsWith('/sub/')
-  replyWithLocals.locals.currentSubredditBrowsing = request.url.split('/')[2]?.split('?')[0] as string
-  replyWithLocals.locals.cacheBustString = `?cachebust=${isDev ? `${Date.now()}` : appVersion}`
-  replyWithLocals.locals.csrfToken = csrfToken
-
-  // eslint-disable-next-line functional/immutable-data,no-param-reassign,semi-style
-  ;(request.body as { _csrf: string })._csrf = csrfToken
+  // eslint-disable-next-line functional/no-conditional-statement
+  if (!replyWithLocals.locals) {
+    // eslint-disable-next-line functional/immutable-data
+    replyWithLocals.locals = {
+      basePath: path === '/' ? 'index' : (basePath as string),
+      isSubPage: request.url.startsWith('/sub/'),
+      currentSubredditBrowsing: request.url.split('/')[2]?.split('?')[0] as string,
+      cacheBustString: `?cachebust=${isDev ? `${Date.now()}` : appVersion}`,
+      csrfToken,
+      decodeHTML: querystring.unescape,
+    }
+  } else {
+    replyWithLocals.locals.basePath = path === '/' ? 'index' : (basePath as string)
+    replyWithLocals.locals.isSubPage = request.url.startsWith('/sub/')
+    replyWithLocals.locals.currentSubredditBrowsing = request.url.split('/')[2]?.split('?')[0] as string
+    replyWithLocals.locals.cacheBustString = `?cachebust=${isDev ? `${Date.now()}` : appVersion}`
+    replyWithLocals.locals.csrfToken = csrfToken
+  }
 }
 
 export { setDefaultTemplateProps }
