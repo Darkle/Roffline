@@ -1,0 +1,68 @@
+<header>
+  <nav aria-label="primary-navigation">
+    <ul>
+      <li>
+        <a href="/">Home</a>
+        {% if basePath === "index" %}
+        <hr />
+        {% endif %}
+      </li>
+      <li>
+        <details class="subs-dropdown">
+          <summary class="button outline">Subreddits</summary>
+          <div class="card">
+            <p><a href="/">All</a></p>
+            <p>
+              <a href="/sub-management">Manage</a>
+            </p>
+            <hr class="menu-spacer" />
+            {% for subreddit in sort(userSettings.subreddits) %}
+            <p>
+              <a href="/sub/{{ subreddit }}">
+                {% if isSubPage and currentSubredditBrowsing === subreddit %}
+                <svg height="12px" version="1.1" viewBox="0 0 9 12" width="9px" xmlns="http://www.w3.org/2000/svg" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns" xmlns:xlink="http://www.w3.org/1999/xlink"><title/><desc/><defs/><g fill="none" fill-rule="evenodd" id="Page-1" stroke="none" stroke-width="1"><g fill="#14854f" id="Core" transform="translate(-260.000000, -90.000000)"><g id="chevron-right" transform="translate(260.500000, 90.000000)"><path d="M1,0 L-0.4,1.4 L4.2,6 L-0.4,10.6 L1,12 L7,6 L1,0 Z" id="Shape"/></g></g></g></svg>
+                {% endif %}
+                <span>{{ subreddit }}</span>
+              </a>
+            </p>
+            {% endfor %}
+          </div>
+        </details>
+      </li>
+
+      {% if basePath === "index" or isSubPage  %}
+      <li>
+        <details class="top-filter">
+          <summary class="button outline">Top</summary>
+          <div class="card">
+            <p><a href="?topFilter=day">Today</a></p>
+            <p><a href="?topFilter=week">Week</a></p>
+            <p><a href="?topFilter=month">Month</a></p>
+            <p><a href="?topFilter=year">Year</a></p>
+            <p><a href="?topFilter=all">All Time</a></p>
+          </div>
+        </details>
+      </li>
+      {% endif %}
+
+      <li>
+        <a href="/search">Search</a>
+        {% if basePath === "search" %}
+        <hr />
+        {% endif %}
+      </li>
+      <li>
+        <a href="/settings">Settings</a>
+        {% if basePath === "settings" %}
+        <hr />
+        {% endif %}
+      </li>
+      <li>
+        <a href="/help">Help</a>
+        {% if basePath === "help" %}
+        <hr />
+        {% endif %}
+      </li>
+    </ul>
+  </nav>
+</header>
