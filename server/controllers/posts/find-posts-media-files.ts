@@ -25,9 +25,4 @@ function findAnyMediaFilesForPosts(posts: Post[]): Promise<PostWithDownloadedFil
   })
 }
 
-const findAnyMediaFilesForSinglePost = (post: Post): Promise<PostWithDownloadedFiles> =>
-  findAnyMediaFilesForPosts([post]).then(
-    (posts: PostWithDownloadedFiles[]): PostWithDownloadedFiles => posts[0] as PostWithDownloadedFiles
-  )
-
-export { findAnyMediaFilesForPosts, findAnyMediaFilesForSinglePost, PostWithDownloadedFiles }
+export { findAnyMediaFilesForPosts, PostWithDownloadedFiles }
