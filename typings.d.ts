@@ -10,11 +10,3 @@ declare module 'js-ago' {
     }
   ): string
 }
-
-/* eslint-disable functional/prefer-type-literal*/
-
-declare global {
-  interface Window {
-    csrfToken: string
-  }
-}

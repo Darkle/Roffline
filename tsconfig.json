@@ -35,6 +35,6 @@
     },
     "ignore": ["(?:^|/)node_modules/"]
   },
-  "exclude": ["node_modules", "logging/file-logging-transport.cjs"],
+  "exclude": ["node_modules", "logging/file-logging-transport.cjs", "env-checker.cjs"],
   "include": ["frontend/**/*.ts", "server/**/*", "./boot.ts", "typings.d.ts", "logging", "downloads", "db"]
 }
