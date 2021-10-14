@@ -24,27 +24,19 @@
       <div id="posts">
         {% if posts.length > 1 %}
         <template v-for="(post, index) in posts" :key="post.id">
-          <div class="post-container">
-            <article>
-              <h2>
-                <a href="`/post/${ post.id }`">{{ post.title }}</a>
-              </h2>
-              <post-content-item v-if="!userSettings.onlyShowTitlesInFeed"></post-content-item>
-              <post-content-item-meta-container
-                v-bind:subreddit="post.subreddit"
-                v-bind:author="post.author"
-                v-bind:permalink="post.permalink"
-                v-bind:score="post.score"
-                v-bind:pretty-date-created="post.prettyDateCreated"
-                v-bind:pretty-date-created-ago="post.prettyDateCreatedAgo"
-              ></post-content-item-meta-container>
-            </article>
-            <div class="page-seperator" v-if="shouldShowPageSeperator(index)">
-              <hr />
-              <h4 class="page-seperator">{{ `Page ${((index + 1) / 30) + 1}` }}</h4>
-              <hr />
-            </div>
-          </div>
+          <post-item
+            v-bind:id="post.id"
+            v-bind:title="post.title"
+            v-bind:index="post.index"
+            v-bind:post-content="post.postContent"
+            v-bind:only-show-titles-in-feed="userSettings.onlyShowTitlesInFeed"
+            v-bind:subreddit="post.subreddit"
+            v-bind:author="post.author"
+            v-bind:permalink="post.permalink"
+            v-bind:score="post.score"
+            v-bind:pretty-date-created="post.prettyDateCreated"
+            v-bind:pretty-date-created-ago="post.prettyDateCreatedAgo"
+          ></post-item>
         </template>
         {% else %}
         <p class="no-posts-found-message">This subreddit either has no posts, or is in the download queue.</p>
@@ -59,6 +51,6 @@
       window.userSettings = <# userSettings | dump | safe #>
       window.posts = <# posts | dump | safe #> 
     <# unescapeHTML('%3C/script%3E') | safe #>
-    <script src="/js/index-page.js<# cacheBustString #>" type="module"></script>
+    <script src="/js/index/index-page.js<# cacheBustString #>" type="module"></script>
   </body>
 </html>

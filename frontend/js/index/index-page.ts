@@ -1,86 +1,34 @@
 import * as Vue from 'vue'
 
-import { WindowWithProps } from './frontend-global-types'
+import { WindowWithProps } from '../frontend-global-types'
+import { PostItem } from './components/PostItem'
 
 declare const window: WindowWithProps
+
+const getLocallyStoredVolumeSetting = (): number => {
+  const volume = localStorage.getItem('volume')
+  return volume ? Number(volume) : 0
+}
 
 const IndexPage = Vue.defineComponent({
   data() {
     return {
       posts: window.posts,
       userSettings: window.userSettings,
+      volume: getLocallyStoredVolumeSetting(),
     }
   },
-  methods: {
-    shouldShowPageSeperator() {
-      return true
+  watch: {
+    volume(vol: number) {
+      localStorage.setItem('volume', vol.toString())
     },
+  },
+  components: {
+    PostItem,
   },
 })
 
-const app = Vue.createApp(IndexPage)
-
-app.component('post-content-item', {
-  template: /* html */ `<div class="post-content"></div>`,
-  // template: /* html */ `<div class="post-content" v-html="post.postContent"></div>`,
-})
-
-app.component('post-content-item-meta-container', {
-  props: {
-    subreddit: String,
-    author: String,
-    permalink: String,
-    score: Number,
-    prettyDateCreated: String,
-    prettyDateCreatedAgo: String,
-  },
-  methods: {
-    pluralisePostScore(score: number): string {
-      return `${score} ${score === 0 || score > 1 ? 'points' : 'point'}`
-    },
-  },
-  computed: {
-    redditSubHref() {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-      return `/sub/${this.subreddit}`
-    },
-    redditAuthorHref() {
-      // encodeURI is in case its https://www.reddit.com/u/[deleted]
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      return `https://www.reddit.com/u/${encodeURI(this.author)}`
-    },
-    redditFullPermalinkHref() {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/restrict-template-expressions
-      return `https://www.reddit.com${this.permalink}`
-    },
-  },
-  template: /* html */ `
-  <small class="post-meta-container">
-    <ul>
-      <li>
-        <data v-bind:value="score">{{ pluralisePostScore(score) }}</data>
-      </li>
-      <li>
-        <span>from <a v-bind:href="redditSubHref">/r/{{ subreddit }}</a></span>
-      </li>
-      <li class="submission-data">
-        <span>submitted</span>
-        <time v-bind:datetime="prettyDateCreated">{{ prettyDateCreatedAgo }}</time>
-        <span>by</span>
-        <a v-bind:href="redditAuthorHref">{{ author }}</a>
-      </li>
-      <li>
-        <a
-          v-bind:href="redditFullPermalinkHref"
-          aria-label="Go to the original reddit url of this post"
-          >original url</a>
-      </li>
-    </ul>
-  </small>  
-  `,
-})
-
-app.mount('body')
+Vue.createApp(IndexPage).mount('body')
 
 // import { Fetcher } from './frontend-utils'
 
