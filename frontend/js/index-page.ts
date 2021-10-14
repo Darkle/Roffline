@@ -1,3 +1,29 @@
+import * as Vue from 'vue'
+
+import { WindowWithProps } from './frontend-global-types'
+
+declare const window: WindowWithProps
+
+const Counter = Vue.defineComponent({
+  data() {
+    return {
+      posts: window.posts,
+      userSettings: window.userSettings,
+    }
+  },
+  // mounted() {},
+  methods: {
+    shouldShowPageSeperator() {
+      return true
+    },
+    pluralisePostScore(score: number): string {
+      return `${score} ${score === 0 || score > 1 ? 'points' : 'point'}`
+    },
+  },
+})
+
+Vue.createApp(Counter).mount('body')
+
 // import { Fetcher } from './frontend-utils'
 
 // const fetchCache = new Set()
