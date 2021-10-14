@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import jsAgo from 'js-ago'
 
 import { db } from '../../../db/db'
-import { Post } from '../../../db/entities/Posts'
+import { Post } from '../../../db/entities/Posts/Post'
 import { findAnyMediaFilesForPosts, PostWithDownloadedFiles } from './find-posts-media-files'
 import { createPostContentHtml } from './create-post-content-html'
 

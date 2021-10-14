@@ -2,9 +2,9 @@ import * as R from 'ramda'
 import * as RA from 'ramda-adjunct'
 import { compose } from 'ts-functional-pipe'
 
-import { Post, PostMediaKey, Oembed } from '../../db/entities/Posts'
+import { Post, PostMediaKey, Oembed } from '../../db/entities/Posts/Post'
 
-import { User } from '../../db/entities/Users'
+import { User } from '../../db/entities/Users/User'
 
 /* eslint-disable security/detect-unsafe-regex */
 const isDirectImageLink = R.test(/\.(png|jpe?g|gif|webp|svg|apng|avif|bmp|tiff?|heif|heic)(\?.*)?$/u)

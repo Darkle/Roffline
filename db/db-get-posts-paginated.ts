@@ -1,7 +1,8 @@
 import { Op } from 'sequelize'
 import { DateTime } from 'luxon'
 
-import { Post, PostModel } from './entities/Posts'
+import { Post } from './entities/Posts/Post'
+import { PostModel } from './entities/Posts/Posts'
 
 const postsPerPage = 30
 

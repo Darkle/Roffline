@@ -3,10 +3,10 @@ import { Sequelize } from 'sequelize'
 import { noop } from '../server/utils'
 import { initAdminSettingsModel, AdminSettingsModel } from './entities/AdminSettings'
 import { initFeedsToFetchModel } from './entities/FeedsToFetch'
-import { initPostModel } from './entities/Posts'
+import { initPostModel } from './entities/Posts/Posts'
 import { initSubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { initUpdatesTrackerModel, UpdatesTrackerModel } from './entities/UpdatesTracker'
-import { initUserModel } from './entities/Users'
+import { initUserModel } from './entities/Users/Users'
 
 const defaultAdminSettings = {
   downloadComments: true,

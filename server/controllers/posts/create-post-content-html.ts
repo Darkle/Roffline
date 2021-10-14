@@ -4,7 +4,7 @@ import { decode } from 'html-entities'
 import { compose } from 'ts-functional-pipe'
 
 import { isCrossPost } from '../../../downloads/media/posts-media-categorizers'
-import { Post } from '../../../db/entities/Posts'
+import { Post } from '../../../db/entities/Posts/Post'
 
 /* eslint-disable security/detect-unsafe-regex */
 const containsImageFile = R.any(R.test(/\.(png|jpe?g|gif|webp|svg|apng|avif|bmp|tiff?|avif|heif|heic)(\?.*)?$/u))

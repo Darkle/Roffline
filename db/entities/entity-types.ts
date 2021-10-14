@@ -1,10 +1,12 @@
 import { AdminSettingsModel, AdminSettings } from './AdminSettings'
 import { FeedsToFetchModel, FeedsToFetch } from './FeedsToFetch'
-import { PostModel, Post } from './Posts'
+import { Post } from './Posts/Post'
+import { PostModel } from './Posts/Posts'
 import { SubredditsMasterListModel, SubredditsMasterList } from './SubredditsMasterList'
 import { SubredditTable } from './SubredditTable'
 import { UpdatesTrackerModel, UpdatesTracker } from './UpdatesTracker'
-import { UserModel, User } from './Users'
+import { UserModel } from './Users/Users'
+import { User } from './Users/User'
 
 type TableModels =
   | AdminSettingsModel

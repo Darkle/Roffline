@@ -4,7 +4,7 @@ import fs from 'fs'
 import * as RA from 'ramda-adjunct'
 import Prray from 'prray'
 
-import { Post } from '../../../db/entities/Posts'
+import { Post } from '../../../db/entities/Posts/Post'
 
 const postsMediaDir = path.join(process.cwd(), 'posts-media')
 

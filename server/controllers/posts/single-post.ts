@@ -4,7 +4,7 @@ import { compose } from 'ts-functional-pipe'
 
 import { db } from '../../../db/db'
 import { StructuredComments } from '../../../db/entities/Comments'
-import { PostWithComments } from '../../../db/entities/Posts'
+import { PostWithComments } from '../../../db/entities/Posts/Post'
 import { createCommentsHtml } from '../comments'
 import { createPostContentHtml } from './create-post-content-html'
 import { findAnyMediaFilesForPosts, PostWithDownloadedFiles } from './find-posts-media-files'

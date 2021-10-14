@@ -9,8 +9,10 @@ import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { firstRun } from './db-first-run'
 import { dbLogger } from '../logging/logging'
 import { UpdatesTrackerModel } from './entities/UpdatesTracker'
-import { User, UserModel } from './entities/Users'
-import { Post, PostModel, PostWithComments } from './entities/Posts'
+import { User } from './entities/Users/User'
+import { UserModel } from './entities/Users/Users'
+import { PostModel } from './entities/Posts/Posts'
+import { Post, PostWithComments } from './entities/Posts/Post'
 import {
   createAndSyncSubredditTable,
   loadSubredditTableModels,

@@ -2,15 +2,6 @@ import { Sequelize, DataTypes, Model } from 'sequelize'
 
 class UserModel extends Model {}
 
-type User = {
-  name: string
-  subreddits: string[]
-  hideStickiedPosts: boolean
-  onlyShowTitlesInFeed: boolean
-  infiniteScroll: boolean
-  darkModeTheme: boolean
-}
-
 const tableSchema = {
   name: {
     type: DataTypes.TEXT,
@@ -63,4 +54,4 @@ const initUserModel = (sequelize: Sequelize): Promise<UserModel> => {
   return UserModel.sync()
 }
 
-export { initUserModel, User, UserModel }
+export { initUserModel, UserModel }

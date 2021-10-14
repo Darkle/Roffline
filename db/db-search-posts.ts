@@ -1,5 +1,6 @@
 import { Sequelize, QueryTypes } from 'sequelize'
-import { User, UserModel } from './entities/Users'
+import { User } from './entities/Users/User'
+import { UserModel } from './entities/Users/Users'
 
 const postsPerPage = 30
 

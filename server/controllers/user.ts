@@ -5,7 +5,7 @@ import * as R from 'ramda'
 import * as RA from 'ramda-adjunct'
 
 import { db } from '../../db/db'
-import { User } from '../../db/entities/Users'
+import { User } from '../../db/entities/Users/User'
 
 type CookieProps = {
   httpOnly: boolean
