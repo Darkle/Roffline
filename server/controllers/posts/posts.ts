@@ -118,4 +118,9 @@ async function getPostsPaginatedForSubreddit(request: FastifyRequest, reply: Fas
     .then(saveFinalizedPostsDataToTemplateLocals(replyWithLocals))
 }
 
-export { getPostsPaginated, getPostsPaginatedForSubreddit, createPostContentHtmlForPosts }
+export {
+  getPostsPaginated,
+  getPostsPaginatedForSubreddit,
+  createPostContentHtmlForPosts,
+  PostWithPostContentAndDownloadedFilesAndPrettyDate,
+}
