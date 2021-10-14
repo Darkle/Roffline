@@ -15,7 +15,7 @@ type ReplyLocals = {
   currentSubredditBrowsing: string
   cacheBustString: string
   csrfToken: string
-  decodeHTML: (str: string) => string
+  unescapeHTML: (str: string) => string
 }
 
 // eslint-disable-next-line max-lines-per-function,complexity
@@ -35,7 +35,7 @@ async function setDefaultTemplateProps(request: FastifyRequest, reply: FastifyRe
       currentSubredditBrowsing: request.url.split('/')[2]?.split('?')[0] as string,
       cacheBustString: `?cachebust=${isDev ? `${Date.now()}` : appVersion}`,
       csrfToken,
-      decodeHTML: querystring.unescape,
+      unescapeHTML: querystring.unescape,
     }
   } else {
     replyWithLocals.locals.basePath = path === '/' ? 'index' : (basePath as string)
