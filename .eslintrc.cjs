@@ -120,6 +120,7 @@ module.exports = {
         'eslint-comments/disable-enable-pair': 'off',
         'no-secrets/no-secrets': ['error', { tolerance: 4.5 }],
         'ramda/no-redundant-and': 'off',
+        'ramda/prefer-ramda-boolean': 'off',
         'mocha/no-hooks-for-single-case': 'off',
         'security/detect-non-literal-fs-filename': 'off',
         'security/detect-object-injection': 'off',
