@@ -5,14 +5,14 @@
   "main": "index.js",
   "scripts": {
     "update": "ncu --interactive --target minor",
-    "task": "node -r dotenv/config ./TasksFile.js",
-    "dev": "NODE_ENV=development LOGGING_LEVEL=debug node -r dotenv/config ./TasksFile.js dev:start",
-    "inspect": "NODE_ENV=development LOGGING_LEVEL=debug node -r dotenv/config ./TasksFile.js dev:inspect",
+    "task": "node -r dotenv/config -r ./env-checker.cjs ./TasksFile.js",
+    "dev": "NODE_ENV=development LOGGING_LEVEL=debug node -r dotenv/config -r ./env-checker.cjs ./TasksFile.js dev:start",
+    "inspect": "NODE_ENV=development LOGGING_LEVEL=debug node -r dotenv/config -r ./env-checker.cjs ./TasksFile.js dev:inspect",
     "test": "node ./TasksFile.js testAll",
     "build": "node ./TasksFile.js buildProd",
     "eslint": "node ./TasksFile.js tests:eslint",
     "updateTypes": "ts-typie",
-    "start": "npm run build && NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r dotenv/config ./boot.js"
+    "start": "npm run build && NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r dotenv/config -r ./env-checker.cjs ./boot.js"
   },
   "engines": {
     "node": ">=14.17.6"
