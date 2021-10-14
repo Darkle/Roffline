@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   {% include "partials/head.njk" %}
-  <body v-bind:class="index-page {% if userSettings.darkModeTheme %}dark-theme{% endif %}">
+  <body class="index-page {% if userSettings.darkModeTheme %}dark-theme{% endif %}">
     <!-- prettier-ignore -->
     {% set userSettings = userSettings %}
     {% set basePath = basePath %}
@@ -9,11 +9,78 @@
     {% set currentSubredditBrowsing = currentSubredditBrowsing %}
     {% include 'partials/page-header.njk' %}
 
-    {# Doing it this way so the editor doesnt complain about the nunjucks tags in the script element not being valid JS #}
-    <# decodeHTML('%3Cscript%3E') | safe #>
+    <main>
+      {% if userSettings.subreddits.length < 1 %}
+      <div class="welcome">
+        <div class="roffline-logotitle">{% include 'partials/roffline-logo.njk' %}</div>
+        <h1>Welcome To Roffline (Reddit, Offline)</h1>
+        <p>To get started, add a subreddit on the <a href="/sub-management">sub-management</a> page.</p>
+        <p>Alternatively, you can bulk import subreddits from the <a href="/settings">settings</a> page.</p>
+      </div>
+      {% else %} {% if isSubPage %}
+      <h4 class="filter-header text-grey">Sub: <# currentSubredditBrowsing | capitalize #></h4>
+      {% endif %} {% if topFilter %}
+      <h4 class="filter-header text-grey">Top: <# topFilter | capitalize #></h4>
+      {% endif %}
+      <div id="posts">
+        {% if posts.length > 1 %}
+        <template v-for="(post, index) in posts">
+          <div class="post-container">
+            <article>
+              <h2>
+                <a href="`/post/${ post.id }`">{{ post.title }}</a>
+              </h2>
+              <div class="post-content" v-if="!userSettings.onlyShowTitlesInFeed" v-html="post.postContent"></div>
+              <small class="post-meta-container">
+                <ul>
+                  <li>
+                    <data value="post.score">{{ pluralisePostScore(post.score) }}</data>
+                  </li>
+                  <li>
+                    <span
+                      >from <a href="`/sub/${ post.subreddit }`">{{ post.subreddit }}</a></span
+                    >
+                  </li>
+                  <li>
+                    <span>submitted</span>
+                    <time v-bind:datetime="post.prettyDateCreated">{{ post.prettyDateCreatedAgo }}</time>
+                    <span>by</span>
+                    <!-- encodeURI is in case its https://www.reddit.com/u/[deleted] -->
+                    <a href="`https://www.reddit.com/u/${ encodeURI(post.author) }`">{{ post.author }}</a>
+                  </li>
+                  <li>
+                    <a
+                      href="`https://www.reddit.com${ post.permalink }`"
+                      aria-label="Go to the original reddit url of this post"
+                      >original url</a
+                    >
+                  </li>
+                </ul>
+              </small>
+            </article>
+            {% if userSettings.infiniteScroll %}
+            <div class="page-seperator" v-if="shouldShowPageSeperator(index)">
+              <hr />
+              <h4 class="page-seperator">{{ `Page ${((index + 1) / 30) + 1}` }}</h4>
+              <hr />
+            </div>
+            {% endif %}
+          </div>
+        </template>
+        {% else %}
+        <p class="no-posts-found-message">This subreddit either has no posts, or is in the download queue.</p>
+        {% endif %}
+      </div>
+      {% include 'partials/pagination.njk' %} {% endif %}
+    </main>
+
+    {# Doing it this way so the editor doesnt complain about the nunjucks tags in the script element not being
+    valid JS #}
+    <!-- prettier-ignore -->
+    <# unescapeHTML('%3Cscript%3E') | safe #> 
       window.userSettings = <# userSettings | dump | safe #>
-      window.posts = <# posts | dump | safe #>
-    <# decodeHTML('%3C/script%3E') | safe #>
+      window.posts = <# posts | dump | safe #> 
+    <# unescapeHTML('%3C/script%3E') | safe #>
     <script src="/js/index-page.js<# cacheBustString #>" type="module"></script>
   </body>
 </html>
