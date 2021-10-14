@@ -1,21 +1,7 @@
-import { cleanEnv as envVarChecker, str, port } from 'envalid'
-
 import { startServer } from './server/server'
 import { mainLogger } from './logging/logging'
 import { db } from './db/db'
 import { ensurePostsMediaDownloadFolderExists } from './server/utils'
-
-envVarChecker(process.env, {
-  PORT: port({ default: 8080 }), // eslint-disable-line @typescript-eslint/no-magic-numbers
-  PUBLIC_FOLDER: str({ default: './frontend-build' }),
-  LOGDIR: str({ default: './roffline-logs' }),
-  POSTS_MEDIA_DOWNLOAD_DIR: str({ default: './posts-media' }),
-  SQLITE_DBPATH: str({ default: './roffline-sqlite.db' }),
-  COMMENTS_DBPATH: str({ default: './roffline-comments-lmdb.db' }),
-  NODE_ENV: str({ choices: ['development', 'test', 'testing', 'production'] }),
-  LOGGING_LEVEL: str({ choices: ['debug', 'error'], default: 'error' }),
-  ADMIN_PASS: str({ default: 'foo' }),
-})
 
 function bailOnFatalError(err: Error): void {
   console.error(err)
