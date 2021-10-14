@@ -160,6 +160,10 @@
   margin-right: 8px;
 }
 
+.index-page main #posts article .post-meta-container ul li.submission-data > * {
+  margin-right: 0.3rem;
+}
+
 .index-page main #posts .page-seperator {
   display: flex;
   margin-bottom: 4rem;
