@@ -19,7 +19,7 @@ const IndexPage = Vue.defineComponent({
     }
   },
   watch: {
-    volume(vol: number) {
+    volume(vol: number): void {
       localStorage.setItem('volume', vol.toString())
     },
   },
