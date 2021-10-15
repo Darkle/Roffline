@@ -1,5 +1,6 @@
 {
   "imports": {
-    "vue": "/node_modules/vue/dist/vue.esm-browser.prod.js"
+    "vue": "/node_modules/vue/dist/vue.esm-browser.prod.js",
+    "embla-carousel": "/node_modules/embla-carousel/embla-carousel.esm.js"
   }
 }
