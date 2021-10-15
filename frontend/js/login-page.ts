@@ -1,13 +1,14 @@
 import * as Vue from 'vue'
 
-const Counter = Vue.defineComponent({
+const LoginPage = Vue.defineComponent({
   data() {
     return {
       userIsLoggingIn: true,
     }
   },
   mounted() {
-    document.querySelector('.signup-form')?.removeAttribute('x-cloak')
+    const signupForm = this.$refs['signupform'] as HTMLFormElement
+    signupForm.removeAttribute('x-cloak')
   },
   methods: {
     setUserIsLoggingIn(val: boolean) {
@@ -22,4 +23,4 @@ const Counter = Vue.defineComponent({
   },
 })
 
-Vue.createApp(Counter).mount('body')
+Vue.createApp(LoginPage).mount('body')

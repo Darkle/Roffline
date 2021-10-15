@@ -25,6 +25,7 @@
       <form
         x-cloak
         v-bind:class="{ 'is-hidden': userIsLoggingIn }"
+        ref="signupform"
         class="signup-form"
         action="/api/create-user"
         method="post"
