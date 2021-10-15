@@ -26,6 +26,7 @@
   "pre-commit": [],
   "dependencies": {
     "dotenv": "^10.0.0",
+    "embla-carousel": "^5.0.1",
     "envalid": "^7.2.1",
     "esbuild-plugin-glob": "^1.0.3",
     "fastify": "^3.22.0",
