@@ -47,4 +47,6 @@ function wait(ms: number): Promise<void> {
   })
 }
 
-export { Fetcher, wait, $, $$ }
+const isDev = window.location.port !== ''
+
+export { Fetcher, wait, $, $$, isDev }
