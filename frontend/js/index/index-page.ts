@@ -2,6 +2,7 @@ import * as Vue from 'vue'
 
 import { WindowWithProps } from '../frontend-global-types'
 import { PostItem } from './components/PostItem'
+import { isDev } from '../frontend-utils'
 
 declare const window: WindowWithProps
 
@@ -10,14 +11,32 @@ const getLocallyStoredVolumeSetting = (): number => {
   return volume ? Number(volume) : 0
 }
 
+const store = {
+  state: Vue.reactive({
+    volume: getLocallyStoredVolumeSetting(),
+  }),
+  setMessageAction(newValue): void {
+    this.state.message = newValue
+  },
+  clearMessageAction(): void {
+    this.state.message = ''
+  },
+}
+
 const IndexPage = Vue.defineComponent({
   data() {
     return {
       posts: window.posts,
       userSettings: window.userSettings,
-      volume: getLocallyStoredVolumeSetting(),
     }
   },
+  provide: {
+    volume: this.volume,
+  },
+  // methods: {
+  //   onUpdateVolume(vol: number) {
+  //     this.volume = vol
+  // },
   watch: {
     volume(vol: number): void {
       localStorage.setItem('volume', vol.toString())

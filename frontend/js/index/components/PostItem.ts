@@ -1,5 +1,5 @@
 import * as Vue from 'vue'
-import { PostContentItem } from './PostContentItem'
+import { PostContentItem } from './PostContent/PostContentItem'
 import { PostContentItemMetaContainer } from './PostContentItemMetaContainer'
 
 const PostItem = Vue.defineComponent({
@@ -7,7 +7,6 @@ const PostItem = Vue.defineComponent({
     id: String,
     title: String,
     index: Number,
-    postContent: String,
     onlyShowTitlesInFeed: Boolean,
     subreddit: String,
     author: String,
@@ -15,6 +14,8 @@ const PostItem = Vue.defineComponent({
     score: Number,
     prettyDateCreated: String,
     prettyDateCreatedAgo: String,
+    downloadedFiles: Array as Vue.PropType<string[]>,
+    volume: Number,
   },
   methods: {
     shouldShowPageSeperator() {
@@ -48,7 +49,10 @@ const PostItem = Vue.defineComponent({
         <h2>
           <a v-bind:href="postHref">{{ title }}</a>
         </h2>
-        <post-content-item v-if="!onlyShowTitlesInFeed"></post-content-item>
+        <post-content-item 
+          v-bind:volume="volume"
+          v-if="!onlyShowTitlesInFeed"
+        ></post-content-item>
         <post-content-item-meta-container
           v-bind:subreddit="subreddit"
           v-bind:author="author"

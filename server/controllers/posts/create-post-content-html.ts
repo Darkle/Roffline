@@ -36,7 +36,7 @@ const isInlineMediaPost = compose(
   getDownloadedFilesProp
 )
 
-const hasSelfTextHTML_simple = compose(RA.isNotNil, getPostSelfTextProp)
+const hasSelfTextHTMLSimpleCheck = compose(RA.isNotNil, getPostSelfTextProp)
 
 // The R.objOf('post') is to create {post}, as that is the parameter the post media categorizers need.
 const isACrossPost = compose(isCrossPost, R.objOf('post'))
@@ -130,7 +130,7 @@ const createMediaPost = R.ifElse(
 )
 
 const createPostContentHtml = R.cond([
-  [hasSelfTextHTML_simple, compose(decode, getPostSelfTextProp)],
+  [hasSelfTextHTMLSimpleCheck, compose(decode, getPostSelfTextProp)],
   [isACrossPost, constructATagUrl],
   [isScrapedArticle, createOfflineArticleLinks],
   [isInlineMediaPost, createMediaPost],

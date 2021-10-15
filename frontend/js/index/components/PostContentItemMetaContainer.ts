@@ -15,15 +15,9 @@ const PostContentItemMetaContainer = Vue.defineComponent({
     },
   },
   computed: {
-    redditSubHref(): string {
-      return `/sub/${this.subreddit || ''}`
-    },
     redditAuthorHref(): string {
       // encodeURI is in case its https://www.reddit.com/u/[deleted]
       return `https://www.reddit.com/u/${encodeURI(this.author || '')}`
-    },
-    redditFullPermalinkHref(): string {
-      return `https://www.reddit.com${this.permalink || ''}`
     },
   },
   template: /* html */ `
@@ -33,7 +27,7 @@ const PostContentItemMetaContainer = Vue.defineComponent({
         <data v-bind:value="score">{{ pluralisePostScore(score) }}</data>
       </li>
       <li>
-        <span>from <a v-bind:href="redditSubHref">/r/{{ subreddit }}</a></span>
+        <span>from <a v-bind:href="'/sub/' + subreddit">/r/{{ subreddit }}</a></span>
       </li>
       <li class="submission-data">
         <span>submitted</span>
@@ -43,7 +37,7 @@ const PostContentItemMetaContainer = Vue.defineComponent({
       </li>
       <li>
         <a
-          v-bind:href="redditFullPermalinkHref"
+          v-bind:href="'https://www.reddit.com' + permalink"
           aria-label="Go to the original reddit url of this post"
           >original url</a>
       </li>

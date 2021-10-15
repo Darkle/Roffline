@@ -25,17 +25,8 @@
         {% if posts.length > 1 %}
         <template v-for="(post, index) in posts" :key="post.id">
           <post-item
-            v-bind:id="post.id"
-            v-bind:title="post.title"
-            v-bind:index="post.index"
-            v-bind:post-content="post.postContent"
+            v-bind="post"
             v-bind:only-show-titles-in-feed="userSettings.onlyShowTitlesInFeed"
-            v-bind:subreddit="post.subreddit"
-            v-bind:author="post.author"
-            v-bind:permalink="post.permalink"
-            v-bind:score="post.score"
-            v-bind:pretty-date-created="post.prettyDateCreated"
-            v-bind:pretty-date-created-ago="post.prettyDateCreatedAgo"
           ></post-item>
         </template>
         {% else %}
