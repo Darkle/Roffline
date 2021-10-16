@@ -1,21 +1,13 @@
 import * as Vue from 'vue'
+import { FrontendPost } from '../../frontend-global-types'
 import { PostContentItem } from './PostContent/PostContentItem'
 import { PostContentItemMetaContainer } from './PostContentItemMetaContainer'
 
 const PostItem = Vue.defineComponent({
   props: {
-    id: String,
-    title: String,
+    post: Object as Vue.PropType<FrontendPost>,
     index: Number,
     onlyShowTitlesInFeed: Boolean,
-    subreddit: String,
-    author: String,
-    permalink: String,
-    score: Number,
-    prettyDateCreated: String,
-    prettyDateCreatedAgo: String,
-    downloadedFiles: Array as Vue.PropType<string[]>,
-    volume: Number,
   },
   methods: {
     shouldShowPageSeperator() {
@@ -28,7 +20,7 @@ const PostItem = Vue.defineComponent({
   },
   computed: {
     postHref(): string {
-      return `/post/${this.id || ''}`
+      return `/post/${this.post?.id || ''}`
     },
     pageSeperatorNumber(): string {
       const resultsPerPage = 30
@@ -47,19 +39,14 @@ const PostItem = Vue.defineComponent({
     <div class="post-container">
       <article>
         <h2>
-          <a v-bind:href="postHref">{{ title }}</a>
+          <a v-bind:href="postHref">{{ post.title }}</a>
         </h2>
         <post-content-item 
-          v-bind:volume="volume"
+          v-bind:post="post"
           v-if="!onlyShowTitlesInFeed"
         ></post-content-item>
         <post-content-item-meta-container
-          v-bind:subreddit="subreddit"
-          v-bind:author="author"
-          v-bind:permalink="permalink"
-          v-bind:score="score"
-          v-bind:pretty-date-created="prettyDateCreated"
-          v-bind:pretty-date-created-ago="prettyDateCreatedAgo"
+          v-bind:post="post"
         ></post-content-item-meta-container>
       </article>
       <div class="page-seperator" v-if="shouldShowPageSeperator(index)">

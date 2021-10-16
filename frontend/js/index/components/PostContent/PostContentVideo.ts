@@ -1,32 +1,34 @@
 import * as Vue from 'vue'
 
+import { FrontendPost, WindowWithProps } from '../../../frontend-global-types'
+
+declare const window: WindowWithProps
+
 const PostContentVideo = Vue.defineComponent({
   props: {
-    id: String,
-    downloadedFiles: Array as Vue.PropType<string[]>,
-    volume: Number,
+    post: Object as Vue.PropType<FrontendPost>,
   },
   computed: {
     videoSrc(): string {
-      const postId = this.id as string
-      const downloadedFiles = this.downloadedFiles as string[]
+      const postId = this.post?.id as string
+      const downloadedFiles = this.post?.downloadedFiles as string[]
       const videoFile = downloadedFiles[0] as string
 
-      return `/posts-media/${postId}/${encodeURIComponent(videoFile)}`
+      return `/posts-media/${postId}/${this.safeEncodeURIComponent(videoFile)}`
     },
   },
-  emits: ['updateVolume'],
   methods: {
-    updateVolume(): void {
-      const postId = this.id as string
-      const videoElement = this.$refs[`video-for-${postId}`] as HTMLVideoElement
-      this.$emit('updateVolume', videoElement.volume)
+    safeEncodeURIComponent(str: string | undefined): string {
+      return encodeURIComponent(str || '')
     },
-    setThisElemVolumeOnPlay(): void {
-      const postId = this.id as string
-      const videoElement = this.$refs[`video-for-${postId}`] as HTMLVideoElement
+    updateVolume(event: Event): void {
+      const videoElement = event.target as HTMLVideoElement
+      window.globalVolumeStore.updateVolume(videoElement.volume)
+    },
+    setThisElemVolumeOnPlay(event: Event): void {
+      const videoElement = event.target as HTMLVideoElement
       // eslint-disable-next-line functional/immutable-data
-      videoElement.volume = this.volume as number
+      videoElement.volume = window.globalVolumeStore.getVolume()
     },
   },
   template: /* html */ `

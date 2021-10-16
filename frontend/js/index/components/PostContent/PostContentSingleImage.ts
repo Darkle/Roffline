@@ -1,25 +1,28 @@
 import * as Vue from 'vue'
 
-const safeEncodeURIComponent = (str: string | undefined): string => encodeURIComponent(str || '')
+import { FrontendPost } from '../../../frontend-global-types'
 
 const PostContentSingleImage = Vue.defineComponent({
   props: {
-    id: String,
-    title: String,
-    downloadedFiles: Array as Vue.PropType<string[]>,
+    post: Object as Vue.PropType<FrontendPost>,
+  },
+  methods: {
+    safeEncodeURIComponent(str: string | undefined): string {
+      return encodeURIComponent(str || '')
+    },
   },
   computed: {
     imageSrc(): string {
-      const postId = this.id as string
-      const downloadedFiles = this.downloadedFiles as string[]
+      const postId = this.post?.id as string
+      const downloadedFiles = this.post?.downloadedFiles as string[]
       const imageFile = downloadedFiles[0]
 
-      return `/posts-media/${postId}/${safeEncodeURIComponent(imageFile)}`
+      return `/posts-media/${postId}/${this.safeEncodeURIComponent(imageFile)}`
     },
   },
   template: /* html */ `
     <div class="single-image">
-      <img loading=lazy v-bind:alt="'Image for the post: ' title" v-bind:src="imageSrc"/>
+      <img loading=lazy v-bind:alt="'Image for the post: ' post.title" v-bind:src="imageSrc"/>
     </div>
 `,
 })

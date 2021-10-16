@@ -2,24 +2,23 @@ import * as Vue from 'vue'
 
 import { WindowWithProps } from '../frontend-global-types'
 import { PostItem } from './components/PostItem'
-import { isDev } from '../frontend-utils'
 
 declare const window: WindowWithProps
 
 const getLocallyStoredVolumeSetting = (): number => {
   const volume = localStorage.getItem('volume')
-  return volume ? Number(volume) : 0
+  // Volume is between 0 and 1. 1 being 100%.
+  return volume ? Number(volume) : 1
 }
 
-const store = {
-  state: Vue.reactive({
-    volume: getLocallyStoredVolumeSetting(),
-  }),
-  setMessageAction(newValue): void {
-    this.state.message = newValue
+window.globalVolumeStore = {
+  volume: getLocallyStoredVolumeSetting(),
+  getVolume(): number {
+    return this.volume
   },
-  clearMessageAction(): void {
-    this.state.message = ''
+  updateVolume(vol: number): void {
+    this.volume = vol
+    localStorage.setItem('volume', vol.toString())
   },
 }
 
@@ -29,18 +28,6 @@ const IndexPage = Vue.defineComponent({
       posts: window.posts,
       userSettings: window.userSettings,
     }
-  },
-  provide: {
-    volume: this.volume,
-  },
-  // methods: {
-  //   onUpdateVolume(vol: number) {
-  //     this.volume = vol
-  // },
-  watch: {
-    volume(vol: number): void {
-      localStorage.setItem('volume', vol.toString())
-    },
   },
   components: {
     PostItem,

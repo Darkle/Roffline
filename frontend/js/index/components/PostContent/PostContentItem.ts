@@ -3,16 +3,20 @@ import * as R from 'ramda'
 import * as RA from 'ramda-adjunct'
 import { compose } from 'ts-functional-pipe'
 
-// import { isCrossPost } from '../../../downloads/media/posts-media-categorizers'
 import { Post } from '../../../../../db/entities/Posts/Post'
+import { PostContentSingleImage } from './PostContentSingleImage'
+import { PostContentImageGallery } from './PostContentImageGallery'
+import { PostContentVideo } from './PostContentVideo'
+import { PostContentOfflineArticleLink } from './PostContentOfflineArticle'
+import { FrontendPost } from '../../../frontend-global-types'
 
 const getPostUrlProp = (post: Post): string => post.url
 
 const hasSelfText = (post: Post): boolean => RA.isNonEmptyString(post.selftext)
 
-const isTextPost = compose(R.allPass([R.propEq('is_self', true), hasSelfText]), R.prop('post'))
+const isTextPost = compose(R.allPass([R.propEq('is_self', true), hasSelfText]))
 
-const isNotTextPost = (post: Post): boolean => !isTextPost({ post })
+const isNotTextPost = (post: Post): boolean => !isTextPost(post)
 
 const isNotSelfPostWithNoText = R.complement(
   R.allPass([
@@ -51,42 +55,76 @@ const containsWebpageScreenshot = R.any(R.test(/^screenshot\.jpg$/u))
 
 const doesNotcontainHTMLFile = R.complement(containsHTMLFile)
 
-type PostWithDownloadedFiles = Post & { downloadedFiles: string[] }
-
-const getDownloadedFilesProp = (post: PostWithDownloadedFiles): string[] => post.downloadedFiles
-
-const getPostSelfTextProp = (post: Post): string => post.selftext_html
+const getDownloadedFilesProp = (post: FrontendPost): string[] => post.downloadedFiles
 
 const isScrapedArticle = compose(R.anyPass([containsHTMLFile, containsWebpageScreenshot]), getDownloadedFilesProp)
 
 const downloadedFilesAreMediaFiles = R.anyPass([containsImageFile, containsVideoFile])
-
-const constructATagUrl = ({ url }: { url: string }): string => `<a href="${url}">${url}</a>`
 
 const isInlineMediaPost = compose(
   R.allPass([downloadedFilesAreMediaFiles, doesNotcontainHTMLFile, RA.isNonEmptyArray]),
   getDownloadedFilesProp
 )
 
-const hasSelfTextHTMLSimpleCheck = compose(RA.isNotNil, getPostSelfTextProp)
-
-// The R.objOf('post') is to create {post}, as that is the parameter the post media categorizers need.
-const isACrossPost = compose(isCrossPost, R.objOf('post'))
-
-const postHasUrl = compose(RA.isNotNil, getPostUrlProp)
-
-const safeEncodeURIComponent = (str: string | undefined): string => encodeURIComponent(str || '')
-
 const PostContentItem = Vue.defineComponent({
   props: {
-    id: String,
-    title: String,
-    downloadedFiles: [String],
+    post: Object as Vue.PropType<FrontendPost>,
   },
-  template: /* html */ `<div class="post-content">
-</div>
-
-  </div>`,
+  components: {
+    PostContentSingleImage,
+    PostContentImageGallery,
+    PostContentVideo,
+    PostContentOfflineArticleLink,
+  },
+  methods: {
+    hasSelfText(): boolean {
+      return RA.isNotNil(this.post?.selftext_html)
+    },
+    postHasUrl(): boolean {
+      return RA.isNotNil(this.post?.url)
+    },
+    isCrossPost(): boolean {
+      return isCrossPost(this.post)
+    },
+    isScrapedArticle(): boolean {
+      return isScrapedArticle(this.post as FrontendPost)
+    },
+    isInlineMediaPost(): boolean {
+      return isInlineMediaPost(this.post as FrontendPost)
+    },
+    isSingleImage(): boolean {
+      const downloadedFiles = this.post?.downloadedFiles as string[]
+      return containsImageFile(downloadedFiles) && downloadedFiles.length === 1
+    },
+    isMultipleImages(): boolean {
+      const downloadedFiles = this.post?.downloadedFiles as string[]
+      return containsImageFile(downloadedFiles) && downloadedFiles.length > 1
+    },
+  },
+  template: /* html */ `
+    <div class="post-content" v-if="hasSelfText()" v-html="post.selftext_html"></div>
+    <div class="post-content" v-else-if="isCrossPost()">
+      <a v-bind:href="post.url">{{post.url}}</a>
+    </div>
+    <div class="post-content" v-else-if="isScrapedArticle()">
+      <post-content-offline-article-link v-bind:post="post"></post-content-offline-article-link>
+    </div>
+    <template v-if="isInlineMediaPost()">
+      <div class="post-content" v-if="isSingleImage()">
+        <post-content-single-image v-bind:post="post"></post-content-single-image>
+      </div>
+      <div class="post-content" v-else-if="isMultipleImages()">
+        <post-content-image-gallery v-bind:post="post"></post-content-image-gallery>
+      </div>
+      <div class="post-content" v-else>
+        <post-content-video v-bind:post="post"></post-content-video>
+      </div>
+    </template>
+    <div class="post-content" v-else-if="postHasUrl()">
+      <a v-bind:href="post.url">{{post.url}}</a>
+    </div>
+    <div class="post-content" v-else></div>
+  `,
 })
 
 export { PostContentItem }

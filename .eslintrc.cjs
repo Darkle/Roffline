@@ -106,6 +106,8 @@ module.exports = {
               'this\\.userIsLoggingIn',
               'reply\\.locals\\.',
               'replyWithLocals\\.locals\\.',
+              'this\\.volume',
+              'window\\.globalVolumeStore',
               'post\\.comments',
             ],
           },
