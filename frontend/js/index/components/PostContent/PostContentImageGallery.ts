@@ -1,5 +1,6 @@
 import * as Vue from 'vue'
 import EmblaCarousel from 'embla-carousel'
+
 import { FrontendPost } from '../../../frontend-global-types'
 
 const PostContentImageGallery = Vue.defineComponent({

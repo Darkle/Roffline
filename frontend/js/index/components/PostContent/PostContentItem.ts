@@ -1,22 +1,28 @@
 import * as Vue from 'vue'
 import * as R from 'ramda'
-import * as RA from 'ramda-adjunct'
 import { compose } from 'ts-functional-pipe'
 
-import { Post } from '../../../../../db/entities/Posts/Post'
 import { PostContentSingleImage } from './PostContentSingleImage'
 import { PostContentImageGallery } from './PostContentImageGallery'
 import { PostContentVideo } from './PostContentVideo'
 import { PostContentOfflineArticleLink } from './PostContentOfflineArticle'
 import { FrontendPost } from '../../../frontend-global-types'
 
-const getPostUrlProp = (post: Post): string => post.url
+const isNotEmpty = R.complement(R.isEmpty)
 
-const hasSelfText = (post: Post): boolean => RA.isNonEmptyString(post.selftext)
+const isNonEmptyString = R.allPass([isNotEmpty, R.is(String)])
+
+const isNonEmptyArray = R.allPass([isNotEmpty, R.is(Array)])
+
+const isNotNil = R.complement(R.isNil)
+
+const getPostUrlProp = (post: FrontendPost): string => post.url
+
+const hasSelfText = (post: FrontendPost): boolean => isNonEmptyString(post.selftext)
 
 const isTextPost = compose(R.allPass([R.propEq('is_self', true), hasSelfText]))
 
-const isNotTextPost = (post: Post): boolean => !isTextPost(post)
+const isNotTextPost = (post: FrontendPost): boolean => !isTextPost(post)
 
 const isNotSelfPostWithNoText = R.complement(
   R.allPass([
@@ -35,7 +41,7 @@ const isCrossPost = compose(
       compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
       compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
       compose(R.startsWith('/r/'), getPostUrlProp),
-      compose(RA.isNotNil, R.prop('crosspost_parent')),
+      compose(isNotNil, R.prop('crosspost_parent')),
     ]),
     // A self text post will have its own url as the url, so check its not just a text post.
     isNotTextPost,
@@ -62,7 +68,7 @@ const isScrapedArticle = compose(R.anyPass([containsHTMLFile, containsWebpageScr
 const downloadedFilesAreMediaFiles = R.anyPass([containsImageFile, containsVideoFile])
 
 const isInlineMediaPost = compose(
-  R.allPass([downloadedFilesAreMediaFiles, doesNotcontainHTMLFile, RA.isNonEmptyArray]),
+  R.allPass([downloadedFilesAreMediaFiles, doesNotcontainHTMLFile, isNonEmptyArray]),
   getDownloadedFilesProp
 )
 
@@ -78,10 +84,10 @@ const PostContentItem = Vue.defineComponent({
   },
   methods: {
     hasSelfText(): boolean {
-      return RA.isNotNil(this.post?.selftext_html)
+      return isNotNil(this.post?.selftext_html)
     },
     postHasUrl(): boolean {
-      return RA.isNotNil(this.post?.url)
+      return isNotNil(this.post?.url)
     },
     isCrossPost(): boolean {
       return isCrossPost(this.post)

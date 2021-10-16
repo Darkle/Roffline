@@ -1,4 +1,5 @@
 import * as Vue from 'vue'
+
 import { FrontendPost } from '../../../frontend-global-types'
 
 const PostContentOfflineArticleLink = Vue.defineComponent({
