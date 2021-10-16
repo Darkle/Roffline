@@ -6,7 +6,7 @@ const path = require('path')
 const { cli, sh } = require('tasksfile')
 const clc = require('cli-color')
 const esbuild = require('esbuild')
-const { globPlugin } = require('esbuild-plugin-glob')
+const glob = require('fast-glob')
 
 const { version: appVersion } = require('./package.json')
 
@@ -26,27 +26,36 @@ const pDelay = ms =>
 
 const noop = _ => {}
 
+const tsFilesBackend = glob
+  .sync(['db/**/*.ts', 'downloads/**/*.ts', 'logging/**/*.ts', 'server/**/*.ts', './boot.ts'])
+  .join(' ')
+
+const tsFilesFrontend = glob.sync(['frontend/**/*.ts']).join(' ')
+
+const esBuildFrontend = `esbuild ${tsFilesFrontend} --bundle --sourcemap --target=firefox78,chrome90,safari14,ios14 --loader:.ts=ts --format=esm --platform=browser --outdir=frontend/js --outbase=frontend/js --tree-shaking=true --define:process.env.NODE_ENV=\\"development\\"`
+
+const esBuildBackend = `esbuild ${tsFilesBackend} --sourcemap --loader:.ts=ts --format=cjs --platform=node --outdir=./`
+
 /*****
   You can run any of these tasks manually like this: npx task tests:npmaudit
 *****/
-
 const dev = {
   start() {
-    const browserync = `browser-sync start --watch --reload-delay 1500 --no-open --no-notify --no-ui --no-ghost-mode --no-inject-changes --files=./frontend/**/* --files=./server/**/* --files=./boot.ts --files=logging/**/* --files=db/**/* --files=downloads/**/* --ignore=node_modules --port 8081 --proxy 'http://0.0.0.0:3000' --host '0.0.0.0'`
+    const browserync = `browser-sync start --watch --reload-delay 2000 --no-open --no-notify --no-ui --no-ghost-mode --no-inject-changes --files=frontend/**/* --files=server/**/* --files=boot.ts --files=logging/**/* --files=db/**/* --files=downloads/**/* --ignore=node_modules --port 8081 --proxy 'http://0.0.0.0:3000' --host '0.0.0.0'`
 
-    // const frontendTSWatch = `ttsc --project ./tsconfig-frontend.json --watch --incremental --pretty --preserveWatchOutput`
+    const tsWatchFrontend = `${esBuildFrontend} --watch`
 
-    const frontendESWatch = `esbuild frontend/js/index/index-page.ts --bundle --sourcemap --target=firefox78,chrome90,safari14,ios14 --loader:.ts=ts --format=esm --platform=browser --outdir=frontend/js --outbase=frontend/js --tree-shaking=true --watch --define:process.env.NODE_ENV=\\"development\\"`
+    const tsWatchBackend = `${esBuildBackend} --watch`
 
-    const tsNodeDev = `ts-node-dev --watch=server/**/*.njk --ignore-watch=frontend ./boot.ts`
+    const nodemon = `nodemon --delay 1.5 --watch db --watch downloads --watch logging --watch server --ext js,njk ./boot.js`
 
-    sh(`concurrently --raw --prefix=none "${frontendESWatch}" "${browserync}" "${tsNodeDev}"`, shellOptions)
-  },
-  inspect() {
     sh(
-      `esbuild frontend/js/index/index-page.ts --bundle --sourcemap --target=firefox78,chrome90,safari14,ios14 --loader:.ts=ts --format=esm --platform=browser --outdir=frontend/js --outbase=frontend/js --tree-shaking=true --define:process.env.NODE_ENV=\\"development\\ && node -r ts-node/register --inspect ./boot.ts`,
+      `concurrently --raw --prefix=none "${tsWatchFrontend}" "${tsWatchBackend}" "${browserync}" "${nodemon}"`,
       shellOptions
     )
+  },
+  inspect() {
+    sh(`${esBuildFrontend} && ${esBuildBackend} && node --inspect ./boot.js`, shellOptions)
   },
 }
 
@@ -61,38 +70,27 @@ const build = {
     sh(`foreach --glob "frontend-build/**/*.css" --execute "csso --input #{path} --output #{path}"`, shellOptions)
   },
   frontendJS() {
-    const shOptions = { nopipe: true, async: true }
-    // @ts-expect-error
-    sh(`ttsc --project ./tsconfig-frontend.json`, shOptions) // need to run this first to get ts-transform-esm-import to convert lib imports
-      .then(() =>
-        // We transpile the TS to JS, treeshake, minify and output to ./frontend-build/js
-        esbuild.build({
-          entryPoints: ['app.jsx'],
-          bundle: true,
-          format: 'esm',
-          minify: true,
-          // @ts-expect-error
-          define: { process: { env: { NODE_ENV: 'production' } } },
-          loader: {
-            '.ts': 'ts',
-          },
-          platform: 'browser',
-          treeShaking: true,
-          outdir: path.join('frontend-build', 'js'),
-          target: ['Firefox78', 'Chrome90', 'Safari14', 'iOS14'],
-        })
-      )
-      .catch(err => {
-        console.error(err)
-        process.exit(1)
-      })
+    esbuild.build({
+      entryPoints: ['app.jsx'],
+      bundle: true,
+      format: 'esm',
+      minify: true,
+      // @ts-expect-error
+      define: { process: { env: { NODE_ENV: 'production' } } },
+      loader: {
+        '.ts': 'ts',
+      },
+      platform: 'browser',
+      treeShaking: true,
+      outdir: path.join('frontend-build', 'js'),
+      target: ['Firefox78', 'Chrome90', 'Safari14', 'iOS14'],
+    })
   },
   backendJS() {
-    // We transpile the TS to JS and treeshake
     esbuild
       .build({
         entryPoints: ['boot.ts', 'db/**/*.ts', 'downloads/**/*.ts', 'logging/**/*.ts', 'server/**/*.ts'],
-        plugins: [globPlugin()],
+        // plugins: [globPlugin()],
         bundle: false,
         loader: {
           '.ts': 'ts',
