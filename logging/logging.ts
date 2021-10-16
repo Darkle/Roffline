@@ -1,3 +1,4 @@
+import { FastifyRequest } from 'fastify'
 import Pino, { pino } from 'pino'
 import { DateTime } from 'luxon'
 
@@ -28,6 +29,14 @@ const transports = Pino.transport({
   ],
 })
 
+const pathStartersToIgnoreInDev = ['/css/', '/js/', '/static/']
+
+const fastifyDevlogIgnore = {
+  ignore(request: FastifyRequest): boolean {
+    return pathStartersToIgnoreInDev.some(pathStarter => request.url.startsWith(pathStarter))
+  },
+}
+
 const mainLogger = Pino(pinoOptions, transports)
 
 const feedsLogger = mainLogger.child({ sublogger: 'feeds' })
@@ -36,4 +45,4 @@ const mediaDownloadsLogger = mainLogger.child({ sublogger: 'media-downloads' })
 
 const dbLogger = mainLogger.child({ sublogger: 'db' })
 
-export { mainLogger, feedsLogger, mediaDownloadsLogger, dbLogger }
+export { mainLogger, feedsLogger, mediaDownloadsLogger, dbLogger, fastifyDevlogIgnore }

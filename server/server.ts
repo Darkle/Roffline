@@ -14,9 +14,11 @@ import fastifyCookie from 'fastify-cookie'
 import fastifyCsrf from 'fastify-csrf'
 import nunjucks from 'nunjucks'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
+import fastifyRequestLogger from '@mgcrea/fastify-request-logger'
+import prettifier from '@mgcrea/pino-pretty-compact'
 
 import { isDev, getEnvFilePath } from './utils'
-import { mainLogger } from '../logging/logging'
+import { fastifyDevlogIgnore, mainLogger } from '../logging/logging'
 import { pageRoutes } from './routes/page-router'
 // import { apiRoutes } from './routes/api-router'
 // import { adminRoutes } from './routes/admin-router'
@@ -27,11 +29,17 @@ const port = 3000
 const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
 
 const fastify = createFastify({
-  logger: mainLogger,
+  logger: {
+    prettyPrint: isDev,
+    prettifier,
+    level: isDev ? 'info' : 'error',
+  },
+  disableRequestLogging: true,
   ignoreTrailingSlash: true,
   onProtoPoisoning: 'remove',
 })
 
+isDev && fastify.register(fastifyRequestLogger, fastifyDevlogIgnore)
 isDev && fastify.register(disableCache)
 isDev && fastify.register(fastifyErrorPage)
 fastify.register(fastifyFavicon, { path: './frontend/static/images', name: 'favicon.png' })

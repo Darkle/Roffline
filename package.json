@@ -28,6 +28,8 @@
   ],
   "pre-commit": [],
   "dependencies": {
+    "@mgcrea/fastify-request-logger": "^0.5.2",
+    "@mgcrea/pino-pretty-compact": "^0.5.0",
     "dotenv": "^10.0.0",
     "embla-carousel": "^5.0.1",
     "envalid": "^7.2.1",
