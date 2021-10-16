@@ -34,20 +34,19 @@ const dev = {
   start() {
     const browserync = `browser-sync start --watch --reload-delay 1500 --no-open --no-notify --no-ui --no-ghost-mode --no-inject-changes --files=./frontend/**/* --files=./server/**/* --files=./boot.ts --files=logging/**/* --files=db/**/* --files=downloads/**/* --ignore=node_modules --port 8081 --proxy 'http://0.0.0.0:3000' --host '0.0.0.0'`
 
-    const frontendTSWatch = `ttsc --project ./tsconfig-frontend.json --watch --incremental --pretty --preserveWatchOutput`
+    // const frontendTSWatch = `ttsc --project ./tsconfig-frontend.json --watch --incremental --pretty --preserveWatchOutput`
+
+    const frontendESWatch = `esbuild frontend/js/index/index-page.ts --bundle --sourcemap --target=firefox78,chrome90,safari14,ios14 --loader:.ts=ts --format=esm --platform=browser --outdir=frontend/js --outbase=frontend/js --tree-shaking=true --watch --define:process.env.NODE_ENV=\\"development\\"`
 
     const tsNodeDev = `ts-node-dev --watch=server/**/*.njk --ignore-watch=frontend ./boot.ts`
 
-    /*****
-      For some reason ttsc wont output a file initially when using --incremental, so gotta run it once without that flags first.
-    *****/
-    sh(
-      `ttsc --project ./tsconfig-frontend.json &&  concurrently --raw --prefix=none "${frontendTSWatch}" "${browserync}" "${tsNodeDev}"`,
-      shellOptions
-    )
+    sh(`concurrently --raw --prefix=none "${frontendESWatch}" "${browserync}" "${tsNodeDev}"`, shellOptions)
   },
   inspect() {
-    sh(`ttsc --project ./tsconfig-frontend.json && node -r ts-node/register --inspect ./boot.ts`, shellOptions)
+    sh(
+      `esbuild frontend/js/index/index-page.ts --bundle --sourcemap --target=firefox78,chrome90,safari14,ios14 --loader:.ts=ts --format=esm --platform=browser --outdir=frontend/js --outbase=frontend/js --tree-shaking=true --define:process.env.NODE_ENV=\\"development\\ && node -r ts-node/register --inspect ./boot.ts`,
+      shellOptions
+    )
   },
 }
 
@@ -72,7 +71,8 @@ const build = {
           bundle: true,
           format: 'esm',
           minify: true,
-          tsconfig: 'tsconfig-frontend.json',
+          // @ts-expect-error
+          define: { process: { env: { NODE_ENV: 'production' } } },
           loader: {
             '.ts': 'ts',
           },
@@ -94,7 +94,6 @@ const build = {
         entryPoints: ['boot.ts', 'db/**/*.ts', 'downloads/**/*.ts', 'logging/**/*.ts', 'server/**/*.ts'],
         plugins: [globPlugin()],
         bundle: false,
-        tsconfig: 'tsconfig.json',
         loader: {
           '.ts': 'ts',
         },

@@ -14,6 +14,9 @@
     "updateTypes": "ts-typie",
     "start": "npm run build && NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r dotenv/config -r ./env-checker.cjs ./boot.js"
   },
+  "browser": {
+    "vue": "vue/dist/vue.esm-browser.prod.js"
+  },
   "engines": {
     "node": ">=14.17.6"
   },
@@ -68,7 +71,6 @@
     "vue": "^3.2.20"
   },
   "devDependencies": {
-    "@magic-works/ttypescript-browser-like-import-transformer": "^3.0.1",
     "@types/browser-sync": "^2.26.2",
     "@types/luxon": "^2.0.5",
     "@types/nunjucks": "^3.2.0",

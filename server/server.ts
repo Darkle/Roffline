@@ -45,11 +45,6 @@ fastify.register(fastifyStatic, {
   prefix: '/posts-media/',
   decorateReply: false, // the reply decorator has been added by the first fastifyStatic plugin registration
 })
-fastify.register(fastifyStatic, {
-  root: path.join(process.cwd(), 'node_modules'),
-  prefix: '/node_modules/',
-  decorateReply: false, // the reply decorator has been added by the first plugin registration
-})
 fastify.register(fastifyCookie)
 fastify.register(fastifyUrlData)
 fastify.register(templateManager, {

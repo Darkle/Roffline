@@ -1,9 +1,0 @@
-{
-  "imports": {
-    "vue": "/node_modules/vue/dist/vue.esm-browser.prod.js",
-    "ramda": "/node_modules/ramda/es/index.js",
-    "ts-functional-pipe": "/node_modules/ts-functional-pipe/dist/ts-functional-pipe.es5.js",
-    "tslib": "/node_modules/tslib/tslib.es6.js",
-    "embla-carousel": "/node_modules/embla-carousel/embla-carousel.esm.js"
-  }
-}
