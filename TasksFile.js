@@ -23,10 +23,12 @@ const pDelay = ms =>
 const noop = _ => {}
 
 const tsFilesBackend = glob
-  .sync(['db/**/*.ts', 'downloads/**/*.ts', 'logging/**/*.ts', 'server/**/*.ts', './boot.ts'])
+  .sync(['db/**/*.ts', 'downloads/**/*.ts', 'logging/**/*.ts', 'server/**/*.ts', './boot.ts'], {
+    ignore: ['**/*.d.ts'],
+  })
   .join(' ')
 
-const tsFilesFrontend = glob.sync(['frontend/**/*.ts']).join(' ')
+const tsFilesFrontend = glob.sync(['frontend/**/*.ts'], { ignore: ['**/*.d.ts'] }).join(' ')
 
 const esBuildFrontend = `esbuild ${tsFilesFrontend} --bundle --sourcemap --target=firefox78,chrome90,safari14,ios14 --loader:.ts=ts --format=esm --platform=browser --outdir=frontend/js --outbase=frontend/js --tree-shaking=true --define:process.env.NODE_ENV=\\"development\\"`
 
