@@ -8,11 +8,7 @@ const clc = require('cli-color')
 const esbuild = require('esbuild')
 const glob = require('fast-glob')
 
-const { version: appVersion } = require('./package.json')
-
 const shellOptions = { nopipe: true, async: undefined }
-
-const isDev = process.env['NODE_ENV'] !== 'production'
 
 const prepareAndCleanDir = dir => {
   if (fs.existsSync(dir)) fs.rmdirSync(dir, { recursive: true })
@@ -70,7 +66,7 @@ const build = {
     sh(`foreach --glob "frontend-build/**/*.css" --execute "csso --input #{path} --output #{path}"`, shellOptions)
   },
   frontendJS() {
-    esbuild.build({
+    esbuild.buildSync({
       entryPoints: ['app.jsx'],
       bundle: true,
       format: 'esm',
@@ -87,35 +83,19 @@ const build = {
     })
   },
   backendJS() {
-    esbuild
-      .build({
-        entryPoints: ['boot.ts', 'db/**/*.ts', 'downloads/**/*.ts', 'logging/**/*.ts', 'server/**/*.ts'],
-        // plugins: [globPlugin()],
-        bundle: false,
-        loader: {
-          '.ts': 'ts',
-        },
-        format: 'cjs',
-        platform: 'node',
-        treeShaking: true,
-        outdir: '.',
-      })
-      .catch(err => {
-        console.error(err)
-        process.exit(1)
-      })
+    esbuild.buildSync({
+      entryPoints: ['boot.ts', 'db/**/*.ts', 'downloads/**/*.ts', 'logging/**/*.ts', 'server/**/*.ts'],
+      // plugins: [globPlugin()],
+      bundle: false,
+      loader: {
+        '.ts': 'ts',
+      },
+      format: 'cjs',
+      platform: 'node',
+      treeShaking: true,
+      outdir: '.',
+    })
   },
-  // cachebustImportMap() {
-  //   const importMapsFile = path.join(process.cwd(), 'frontend', 'js', 'import-map.json')
-  //   const data = JSON.parse(fs.readFileSync(importMapsFile, { encoding: 'utf8' }))
-
-  //   Object.keys(data.imports).forEach(key => {
-  //     // eslint-disable-next-line prefer-template
-  //     data.imports[key] = data.imports[key] + '?cachebust=' + (isDev ? `${Date.now()}` : appVersion)
-  //   })
-
-  //   fs.writeFileSync(importMapsFile, JSON.stringify(data, null, 2))
-  // },
 }
 
 const tests = {

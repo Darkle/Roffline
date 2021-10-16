@@ -1,3 +1,4 @@
+require('dotenv').config()
 const { cleanEnv: envVarChecker, str, port } = require('envalid')
 
 const checkendEnvVars = envVarChecker(process.env, {
