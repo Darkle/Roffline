@@ -6,12 +6,10 @@ import { db } from '../../../db/db'
 import { StructuredComments } from '../../../db/entities/Comments'
 import { PostWithComments } from '../../../db/entities/Posts/Post'
 import { createCommentsHtml } from '../comments'
-import { createPostContentHtml } from './create-post-content-html'
 import { findAnyMediaFilesForPosts, PostWithDownloadedFiles } from './find-posts-media-files'
 
 type PostReadyToRender = {
   comments: string
-  postContent: string
 } & PostWithDownloadedFiles
 
 type ReplyLocals = {
@@ -45,7 +43,8 @@ async function generatePost(request: FastifyRequest, reply: FastifyReply): Promi
       replyWithLocals.locals.post = {
         ...post,
         comments: createCommentsHtml(getCommentsDataFromPostData(post)),
-        postContent: createPostContentHtml(post) as string,
+        //TODO: switch to using the frontend version of this
+        // postContent: createPostContentHtml(post) as string,
       }
 
       replyWithLocals.locals.pageTitle = post.title
