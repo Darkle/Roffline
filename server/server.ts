@@ -18,7 +18,7 @@ import fastifyRequestLogger from '@mgcrea/fastify-request-logger'
 import prettifier from '@mgcrea/pino-pretty-compact'
 
 import { isDev, getEnvFilePath } from './utils'
-import { fastifyDevlogIgnore, mainLogger } from '../logging/logging'
+import { browserSyncReminderForDev, fastifyDevlogIgnore, mainLogger } from '../logging/logging'
 import { pageRoutes } from './routes/page-router'
 // import { apiRoutes } from './routes/api-router'
 // import { adminRoutes } from './routes/admin-router'
@@ -91,6 +91,6 @@ fastify.register(pageRoutes)
 // fastify.register(adminRoutes, { prefix: '/admin' })
 // fastify.register(adminApiRoutes, { prefix: '/admin/api' })
 
-const startServer = (): Promise<string> => fastify.listen(port, '0.0.0.0')
+const startServer = (): Promise<string | void> => fastify.listen(port, '0.0.0.0').then(browserSyncReminderForDev)
 
 export { startServer }

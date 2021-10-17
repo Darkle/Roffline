@@ -1,8 +1,9 @@
 import { FastifyRequest } from 'fastify'
 import Pino, { pino } from 'pino'
 import { DateTime } from 'luxon'
+import cliColor from 'cli-color'
 
-import { getEnvFilePath } from '../server/utils'
+import { getEnvFilePath, isDev } from '../server/utils'
 
 const pinoOptions = {
   name: 'roffline',
@@ -37,6 +38,13 @@ const fastifyDevlogIgnore = {
   },
 }
 
+const browserSyncReminderForDev = (): void => {
+  // eslint-disable-next-line functional/no-conditional-statement
+  if (isDev) {
+    console.log(cliColor.white.bold(`Browsersync Url: ${cliColor.white.underline('http://0.0.0.0:8081')}`))
+  }
+}
+
 const mainLogger = Pino(pinoOptions, transports)
 
 const feedsLogger = mainLogger.child({ sublogger: 'feeds' })
@@ -45,4 +53,4 @@ const mediaDownloadsLogger = mainLogger.child({ sublogger: 'media-downloads' })
 
 const dbLogger = mainLogger.child({ sublogger: 'db' })
 
-export { mainLogger, feedsLogger, mediaDownloadsLogger, dbLogger, fastifyDevlogIgnore }
+export { mainLogger, feedsLogger, mediaDownloadsLogger, dbLogger, fastifyDevlogIgnore, browserSyncReminderForDev }
