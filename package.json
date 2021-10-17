@@ -30,6 +30,7 @@
   "dependencies": {
     "@mgcrea/fastify-request-logger": "^0.5.2",
     "@mgcrea/pino-pretty-compact": "^0.5.0",
+    "@types/html-escaper": "^3.0.0",
     "dotenv": "^10.0.0",
     "embla-carousel": "^5.0.1",
     "envalid": "^7.2.1",
@@ -47,6 +48,7 @@
     "generate-passphrase": "^1.2.0",
     "got": "^11.8.2",
     "gridjs": "^5.0.2",
+    "html-escaper": "^3.0.3",
     "http-status-codes": "^2.1.4",
     "js-ago": "^1.1.0",
     "lazy-object-view": "^1.2.1",
