@@ -30,9 +30,9 @@
   "dependencies": {
     "@mgcrea/fastify-request-logger": "^0.5.2",
     "@mgcrea/pino-pretty-compact": "^0.5.0",
+    "@splidejs/vue-splide": "^0.5.0",
     "@types/html-escaper": "^3.0.0",
     "dotenv": "^10.0.0",
-    "embla-carousel": "^5.0.1",
     "envalid": "^7.2.1",
     "fastify": "^3.22.0",
     "fastify-compress": "^3.6.0",

@@ -1,4 +1,5 @@
 import * as Vue from 'vue'
+import VueSplide from '@splidejs/vue-splide'
 
 import { WindowWithProps } from '../frontend-global-types'
 import { PostItem } from './components/PostItem'
@@ -34,7 +35,7 @@ const IndexPage = Vue.defineComponent({
   },
 })
 
-Vue.createApp(IndexPage).mount('body')
+Vue.createApp(IndexPage).use(VueSplide).mount('body')
 
 // import { Fetcher } from './frontend-utils'
 
