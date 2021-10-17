@@ -38,6 +38,8 @@ import {
   adminListTablesInDB,
 } from './db-admin'
 import { StructuredComments } from './entities/Comments'
+import { isDev } from '../server/utils'
+import { dev } from './db-dev'
 
 const sqliteDBPath = process.env['SQLITE_DBPATH'] || './roffline-sqlite.db'
 const commentsDBPath = process.env['COMMENTS_DBPATH'] || './roffline-comments-lmdb.db'
@@ -429,5 +431,7 @@ const db = {
       }))
   },
 }
+
+isDev && dev.init(db)
 
 export { db }

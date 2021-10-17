@@ -261,7 +261,6 @@ const db = {
   // createDBTables() {
   //   const dbPath = process.env.DBPATH || './roffline-storage.db'
   //   const dbFileDoesNotExist = !fs.statSync(dbPath, { throwIfNoEntry: false })
-
   //   dbFileDoesNotExist && sh(`sqlite3 ${dbPath} < ./db/init.sql`)
   // },
   // clearsubstables() {
@@ -272,25 +271,24 @@ const db = {
   //       silent: true,
   //     }
   //   ).trim()
-
   //   sh(`sqlite3 -batch roffline-storage.db "BEGIN;${queryForAllSubsTruncate}COMMIT;"`)
   // },
   clearpoststable() {
     sh('sqlite3 -batch roffline-storage.db "DELETE FROM posts;"')
   },
-  removeComments() {
-    sh('sqlite3 -batch roffline-storage.db "UPDATE posts SET comments = NULL;"')
-  },
-  clearDownloadMetaData() {
-    sh(
-      'sqlite3 -batch roffline-storage.db "UPDATE posts SET media_has_been_downloaded = 0; UPDATE posts SET mediaDownloadTries = 0;"'
-    )
-  },
-  setDownloadedFilesMetaData() {
-    sh(
-      'sqlite3 -batch roffline-storage.db "UPDATE posts SET media_has_been_downloaded = 1; UPDATE posts SET mediaDownloadTries = 1;"'
-    )
-  },
+  // removeComments() {
+  //   sh('sqlite3 -batch roffline-storage.db "UPDATE posts SET comments = NULL;"')
+  // },
+  // clearDownloadMetaData() {
+  //   sh(
+  //     'sqlite3 -batch roffline-storage.db "UPDATE posts SET media_has_been_downloaded = 0; UPDATE posts SET mediaDownloadTries = 0;"'
+  //   )
+  // },
+  // setDownloadedFilesMetaData() {
+  //   sh(
+  //     'sqlite3 -batch roffline-storage.db "UPDATE posts SET media_has_been_downloaded = 1; UPDATE posts SET mediaDownloadTries = 1;"'
+  //   )
+  // },
 }
 
 const dbquickclear1 = () => {
