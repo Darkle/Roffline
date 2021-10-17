@@ -29,7 +29,7 @@ const transports = Pino.transport({
   ],
 })
 
-const pathStartersToIgnoreInDev = ['/css/', '/js/', '/static/']
+const pathStartersToIgnoreInDev = ['/css/', '/js/', '/static/', '/posts-media/']
 
 const fastifyDevlogIgnore = {
   ignore(request: FastifyRequest): boolean {
