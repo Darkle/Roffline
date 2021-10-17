@@ -16,16 +16,16 @@ const PostContentOfflineArticleLink = Vue.defineComponent({
       return `/posts-media/${postId}/${this.safeEncodeURIComponent(file)}`
     },
     isHtmlFile(file: string) {
-      return /^hello/u.test(file)
+      return /.*\.(htm$|html$)/u.test(file)
     },
   },
   template: /* html */ `
     <div class="webpage-scrape-links-container">
-      <div class="offline-article-link" v-for="file in post.downloadedFiles>
-        <span class="isHtmlFile(file) ? 'html-offline-link' : ''">
+      <div class="offline-article-link" v-for="file in post.downloadedFiles">
+        <span v-bind:class="isHtmlFile(file) ? 'html-offline-link' : ''">
           {{ isHtmlFile(file) ? '⎋' : '※' }}
         </span>
-        <a href="generateHref(file)">
+        <a v-bind:href="generateHref(file)">
           {{ isHtmlFile(file) ? 'Offline Article Link' : 'Screenshot Of Article' }}
         </a>
       </div>

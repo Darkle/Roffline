@@ -13,7 +13,7 @@ const PostContentItemMetaContainer = Vue.defineComponent({
   computed: {
     redditAuthorHref(): string {
       // encodeURI is in case its https://www.reddit.com/u/[deleted]
-      return `https://www.reddit.com/u/${encodeURI(this.post?.author || '')}`
+      return `https://www.reddit.com/u/${encodeURI(this.post?.author as string)}`
     },
   },
   template: /* html */ `
@@ -29,7 +29,7 @@ const PostContentItemMetaContainer = Vue.defineComponent({
         <span>submitted</span>
         <time v-bind:datetime="post.prettyDateCreated">{{ post.prettyDateCreatedAgo }}</time>
         <span>by</span>
-        <a v-bind:href="post.redditAuthorHref">{{ post.author }}</a>
+        <a v-bind:href="redditAuthorHref">{{ post.author }}</a>
       </li>
       <li>
         <a

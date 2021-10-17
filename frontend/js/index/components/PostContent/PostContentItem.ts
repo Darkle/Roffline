@@ -1,6 +1,7 @@
 import * as Vue from 'vue'
 import * as R from 'ramda'
 import { compose } from 'ts-functional-pipe'
+import { unescape } from 'html-escaper'
 
 import { PostContentSingleImage } from './PostContentSingleImage'
 import { PostContentImageGallery } from './PostContentImageGallery'
@@ -57,7 +58,7 @@ const containsVideoFile = R.any(R.test(/\.(gifv|mpe?g|mp4|m4v|m4p|ogv|ogg|mov|mk
 
 const containsHTMLFile = R.any(R.test(/.*\.(htm$|html$)/u))
 
-const containsWebpageScreenshot = R.any(R.test(/^screenshot\.jpg$/u))
+const containsWebpageScreenshot = R.any(R.test(/^screenshot\.(jpg|png)$/u))
 
 const doesNotcontainHTMLFile = R.complement(containsHTMLFile)
 
@@ -84,7 +85,7 @@ const PostContentItem = Vue.defineComponent({
   },
   methods: {
     hasSelfText(): boolean {
-      return isNotNil(this.post?.selftext_html)
+      return isNotNil(this.post?.selftext_html) && isNonEmptyString(this.post?.selftext_html)
     },
     postHasUrl(): boolean {
       return isNotNil(this.post?.url)
@@ -107,15 +108,21 @@ const PostContentItem = Vue.defineComponent({
       return containsImageFile(downloadedFiles) && downloadedFiles.length > 1
     },
   },
+  computed: {
+    postHtml(): string {
+      const postHtml = this.post?.selftext_html as string
+      return unescape(postHtml) as string
+    },
+  },
   template: /* html */ `
-    <div class="post-content" v-if="hasSelfText()" v-html="post.selftext_html"></div>
+    <div class="post-content" v-if="hasSelfText()" v-html="postHtml"></div>
     <div class="post-content" v-else-if="isCrossPost()">
       <a v-bind:href="post.url">{{post.url}}</a>
     </div>
     <div class="post-content" v-else-if="isScrapedArticle()">
       <post-content-offline-article-link v-bind:post="post"></post-content-offline-article-link>
     </div>
-    <template v-if="isInlineMediaPost()">
+    <template v-else-if="isInlineMediaPost()">
       <div class="post-content" v-if="isSingleImage()">
         <post-content-single-image v-bind:post="post"></post-content-single-image>
       </div>

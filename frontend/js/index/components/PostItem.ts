@@ -20,11 +20,11 @@ const PostItem = Vue.defineComponent({
   },
   computed: {
     postHref(): string {
-      return `/post/${this.post?.id || ''}`
+      return `/post/${this.post?.id as string}`
     },
     pageSeperatorNumber(): string {
       const resultsPerPage = 30
-      const index = this.index || 0
+      const index = this.index as number
       return `${(index + 1) / resultsPerPage + 1}`
     },
   },

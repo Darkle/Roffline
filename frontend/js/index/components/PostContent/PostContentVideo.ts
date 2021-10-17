@@ -39,7 +39,7 @@ const PostContentVideo = Vue.defineComponent({
     preload="auto" 
     controls 
     v-bind:ref="'video-for-' + id"
-    src="videoSrc">
+    v-bind:src="videoSrc">
   </video>
 `,
 })

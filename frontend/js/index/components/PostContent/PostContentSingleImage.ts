@@ -22,7 +22,7 @@ const PostContentSingleImage = Vue.defineComponent({
   },
   template: /* html */ `
     <div class="single-image">
-      <img loading=lazy v-bind:alt="'Image for the post: ' post.title" v-bind:src="imageSrc"/>
+      <img loading=lazy alt="'Image for the post: ' post.title" v-bind:src="imageSrc"/>
     </div>
 `,
 })
