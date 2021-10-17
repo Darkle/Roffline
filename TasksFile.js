@@ -42,7 +42,7 @@ const esBuildBackend = `esbuild ${tsFilesBackend.join(' ')} --sourcemap --loader
 *****/
 const dev = {
   start() {
-    const browserync = `browser-sync start --watch --reload-delay 2000 --no-open --no-notify --no-ui --no-ghost-mode --no-inject-changes --files=frontend/**/* --files=server/**/* --files=boot.ts --files=logging/**/* --files=db/**/* --files=downloads/**/* --ignore=node_modules --port 8081 --proxy 'http://0.0.0.0:3000' --host '0.0.0.0'`
+    const browserync = `browser-sync start --watch --no-open --no-notify --no-ui --no-ghost-mode --no-inject-changes --files=frontend/**/*.js  --files=frontend/**/*.css --files=server/**/*.js --files=server/**/*.njk --files=boot.js --files=logging/**/*.js --files=db/**/*.js --files=downloads/**/*.js --ignore=node_modules --port 8081 --proxy 'http://0.0.0.0:3000' --host '0.0.0.0'`
 
     const tsWatchFrontend = `${esBuildFrontend} --watch`
 
