@@ -52,8 +52,7 @@ function wait(ms: number): Promise<void> {
   })
 }
 
-// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
-const ignoreScriptTagCompilationWarningsInDev = (message: string): void => {
+const ignoreScriptTagCompilationWarnings = (message: string): void => {
   // eslint-disable-next-line functional/no-conditional-statement
   if (
     !message.startsWith(
@@ -64,4 +63,4 @@ const ignoreScriptTagCompilationWarningsInDev = (message: string): void => {
   }
 }
 
-export { Fetcher, wait, $, $$, isDev, noop, ignoreScriptTagCompilationWarningsInDev }
+export { Fetcher, wait, $, $$, isDev, noop, ignoreScriptTagCompilationWarnings }

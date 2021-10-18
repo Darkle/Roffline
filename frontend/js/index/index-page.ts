@@ -3,7 +3,7 @@ import VueSplide from '@splidejs/vue-splide'
 
 import { WindowWithProps } from '../frontend-global-types'
 import { PostItem } from './components/PostItem'
-import { ignoreScriptTagCompilationWarningsInDev } from '../frontend-utils'
+import { ignoreScriptTagCompilationWarnings } from '../frontend-utils'
 import { volume } from './components/PostContent/PostContentVideo'
 
 declare const window: WindowWithProps
@@ -23,7 +23,8 @@ const IndexPage = Vue.defineComponent({
 
 const app = Vue.createApp(IndexPage)
 
-app.config.warnHandler = ignoreScriptTagCompilationWarningsInDev
+// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
+app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
 app.use(VueSplide).mount('body')
 
