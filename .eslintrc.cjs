@@ -108,6 +108,8 @@ module.exports = {
               'replyWithLocals\\.locals\\.',
               'this\\.volume',
               'window\\.globalVolumeStore',
+              'videoElement\\.volume',
+              'app\\.config\\.warnHandler',
               'post\\.comments',
             ],
           },
