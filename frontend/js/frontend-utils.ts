@@ -7,6 +7,11 @@ declare const window: WindowWithCSRFToken
 const $$ = (q: string): HTMLElement[] => Array.from(document.querySelectorAll(q))
 const $ = document.querySelector.bind(document)
 
+const isDev = window.location.port !== ''
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = (): void => {}
+
 const checkFetchResponseStatus = (response: Response): Response | Promise<never> =>
   response?.ok
     ? response
@@ -47,6 +52,16 @@ function wait(ms: number): Promise<void> {
   })
 }
 
-const isDev = window.location.port !== ''
+// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
+const ignoreScriptTagCompilationWarningsInDev = (message: string): void => {
+  // eslint-disable-next-line functional/no-conditional-statement
+  if (
+    !message.startsWith(
+      'Template compilation error: Tags with side effect (<script> and <style>) are ignored in client component templates.'
+    )
+  ) {
+    console.warn(`[Vue warn]: ${message}`)
+  }
+}
 
-export { Fetcher, wait, $, $$, isDev }
+export { Fetcher, wait, $, $$, isDev, noop, ignoreScriptTagCompilationWarningsInDev }

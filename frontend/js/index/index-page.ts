@@ -3,6 +3,7 @@ import VueSplide from '@splidejs/vue-splide'
 
 import { WindowWithProps } from '../frontend-global-types'
 import { PostItem } from './components/PostItem'
+import { ignoreScriptTagCompilationWarningsInDev } from '../frontend-utils'
 
 declare const window: WindowWithProps
 
@@ -35,8 +36,11 @@ const IndexPage = Vue.defineComponent({
   },
 })
 
-Vue.createApp(IndexPage).use(VueSplide).mount('body')
+const app = Vue.createApp(IndexPage)
 
+app.config.warnHandler = ignoreScriptTagCompilationWarningsInDev
+
+app.use(VueSplide).mount('body')
 // import { Fetcher } from './frontend-utils'
 
 // const fetchCache = new Set()
