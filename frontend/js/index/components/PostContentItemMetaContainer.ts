@@ -7,7 +7,7 @@ const PostContentItemMetaContainer = Vue.defineComponent({
   },
   methods: {
     pluralisePostScore(score: number): string {
-      return `${score} ${score === 0 || score > 1 ? 'points' : 'point'}`
+      return `${score} ${score === 1 ? 'point' : 'points'}`
     },
   },
   computed: {
