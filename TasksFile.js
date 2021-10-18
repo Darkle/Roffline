@@ -31,10 +31,11 @@ const tsFilesBackend = glob.sync(
 
 const tsFilesFrontend = glob.sync(['frontend/**/*.ts'], { ignore: ['**/*.d.ts'] })
 
+/*****
+  We need to set __VUE_OPTIONS_API__ and __VUE_PROD_DEVTOOLS__ as we are using the bundler build https://github.com/vuejs/vue-next/tree/master/packages/vue#bundler-build-feature-flags
+*****/
 // prettier-ignore
-const esBuildFrontend = `esbuild ${tsFilesFrontend.join(
-  ' '
-)} --bundle --sourcemap --target=firefox78,chrome90,safari14,ios14 --loader:.ts=ts --format=esm --platform=browser --outdir=frontend/js --outbase=frontend/js --tree-shaking=true`
+const esBuildFrontend = `esbuild ${tsFilesFrontend.join(' ')} --bundle --sourcemap --target=firefox78,chrome90,safari14,ios14 --loader:.ts=ts --format=esm --platform=browser --outdir=frontend/js --outbase=frontend/js --tree-shaking=true --define:__VUE_OPTIONS_API__=\\"true\\" --define:__VUE_PROD_DEVTOOLS__=\\"false\\"`
 
 // prettier-ignore
 const esBuildBackend = `esbuild ${tsFilesBackend.join(' ')} --sourcemap --loader:.ts=ts --format=cjs --platform=node --outdir=./`
@@ -78,8 +79,14 @@ const build = {
       bundle: true,
       format: 'esm',
       minify: true,
-      // @ts-expect-error
-      define: { process: { env: { NODE_ENV: 'production' } } },
+      /*****
+        We need to set __VUE_OPTIONS_API__ and __VUE_PROD_DEVTOOLS__ as we are using the bundler build https://github.com/vuejs/vue-next/tree/master/packages/vue#bundler-build-feature-flags
+      *****/
+      define: {
+        __VUE_OPTIONS_API__: 'true',
+        __VUE_PROD_DEVTOOLS__: 'false',
+        'process.env.NODE_ENV': '"production"',
+      },
       loader: {
         '.ts': 'ts',
       },
@@ -87,8 +94,7 @@ const build = {
       treeShaking: true,
       sourcemap: false,
       outdir: path.join(process.cwd(), 'frontend-build', 'js'),
-      outbase: path.join(process.cwd(), 'frontend-build', 'js'),
-      target: ['Firefox78', 'Chrome90', 'Safari14', 'iOS14'],
+      target: ['firefox78', 'chrome90', 'safari14', 'ios14'],
     })
   },
   backendJS() {
