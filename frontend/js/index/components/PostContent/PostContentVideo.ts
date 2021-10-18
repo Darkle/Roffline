@@ -4,6 +4,23 @@ import { FrontendPost, WindowWithProps } from '../../../frontend-global-types'
 
 declare const window: WindowWithProps
 
+const getLocallyStoredVolumeSetting = (): number => {
+  const volume = localStorage.getItem('volume')
+  // Volume is between 0 and 1. 1 being 100%.
+  return volume ? Number(volume) : 1
+}
+
+window.globalVolumeStore = {
+  volume: getLocallyStoredVolumeSetting(),
+  getVolume(): number {
+    return this.volume
+  },
+  updateVolume(vol: number): void {
+    this.volume = vol
+    localStorage.setItem('volume', vol.toString())
+  },
+}
+
 const PostContentVideo = Vue.defineComponent({
   props: {
     post: Object as Vue.PropType<FrontendPost>,
