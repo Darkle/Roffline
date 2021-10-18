@@ -1,11 +1,11 @@
 import * as R from 'ramda'
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { DateTime } from 'luxon'
-import jsAgo from 'js-ago'
 
 import { db } from '../../../db/db'
 import { Post } from '../../../db/entities/Posts/Post'
 import { findAnyMediaFilesForPosts, PostWithDownloadedFiles } from './find-posts-media-files'
+import { genPrettyDateCreatedAgoFromUTC } from './pretty-date-created-ago'
 
 type FastifyReplyWithLocals = {
   locals: Locals
@@ -50,12 +50,18 @@ type PostWithDownloadedFilesAndPrettyDate = PostWithDownloadedFiles & {
   prettyDateCreatedAgo: string
 }
 
-// created_utc is in seconds, not milliseconds
+/*****
+  created_utc is a unix timestamp, which is in seconds, not milliseconds.
+  We need to use { zone: 'Etc/UTC' } as that is where created_utc is set.
+*****/
 const addPrettyDatesForEachPost = R.map(
   (post: PostWithDownloadedFiles): PostWithDownloadedFilesAndPrettyDate => ({
     ...post,
-    prettyDateCreated: DateTime.fromSeconds(post.created_utc).toFormat('yyyy LLL dd, h:mm a'),
-    prettyDateCreatedAgo: jsAgo(post.created_utc),
+    prettyDateCreated: DateTime.fromSeconds(post.created_utc, { zone: 'Etc/UTC' }).toFormat(
+      'yyyy LLL dd, h:mm a'
+    ),
+
+    prettyDateCreatedAgo: genPrettyDateCreatedAgoFromUTC(post.created_utc),
   })
 )
 

@@ -114,18 +114,27 @@ const dev = {
     // setTimeout(() => {
     //   console.log('!!DEV DB FUNCTIONS ARE BEING RUN!!')
     //   dbLogger.warn('!!DEV DB FUNCTIONS ARE BEING RUN!!')
-    //   // const sub = ''
-    //   // const postIds = ['q9e82c', 'q9kwew', 'q9lf66', 'n2s4g0', 'n2scls', 'n2tj9x']
-    //   // const subs = ['selfhosted', 'node', 'videos', 'Twitter', 'Twitter', 'fo4']
-    //   // dev
-    //   //   .createUser(db, 'Merp')
-    //   //   .then(() => dev.addSubs(db, 'Merp', subs))
-    //   //   .then(() => dev.addIndividualPosts(db, postIds))
-    //   // dev
-    //   //   .addIndividualPosts(db, ['n2tj9x'])
-    //   //   // .then(() => dev.addSubPostIdRefs(sub))
-    //   //   .then(() => console.log('FINISHED DEV DB STUFF'))
-    //   //   .catch(err => console.error(err))
+    //   //   // const sub = ''
+    //   //   // const postIds = ['q9e82c', 'q9kwew', 'q9lf66', 'n2s4g0', 'n2scls', 'n2tj9x']
+    //   //   // const subs = ['selfhosted', 'node', 'videos', 'Twitter', 'Twitter', 'fo4']
+    //   //   // dev
+    //   //   //   .createUser(db, 'Merp')
+    //   //   //   .then(() => dev.addSubs(db, 'Merp', subs))
+    //   //   //   .then(() => dev.addIndividualPosts(db, postIds))
+    //   //   // dev
+    //   //   //   .addIndividualPosts(db, ['n2tj9x'])
+    //   //   //   // .then(() => dev.addSubPostIdRefs(sub))
+    //   //   //   .then(() => console.log('FINISHED DEV DB STUFF'))
+    //   got('https://api.reddit.com/api/info/?id=t3_qa5ubj')
+    //     .json()
+    //     .then(result => {
+    //       // @ts-expect-error asdf
+    //       console.log(result.data.children[0].data)
+    //       return result
+    //     })
+    //     // @ts-expect-error asd
+    //     .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
+    //     .catch((err: Error) => console.error(err))
     // }, 3000)
   },
 }

@@ -24,6 +24,7 @@ const app = Vue.createApp(IndexPage)
 app.config.warnHandler = ignoreScriptTagCompilationWarningsInDev
 
 app.use(VueSplide).mount('body')
+
 // import { Fetcher } from './frontend-utils'
 
 // const fetchCache = new Set()
@@ -88,19 +89,6 @@ app.use(VueSplide).mount('body')
 //   return !(post.stickied && this.settings.hideStickiedPosts)
 // }
 
-// function registerEventHandlersToRememberVideoVolume({ id: postId }) {
-//   const videoElem = document.querySelector(`.video-postid-${postId}`)
-//   videoElem?.addEventListener('volumechange', _ => localStorage.setItem('volume', `${videoElem.volume}`))
-
-//   videoElem?.addEventListener('play', _ => {
-//     const globalVolume = localStorage.getItem('volume')
-//     // eslint-disable-next-line functional/no-conditional-statement
-//     if (globalVolume) {
-//       videoElem.volume = Number(globalVolume) // eslint-disable-line functional/immutable-data
-//     }
-//   })
-// }
-
 // const postsPerPage = 30
 
 // function shouldShowPageSeperator(index) {
@@ -111,32 +99,10 @@ app.use(VueSplide).mount('body')
 //   return this.settings.infiniteScroll && isNotFirstPost && postIndexIsMultipleOf30 && isNotLastPost
 // }
 
-// function setUpPhotoCarousel({ id: postId }) {
-//   const galleryElem = document.querySelector(`.gallery-postid-${postId}`)
-//   // eslint-disable-next-line functional/no-conditional-statement
-//   if (!galleryElem) return
-
-//   EmblaCarousel(galleryElem, { loop: false })
-// }
-
-// const oneSecondInMS = 1000
-
-// function initMediaHandlers(post) {
-//   // Wait for next tick as alpine is doing innerHTML stuff
-//   setTimeout(_ => {
-//     registerEventHandlersToRememberVideoVolume(post)
-//     setUpPhotoCarousel(post)
-//   }, oneSecondInMS)
-// }
-
 // window.indexPage = _ => ({
-//   settings: window.userSettings,
-//   posts: window.posts,
-//   pluralisePostScore,
 //   shouldShowPost,
 //   loadMorePosts,
 //   // Start at 1 as the first page is already loaded (offset starts at 0).
 //   page: 1,
-//   initMediaHandlers,
 //   shouldShowPageSeperator,
 // })
