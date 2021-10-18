@@ -8,17 +8,17 @@ type FrontendPost = PostWithDownloadedFiles & {
   prettyDateCreatedAgo: string
 }
 
-type GlobalVolumeStore = {
-  volume: number
-  getVolume: () => number
-  updateVolume: (vol: number) => void
-}
+// type GlobalVolumeStore = {
+//   volume: number
+//   getVolume: () => number
+//   updateVolume: (vol: number) => void
+// }
 
 type WindowWithProps = {
   csrfToken: string
   userSettings: User[]
   posts: FrontendPost[]
-  globalVolumeStore: GlobalVolumeStore
+  // globalVolumeStore: GlobalVolumeStore
 } & Window
 
 export { WindowWithProps, FrontendPost }

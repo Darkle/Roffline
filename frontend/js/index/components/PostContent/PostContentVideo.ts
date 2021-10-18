@@ -1,8 +1,6 @@
 import * as Vue from 'vue'
 
-import { FrontendPost, WindowWithProps } from '../../../frontend-global-types'
-
-declare const window: WindowWithProps
+import { FrontendPost } from '../../../frontend-global-types'
 
 const getLocallyStoredVolumeSetting = (): number => {
   const volume = localStorage.getItem('volume')
@@ -10,20 +8,20 @@ const getLocallyStoredVolumeSetting = (): number => {
   return volume ? Number(volume) : 1
 }
 
-window.globalVolumeStore = {
-  volume: getLocallyStoredVolumeSetting(),
-  getVolume(): number {
-    return this.volume
-  },
-  updateVolume(vol: number): void {
-    this.volume = vol
-    localStorage.setItem('volume', vol.toString())
-  },
+const getLocallyStoredMuteSetting = (): boolean => {
+  const muted = localStorage.getItem('muted')
+  return muted === 'true'
 }
+
+const volume = Vue.ref(getLocallyStoredVolumeSetting())
+const muted = Vue.ref(getLocallyStoredMuteSetting())
 
 const PostContentVideo = Vue.defineComponent({
   props: {
     post: Object as Vue.PropType<FrontendPost>,
+  },
+  data() {
+    return { volume, muted }
   },
   computed: {
     videoSrc(): string {
@@ -33,10 +31,6 @@ const PostContentVideo = Vue.defineComponent({
 
       return `/posts-media/${postId}/${this.safeEncodeURIComponent(videoFile)}`
     },
-    videoRef(): string {
-      const postId = this.post?.id as string
-      return `video-postid-${postId}`
-    },
   },
   methods: {
     safeEncodeURIComponent(str: string | undefined): string {
@@ -44,28 +38,23 @@ const PostContentVideo = Vue.defineComponent({
     },
     updateVolume(event: Event): void {
       const videoElement = event.target as HTMLVideoElement
-      const volume = videoElement.muted ? 0 : videoElement.volume
 
-      window.globalVolumeStore.updateVolume(volume)
+      muted.value = videoElement.muted
+      localStorage.setItem('muted', videoElement.muted.toString())
+
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (!videoElement.muted) {
+        volume.value = videoElement.volume
+        localStorage.setItem('volume', videoElement.volume.toString())
+      }
     },
-    setThisElemVolumeOnPlay(event: Event): void {
-      const videoElement = event.target as HTMLVideoElement
-
-      videoElement.volume = window.globalVolumeStore.getVolume()
-    },
-  },
-  mounted() {
-    const postId = this.post?.id as string
-    const videoElement = this.$refs[`video-postid-${postId}`] as HTMLVideoElement
-
-    videoElement.volume = window.globalVolumeStore.getVolume()
   },
   template: /* html */ `
   <video 
     @volumechange="updateVolume"
-    @play="setThisElemVolumeOnPlay"
     v-bind:class="'video-postid-' + post.id" 
-    v-bind:ref="videoRef" 
+    v-bind:volume="volume" 
+    v-bind:muted="muted" 
     preload="auto" 
     controls 
     v-bind:src="videoSrc">
@@ -73,4 +62,4 @@ const PostContentVideo = Vue.defineComponent({
 `,
 })
 
-export { PostContentVideo }
+export { PostContentVideo, volume }

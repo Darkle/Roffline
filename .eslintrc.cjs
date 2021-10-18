@@ -109,6 +109,8 @@ module.exports = {
               'this\\.volume',
               'window\\.globalVolumeStore',
               'videoElement\\.volume',
+              'volume\\.value',
+              'muted\\.value',
               'app\\.config\\.warnHandler',
               'post\\.comments',
             ],
