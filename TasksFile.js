@@ -32,7 +32,9 @@ const tsFilesBackend = glob.sync(
 const tsFilesFrontend = glob.sync(['frontend/**/*.ts'], { ignore: ['**/*.d.ts'] })
 
 // prettier-ignore
-const esBuildFrontend = `esbuild ${tsFilesFrontend.join(' ')} --bundle --sourcemap --target=firefox78,chrome90,safari14,ios14 --loader:.ts=ts --format=esm --platform=browser --outdir=frontend/js --outbase=frontend/js --tree-shaking=true --define:process.env.NODE_ENV=\\"development\\"`
+const esBuildFrontend = `esbuild ${tsFilesFrontend.join(
+  ' '
+)} --bundle --sourcemap --target=firefox78,chrome90,safari14,ios14 --loader:.ts=ts --format=esm --platform=browser --outdir=frontend/js --outbase=frontend/js --tree-shaking=true`
 
 // prettier-ignore
 const esBuildBackend = `esbuild ${tsFilesBackend.join(' ')} --sourcemap --loader:.ts=ts --format=cjs --platform=node --outdir=./`
