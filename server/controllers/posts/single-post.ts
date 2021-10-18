@@ -1,11 +1,11 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
-import * as R from 'ramda'
-import { compose } from 'ts-functional-pipe'
+// import * as R from 'ramda'
+// import { compose } from 'ts-functional-pipe'
 
 import { db } from '../../../db/db'
-import { StructuredComments } from '../../../db/entities/Comments'
+// import { StructuredComments } from '../../../db/entities/Comments'
 import { PostWithComments } from '../../../db/entities/Posts/Post'
-import { createCommentsHtml } from '../comments'
+// import { createCommentsHtml } from '../comments'
 import { findAnyMediaFilesForPosts, PostWithDownloadedFiles } from './find-posts-media-files'
 
 type PostReadyToRender = {
@@ -27,9 +27,9 @@ type Params = {
 
 type PostWithDownloadedFilesAndComments = PostWithComments & PostWithDownloadedFiles
 
-const getCommentProp = (post: PostWithDownloadedFilesAndComments): StructuredComments => post.comments
+// const getCommentProp = (post: PostWithDownloadedFilesAndComments): StructuredComments => post.comments
 
-const getCommentsDataFromPostData = compose(R.pathOr([], [1, 'data', 'children']), getCommentProp)
+// const getCommentsDataFromPostData = compose(R.pathOr([], [1, 'data', 'children']), getCommentProp)
 
 async function generatePost(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const replyWithLocals = reply as FastifyReplyWithLocals
@@ -40,12 +40,12 @@ async function generatePost(request: FastifyRequest, reply: FastifyReply): Promi
     .getSinglePostData(postId)
     .then(post => findAnyMediaFilesForPosts([post]).then(posts => posts[0] as PostWithDownloadedFilesAndComments))
     .then((post: PostWithDownloadedFilesAndComments) => {
-      replyWithLocals.locals.post = {
-        ...post,
-        comments: createCommentsHtml(getCommentsDataFromPostData(post)),
-        //TODO: switch to using the frontend version of this
-        // postContent: createPostContentHtml(post) as string,
-      }
+      // replyWithLocals.locals.post = {
+      //   ...post,
+      //   // comments: createCommentsHtml(getCommentsDataFromPostData(post)),
+      //   //TODO: switch to using the frontend version of this
+      //   // postContent: createPostContentHtml(post) as string,
+      // }
 
       replyWithLocals.locals.pageTitle = post.title
     })

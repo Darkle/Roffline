@@ -52,10 +52,12 @@ const dev = {
 
     const tsWatchBackend = `${esBuildBackend} --watch`
 
+    const tsLint = `tsc --noEmit --watch --preserveWatchOutput --incremental`
+
     const nodemon = `nodemon --delay 1.5 --watch db --watch downloads --watch logging --watch server --ext js,njk ./boot.js`
 
     sh(
-      `concurrently --raw --prefix=none "${tsWatchFrontend}" "${tsWatchBackend}" "${browserync}" "${nodemon}"`,
+      `concurrently --raw --prefix=none "${tsWatchFrontend}" "${tsWatchBackend}" "${browserync}" "${nodemon}" "${tsLint}"`,
       shellOptions
     )
   },
