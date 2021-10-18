@@ -7,23 +7,6 @@ import { ignoreScriptTagCompilationWarningsInDev } from '../frontend-utils'
 
 declare const window: WindowWithProps
 
-const getLocallyStoredVolumeSetting = (): number => {
-  const volume = localStorage.getItem('volume')
-  // Volume is between 0 and 1. 1 being 100%.
-  return volume ? Number(volume) : 1
-}
-
-window.globalVolumeStore = {
-  volume: getLocallyStoredVolumeSetting(),
-  getVolume(): number {
-    return this.volume
-  },
-  updateVolume(vol: number): void {
-    this.volume = vol
-    localStorage.setItem('volume', vol.toString())
-  },
-}
-
 const IndexPage = Vue.defineComponent({
   data() {
     return {
