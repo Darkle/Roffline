@@ -16,6 +16,7 @@ type ReplyLocals = {
   cacheBustString: string
   csrfToken: string
   unescapeHTML: (str: string) => string
+  isDev: boolean
 }
 
 // eslint-disable-next-line max-lines-per-function,complexity
@@ -36,6 +37,7 @@ async function setDefaultTemplateProps(request: FastifyRequest, reply: FastifyRe
       cacheBustString: `?cachebust=${isDev ? `${Date.now()}` : appVersion}`,
       csrfToken,
       unescapeHTML: querystring.unescape,
+      isDev,
     }
   } else {
     replyWithLocals.locals.basePath = path === '/' ? 'index' : (basePath as string)
@@ -43,6 +45,7 @@ async function setDefaultTemplateProps(request: FastifyRequest, reply: FastifyRe
     replyWithLocals.locals.currentSubredditBrowsing = request.url.split('/')[2]?.split('?')[0] as string
     replyWithLocals.locals.cacheBustString = `?cachebust=${isDev ? `${Date.now()}` : appVersion}`
     replyWithLocals.locals.csrfToken = csrfToken
+    replyWithLocals.locals.isDev = isDev
   }
 }
 
