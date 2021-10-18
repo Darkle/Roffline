@@ -16,6 +16,10 @@ const PostContentVideo = Vue.defineComponent({
 
       return `/posts-media/${postId}/${this.safeEncodeURIComponent(videoFile)}`
     },
+    videoRef(): string {
+      const postId = this.post?.id as string
+      return `video-postid-${postId}`
+    },
   },
   methods: {
     safeEncodeURIComponent(str: string | undefined): string {
@@ -23,22 +27,30 @@ const PostContentVideo = Vue.defineComponent({
     },
     updateVolume(event: Event): void {
       const videoElement = event.target as HTMLVideoElement
-      window.globalVolumeStore.updateVolume(videoElement.volume)
+      const volume = videoElement.muted ? 0 : videoElement.volume
+
+      window.globalVolumeStore.updateVolume(volume)
     },
     setThisElemVolumeOnPlay(event: Event): void {
       const videoElement = event.target as HTMLVideoElement
-      // eslint-disable-next-line functional/immutable-data
+
       videoElement.volume = window.globalVolumeStore.getVolume()
     },
+  },
+  mounted() {
+    const postId = this.post?.id as string
+    const videoElement = this.$refs[`video-postid-${postId}`] as HTMLVideoElement
+
+    videoElement.volume = window.globalVolumeStore.getVolume()
   },
   template: /* html */ `
   <video 
     @volumechange="updateVolume"
     @play="setThisElemVolumeOnPlay"
-    class="'video-postid-' + postId" 
+    v-bind:class="'video-postid-' + post.id" 
+    v-bind:ref="videoRef" 
     preload="auto" 
     controls 
-    v-bind:ref="'video-for-' + id"
     v-bind:src="videoSrc">
   </video>
 `,
