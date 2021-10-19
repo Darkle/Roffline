@@ -20,7 +20,7 @@ import prettifier from '@mgcrea/pino-pretty-compact'
 import { isDev, getEnvFilePath } from './utils'
 import { browserSyncReminderForDev, fastifyDevlogIgnore, mainLogger } from '../logging/logging'
 import { pageRoutes } from './routes/page-router'
-// import { apiRoutes } from './routes/api-router'
+import { apiRoutes } from './routes/api-router'
 // import { adminRoutes } from './routes/admin-router'
 // import { adminApiRoutes } from './routes/admin-api-router'
 
@@ -87,7 +87,7 @@ fastify.setErrorHandler((err, _, reply) => {
 })
 
 fastify.register(pageRoutes)
-// fastify.register(apiRoutes, { prefix: '/api' })
+fastify.register(apiRoutes, { prefix: '/api' })
 // fastify.register(adminRoutes, { prefix: '/admin' })
 // fastify.register(adminApiRoutes, { prefix: '/admin/api' })
 

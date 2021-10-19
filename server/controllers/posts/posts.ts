@@ -112,4 +112,29 @@ async function getPostsPaginatedForSubreddit(request: FastifyRequest, reply: Fas
     .then(saveFinalizedPostsDataToTemplateLocals(replyWithLocals))
 }
 
-export { getPostsPaginated, getPostsPaginatedForSubreddit }
+const removePaginationDataFromDBResponse = R.prop('rows')
+
+async function infiniteScrollGetMorePosts(
+  request: FastifyRequest
+): Promise<PostWithDownloadedFilesAndPrettyDate[]> {
+  const query = request.query as Query
+  const params = request.params as Params
+  const pageNumber = query.page ? Number(query.page) : 1
+  const { subreddit } = params
+  const { topFilter } = query
+  const user = request.cookies['loggedInUser'] as string
+
+  return subreddit
+    ? db
+        .getPostsPaginatedForSubreddit(subreddit, pageNumber, topFilter)
+        .then(removePaginationDataFromDBResponse)
+        .then(findAnyMediaFilesForPosts)
+        .then(addPrettyDatesForEachPost)
+    : db
+        .getPostsPaginatedForAllSubsOfUser(user, pageNumber, topFilter)
+        .then(removePaginationDataFromDBResponse)
+        .then(findAnyMediaFilesForPosts)
+        .then(addPrettyDatesForEachPost)
+}
+
+export { getPostsPaginated, getPostsPaginatedForSubreddit, infiniteScrollGetMorePosts }
