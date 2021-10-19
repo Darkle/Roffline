@@ -2,7 +2,6 @@
 <html lang="en">
   {% include "partials/head.njk" %}
   <body class="index-page {% if userSettings.darkModeTheme %}dark-theme{% endif %}">
-    <!-- prettier-ignore -->
     {% set userSettings = userSettings %}
     {% set basePath = basePath %}
     {% set isSubPage = isSubPage %}
@@ -10,36 +9,40 @@
     {% include 'partials/page-header.njk' %}
     <main>
       {% if userSettings.subreddits.length < 1 %}
-      <div class="welcome">
-        <div class="roffline-logotitle">{% include 'partials/roffline-logo.njk' %}</div>
-        <h1>Welcome To Roffline (Reddit, Offline)</h1>
-        <p>To get started, add a subreddit on the <a href="/sub-management">sub-management</a> page.</p>
-        <p>Alternatively, you can bulk import subreddits from the <a href="/settings">settings</a> page.</p>
-      </div>
-      {% else %} {% if isSubPage %}
-      <h4 class="filter-header text-grey">Sub: <# currentSubredditBrowsing | capitalize #></h4>
-      {% endif %} {% if topFilter %}
-      <h4 class="filter-header text-grey">Top: <# topFilter | capitalize #></h4>
-      {% endif %}
-      <div id="posts">
-        {% if posts.length > 1 %}
-        <template v-for="(post, index) in posts" :key="post.id">
-          <post-item
-            v-bind:post="post"
-            v-bind:posts-length="posts.length"
-            v-bind:index="index"
-            v-bind:user-settings="userSettings"
-            v-bind:total-results="totalResults"
-          ></post-item>
-        </template>
-        {% else %}
-        <p class="no-posts-found-message">This subreddit either has no posts, or is in the download queue.</p>
+        <div class="welcome">
+          <div class="roffline-logotitle">{% include 'partials/roffline-logo.njk' %}</div>
+          <h1>Welcome To Roffline (Reddit, Offline)</h1>
+          <p>To get started, add a subreddit on the <a href="/sub-management">sub-management</a> page.</p>
+          <p>Alternatively, you can bulk import subreddits from the <a href="/settings">settings</a> page.</p>
+        </div>
+      {% else %} 
+        {% if isSubPage %}
+          <h4 class="filter-header text-grey">Sub: <# currentSubredditBrowsing | capitalize #></h4>
+        {% endif %} 
+        {% if topFilter %}
+          <h4 class="filter-header text-grey">Top: <# topFilter | capitalize #></h4>
         {% endif %}
-      </div>
-      {% include 'partials/pagination.njk' %} {% endif %}
+          <div id="posts">
+            {% if posts.length > 1 %}
+              <template v-for="(post, index) in posts" :key="post.id">
+                <post-item
+                  v-bind:post="post"
+                  v-bind:posts-length="posts.length"
+                  v-bind:index="index"
+                  v-bind:user-settings="userSettings"
+                  v-bind:total-results="totalResults"
+                ></post-item>
+              </template>
+            {% else %}
+              <p class="no-posts-found-message">This subreddit either has no posts, or is in the download queue.</p>
+            {% endif %}
+          </div>
+        {% if userSettings.infiniteScroll === false %}
+          {% include 'partials/pagination.njk' %} 
+        {% endif %}
+      {% endif %}
     </main>
 
-    <!-- prettier-ignore -->
     {# Doing it this way so the editor doesnt complain about the nunjucks tags in the script element not being valid JS #}
     <# unescapeHTML('%3Cscript%3E') | safe #> 
       window.userSettings = <# userSettings | dump | safe #>
