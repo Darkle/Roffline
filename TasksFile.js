@@ -77,7 +77,7 @@ const build = {
     sh(`foreach --glob "frontend-build/**/*.css" --execute "csso --input #{path} --output #{path}"`, shellOptions)
   },
   frontendJS() {
-    esbuild.buildSync({
+    const result = esbuild.buildSync({
       entryPoints: tsFilesFrontend,
       bundle: true,
       format: 'esm',
@@ -93,12 +93,16 @@ const build = {
       loader: {
         '.ts': 'ts',
       },
+      // metafile: true,
       platform: 'browser',
       treeShaking: true,
       sourcemap: false,
       outdir: path.join(process.cwd(), 'frontend-build', 'js'),
       target: ['firefox78', 'chrome90', 'safari14', 'ios14'],
     })
+    // https://esbuild.github.io/api/#metafile
+    // https://bundle-buddy.com/
+    // require('fs').writeFileSync('meta.json', JSON.stringify(result.metafile))
   },
   backendJS() {
     esbuild.buildSync({
