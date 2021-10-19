@@ -30,19 +30,24 @@ const dev = {
   addPosts(db, sub: string) {
     const urls = [
       `https://www.reddit.com/r/${sub}/.json`,
-      // `https://www.reddit.com/r/${sub}/top/.json?t=day`,
-      // `https://www.reddit.com/r/${sub}/top/.json?t=week`,
-      // `https://www.reddit.com/r/${sub}/top/.json?t=month`,
-      // `https://www.reddit.com/r/${sub}/top/.json?t=year`,
-      // `https://www.reddit.com/r/${sub}/top/.json?t=all`,
+      `https://www.reddit.com/r/${sub}/top/.json?t=day`,
+      `https://www.reddit.com/r/${sub}/top/.json?t=week`,
+      `https://www.reddit.com/r/${sub}/top/.json?t=month`,
+      `https://www.reddit.com/r/${sub}/top/.json?t=year`,
+      `https://www.reddit.com/r/${sub}/top/.json?t=all`,
     ]
 
-    return (
-      Prray.from(urls)
-        .mapAsync(item => got(item).json())
-        // @ts-expect-error asd
-        .then(postsData => db.batchAddNewPosts(postsData.map(postData => postData.data.children[0].data)))
-    )
+    return Prray.from(urls)
+      .mapAsync(item => got(item).json())
+      .then(subsPostData => {
+        const finalisedSubsPostsData = subsPostData.flatMap(subPostsData =>
+          // @ts-expect-error asd
+          subPostsData.data.children.map(post => post.data)
+        )
+        // console.dir(finalisedSubsPostsData, { depth: null })
+        return finalisedSubsPostsData
+      })
+      .then(finalisedSubsPostsData => db.batchAddNewPosts(finalisedSubsPostsData))
   },
   // @ts-expect-error asd
   addSubPostIdRefs(db, sub: string) {
@@ -125,15 +130,18 @@ const dev = {
     //   //   //   .addIndividualPosts(db, ['n2tj9x'])
     //   //   //   // .then(() => dev.addSubPostIdRefs(sub))
     //   //   //   .then(() => console.log('FINISHED DEV DB STUFF'))
-    //   got('https://api.reddit.com/api/info/?id=t3_qaolx9')
-    //     .json()
+    //   dev
+    //     .addSubs(db, 'Merp', ['AskReddit'])
+    //     .then(() => dev.addPosts(db, 'AskReddit'))
+    //     // got('https://api.reddit.com/api/info/?id=t3_qaolx9')
+    //     //   .json()
     //     // .then(result => {
     //     //   // @ts-expect-error asdf
     //     //   console.log(result.data.children[0].data)
     //     //   return result
     //     // })
-    //     // @ts-expect-error asd
-    //     .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
+    //     //// @ts-expect-error asd
+    //     // .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
     //     .then(() => {
     //       console.log('finished db stuff')
     //     })
