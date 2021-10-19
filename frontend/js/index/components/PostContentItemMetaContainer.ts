@@ -23,7 +23,7 @@ const PostContentItemMetaContainer = Vue.defineComponent({
         <data v-bind:value="post.score">{{ pluralisePostScore(post.score) }}</data>
       </li>
       <li>
-        <span>from <a v-bind:href="'/sub/' + post.subreddit">/r/{{ post.subreddit }}</a></span>
+        <span>from <a v-bind:href="'/sub/' + post.subreddit">/sub/{{ post.subreddit }}</a></span>
       </li>
       <li class="submission-data">
         <span>submitted</span>
@@ -35,6 +35,7 @@ const PostContentItemMetaContainer = Vue.defineComponent({
         <a
           v-bind:href="'https://www.reddit.com' + post.permalink"
           aria-label="Go to the original reddit url of this post"
+          title="Go to the original reddit url of this post"
           >original url</a>
       </li>
     </ul>
