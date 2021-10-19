@@ -3,18 +3,23 @@ import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 import { generate as generatePassPhrase } from 'generate-passphrase'
 
 import { mainLogger } from '../../logging/logging'
-import { getUserSettings, logUserOut } from '../controllers/user'
+import {
+  checkUserLoggedIn,
+  getUserSettings,
+  logUserOut,
+  redirectLoginPageIfAlreadyLoggedIn,
+} from '../controllers/user'
 import { setDefaultTemplateProps } from '../controllers/default-template-props'
 import { getPostsPaginated, getPostsPaginatedForSubreddit } from '../controllers/posts/posts'
 import { searchPosts } from '../controllers/search'
 
 type SubParams = { subreddit: string }
 
-const mainPreHandlers = [setDefaultTemplateProps, getUserSettings]
+const mainPreHandlers = [checkUserLoggedIn, setDefaultTemplateProps, getUserSettings]
 
 // eslint-disable-next-line max-lines-per-function
 const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) => void): void => {
-  fastify.get('/login', (_, reply) => {
+  fastify.get('/login', { preHandler: redirectLoginPageIfAlreadyLoggedIn }, (_, reply) => {
     reply.view('login-page', { pageTitle: 'Roffline - Login', uniqueUsername: generatePassPhrase() })
   })
 

@@ -62,16 +62,34 @@ function logUserOut(_: unknown, reply: FastifyReply): void {
   reply.clearCookie('loggedInUser').redirect('/login')
 }
 
-function checkUserLoggedIn(req: FastifyRequest, reply: FastifyReply): FastifyReply | void {
+function checkUserLoggedIn(
+  req: FastifyRequest,
+  reply: FastifyReply,
+  next: (next?: Error) => void
+): FastifyReply | void {
   const loggedInUser = req.cookies['loggedInUser'] as string | null
   const path = req.urlData().path as string
 
   // eslint-disable-next-line functional/no-conditional-statement
-  if (isValidCookie(loggedInUser) || isLoginLogoutPage(path)) return
+  if (isValidCookie(loggedInUser) || isLoginLogoutPage(path)) return next()
 
   return isApiRoute(path)
     ? reply.code(HttpStatusCode.UNAUTHORIZED).send()
     : reply.code(HttpStatusCode.TEMPORARY_REDIRECT).redirect('/login')
+}
+
+function redirectLoginPageIfAlreadyLoggedIn(
+  req: FastifyRequest,
+  reply: FastifyReply,
+  next: (next?: Error) => void
+): FastifyReply | void {
+  const loggedInUser = req.cookies['loggedInUser'] as string | null
+  const path = req.urlData().path as string
+
+  // eslint-disable-next-line functional/no-conditional-statement
+  if (!isValidCookie(loggedInUser) || !isLoginLogoutPage(path)) return next()
+
+  return reply.code(HttpStatusCode.TEMPORARY_REDIRECT).redirect('/')
 }
 
 type RequestWithUsernameBody = {
@@ -97,4 +115,12 @@ async function createUser(req: FastifyRequest, reply: FastifyReply): Promise<voi
   reply.code(HttpStatusCode.CREATED).cookie('loggedInUser', userName, getCookieProperties()).redirect('/')
 }
 
-export { getUserSettings, updateUserSetting, logUserOut, checkUserLoggedIn, logUserIn, createUser }
+export {
+  getUserSettings,
+  updateUserSetting,
+  logUserOut,
+  checkUserLoggedIn,
+  logUserIn,
+  createUser,
+  redirectLoginPageIfAlreadyLoggedIn,
+}
