@@ -4,7 +4,6 @@ import VueSplide from '@splidejs/vue-splide'
 import { WindowWithProps } from '../frontend-global-types'
 import { PostItem } from './components/PostItem'
 import { ignoreScriptTagCompilationWarnings } from '../frontend-utils'
-import { volume } from './components/PostContent/PostContentVideo'
 
 declare const window: WindowWithProps
 
@@ -13,7 +12,6 @@ const IndexPage = Vue.defineComponent({
     return {
       posts: window.posts,
       userSettings: window.userSettings,
-      volume,
     }
   },
   components: {
