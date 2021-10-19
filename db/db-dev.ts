@@ -125,15 +125,18 @@ const dev = {
     //   //   //   .addIndividualPosts(db, ['n2tj9x'])
     //   //   //   // .then(() => dev.addSubPostIdRefs(sub))
     //   //   //   .then(() => console.log('FINISHED DEV DB STUFF'))
-    //   got('https://api.reddit.com/api/info/?id=t3_qa5ubj')
+    //   got('https://api.reddit.com/api/info/?id=t3_qaolx9')
     //     .json()
-    //     .then(result => {
-    //       // @ts-expect-error asdf
-    //       console.log(result.data.children[0].data)
-    //       return result
-    //     })
+    //     // .then(result => {
+    //     //   // @ts-expect-error asdf
+    //     //   console.log(result.data.children[0].data)
+    //     //   return result
+    //     // })
     //     // @ts-expect-error asd
     //     .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
+    //     .then(() => {
+    //       console.log('finished db stuff')
+    //     })
     //     .catch((err: Error) => console.error(err))
     // }, 3000)
   },
