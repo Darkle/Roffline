@@ -1,4 +1,5 @@
 import * as Vue from 'vue'
+import { unescape } from 'html-escaper'
 
 import { FrontendPost } from '../../../frontend-global-types'
 
@@ -19,10 +20,15 @@ const PostContentSingleImage = Vue.defineComponent({
 
       return `/posts-media/${postId}/${this.safeEncodeURIComponent(imageFile)}`
     },
+    imageAlt(): string {
+      const title = this.post?.title as string
+      // unescape to convert &amp; to &. Eg https://api.reddit.com/api/info/?id=t3_qaolx9
+      return `Image for the post: ${unescape(title)}`
+    },
   },
   template: /* html */ `
     <div class="single-image">
-      <img loading=lazy alt="'Image for the post: ' post.title" v-bind:src="imageSrc"/>
+      <img loading=lazy v-bind:alt="imageAlt" v-bind:src="imageSrc"/>
     </div>
 `,
 })

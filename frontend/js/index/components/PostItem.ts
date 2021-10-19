@@ -1,4 +1,6 @@
 import * as Vue from 'vue'
+import { unescape } from 'html-escaper'
+
 import { FrontendPost } from '../../frontend-global-types'
 import { PostContentItem } from './PostContent/PostContentItem'
 import { PostContentItemMetaContainer } from './PostContentItemMetaContainer'
@@ -22,6 +24,10 @@ const PostItem = Vue.defineComponent({
     postHref(): string {
       return `/post/${this.post?.id as string}`
     },
+    postTitle(): string {
+      // unescape to convert &amp; to &. Eg https://api.reddit.com/api/info/?id=t3_qaolx9
+      return unescape(this.post?.title as string)
+    },
     pageSeperatorNumber(): string {
       const resultsPerPage = 30
       const index = this.index as number
@@ -39,7 +45,7 @@ const PostItem = Vue.defineComponent({
     <div class="post-container">
       <article>
         <h2>
-          <a v-bind:href="postHref">{{ post.title }}</a>
+          <a v-bind:href="postHref">{{ postTitle }}</a>
         </h2>
         <post-content-item 
           v-bind:post="post"

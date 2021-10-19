@@ -1,4 +1,5 @@
 import * as Vue from 'vue'
+import { unescape } from 'html-escaper'
 
 import { FrontendPost } from '../../../frontend-global-types'
 
@@ -9,7 +10,8 @@ const PostContentImageGallery = Vue.defineComponent({
   methods: {
     generateImageAlt(index: number): string {
       const title = this.post?.title as string
-      return `Image ${index + 1} for the post: ${title}`
+      // unescape to convert &amp; to &. Eg https://api.reddit.com/api/info/?id=t3_qaolx9
+      return `Image ${index + 1} for the post: ${unescape(title)}`
     },
     safeEncodeURIComponent(str: string | undefined): string {
       return encodeURIComponent(str || '')
