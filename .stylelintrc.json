@@ -4,12 +4,5 @@
     "no-descending-specificity": null,
     "value-keyword-case": ["lower", { "ignoreKeywords": ["SFMono-Regular", "Consolas", "Menlo"] }]
   },
-  "ignoreFiles": [
-    "./.eslintrc.cjs",
-    "**/*.cjs",
-    "node_modules/**/*",
-    "LICENSE",
-    "**/*.js",
-    "**/index-page-globals.njk"
-  ]
+  "ignoreFiles": ["./.eslintrc.cjs", "**/*.cjs", "node_modules/**/*", "LICENSE", "**/*.js", "**/*.njk"]
 }
