@@ -5,7 +5,7 @@ import { FrontendPost } from '../../frontend-global-types'
 import { PostContentItem } from './PostContent/PostContentItem'
 import { PostContentItemMetaContainer } from './PostContentItemMetaContainer'
 import { User } from '../../../../db/entities/Users/User'
-// import { Fetcher } from '../../frontend-utils'
+import { Fetcher } from '../../frontend-utils'
 
 const postsPerPage = 30
 const page = Vue.ref(1)
@@ -38,7 +38,7 @@ const PostItem = Vue.defineComponent({
       page.value = newPage
 
       const subredditParam = document.location.pathname.startsWith('/sub/')
-        ? `&subreddit=${document.location.pathname.replace('/sub/', '')}`
+        ? `&subreddit=${document.location.pathname.replace('/sub/', '').replace('/', '')}`
         : ''
 
       const topFilterParam = queryParams.get('topFilter')
@@ -52,9 +52,9 @@ const PostItem = Vue.defineComponent({
 
       console.info(fetchUrl)
 
-      // Fetcher.getJSON(fetchUrl)
-      //   .then(({ posts: newPosts }) => addNewPostsToState(state, newPosts))
-      //   .catch(handleFrontendError)
+      Fetcher.getJSON(fetchUrl)
+        .then(results => console.log(results))
+        .catch(err => console.error(err))
     },
     watchForComponentInView() {
       const postItemElement = this.$refs[`post-container-${this.post?.id as string}`] as HTMLDivElement
