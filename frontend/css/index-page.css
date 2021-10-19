@@ -97,11 +97,19 @@
 
 .index-page main #posts article > .post-content .webpage-scrape-links-container .offline-article-link {
   display: flex;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.9rem;
+  align-items: center;
 }
 
 .index-page main #posts article > .post-content .webpage-scrape-links-container .html-offline-link {
   font-size: 1.3rem;
+  display: flex;
+}
+
+.index-page main #posts article > .post-content .webpage-scrape-links-container .screenshot-offline-link {
+  font-size: 1.3rem;
+  width: 22px;
+  display: flex;
 }
 
 .index-page main #posts article .post-meta-container {
