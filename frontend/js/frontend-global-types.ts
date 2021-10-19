@@ -10,8 +10,9 @@ type FrontendPost = PostWithDownloadedFiles & {
 
 type WindowWithProps = {
   csrfToken: string
-  userSettings: User[]
+  userSettings: User
   posts: FrontendPost[]
+  totalResults: number
 } & Window
 
 export { WindowWithProps, FrontendPost }

@@ -26,7 +26,10 @@
         <template v-for="(post, index) in posts" :key="post.id">
           <post-item
             v-bind:post="post"
-            v-bind:only-show-titles-in-feed="userSettings.onlyShowTitlesInFeed"
+            v-bind:posts-length="posts.length"
+            v-bind:index="index"
+            v-bind:user-settings="userSettings"
+            v-bind:total-results="totalResults"
           ></post-item>
         </template>
         {% else %}
@@ -41,6 +44,7 @@
     <# unescapeHTML('%3Cscript%3E') | safe #> 
       window.userSettings = <# userSettings | dump | safe #>
       window.posts = <# posts | dump | safe #> 
+      window.totalResults = <# totalResults | dump | safe #> 
     <# unescapeHTML('%3C/script%3E') | safe #>
     <script src="/js/index/index-page.js<# cacheBustString #>" type="module"></script>
   </body>
