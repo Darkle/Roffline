@@ -62,4 +62,4 @@ const PostContentVideo = Vue.defineComponent({
 `,
 })
 
-export { PostContentVideo, volume }
+export { PostContentVideo }
