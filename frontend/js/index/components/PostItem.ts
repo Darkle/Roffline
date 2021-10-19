@@ -119,9 +119,6 @@ const PostItem = Vue.defineComponent({
       this.$nextTick(this.watchForComponentInView)
     }
   },
-  /*****
-    Hiding the page seperator for screen readers
-  *****/
   template: /* html */ `
   {{this.index + 1}}
     <div class="post-container" v-bind:ref="'post-container-' + post.id">
@@ -137,6 +134,7 @@ const PostItem = Vue.defineComponent({
           v-bind:post="post"
         ></post-content-item-meta-container>
       </article>
+      <!-- Hiding the page seperator from screen readers -->
       <div aria-hidden="true" class="page-seperator" v-if="shouldShowPageSeperator(index)">
         <hr />
         <h4 class="page-seperator">Page {{ pageSeperatorNumber }}</h4>
