@@ -1,7 +1,7 @@
 :root,
 body {
   --font-family-sans: 'Open Sans', sans-serif;
-  --font-family-mono: 'Hack', monospace;
+  --font-family-mono: 'Hack', ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
 
   font-size: calc(0.94em + 0.2vw);
   line-height: calc(1.1em + 0.5vw);
@@ -31,4 +31,9 @@ body {
 
 [x-cloak] {
   display: none !important;
+}
+
+code,
+kbd {
+  color: var(--text-dark);
 }
