@@ -87,7 +87,6 @@ const tableSchema = {
   url: {
     type: DataTypes.TEXT,
     allowNull: false,
-    validate: { isUrl: true },
   },
   media: {
     type: DataTypes.JSON,
