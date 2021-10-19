@@ -25,7 +25,8 @@ const isApiRoute = R.startsWith('/api/')
 
 const isValidCookie = RA.isNotNilOrEmpty
 
-const isLoginLogoutPage = (path: string): boolean => path === '/login' || path === '/logout'
+const isLoginLogoutPage = (path: string): boolean =>
+  path === '/login' || path === '/login/' || path === '/logout' || path === '/logout/'
 
 type FastifyReplyWithLocals = {
   locals: ReplyLocals
@@ -78,7 +79,7 @@ function checkUserLoggedIn(
     : reply.code(HttpStatusCode.TEMPORARY_REDIRECT).redirect('/login')
 }
 
-function redirectLoginPageIfAlreadyLoggedIn(
+function redirectLoginPageToHomeIfAlreadyLoggedIn(
   req: FastifyRequest,
   reply: FastifyReply,
   next: (next?: Error) => void
@@ -122,5 +123,5 @@ export {
   checkUserLoggedIn,
   logUserIn,
   createUser,
-  redirectLoginPageIfAlreadyLoggedIn,
+  redirectLoginPageToHomeIfAlreadyLoggedIn,
 }

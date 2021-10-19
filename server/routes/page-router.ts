@@ -7,7 +7,7 @@ import {
   checkUserLoggedIn,
   getUserSettings,
   logUserOut,
-  redirectLoginPageIfAlreadyLoggedIn,
+  redirectLoginPageToHomeIfAlreadyLoggedIn,
 } from '../controllers/user'
 import { setDefaultTemplateProps } from '../controllers/default-template-props'
 import { getPostsPaginated, getPostsPaginatedForSubreddit } from '../controllers/posts/posts'
@@ -19,7 +19,7 @@ const mainPreHandlers = [checkUserLoggedIn, setDefaultTemplateProps, getUserSett
 
 // eslint-disable-next-line max-lines-per-function
 const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) => void): void => {
-  fastify.get('/login', { preHandler: redirectLoginPageIfAlreadyLoggedIn }, (_, reply) => {
+  fastify.get('/login', { preHandler: redirectLoginPageToHomeIfAlreadyLoggedIn }, (_, reply) => {
     reply.view('login-page', { pageTitle: 'Roffline - Login', uniqueUsername: generatePassPhrase() })
   })
 
