@@ -2,6 +2,7 @@
 <html lang="en">
   {% include "partials/head.njk" %}
   <body class="index-page {% if userSettings.darkModeTheme %}dark-theme{% endif %}">
+    {# REdeclaring these variables makes them available in the includes #}
     {% set userSettings = userSettings %}
     {% set basePath = basePath %}
     {% set isSubPage = isSubPage %}
