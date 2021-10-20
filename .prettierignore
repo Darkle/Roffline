@@ -1,2 +1,3 @@
 tests/seed-data
 index.njk
+pagination.njk
