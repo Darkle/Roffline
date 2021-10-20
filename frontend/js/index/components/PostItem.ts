@@ -125,7 +125,6 @@ const PostItem = Vue.defineComponent({
     }
   },
   template: /* html */ `
-  {{this.index + 1}}
     <div class="post-container" v-bind:ref="'post-container-' + post.id">
       <article>
         <h2>

@@ -35,12 +35,12 @@ const postsPerPage = 30
 
 function addPaginationDataToTemplateLocals(
   reply: FastifyReplyWithLocals,
-  { rows: pageWorthOfPosts, count }: { rows: Post[]; count: number },
+  { rows: pageWorthOfPosts, count: totalResults }: { rows: Post[]; count: number },
   pageNumber: number
 ): Post[] {
   reply.locals.pageNumber = pageNumber
-  reply.locals.pagination = Math.ceil(count / postsPerPage)
-  reply.locals.totalResults = count
+  reply.locals.pagination = Math.ceil(totalResults / postsPerPage)
+  reply.locals.totalResults = totalResults
 
   return pageWorthOfPosts
 }

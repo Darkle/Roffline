@@ -5,7 +5,12 @@
     {% set userSettings = userSettings %}
     {% set basePath = basePath %}
     {% set isSubPage = isSubPage %}
+    {% set pageNumber = pageNumber %}
+    {% set topFilter = topFilter %}
     {% set currentSubredditBrowsing = currentSubredditBrowsing %}
+    {% set topFilter = topFilter %}
+    {% set searchTerm = searchTerm %}
+    {% set fuzzySearch = fuzzySearch %}
     {% include 'partials/page-header.njk' %}
     <main>
       {% if userSettings.subreddits.length < 1 %}
@@ -37,7 +42,7 @@
               <p class="no-posts-found-message">This subreddit either has no posts, or is in the download queue.</p>
             {% endif %}
           </div>
-        {% if userSettings.infiniteScroll === false %}
+        {% if userSettings.infiniteScroll === false and pagination > 1 %}
           {% include 'partials/pagination.njk' %} 
         {% endif %}
       {% endif %}

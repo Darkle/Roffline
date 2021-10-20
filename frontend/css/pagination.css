@@ -21,3 +21,8 @@
 .pagination > a:hover {
   border-color: var(--bd-dark);
 }
+
+.pagination > a.current-page-nav-button {
+  cursor: default;
+  border-color: var(--color-lightGrey);
+}
