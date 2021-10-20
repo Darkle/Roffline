@@ -1,7 +1,7 @@
 <nav class="pagination" aria-label="pagination">
+  {# Range doesnt include the last item, so add one#}
   {% set rangePagination = pagination + 1 %}
     <span>Pages:</span>
-    {# Range doesnt include the last item, so add one#}
     {% for page in range(1, rangePagination) %}
       <a {% if pageNumber !== page %}href="?page=<# page #>{% if topFilter %}&topFilter=<# topFilter #>{% endif %}{% if searchTerm %}&searchTerm=<# searchTerm | urlencode #>{% endif %}{% if fuzzySearch %}&fuzzySearch=<# fuzzySearch #>{% endif %}"{% endif %}
         class="{% if pageNumber === page %}button outline current-page-nav-button{% else %}button outline text-primary{% endif %}">
