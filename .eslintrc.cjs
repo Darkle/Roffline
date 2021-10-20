@@ -113,6 +113,7 @@ module.exports = {
               'muted\\.value',
               'page\\.value',
               'this\\.observer',
+              'this\\.posts',
               'this\\.componentHasBeenInView',
               'app\\.config\\.warnHandler',
               'post\\.comments',
