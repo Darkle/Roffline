@@ -24,10 +24,10 @@
         {% endif %}
           <div id="posts">
             {% if posts.length > 1 %}
-              <template v-for="(post, index) in posts" :key="post.id">
+              <template v-for="(post, index) in posts" :key="post.id" >
                 <post-item
                   v-bind:post="post"
-                  v-bind:posts-length="posts.length"
+                  v-bind:posts="posts"
                   v-bind:index="index"
                   v-bind:user-settings="userSettings"
                   v-bind:total-results="totalResults"

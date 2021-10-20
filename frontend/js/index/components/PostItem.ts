@@ -17,6 +17,7 @@ const PostItem = Vue.defineComponent({
     postsLength: Number,
     userSettings: Object as Vue.PropType<User>,
     totalResults: Number,
+    posts: Array as Vue.PropType<FrontendPost[]>,
   },
   methods: {
     shouldShowPageSeperator() {
@@ -48,12 +49,16 @@ const PostItem = Vue.defineComponent({
       return `/api/infinite-scroll-load-more-posts?page=${newPage}${subredditParam}${topFilterParam}`
     },
     loadMorePosts(): void {
+      // Already got all the posts
+      if (this.posts?.length === this.totalResults) return // eslint-disable-line functional/no-conditional-statement
+
       const fetchUrl = this.generateFetchURL()
 
       console.info(fetchUrl)
 
       Fetcher.getJSON(fetchUrl)
-        .then(results => console.log(results))
+        // @ts-expect-error For some reason Typescript cant see the updatePosts method on the $parent. I was unable to figure out the types to type it.
+        .then(this.$parent.updatePosts)
         .catch(err => console.error(err))
     },
     watchForComponentInView() {
