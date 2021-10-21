@@ -5,6 +5,7 @@ import { checkUserLoggedIn } from '../controllers/user'
 // TODO: make sure to do a check they are logged in if not already as this is a new prefix route
 //TODO: also dont forget to add onRequest: fastify.csrfProtection to each POST route
 //TODO: remember to make sure the csrf and logged in prehandlers come before other prehandlers
+//TODO: add fastify validation to all the routes
 
 const mainPreHandlers = [checkUserLoggedIn]
 
