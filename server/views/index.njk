@@ -29,7 +29,7 @@
           <h4 class="filter-header text-grey">Top: <# topFilter | capitalize #></h4>
         {% endif %}
           <div id="posts">
-            {% if posts.length > 1 %}
+            {% if posts.length > 0 %}
               <template v-for="(post, index) in posts" :key="post.id" >
                 <post-item
                   v-bind:post="post"
