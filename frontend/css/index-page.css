@@ -22,7 +22,7 @@
 
 @media only screen and (max-width: 696px) {
   .index-page main {
-    margin-top: 12rem;
+    margin-top: 10rem;
     max-width: 82vw;
   }
 
@@ -31,21 +31,27 @@
   }
 }
 
-@media only screen and (max-width: 353px) {
+@media only screen and (max-width: 561px) {
   .index-page main {
-    margin-top: 14rem;
+    margin-top: 12rem;
   }
 }
 
-@media only screen and (max-width: 239px) {
+@media only screen and (max-width: 319px) {
   .index-page main {
     margin-top: 16rem;
   }
 }
 
-@media only screen and (max-width: 211px) {
+@media only screen and (max-width: 246px) {
   .index-page main {
     margin-top: 18rem;
+  }
+}
+
+@media only screen and (max-width: 200px) {
+  .index-page main {
+    margin-top: 19rem;
   }
 }
 
@@ -56,7 +62,7 @@
 
 .index-page main > .filter-header:last-of-type {
   align-self: center;
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 }
 
 .index-page main #posts article > * {
