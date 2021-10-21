@@ -39,8 +39,15 @@
                   v-bind:total-results="totalResults"
                 ></post-item>
               </template>
-            {% else %}
+            {% elif posts.length === 0 and topFilter %}
+                <p class="no-posts-found-message">No posts found for this date filter.</p>
+            {% elif isSubPage and posts.length === 0 and not topFilter %}
               <p class="no-posts-found-message">This subreddit either has no posts, or is in the download queue.</p>
+            {% elif not isSubPage and posts.length === 0 %}
+              <div class="no-posts-found-message">
+                <p>No posts found.</p>
+                <p>If you have recently added a subreddit, it may take a moment for posts to show up.</p>
+              </div>
             {% endif %}
           </div>
         {% if userSettings.infiniteScroll === false and pagination > 1 %}
