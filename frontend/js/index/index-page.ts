@@ -24,7 +24,6 @@ const IndexPage = Vue.defineComponent({
       this.posts = sortNewestPostsFirst([...this.posts, ...posts]) as FrontendPost[]
     },
   },
-  emits: ['updatePosts'],
   components: {
     PostItem,
   },
