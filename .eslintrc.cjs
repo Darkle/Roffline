@@ -117,6 +117,7 @@ module.exports = {
               'this\\.componentHasBeenInView',
               'app\\.config\\.warnHandler',
               'post\\.comments',
+              'signupInput\\.',
             ],
           },
         ],
