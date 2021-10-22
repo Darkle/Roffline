@@ -1,8 +1,11 @@
+import crypto from 'crypto'
+
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 import { Maybe } from 'pratica'
 import * as R from 'ramda'
 import * as RA from 'ramda-adjunct'
+import diceware from 'diceware'
 
 import { db } from '../../db/db'
 import { User } from '../../db/entities/Users/User'
@@ -116,6 +119,12 @@ async function createUser(req: FastifyRequest, reply: FastifyReply): Promise<voi
   reply.code(HttpStatusCode.CREATED).cookie('loggedInUser', userName, getCookieProperties()).redirect('/')
 }
 
+const numberOfDicewareWordsToGenerate = 4
+
+const generateRandomUniqueUsername = (): string =>
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  `${diceware(numberOfDicewareWordsToGenerate).split(' ').join('-')}-${crypto.randomInt(0, 10)}`
+
 export {
   getUserSettings,
   updateUserSetting,
@@ -124,4 +133,5 @@ export {
   logUserIn,
   createUser,
   redirectLoginPageToHomeIfAlreadyLoggedIn,
+  generateRandomUniqueUsername,
 }

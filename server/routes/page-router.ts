@@ -1,10 +1,10 @@
 import { FastifyInstance } from 'fastify'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
-import { generate as generatePassPhrase } from 'generate-passphrase'
 
 import { mainLogger } from '../../logging/logging'
 import {
   checkUserLoggedIn,
+  generateRandomUniqueUsername,
   getUserSettings,
   logUserOut,
   redirectLoginPageToHomeIfAlreadyLoggedIn,
@@ -20,7 +20,7 @@ const mainPreHandlers = [checkUserLoggedIn, setDefaultTemplateProps, getUserSett
 // eslint-disable-next-line max-lines-per-function
 const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) => void): void => {
   fastify.get('/login', { preHandler: redirectLoginPageToHomeIfAlreadyLoggedIn }, (_, reply) => {
-    reply.view('login-page', { pageTitle: 'Roffline - Login', uniqueUsername: generatePassPhrase() })
+    reply.view('login-page', { pageTitle: 'Roffline - Login', uniqueUsername: generateRandomUniqueUsername() })
   })
 
   fastify.get('/logout', logUserOut)
