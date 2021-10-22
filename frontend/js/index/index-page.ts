@@ -1,7 +1,5 @@
 import * as Vue from 'vue'
 import VueSplide from '@splidejs/vue-splide'
-import * as R from 'ramda'
-import Clipboard from 'v-clipboard'
 import { compose } from 'ts-functional-pipe'
 import * as RA from 'ramda-adjunct'
 
@@ -37,4 +35,4 @@ const app = Vue.createApp(IndexPage)
 // warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
 app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
-app.use(VueSplide).use(Clipboard).mount('body')
+app.use(VueSplide).mount('body')
