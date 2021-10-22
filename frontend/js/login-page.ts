@@ -18,8 +18,25 @@ const LoginPage = Vue.defineComponent({
     },
     copyNewUsernameToClipboard() {
       const signupInput = document.querySelector('#signupUsernameInput') as HTMLInputElement
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (/ipad|ipod|iphone/iu.exec(navigator.userAgent)) {
+        signupInput.contentEditable = 'true'
+        signupInput.readOnly = true
 
-      signupInput?.select()
+        const range = document.createRange()
+
+        range.selectNodeContents(signupInput)
+
+        const selection = window.getSelection()
+
+        selection?.removeAllRanges()
+        selection?.addRange(range)
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        signupInput.setSelectionRange(0, 999999)
+      } else {
+        signupInput.select()
+      }
+
       document.execCommand('copy')
     },
   },
