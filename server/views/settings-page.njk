@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% include "partials/head.njk" %}
+  <body class="settings-page {% if userSettings.darkModeTheme %}dark-theme{% endif %}">
+    {# Redeclaring these variables makes them available in the includes #}
+    {% set userSettings = userSettings %}
+    {% set basePath = basePath %}
+    {% include 'partials/page-header.njk' %}
+    <main>
+      <form method="post">
+        <input type="hidden" name="csrfToken" value="<# csrfToken #>" />
+        <fieldset>
+          <legend>Display</legend>
+          <p>
+            <label for="hide-stickied-posts" class="checkbox-label">
+              <input
+                id="hide-stickied-posts"
+                name="checkbox"
+                type="checkbox"
+                @change="updateSetting"
+                data-setting-name="hideStickiedPosts"
+                v-bind:checked="hideStickiedPosts"
+              />
+              Hide Stickied Posts
+            </label>
+          </p>
+          <p>
+            <label for="only-show-titles-in-feed" class="checkbox-label">
+              <input
+                id="only-show-titles-in-feed"
+                name="checkbox"
+                type="checkbox"
+                @change="updateSetting"
+                data-setting-name="onlyShowTitlesInFeed"
+                v-bind:checked="onlyShowTitlesInFeed"
+              />
+              Only Show Titles In Feed
+            </label>
+          </p>
+          <p>
+            <label for="infinite-scroll" class="checkbox-label">
+              <input
+                id="infinite-scroll"
+                name="checkbox"
+                type="checkbox"
+                @change="updateSetting"
+                data-setting-name="infiniteScroll"
+                v-bind:checked="infiniteScroll"
+              />
+              Infinite Scroll
+            </label>
+          </p>
+          <p>
+            <label for="dark-theme" class="checkbox-label">
+              <input
+                id="dark-theme"
+                name="checkbox"
+                type="checkbox"
+                @change="updateDarkTheme"
+                data-setting-name="darkModeTheme"
+                v-bind:checked="darkModeTheme"
+              />
+              Dark Theme
+            </label>
+          </p>
+        </fieldset>
+        <fieldset class="subreddits">
+          <legend>Subs</legend>
+          <p>
+            <label for="bulk-importer-textarea">Bulk Subreddit Importer</label>
+            <div class="importing-subs-result" x-show="successfullyBulkImportedSubs || errorBulkImportingSubs">
+              <div class="importing-subs-success text-primary" x-show="successfullyBulkImportedSubs">
+                <svg
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  viewbox="0,0,1024,1024"
+                >
+                  <style>
+                    .success-tick-icon-g {
+                      fill: #14854f;
+                      mix-blend-mode: normal;
+                    }
+                  </style>
+                <title>Success Tick Icon</title>
+                  <g class="success-tick-icon-g" fill-rule="nonzero" >
+                    <path
+                      d="M938.67,512c0,235.52 -191.15,426.67 -426.67,426.67c-235.52,0 -426.67,-191.15 -426.67,-426.67c0,-235.52 191.15,-426.67 426.67,-426.67c235.52,0 426.67,191.15 426.67,426.67zM810.67,341.33l-60.16,-60.58l-323.84,323.84l-153.18,-152.75l-60.16,60.16l213.34,213.33z"
+                    />
+                  </g>
+                </svg>
+                <span class="importing-subs-success-message">Import Successful</span>
+              </div>
+              <div class="importing-subs-error text-error" x-show="errorBulkImportingSubs">
+                <svg
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  viewbox="0,0,1024,1024"
+                >
+                  <style>
+                    .error-icon-g {
+                      fill: #d43939;
+                      mix-blend-mode: normal;
+                    }
+                  </style>
+                <title>Error Icon</title>
+                  <g class="error-icon-g" fill-rule="nonzero" >
+                    <path
+                      d="M938.67,512c0,235.52 -191.15,426.67 -426.67,426.67c-235.52,0 -426.67,-191.15 -426.67,-426.67c0,-235.52 191.15,-426.67 426.67,-426.67c235.52,0 426.67,191.15 426.67,426.67zM554.67,469.33h-85.34v256h85.34zM554.67,298.67h-85.34v85.33h85.34z"
+                    />
+                  </g>
+                </svg>
+                <span class="importing-subs-error-message" x-ref="bulkSubImportErrorMessage"></span>
+              </div>
+            </div>            
+            <textarea
+              id="bulk-importer-textarea"
+              x-ref="bulkImporterTextArea"
+              rows="4"
+              cols="48"
+              x-bind:disabled="disableBulkImport"
+              placeholder="Enter space seperated subreddits"
+            ></textarea>
+            <button class="button outline primary import-subreddits" 
+              type="button"
+              x-bind:disabled="disableBulkImport" @click.prevent="importSubs()">
+              Import Subs
+            </button>
+          </p>
+          <p class="bulk-howto-link-container">
+            <a href="/help#bulk-import-reddit-subs">How Do I Bulk Import My Reddit Subscriptions?</a>
+          </p>
+          <hr />
+          <p>
+            <a class="button outline primary export-subs" href="/api/export-user-subs" >Export Subs</a>
+          </p>
+        </fieldset>
+        <fieldset class="downloads">
+          <legend>Downloads</legend>
+          <p>
+            <label for="enable-comment-downloads" class="checkbox-label">
+              <input
+                id="enable-comment-downloads"
+                name="checkbox"
+                type="checkbox"
+                @change="updateSetting"
+                data-setting-name="downloadComments"
+                v-bind:checked="downloadComments"
+                @click="downloadComments = !downloadComments"
+              />
+              Enable Downloading Of Comments
+            </label>
+          </p>
+
+          <p>
+            <label for="enable-video-downloads" class="checkbox-label">
+              <input
+                id="enable-video-downloads"
+                name="checkbox"
+                type="checkbox"
+                @change="updateSetting"
+                data-setting-name="downloadVideos"
+                v-bind:checked="downloadVideos"
+                @click="downloadVideos = !downloadVideos"
+              />
+              Enable Video Downloads
+            </label>
+          </p>
+          <p class="video-max-size-container">
+            <label for="video-download-max-size">Dont download videos larger than (MB):</label>
+            <input
+              type="number"
+              id="video-download-max-size"
+              min="50"
+              step="50"
+              v-bind:value="videoDownloadMaxSize"
+              data-setting-name="videoDownloadMaxSize"
+              @change="updateSetting"
+              v-bind:disabled="!downloadVideos"
+            />
+          </p>
+          <p class="video-resolution-container">
+            <label for="select-video-resolution">Video Download Resolution</label>
+            <select
+              id="select-video-resolution"
+              v-bind:disabled="!downloadVideos"
+              @change="updateSetting"
+              data-setting-name="videoDownloadResolution"
+            >
+              <optgroup label="Video Resolution">
+                <option v-bind:selected="videoDownloadResolution === '360p'">360p</option>
+                <option v-bind:selected="videoDownloadResolution === '480p'">480p</option>
+                <option v-bind:selected="videoDownloadResolution === '720p'">720p</option>
+                <option v-bind:selected="videoDownloadResolution === '1080p'">1080p</option>
+              </optgroup>
+            </select>
+          </p>
+        </fieldset>
+      </form>
+      <hr class="admin-button-seperator" />
+      <a href="/admin/stats" target="_blank" class="button outline bd-error text-error admin-button"
+        >Open Admin Page</a
+      >
+    </main>
+
+    {# Doing it this way so the editor doesnt complain about the nunjucks tags in the script element not being valid JS #}
+    <# unescapeHTML('%3Cscript%3E') | safe #> 
+      window.userSettings = <# userSettings | dump | safe #>
+      window.csrfToken = <# csrfToken | dump | safe #> 
+    <# unescapeHTML('%3C/script%3E') | safe #>
+    <script src="/js/settings-page.js<# cacheBustString #>" type="module"></script>
+  </body>
+</html>

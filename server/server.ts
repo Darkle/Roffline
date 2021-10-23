@@ -11,7 +11,6 @@ import fastifyUrlData from 'fastify-url-data'
 import templateManager from 'point-of-view'
 import helmet from 'fastify-helmet'
 import fastifyCookie from 'fastify-cookie'
-import fastifyCsrf from 'fastify-csrf'
 import nunjucks from 'nunjucks'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 import fastifyRequestLogger from '@mgcrea/fastify-request-logger'
@@ -66,7 +65,6 @@ fastify.register(templateManager, {
     },
   },
 })
-fastify.register(fastifyCsrf, { cookieKey: 'csrfToken' })
 fastify.register(helmet, {
   contentSecurityPolicy: {
     directives: {

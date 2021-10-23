@@ -3,11 +3,11 @@ import VueSplide from '@splidejs/vue-splide'
 import { compose } from 'ts-functional-pipe'
 import * as RA from 'ramda-adjunct'
 
-import { FrontendPost, WindowWithProps } from '../frontend-global-types'
+import { FrontendPost, IndexPageWindowWithProps } from '../frontend-global-types'
 import { PostItem } from './components/PostItem'
 import { ignoreScriptTagCompilationWarnings } from '../frontend-utils'
 
-declare const window: WindowWithProps
+declare const window: IndexPageWindowWithProps
 
 const IndexPage = Vue.defineComponent({
   data() {

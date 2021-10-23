@@ -67,7 +67,7 @@ const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) =
     reply.view('help-page', { pageTitle: 'Roffline Help' })
   })
 
-  fastify.get('*', (req, reply) => {
+  fastify.all('*', (req, reply) => {
     mainLogger.error(`404, page not found: ${req.url}`)
     reply.code(HttpStatusCode.NOT_FOUND).send(`${HttpStatusCode.NOT_FOUND} Page not found`)
   })

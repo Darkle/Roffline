@@ -8,11 +8,15 @@ type FrontendPost = PostWithDownloadedFiles & {
   prettyDateCreatedAgo: string
 }
 
-type WindowWithProps = {
-  csrfToken: string
+type IndexPageWindowWithProps = {
   userSettings: User
   posts: FrontendPost[]
   totalResults: number
 } & Window
 
-export { WindowWithProps, FrontendPost }
+type SettingsPageWindowWithProps = {
+  csrfToken: string
+  userSettings: User
+} & Window
+
+export { IndexPageWindowWithProps, SettingsPageWindowWithProps, FrontendPost }

@@ -4,6 +4,7 @@ import querystring from 'querystring'
 
 import { version as appVersion } from '../../package.json'
 import { isDev } from '../utils'
+import { createCsrfToken } from './csrf'
 
 type FastifyReplyWithLocals = {
   locals: ReplyLocals
@@ -20,11 +21,14 @@ type ReplyLocals = {
 }
 
 // eslint-disable-next-line max-lines-per-function,complexity
-async function setDefaultTemplateProps(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+function setDefaultTemplateProps(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  done: (err?: Error) => void
+): void {
   const path = request.urlData().path as string
   const basePath = path.split('/')[1]
-  const csrfToken = await reply.generateCsrf()
-
+  const csrfToken = createCsrfToken()
   const replyWithLocals = reply as FastifyReplyWithLocals
 
   // eslint-disable-next-line functional/no-conditional-statement
@@ -47,6 +51,8 @@ async function setDefaultTemplateProps(request: FastifyRequest, reply: FastifyRe
     replyWithLocals.locals.csrfToken = csrfToken
     replyWithLocals.locals.isDev = isDev
   }
+
+  done()
 }
 
 export { setDefaultTemplateProps }

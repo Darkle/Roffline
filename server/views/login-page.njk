@@ -18,7 +18,7 @@
         action="/api/login-user"
         method="post"
       >
-        <input type="hidden" name="_csrf" value="<# csrfToken #>" />
+        <input type="hidden" name="csrfToken" value="<# csrfToken #>" />
         <input type="text" name="loginUsername" id="loginUsernameInput" placeholder="Username" />
         <button class="button primary" id="loginUsernameButton">Login</button>
       </form>
@@ -30,7 +30,7 @@
         action="/api/create-user"
         method="post"
       >
-        <input type="hidden" name="_csrf" value="<# csrfToken #>" />
+        <input type="hidden" name="csrfToken" value="<# csrfToken #>" />
         <input type="text" id="signupUsernameInput" name="signupUsername" value="<# uniqueUsername #>" />
         <p>Roffline doesn't use passwords, but rather unique usernames.</p>
         <p>Copy the username below & save it. Then click the signup button.</p>
@@ -56,6 +56,10 @@
         <button class="button primary" id="signupUsernameButton">Sign Up</button>
       </form>
     </main>
+    {# Doing it this way so the editor doesnt complain about the nunjucks tags in the script element not being valid JS #}
+    <# unescapeHTML('%3Cscript%3E') | safe #> 
+      window.csrfToken = <# csrfToken | dump | safe #> 
+    <# unescapeHTML('%3C/script%3E') | safe #>
     <script src="/js/login-page.js<# cacheBustString #>" type="module"></script>
   </body>
 </html>
