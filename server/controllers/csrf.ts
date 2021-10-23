@@ -6,16 +6,15 @@ const csrfTokens = new Tokens()
 
 const csrfSecret = csrfTokens.secretSync()
 
-type RequestWithCsrfBody = {
-  csrfToken: string
-}
-
 function csrfProtection(
   request: FastifyRequest,
   response: FastifyReply,
   next: (next?: Error) => void
 ): FastifyReply | void {
-  const { csrfToken } = request.body as RequestWithCsrfBody
+  const { csrfToken: bodyCsrfToken } = request.body as { csrfToken: string | undefined }
+  const headerCsrfToken = request.headers['csrf-token'] as string | undefined
+
+  const csrfToken = bodyCsrfToken || headerCsrfToken || ''
 
   return csrfTokens.verify(csrfSecret, csrfToken)
     ? next()
