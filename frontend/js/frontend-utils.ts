@@ -34,13 +34,13 @@ const Fetcher = {
   getJSON(path: string): Promise<Record<string, unknown>> {
     return fetch(path).then(checkFetchResponseStatus).then(parseJSON)
   },
-  async postJSON(path: string, data: Record<string, unknown>): Promise<void> {
-    await fetch(path, { method: 'POST', headers: fetchPostPutHeaders, body: JSON.stringify(data) }).then(
+  postJSON(path: string, data: Record<string, unknown>): Promise<Response | never> {
+    return fetch(path, { method: 'POST', headers: fetchPostPutHeaders, body: JSON.stringify(data) }).then(
       checkFetchResponseStatus
     )
   },
-  async putJSON(path: string, data: Record<string, unknown>): Promise<void> {
-    await fetch(path, { method: 'PUT', headers: fetchPostPutHeaders, body: JSON.stringify(data) }).then(
+  putJSON(path: string, data: Record<string, unknown>): Promise<Response | never> {
+    return fetch(path, { method: 'PUT', headers: fetchPostPutHeaders, body: JSON.stringify(data) }).then(
       checkFetchResponseStatus
     )
   },
