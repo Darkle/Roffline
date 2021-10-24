@@ -36,7 +36,7 @@ const PostContentOfflineArticleLink = Vue.defineComponent({
     <title />
     <path d="M19,6H16.41l-1.7-1.71A1,1,0,0,0,14,4H10a1,1,0,0,0-.71.29L7.59,6H5A3,3,0,0,0,2,9v8a3,3,0,0,0,3,3H19a3,3,0,0,0,3-3V9A3,3,0,0,0,19,6ZM12,17a4,4,0,1,1,4-4A4,4,0,0,1,12,17Z" fill="var(--color-grey)" /></svg>
         </span>
-        <a v-bind:href="generateHref(file)">
+        <a v-bind:href="generateHref(file)" target="_blank">
           {{ isHtmlFile(file) ? 'Offline Article Link' : 'Screenshot Of Article' }}
         </a>
       </div>

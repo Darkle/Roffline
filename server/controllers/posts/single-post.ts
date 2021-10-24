@@ -35,7 +35,6 @@ async function generatePost(request: FastifyRequest, reply: FastifyReply): Promi
     .getSinglePostData(postId)
     .then(post => findAnyMediaFilesForPosts([post]).then(posts => posts[0] as PostWithDownloadedFilesAndComments))
     .then((post: PostWithDownloadedFilesAndComments) => {
-      console.log(post)
       replyWithLocals.locals.post = {
         ...post,
         /*****
