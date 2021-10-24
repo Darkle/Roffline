@@ -76,6 +76,12 @@ fastify.register(helmet, {
   },
 })
 
+fastify.setSchemaErrorFormatter((errors): Error => {
+  mainLogger.error(errors)
+
+  return new Error(errors.toString())
+})
+
 fastify.setErrorHandler((err, _, reply) => {
   mainLogger.error(err)
 
