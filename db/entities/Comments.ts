@@ -246,4 +246,4 @@ type CommentsOuterContainer = {
 
 type StructuredComments = [PostContainer, CommentsOuterContainer]
 
-export { StructuredComments, CommentsContainer, CommentsOuterContainer }
+export { StructuredComments, CommentsContainer, CommentsOuterContainer, ActualCommentsData }

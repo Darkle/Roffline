@@ -37,7 +37,7 @@ import {
   adminSearchAnyDBTable,
   adminListTablesInDB,
 } from './db-admin'
-import { StructuredComments } from './entities/Comments'
+import { CommentsContainer } from './entities/Comments'
 import { isDev } from '../server/utils'
 import { dev } from './db-dev'
 
@@ -376,14 +376,23 @@ const db = {
       Promise.all(subs.map(sub => subredditTablesMap.get(sub.toLowerCase())?.truncate({ transaction })))
     )
   },
-  getPostComments(postId: string): Promise<StructuredComments> | Promise<null> {
+  getPostComments(postId: string): Promise<CommentsContainer[] | [] | null> {
     const maybePostCommentsAsString = MaybeNullable(commentsDB.get(postId))
 
+    const uJSONParse = R.unary(JSON.parse)
+
+    const tryParseJson = R.tryCatch(uJSONParse, R.always({}))
+
+    // There's a alot of metadata cruft we need to skip to get to the comments data
+    const getCommentsData = R.compose(R.pathOr([], [1, 'data', 'children']), tryParseJson)
+
     // Make it promise based. Confusing if one db is promise based and other is sync.
-    return maybePostCommentsAsString.cata({
-      Just: postCommentsAsString => Promise.resolve(JSON.parse(postCommentsAsString) as StructuredComments),
-      Nothing: () => Promise.resolve(null),
-    })
+    return Promise.resolve(
+      maybePostCommentsAsString.cata({
+        Just: getCommentsData,
+        Nothing: () => null,
+      })
+    )
   },
   getAdminSettings,
   getSingleAdminSetting,

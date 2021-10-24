@@ -5,6 +5,7 @@ import { PostPageWindowWithProps } from './frontend-global-types'
 import { ignoreScriptTagCompilationWarnings } from './frontend-utils'
 import { PostContentItem } from './components/PostContent/PostContentItem'
 import { PostContentItemMetaContainer } from './components/PostContentItemMetaContainer'
+import { Comments } from './components/Comments'
 
 declare const window: PostPageWindowWithProps
 
@@ -18,6 +19,7 @@ const PostPage = Vue.defineComponent({
   components: {
     PostContentItem,
     PostContentItemMetaContainer,
+    Comments,
   },
   computed: {
     postTitle(): string {
@@ -38,7 +40,9 @@ const PostPage = Vue.defineComponent({
     <hr />
     <section class="comments">
       <h5>Comments:</h5>
-      {{ post.comments }}
+      <comments v-if="post.comment"
+        v-bind:comments="post.comments"
+      ></comments>
     </section> 
     `,
 })

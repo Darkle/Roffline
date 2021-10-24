@@ -1,4 +1,4 @@
-import { StructuredComments } from '../Comments'
+import { CommentsContainer } from '../Comments'
 
 type Oembed = {
   provider_url: string
@@ -45,7 +45,7 @@ type Post = {
 }
 
 type PostWithComments = {
-  comments: StructuredComments | null
+  comments: CommentsContainer[] | [] | null
 } & Post
 
 export { Post, PostMediaKey, Oembed, PostWithComments }
