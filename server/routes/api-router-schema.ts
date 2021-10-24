@@ -11,4 +11,20 @@ const updateUserSettingsSchema = {
   },
 }
 
-export { updateUserSettingsSchema }
+const bulkImportUserSubsSchema = {
+  body: {
+    type: 'object',
+    required: ['subsToImport'],
+    properties: {
+      subsToImport: {
+        type: 'array',
+        minItems: 1,
+        items: {
+          type: 'string',
+        },
+      },
+    },
+  },
+}
+
+export { updateUserSettingsSchema, bulkImportUserSubsSchema }

@@ -68,8 +68,8 @@
           <legend>Subs</legend>
           <p>
             <label for="bulk-importer-textarea">Bulk Subreddit Importer</label>
-            <div class="importing-subs-result" x-show="successfullyBulkImportedSubs || errorBulkImportingSubs">
-              <div class="importing-subs-success text-primary" x-show="successfullyBulkImportedSubs">
+            <div class="importing-subs-result" v-show="successfullyBulkImportedSubs || errorBulkImportingSubs">
+              <div class="importing-subs-success text-primary" v-show="successfullyBulkImportedSubs">
                 <svg
                   version="1.1"
                   xmlns="http://www.w3.org/2000/svg"
@@ -91,7 +91,7 @@
                 </svg>
                 <span class="importing-subs-success-message">Import Successful</span>
               </div>
-              <div class="importing-subs-error text-error" x-show="errorBulkImportingSubs">
+              <div class="importing-subs-error text-error" v-show="errorBulkImportingSubs">
                 <svg
                   version="1.1"
                   xmlns="http://www.w3.org/2000/svg"
@@ -111,20 +111,20 @@
                     />
                   </g>
                 </svg>
-                <span class="importing-subs-error-message" x-ref="bulkSubImportErrorMessage"></span>
+                <span class="importing-subs-error-message" ref="bulkSubImportErrorMessage"></span>
               </div>
             </div>            
             <textarea
               id="bulk-importer-textarea"
-              x-ref="bulkImporterTextArea"
+              ref="bulkImporterTextArea"
               rows="4"
               cols="48"
-              x-bind:disabled="disableBulkImport"
+              v-bind:disabled="disableBulkImport"
               placeholder="Enter space seperated subreddits"
             ></textarea>
             <button class="button outline primary import-subreddits" 
               type="button"
-              x-bind:disabled="disableBulkImport" @click.prevent="importSubs()">
+              v-bind:disabled="disableBulkImport" @click.prevent="importSubs()">
               Import Subs
             </button>
           </p>

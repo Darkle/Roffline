@@ -1,4 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
+import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 import R from 'ramda'
 
 import { db } from '../../db/db'
@@ -22,4 +23,11 @@ function exportUserSubs(request: FastifyRequest, reply: FastifyReply): Promise<v
     })
 }
 
-export { exportUserSubs }
+async function bulkImportSubreddits(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  const user = request.cookies['loggedInUser'] as string
+  const { subsToImport } = request.body as { subsToImport: string[] }
+
+  await db.batchAddSubreddits(user, subsToImport).then(_ => reply.code(HttpStatusCode.OK).send())
+}
+
+export { exportUserSubs, bulkImportSubreddits }

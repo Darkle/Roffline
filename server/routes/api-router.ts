@@ -4,9 +4,9 @@ import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 import { mainLogger } from '../../logging/logging'
 import { csrfProtection } from '../controllers/csrf'
 import { infiniteScrollGetMorePosts } from '../controllers/posts/posts'
-import { exportUserSubs } from '../controllers/subs'
+import { bulkImportSubreddits, exportUserSubs } from '../controllers/subs'
 import { checkUserLoggedIn, updateUserSetting } from '../controllers/user'
-import { updateUserSettingsSchema } from './api-router-schema'
+import { updateUserSettingsSchema, bulkImportUserSubsSchema } from './api-router-schema'
 
 //TODO: make sure to do a check they are logged in if not already as this is a new prefix route
 //TODO: also dont forget to add onRequest: fastify.csrfProtection to each POST/PUT route
@@ -34,7 +34,11 @@ const apiRoutes = (fastify: FastifyInstance, _: unknown, done: (err?: Error) => 
 
   // fastify.post('/remove-user-subreddit', validate(removeSubredditRouteSchema), removeSubreddit)
 
-  // fastify.post('/bulk-import-user-subs', validate(bulkImportSubsRouteSchema), bulkImportSubreddits)
+  fastify.post('/bulk-import-user-subs', {
+    preHandler: [...mainPreHandlers, csrfProtection],
+    handler: bulkImportSubreddits,
+    schema: bulkImportUserSubsSchema,
+  })
 
   fastify.all('*', (req, reply) => {
     mainLogger.error(`404, page not found: ${req.url}`)
