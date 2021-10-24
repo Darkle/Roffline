@@ -376,10 +376,14 @@ const db = {
       Promise.all(subs.map(sub => subredditTablesMap.get(sub.toLowerCase())?.truncate({ transaction })))
     )
   },
-  getPostComments(postId: string): Promise<StructuredComments> {
-    const postCommentsAsString = commentsDB.get(postId) as string
+  getPostComments(postId: string): Promise<StructuredComments> | Promise<null> {
+    const maybePostCommentsAsString = MaybeNullable(commentsDB.get(postId))
+
     // Make it promise based. Confusing if one db is promise based and other is sync.
-    return Promise.resolve(JSON.parse(postCommentsAsString) as StructuredComments)
+    return maybePostCommentsAsString.cata({
+      Just: postCommentsAsString => Promise.resolve(JSON.parse(postCommentsAsString) as StructuredComments),
+      Nothing: () => Promise.resolve(null),
+    })
   },
   getAdminSettings,
   getSingleAdminSetting,

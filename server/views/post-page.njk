@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% include "partials/head.njk" %}
+  <body class="post-page {% if userSettings.darkModeTheme == true %}dark-theme{% endif %}">
+    {# Redeclaring these variables makes them available in the includes #}
+    {% set userSettings = userSettings %}
+    {% set basePath = basePath %}
+    {% set isSubPage = isSubPage %}
+    {% set pageNumber = pageNumber %}
+    {% set currentSubredditBrowsing = currentSubredditBrowsing %}
+    {% set topFilter = topFilter %}
+    {% set searchTerm = searchTerm %}
+    {% set fuzzySearch = fuzzySearch %}
+    {% include 'partials/page-header.njk' %}
+    <main>
+      <post-page></post-page>
+    </main>
+
+    {# Doing it this way so the editor doesnt complain about the nunjucks tags in the script element not being valid JS #}
+    <# unescapeHTML('%3Cscript%3E') | safe #> 
+      window.userSettings = <# userSettings | dump | safe #>
+      window.post = <# post | dump | safe #> 
+    <# unescapeHTML('%3C/script%3E') | safe #>
+    <script src="/js/post-page.js<# cacheBustString #>" type="module"></script>
+  </body>
+</html>

@@ -8,11 +8,6 @@ import { bulkImportSubreddits, exportUserSubs } from '../controllers/subs'
 import { checkUserLoggedIn, updateUserSetting } from '../controllers/user'
 import { updateUserSettingsSchema, bulkImportUserSubsSchema } from './api-router-schema'
 
-//TODO: make sure to do a check they are logged in if not already as this is a new prefix route
-//TODO: also dont forget to add onRequest: fastify.csrfProtection to each POST/PUT route
-//TODO: remember to make sure the csrf and logged in prehandlers come before other prehandlers
-//TODO: add fastify validation to all the routes
-
 const mainPreHandlers = [checkUserLoggedIn]
 
 // eslint-disable-next-line max-lines-per-function
@@ -30,9 +25,17 @@ const apiRoutes = (fastify: FastifyInstance, _: unknown, done: (err?: Error) => 
     schema: updateUserSettingsSchema,
   })
 
-  // fastify.post('/add-user-subreddit', validate(addSubredditRouteSchema), addSubreddit)
+  // fastify.post('/add-user-subreddit', , {
+  //   preHandler: [...mainPreHandlers, csrfProtection],
+  //   handler: foo,
+  //   schema: fooSchema,
+  // })
 
-  // fastify.post('/remove-user-subreddit', validate(removeSubredditRouteSchema), removeSubreddit)
+  // fastify.post('/remove-user-subreddit',{
+  //   preHandler: [...mainPreHandlers, csrfProtection],
+  //   handler: foo,
+  //   schema: fooSchema,
+  // })
 
   fastify.post('/bulk-import-user-subs', {
     preHandler: [...mainPreHandlers, csrfProtection],

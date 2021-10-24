@@ -1,19 +1,18 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
-// import * as R from 'ramda'
-// import { compose } from 'ts-functional-pipe'
+import { DateTime } from 'luxon'
 
 import { db } from '../../../db/db'
-// import { StructuredComments } from '../../../db/entities/Comments'
 import { PostWithComments } from '../../../db/entities/Posts/Post'
-// import { createCommentsHtml } from '../comments'
 import { findAnyMediaFilesForPosts, PostWithDownloadedFiles } from './find-posts-media-files'
+import { genPrettyDateCreatedAgoFromUTC } from './pretty-date-created-ago'
 
-type PostReadyToRender = {
-  comments: string
-} & PostWithDownloadedFiles
+type PostWithDownloadedFilesAndCommentsAndPrettyDate = PostWithDownloadedFilesAndComments & {
+  prettyDateCreated: string
+  prettyDateCreatedAgo: string
+}
 
 type ReplyLocals = {
-  post: PostReadyToRender
+  post: PostWithDownloadedFilesAndCommentsAndPrettyDate
   pageTitle: string
 }
 
@@ -27,10 +26,6 @@ type Params = {
 
 type PostWithDownloadedFilesAndComments = PostWithComments & PostWithDownloadedFiles
 
-// const getCommentProp = (post: PostWithDownloadedFilesAndComments): StructuredComments => post.comments
-
-// const getCommentsDataFromPostData = compose(R.pathOr([], [1, 'data', 'children']), getCommentProp)
-
 async function generatePost(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const replyWithLocals = reply as FastifyReplyWithLocals
   const params = request.params as Params
@@ -40,13 +35,18 @@ async function generatePost(request: FastifyRequest, reply: FastifyReply): Promi
     .getSinglePostData(postId)
     .then(post => findAnyMediaFilesForPosts([post]).then(posts => posts[0] as PostWithDownloadedFilesAndComments))
     .then((post: PostWithDownloadedFilesAndComments) => {
-      // replyWithLocals.locals.post = {
-      //   ...post,
-      //   // comments: createCommentsHtml(getCommentsDataFromPostData(post)),
-      //   //TODO: switch to using the frontend version of this
-      //   // postContent: createPostContentHtml(post) as string,
-      // }
-
+      console.log(post)
+      replyWithLocals.locals.post = {
+        ...post,
+        /*****
+          created_utc is a unix timestamp, which is in seconds, not milliseconds.
+          We need to use { zone: 'Etc/UTC' } as that is where created_utc is set.
+        *****/
+        prettyDateCreated: DateTime.fromSeconds(post.created_utc, { zone: 'Etc/UTC' }).toFormat(
+          'yyyy LLL dd, h:mm a'
+        ),
+        prettyDateCreatedAgo: genPrettyDateCreatedAgoFromUTC(post.created_utc),
+      }
       replyWithLocals.locals.pageTitle = post.title
     })
 }

@@ -45,7 +45,7 @@ type Post = {
 }
 
 type PostWithComments = {
-  comments: StructuredComments
+  comments: StructuredComments | null
 } & Post
 
 export { Post, PostMediaKey, Oembed, PostWithComments }

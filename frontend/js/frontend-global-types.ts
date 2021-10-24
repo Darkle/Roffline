@@ -19,4 +19,9 @@ type SettingsPageWindowWithProps = {
   userSettings: User
 } & Window
 
-export { IndexPageWindowWithProps, SettingsPageWindowWithProps, FrontendPost }
+type PostPageWindowWithProps = {
+  userSettings: User
+  post: FrontendPost
+} & Window
+
+export { IndexPageWindowWithProps, SettingsPageWindowWithProps, FrontendPost, PostPageWindowWithProps }

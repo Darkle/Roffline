@@ -12,6 +12,7 @@ import {
 import { setDefaultTemplateProps } from '../controllers/default-template-props'
 import { getPostsPaginated, getPostsPaginatedForSubreddit } from '../controllers/posts/posts'
 import { searchPosts } from '../controllers/search'
+import { generatePost } from '../controllers/posts/single-post'
 
 type SubParams = { subreddit: string }
 
@@ -39,8 +40,8 @@ const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) =
     reply.redirect(`https://www.reddit.com${urlData.path as string}`)
   })
 
-  fastify.get('/post/:postId/', { preHandler: mainPreHandlers }, (_, reply) => {
-    reply.view('post')
+  fastify.get('/post/:postId/', { preHandler: [...mainPreHandlers, generatePost] }, (_, reply) => {
+    reply.view('post-page')
   })
 
   fastify.get(

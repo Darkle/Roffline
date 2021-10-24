@@ -1,6 +1,6 @@
 import * as Vue from 'vue'
 
-import { FrontendPost } from '../../../frontend-global-types'
+import { FrontendPost } from '../../frontend-global-types'
 
 const getLocallyStoredVolumeSetting = (): number => {
   const volume = localStorage.getItem('volume')

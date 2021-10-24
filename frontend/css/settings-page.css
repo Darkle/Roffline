@@ -7,22 +7,23 @@
   align-items: center;
 }
 
-@media only screen and (max-width: 566px) {
+@media only screen and (max-width: 450px) {
   .settings-page main {
     margin-top: 11rem;
   }
 }
 
-@media only screen and (max-width: 297px) {
+@media only screen and (max-width: 239px) {
   .settings-page main {
     margin-top: 13rem;
   }
 }
 
-@media only screen and (max-width: 239px) {
-  .settings-page main {
-    margin-top: 15rem;
-  }
+.settings-page .username-heading {
+  line-height: calc(1.1em + 0.5vw);
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
 .settings-page fieldset {

@@ -1,7 +1,7 @@
 import * as Vue from 'vue'
 import { unescape } from 'html-escaper'
 
-import { FrontendPost } from '../../../frontend-global-types'
+import { FrontendPost } from '../../frontend-global-types'
 
 const PostContentSingleImage = Vue.defineComponent({
   props: {

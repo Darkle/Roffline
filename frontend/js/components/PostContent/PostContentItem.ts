@@ -7,7 +7,7 @@ import { PostContentSingleImage } from './PostContentSingleImage'
 import { PostContentImageGallery } from './PostContentImageGallery'
 import { PostContentVideo } from './PostContentVideo'
 import { PostContentOfflineArticleLink } from './PostContentOfflineArticle'
-import { FrontendPost } from '../../../frontend-global-types'
+import { FrontendPost } from '../../frontend-global-types'
 
 const isNotEmpty = R.complement(R.isEmpty)
 

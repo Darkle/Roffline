@@ -44,7 +44,7 @@
             xmlns:xlink="http://www.w3.org/1999/xlink"
             viewBox="0,0,1024,1024"
           >
-            <title>Copy to clipboard</title>
+            <title>Copy username to clipboard</title>
             <!-- prettier-ignore -->
             <g fill="currentColor" fill-rule="nonzero" style="mix-blend-mode: normal;">
               <path
@@ -56,10 +56,7 @@
         <button class="button primary" id="signupUsernameButton">Sign Up</button>
       </form>
     </main>
-    {# Doing it this way so the editor doesnt complain about the nunjucks tags in the script element not being valid JS #}
-    <# unescapeHTML('%3Cscript%3E') | safe #> 
-      window.csrfToken = <# csrfToken | dump | safe #> 
-    <# unescapeHTML('%3C/script%3E') | safe #>
+
     <script src="/js/login-page.js<# cacheBustString #>" type="module"></script>
   </body>
 </html>

@@ -39,40 +39,9 @@
   display: flex;
 }
 
-.post-page main article > .post-content .single-image {
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.post-page main article > .post-content .gallery-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.post-page main article > .post-content .image-gallery {
-  overflow: hidden;
-}
-
-.post-page main article > .post-content .image-gallery .embla__container {
-  display: flex;
-}
-
-.post-page main article > .post-content .image-gallery .embla__slide {
-  position: relative;
-  flex: 0 0 80%;
-  align-self: center;
-  display: flex;
-  justify-content: center;
-}
-
-.post-page main article > .post-content .image-gallery .embla__slide img {
-  max-height: 70vh;
-}
-
-.post-page main article > .post-content .gallery-container .gallery-icon {
-  font-size: 1.4rem;
-  margin-top: 0.6rem;
+.post-page article > .post-content .gallery-container .splide__arrow:active {
+  -webkit-transform: translateY(-50%) !important;
+  transform: translateY(-50%) !important;
 }
 
 .post-page main > article > .post-content video {
@@ -84,17 +53,25 @@
   cursor: pointer;
 }
 
-.post-page main > article > .post-content .webpage-scrape-links-container span {
+.post-page article > .post-content .webpage-scrape-links-container span {
   margin-right: 0.5rem;
 }
 
-.post-page main > article > .post-content .webpage-scrape-links-container .offline-article-link {
+.post-page article > .post-content .webpage-scrape-links-container .offline-article-link {
   display: flex;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.9rem;
+  align-items: center;
 }
 
-.post-page main > article > .post-content .webpage-scrape-links-container .html-offline-link {
+.post-page article > .post-content .webpage-scrape-links-container .html-offline-link {
   font-size: 1.3rem;
+  display: flex;
+}
+
+.post-page article > .post-content .webpage-scrape-links-container .screenshot-offline-link {
+  font-size: 1.3rem;
+  width: 22px;
+  display: flex;
 }
 
 .post-page main > article .post-meta-container {
@@ -127,6 +104,10 @@
 
 .post-page main > article .post-meta-container ul li {
   margin-right: 8px;
+}
+
+.post-page main > article .post-meta-container ul li.submission-data > * {
+  margin-right: 0.3rem;
 }
 
 .post-page .comments a {

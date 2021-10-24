@@ -68,7 +68,7 @@ function toggleDisableBulkImport(): void {
 const SettingsPage = Vue.defineComponent({
   data() {
     return {
-      name: window.name,
+      userName: window.userSettings.name,
       subreddits: window.userSettings.subreddits,
       hideStickiedPosts: window.userSettings.hideStickiedPosts,
       onlyShowTitlesInFeed: window.userSettings.onlyShowTitlesInFeed,
