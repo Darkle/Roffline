@@ -33,42 +33,49 @@
   font-size: 1.75em;
 }
 
-.post-page main > article > .post-content {
+.post-page main > article .post-content {
   margin-top: 1.3vw;
   margin-bottom: 2.6vw;
   display: flex;
 }
 
-.post-page article > .post-content .gallery-container .splide__arrow:active {
+.post-page article .post-content .gallery-container .splide__arrow:active {
   -webkit-transform: translateY(-50%) !important;
   transform: translateY(-50%) !important;
 }
 
-.post-page main > article > .post-content video {
+.post-page main > article .post-content video {
   margin: 0 auto;
   max-width: 100%;
 }
 
-.post-page main > article > .post-content video:hover {
+.post-page main > article .post-content video:hover {
   cursor: pointer;
 }
 
-.post-page article > .post-content .webpage-scrape-links-container span {
+.post-page article .post-content .webpage-scrape-links-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.post-page article .post-content .webpage-scrape-links-container span {
   margin-right: 0.5rem;
 }
 
-.post-page article > .post-content .webpage-scrape-links-container .offline-article-link {
+.post-page article .post-content .webpage-scrape-links-container .offline-article-link {
   display: flex;
   margin-bottom: 0.9rem;
   align-items: center;
 }
 
-.post-page article > .post-content .webpage-scrape-links-container .html-offline-link {
+.post-page article .post-content .webpage-scrape-links-container .html-offline-link {
   font-size: 1.3rem;
   display: flex;
 }
 
-.post-page article > .post-content .webpage-scrape-links-container .screenshot-offline-link {
+.post-page article .post-content .webpage-scrape-links-container .screenshot-offline-link {
   font-size: 1.3rem;
   width: 22px;
   display: flex;
@@ -78,6 +85,12 @@
   margin-top: 2.6vw;
   display: block;
   font-size: 0.9rem;
+}
+
+@media only screen and (max-width: 630px) {
+  .post-page main article .post-meta-container {
+    margin-top: 8vw;
+  }
 }
 
 .post-page main > article .post-meta-container ul {

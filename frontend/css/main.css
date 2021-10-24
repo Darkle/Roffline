@@ -37,3 +37,7 @@ code,
 kbd {
   color: var(--text-dark);
 }
+
+.splide__arrows > button {
+  top: 95%;
+}

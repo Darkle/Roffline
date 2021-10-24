@@ -118,6 +118,12 @@
   display: flex;
 }
 
+@media only screen and (max-width: 540px) {
+  .index-page main #posts article .post-meta-container {
+    margin-top: 1vw;
+  }
+}
+
 .index-page main #posts article .post-meta-container {
   width: 100%;
 }
