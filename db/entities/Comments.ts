@@ -225,7 +225,7 @@ type ActualCommentsData = {
   ups: number
 }
 
-type CommentsContainer = {
+type CommentContainer = {
   kind: string
   data: ActualCommentsData
 }
@@ -236,7 +236,7 @@ type CommentsData = {
   modhash: any
   geo_filter: any
   before: string | null
-  children: CommentsContainer[]
+  children: CommentContainer[]
 }
 
 type CommentsOuterContainer = {
@@ -244,6 +244,6 @@ type CommentsOuterContainer = {
   data: CommentsData
 }
 
-type StructuredComments = [PostContainer, CommentsOuterContainer]
+type CommentsWithMetadata = [PostContainer, CommentsOuterContainer]
 
-export { StructuredComments, CommentsContainer, CommentsOuterContainer, ActualCommentsData }
+export { CommentsWithMetadata, CommentContainer, CommentsOuterContainer, ActualCommentsData }
