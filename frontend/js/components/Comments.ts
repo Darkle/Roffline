@@ -25,7 +25,6 @@ const Comments = Vue.defineComponent({
       commentsThatAreClosed.set(comment.data.id, false)
     })
   },
-
   methods: {
     hasChildComments(comment: CommentContainer) {
       return comment.data.replies?.data?.children?.length > 0
@@ -44,9 +43,7 @@ const Comments = Vue.defineComponent({
     commentPermalink(comment: CommentContainer) {
       return `https://www.reddit.com${comment?.data?.permalink}`
     },
-    unescapeHTML(escapedCommentHTML: string | undefined): string {
-      return escapedCommentHTML ? unescape(escapedCommentHTML) : ''
-    },
+    unescapeHTML: unescape,
     commentIsOpen(comment: CommentContainer): boolean {
       return !this.commentsThatAreClosed.get(comment.data.id) as boolean
     },
@@ -58,7 +55,7 @@ const Comments = Vue.defineComponent({
   template: /* html */ `
     <ul>
       <template v-for="comment in comments">
-        <li data-comment-open="true">
+        <li data-comment-open="true" v-if="comment?.data?.body_html">
           <small class="comment-metadata">
             <a 
               href="#" 
