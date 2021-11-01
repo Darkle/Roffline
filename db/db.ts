@@ -37,9 +37,7 @@ import {
   adminSearchAnyDBTable,
   adminListTablesInDB,
 } from './db-admin'
-import { CommentsContainer } from './entities/Comments'
-import { isDev } from '../server/utils'
-import { dev } from './db-dev'
+import { CommentContainer } from './entities/Comments'
 
 const sqliteDBPath = process.env['SQLITE_DBPATH'] || './roffline-sqlite.db'
 const commentsDBPath = process.env['COMMENTS_DBPATH'] || './roffline-comments-lmdb.db'
@@ -376,7 +374,7 @@ const db = {
       Promise.all(subs.map(sub => subredditTablesMap.get(sub.toLowerCase())?.truncate({ transaction })))
     )
   },
-  getPostComments(postId: string): Promise<CommentsContainer[] | [] | null> {
+  getPostComments(postId: string): Promise<CommentContainer[] | [] | null> {
     const maybePostCommentsAsString = MaybeNullable(commentsDB.get(postId))
 
     const uJSONParse = R.unary(JSON.parse)
@@ -445,6 +443,10 @@ const db = {
   },
 }
 
-isDev && dev.init(db)
+// // eslint-disable-next-line import/first
+// import { dev } from './db-dev'
+// // eslint-disable-next-line import/first
+//import { isDev } from '../server/utils'
+// isDev && dev.init(db)
 
 export { db }

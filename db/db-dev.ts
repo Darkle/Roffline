@@ -1,7 +1,7 @@
 import Prray from 'prray'
 import got from 'got'
 
-// import { dbLogger } from '../logging/logging'
+import { dbLogger } from '../logging/logging'
 
 /* eslint-disable @typescript-eslint/explicit-function-return-type,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,max-lines-per-function,functional/no-conditional-statement,functional/no-let,functional/immutable-data,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-magic-numbers,complexity,@typescript-eslint/no-unsafe-return,@typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-unused-vars */
 
@@ -107,46 +107,53 @@ const dev = {
         return thing
       })
   },
-  addComments() {
-    // Prray.from([])
-    //   .mapAsync(postId =>
-    //     got(`https://www.reddit.com/comments/${postId}.json`).then(resp => ({ comments: resp.body, id: postId }))
-    //   )
-    //   .then(comments => db.batchSaveComments(comments))
+  // @ts-expect-error asd
+  addComments(db) {
+    return db.getAllPostIds().then((postIds: string[]) =>
+      Prray.from(postIds)
+        .mapAsync(postId =>
+          got(`https://www.reddit.com/comments/${postId}.json`).then(resp => ({
+            comments: resp.body,
+            id: postId,
+          }))
+        )
+        .then(comments => db.batchSaveComments(comments))
+    )
   },
   // @ts-expect-error asd
   init(db) {
-    // setTimeout(() => {
-    //   console.log('!!DEV DB FUNCTIONS ARE BEING RUN!!')
-    //   dbLogger.warn('!!DEV DB FUNCTIONS ARE BEING RUN!!')
-    //   //   // const sub = ''
-    //   //   // const postIds = ['q9e82c', 'q9kwew', 'q9lf66', 'n2s4g0', 'n2scls', 'n2tj9x']
-    //   //   // const subs = ['selfhosted', 'node', 'videos', 'Twitter', 'Twitter', 'fo4']
-    //   //   // dev
-    //   //   //   .createUser(db, 'Merp')
-    //   //   //   .then(() => dev.addSubs(db, 'Merp', subs))
-    //   //   //   .then(() => dev.addIndividualPosts(db, postIds))
-    //   //   // dev
-    //   //   //   .addIndividualPosts(db, ['n2tj9x'])
-    //   //   //   // .then(() => dev.addSubPostIdRefs(sub))
-    //   //   //   .then(() => console.log('FINISHED DEV DB STUFF'))
-    //   dev
-    //     .addSubs(db, 'Merp', ['AskReddit'])
-    //     .then(() => dev.addPosts(db, 'AskReddit'))
-    //     // got('https://api.reddit.com/api/info/?id=t3_qaolx9')
-    //     //   .json()
-    //     // .then(result => {
-    //     //   // @ts-expect-error asdf
-    //     //   console.log(result.data.children[0].data)
-    //     //   return result
-    //     // })
-    //     //// @ts-expect-error asd
-    //     // .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
-    //     .then(() => {
-    //       console.log('finished db stuff')
-    //     })
-    //     .catch((err: Error) => console.error(err))
-    // }, 3000)
+    setTimeout(() => {
+      console.log('!!DEV DB FUNCTIONS ARE BEING RUN!!')
+      dbLogger.warn('!!DEV DB FUNCTIONS ARE BEING RUN!!')
+      //   // const sub = ''
+      //   // const postIds = ['q9e82c', 'q9kwew', 'q9lf66', 'n2s4g0', 'n2scls', 'n2tj9x']
+      //   // const subs = ['selfhosted', 'node', 'videos', 'Twitter', 'Twitter', 'fo4']
+      //   // dev
+      //   //   .createUser(db, 'Merp')
+      //   //   .then(() => dev.addSubs(db, 'Merp', subs))
+      //   //   .then(() => dev.addIndividualPosts(db, postIds))
+      //   // dev
+      //   //   .addIndividualPosts(db, ['n2tj9x'])
+      //   //   // .then(() => dev.addSubPostIdRefs(sub))
+      //   //   .then(() => console.log('FINISHED DEV DB STUFF'))
+      dev
+        .addComments(db)
+        // .addSubs(db, 'Merp', ['AskReddit'])
+        // .then(() => dev.addPosts(db, 'AskReddit'))
+        // got('https://api.reddit.com/api/info/?id=t3_qaolx9')
+        //   .json()
+        // .then(result => {
+        //   // @ts-expect-error asdf
+        //   console.log(result.data.children[0].data)
+        //   return result
+        // })
+        //// @ts-expect-error asd
+        // .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
+        .then(() => {
+          console.log('finished db stuff')
+        })
+        .catch((err: Error) => console.error(err))
+    }, 3000)
   },
 }
 
