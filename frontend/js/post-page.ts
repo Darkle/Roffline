@@ -6,6 +6,7 @@ import { ignoreScriptTagCompilationWarnings } from './frontend-utils'
 import { PostContentItem } from './components/PostContent/PostContentItem'
 import { PostContentItemMetaContainer } from './components/PostContentItemMetaContainer'
 import { Comments } from './components/Comments'
+import { PostWithComments } from '../../db/entities/Posts/Post'
 
 declare const window: PostPageWindowWithProps
 
@@ -26,6 +27,10 @@ const PostPage = Vue.defineComponent({
       // unescape to convert &amp; to &. Eg https://api.reddit.com/api/info/?id=t3_qaolx9
       return unescape(this.post?.title as string)
     },
+    haveComments(): boolean {
+      const comments = this.post.comments as PostWithComments['comments']
+      return Array.isArray(comments) ? comments.length > 0 : false
+    },
   },
   template: /* html */ `
     <article>
@@ -40,7 +45,7 @@ const PostPage = Vue.defineComponent({
     <hr />
     <section class="comments">
       <h5>Comments:</h5>
-      <comments v-if="post.comment"
+      <comments v-if="haveComments"
         v-bind:comments="post.comments"
       ></comments>
     </section> 
