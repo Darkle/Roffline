@@ -123,6 +123,8 @@ module.exports = {
               'bulkImportTextArea\\.value',
               'disableBulkImport\\.value',
               'bulkSubImportErrorMessageElem\\.textContent',
+              'this\\.commentsClosed',
+              'textAreaDecoder\\.innerHTML',
             ],
           },
         ],
