@@ -6,7 +6,7 @@ import { CommentContainer } from '../../../db/entities/Comments'
 import { PostWithComments } from '../../../db/entities/Posts/Post'
 import { genPrettyDateCreatedAgoFromUTC } from '../../../server/controllers/posts/pretty-date-created-ago'
 
-type CommentsThatAreClosed = Map<string, boolean>
+type CommentsClosedStatus = Map<string, boolean>
 
 const Comments = Vue.defineComponent({
   name: 'comments',
@@ -15,24 +15,25 @@ const Comments = Vue.defineComponent({
   },
   data() {
     return {
-      commentsThatAreClosed: new Map() as CommentsThatAreClosed,
+      commentsClosedStatus: new Map() as CommentsClosedStatus,
     }
   },
   created() {
-    const { commentsThatAreClosed } = this
+    const { commentsClosedStatus } = this
 
     this.comments?.forEach(comment => {
-      commentsThatAreClosed.set(comment.data.id, false)
+      commentsClosedStatus.set(comment.data.id, false)
     })
   },
   methods: {
+    genPrettyDateCreatedAgoFromUTC,
+    unescapeHTML: unescape,
     hasChildComments(comment: CommentContainer) {
       return comment.data.replies?.data?.children?.length > 0
     },
     formatDateCreated(comment: CommentContainer) {
       return DateTime.fromSeconds(comment?.data?.created_utc || 0).toISO()
     },
-    genPrettyDateCreatedAgoFromUTC,
     authorLink(comment: CommentContainer) {
       // encodeURI is in case its https://www.reddit.com/u/[deleted]
       return `https://www.reddit.com/u/${encodeURI(comment?.data?.author)}`
@@ -43,19 +44,21 @@ const Comments = Vue.defineComponent({
     commentPermalink(comment: CommentContainer) {
       return `https://www.reddit.com${comment?.data?.permalink}`
     },
-    unescapeHTML: unescape,
     commentIsOpen(comment: CommentContainer): boolean {
-      return !this.commentsThatAreClosed.get(comment.data.id) as boolean
+      return !this.commentsClosedStatus.get(comment.data.id) as boolean
     },
     toggleHideShowComment(comment: CommentContainer): void {
-      const commentIsClosed = this.commentsThatAreClosed.get(comment.data.id)
-      this.commentsThatAreClosed.set(comment.data.id, !commentIsClosed)
+      const commentClosedStatus = this.commentsClosedStatus.get(comment.data.id)
+      this.commentsClosedStatus.set(comment.data.id, !commentClosedStatus)
+    },
+    commentHasBody(comment: CommentContainer): boolean {
+      return !!comment?.data?.body_html
     },
   },
   template: /* html */ `
     <ul>
       <template v-for="comment in comments">
-        <li data-comment-open="true" v-if="comment?.data?.body_html">
+        <li data-comment-open="true" v-if="commentHasBody(comment)">
           <small class="comment-metadata">
             <a 
               href="#" 
