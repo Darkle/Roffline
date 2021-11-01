@@ -48,9 +48,11 @@ const PostItem = Vue.defineComponent({
 
       return `/api/infinite-scroll-load-more-posts?page=${newPage}${subredditParam}${topFilterParam}`
     },
+    alreadyGotAllPosts(): boolean {
+      return this.posts?.length === this.totalResults
+    },
     loadMorePosts(): void {
-      // Already got all the posts
-      if (this.posts?.length === this.totalResults) return // eslint-disable-line functional/no-conditional-statement
+      if (this.alreadyGotAllPosts()) return // eslint-disable-line functional/no-conditional-statement
 
       const fetchUrl = this.generateFetchURL()
 
