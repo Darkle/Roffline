@@ -9,7 +9,7 @@ import { genPrettyDateCreatedAgoFromUTC } from '../../../server/controllers/post
 type CommentsClosedStatus = Map<string, boolean>
 
 const Comments = Vue.defineComponent({
-  // Set name here so we can recursively use this Comments component in its own template.
+  // Set name here so we can recursively use this component in its own template.
   name: 'comments',
   props: {
     comments: Object as Vue.PropType<PostWithComments['comments']>,
