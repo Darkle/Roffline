@@ -30,7 +30,16 @@ function genPrettyDateCreatedAgoFromUTC(unixTimestamp: number): string {
     return `${dateDiff.months} month${dateDiff.months > 1 ? 's' : ''} ago`
   }
 
-  if (dateDiff.weeks > 0) {
+  /*****
+    If the time is at least one week, but less than two weeks, its nicer to just show that in days.
+  *****/
+  if (dateDiff.weeks === 1) {
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    const days = dateDiff.days + 7
+    return `${days} days ago`
+  }
+
+  if (dateDiff.weeks > 1) {
     return `${dateDiff.weeks} week${dateDiff.weeks > 1 ? 's' : ''} ago`
   }
 
