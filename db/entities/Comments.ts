@@ -152,7 +152,7 @@ type PostContainer = {
   data: PostData
 }
 
-type ActualCommentsData = {
+type ActualCommentData = {
   subreddit_id: string
   approved_at_utc: any
   author_is_blocked: boolean
@@ -227,7 +227,7 @@ type ActualCommentsData = {
 
 type CommentContainer = {
   kind: string
-  data: ActualCommentsData
+  data: ActualCommentData
 }
 
 type CommentsData = {
@@ -246,4 +246,4 @@ type CommentsOuterContainer = {
 
 type CommentsWithMetadata = [PostContainer, CommentsOuterContainer]
 
-export { CommentsWithMetadata, CommentContainer, CommentsOuterContainer, ActualCommentsData }
+export { CommentsWithMetadata, CommentContainer, CommentsOuterContainer, ActualCommentData }
