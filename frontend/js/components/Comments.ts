@@ -45,7 +45,7 @@ const Comments = Vue.defineComponent({
       return `https://www.reddit.com${comment?.data?.permalink}`
     },
     commentIsOpen(comment: CommentContainer): boolean {
-      return !this.commentsClosedStatus.get(comment.data.id) as boolean
+      return !this.commentsClosedStatus.get(comment.data.id)
     },
     toggleHideShowComment(comment: CommentContainer): void {
       const commentClosedStatus = this.commentsClosedStatus.get(comment.data.id)
