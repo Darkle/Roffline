@@ -20,9 +20,17 @@ type SettingsPageWindowWithProps = {
   userSettings: User
 } & Window
 
+type SubManagementPagePageWindowWithProps = SettingsPageWindowWithProps & Window
+
 type PostPageWindowWithProps = {
   userSettings: User
   post: FrontendPost
 } & Window
 
-export { IndexPageWindowWithProps, SettingsPageWindowWithProps, FrontendPost, PostPageWindowWithProps }
+export {
+  IndexPageWindowWithProps,
+  SettingsPageWindowWithProps,
+  FrontendPost,
+  PostPageWindowWithProps,
+  SubManagementPagePageWindowWithProps,
+}
