@@ -19,8 +19,6 @@ function removeSubFromSubMenuInPageHeader(sub: string): void {
 
 const threeSeconds = 3000
 
-//TODO: I also need to update the subs in the menu up top
-//TODO: Log any errors to the console and perhaps show an error message.
 const PostPage = Vue.defineComponent({
   data() {
     return {
@@ -37,9 +35,14 @@ const PostPage = Vue.defineComponent({
       const formData = new FormData(target)
       const subToAdd = (formData.get('subToAdd') as string).trim()
       const existingUserSubs = this.userSubreddits.map(subreddit => subreddit.toLowerCase())
+      const addSubInputElem = this.$refs['addSubredditInput'] as HTMLInputElement
 
       // eslint-disable-next-line functional/no-conditional-statement
-      if (existingUserSubs.includes(subToAdd.toLowerCase())) return
+      if (existingUserSubs.includes(subToAdd.toLowerCase())) {
+        // eslint-disable-next-line functional/immutable-data
+        addSubInputElem.value = ''
+        return
+      }
 
       Fetcher.postJSON('/api/add-user-subreddit', { subToAdd })
         .then(() => {
@@ -50,8 +53,6 @@ const PostPage = Vue.defineComponent({
 
           this.subredditThatWasAddedOrRemoved = subToAdd
           this.subredditWasAdded = true
-
-          const addSubInputElem = this.$refs['addSubredditInput'] as HTMLInputElement
 
           // eslint-disable-next-line functional/immutable-data
           addSubInputElem.value = ''
