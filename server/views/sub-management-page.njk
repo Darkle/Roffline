@@ -31,6 +31,7 @@
         v-show="subredditWasAdded"
         ref="subAddSuccessMessage"
       >
+        <span class="success-adding-subreddit-message">{{subredditThatWasAddedOrRemoved + ' subreddit added'}}</span>
         <svg
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
@@ -44,7 +45,6 @@
             />
           </g>
         </svg>
-        <span class="success-adding-subreddit-message">{{subredditThatWasAddedOrRemoved + ' subreddit added'}}</span>
       </div>
       <hr />
       <form
@@ -58,6 +58,7 @@
           ref="subRemoveSuccessMessage"
           v-show="subredditWasRemoved"
         >
+          <span class="success-removing-subreddit-message">{{subredditThatWasAddedOrRemoved + ' subreddit removed'}}</span>
           <svg
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +73,6 @@
               />
             </g>
           </svg>
-          <span class="success-removing-subreddit-message">{{subredditThatWasAddedOrRemoved + ' subreddit removed'}}</span>
         </div>
         <div class="sub-removal-container">
           <div 

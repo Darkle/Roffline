@@ -82,10 +82,11 @@
   margin-top: 3rem;
   justify-content: center;
   width: 100%;
+  text-align: center;
 }
 
 .sub-management-page .success-adding-subreddit-notice svg {
-  margin-right: 0.4rem;
+  margin-left: 0.4rem;
   width: 1.2rem;
 }
 
@@ -96,10 +97,11 @@
   margin-bottom: 2rem;
   justify-content: center;
   width: 100%;
+  text-align: center;
 }
 
 .sub-management-page .success-removing-subreddit-notice svg {
-  margin-right: 0.4rem;
+  margin-left: 0.4rem;
   width: 1.2rem;
 }
 
