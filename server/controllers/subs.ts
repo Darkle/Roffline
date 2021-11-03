@@ -9,6 +9,20 @@ const subsArrToString = R.join(' ')
 // eslint-disable-next-line functional/immutable-data
 const sortSubs = (arr: string[]): string[] => arr.sort()
 
+function addSubreddit(req: FastifyRequest, reply: FastifyReply): Promise<FastifyReply> {
+  const user = req.cookies['loggedInUser'] as string
+  const { subToAdd } = req.body as { subToAdd: string }
+
+  return db.addSubreddit(user, subToAdd).then(_ => reply.code(HttpStatusCode.OK).send())
+}
+
+function removeSubreddit(req: FastifyRequest, reply: FastifyReply): Promise<FastifyReply> {
+  const user = req.cookies['loggedInUser'] as string
+  const { subToRemove } = req.body as { subToRemove: string }
+
+  return db.removeUserSubreddit(user, subToRemove).then(_ => reply.code(HttpStatusCode.OK).send())
+}
+
 function exportUserSubs(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const user = request.cookies['loggedInUser'] as string
 
@@ -30,4 +44,4 @@ async function bulkImportSubreddits(request: FastifyRequest, reply: FastifyReply
   await db.batchAddSubreddits(user, subsToImport).then(_ => reply.code(HttpStatusCode.OK).send())
 }
 
-export { exportUserSubs, bulkImportSubreddits }
+export { exportUserSubs, bulkImportSubreddits, addSubreddit, removeSubreddit }

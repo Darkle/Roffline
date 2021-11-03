@@ -27,4 +27,28 @@ const bulkImportUserSubsSchema = {
   },
 }
 
-export { updateUserSettingsSchema, bulkImportUserSubsSchema }
+const addUserSubSchema = {
+  body: {
+    type: 'object',
+    required: ['subToAdd'],
+    properties: {
+      subToAdd: {
+        type: 'string',
+      },
+    },
+  },
+}
+
+const removeUserSubSchema = {
+  body: {
+    type: 'object',
+    required: ['subToRemove'],
+    properties: {
+      subToRemove: {
+        type: 'string',
+      },
+    },
+  },
+}
+
+export { updateUserSettingsSchema, bulkImportUserSubsSchema, addUserSubSchema, removeUserSubSchema }

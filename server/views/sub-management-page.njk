@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% include "partials/head.njk" %}
+  {# Redeclaring these variables makes them available in the includes #}
+  {% set userSettings = userSettings %}
+  {% set isSubPage = isSubPage %}
+  {% set basePath = basePath %}
+  {% include 'partials/page-header.njk' %}
+  <body class="sub-management-page {% if userSettings.darkModeTheme == true %}dark-theme{% endif %}">
+    <main>
+      <form 
+        action="/api/add-user-subreddit" 
+        method="post" 
+        @submit.prevent="addSubreddit"
+        ref="subAddForm"
+        >
+        <label for="addSubredditInput">Add Subreddit</label>
+        <div class="input-container">
+          <input id="addSubredditInput" type="text" name="subToAdd" placeholder="Add Subreddit" />
+          <input type="submit" value="Submit" />
+        </div>
+      </form>
+      <div
+        class="success-adding-subreddit-notice text-primary"
+        v-show="subredditWasAdded"
+        ref="subAddSuccessMessage"
+      >
+        <svg
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          viewbox="0,0,1024,1024"
+        >
+          <title>Success Tick Icon</title>
+          <g fill="#14854f" fill-rule="nonzero" style="mix-blend-mode: normal;">
+            <path
+              d="M938.67,512c0,235.52 -191.15,426.67 -426.67,426.67c-235.52,0 -426.67,-191.15 -426.67,-426.67c0,-235.52 191.15,-426.67 426.67,-426.67c235.52,0 426.67,191.15 426.67,426.67zM810.67,341.33l-60.16,-60.58l-323.84,323.84l-153.18,-152.75l-60.16,60.16l213.34,213.33z"
+            />
+          </g>
+        </svg>
+        <span class="success-adding-subreddit-message">{{subredditThatWasAddedOrRemoved + ' subreddit added'}}</span>
+      </div>
+      <hr />
+      <form
+        action="/api/remove-user-subreddit"
+        method="post"
+        ref="subRemoveForm"
+      >
+        <h5>Remove Subreddit</h5>
+        <div
+          class="success-removing-subreddit-notice text-primary"
+          ref="subRemoveSuccessMessage"
+          v-show="subredditWasRemoved"
+        >
+          <svg
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            viewbox="0,0,1024,1024"
+          >
+            <title>Error Icon</title>
+            <!-- prettier-ignore -->
+            <g fill="#14854f" fill-rule="nonzero" style="mix-blend-mode: normal;">
+              <path
+                d="M938.67,512c0,235.52 -191.15,426.67 -426.67,426.67c-235.52,0 -426.67,-191.15 -426.67,-426.67c0,-235.52 191.15,-426.67 426.67,-426.67c235.52,0 426.67,191.15 426.67,426.67zM810.67,341.33l-60.16,-60.58l-323.84,323.84l-153.18,-152.75l-60.16,60.16l213.34,213.33z"
+              />
+            </g>
+          </svg>
+          <span class="success-removing-subreddit-message">{{subredditThatWasAddedOrRemoved + ' subreddit removed'}}</span>
+        </div>
+        <div class="sub-removal-container">
+          <div 
+            v-on:click="removeSubreddit" 
+            class="sub-container button outline" 
+            v-for="subreddit in userSubreddits"
+            :key="subreddit"
+            >
+            <div v-bind:data-sub-to-remove="subreddit" class="sub">{{subreddit}}</div>
+            <div class="close-button">✕</div>
+          </div>
+        </div>
+      </form>
+    </main>
+
+    {# Doing it this way so the editor doesnt complain about the nunjucks tags in the script element not being valid JS #}
+    <# unescapeHTML('%3Cscript%3E') | safe #> 
+      window.userSettings = <# userSettings | dump | safe #>
+      window.csrfToken = <# csrfToken | dump | safe #> 
+    <# unescapeHTML('%3C/script%3E') | safe #>
+    <script src="/js/sub-management-page.js<# cacheBustString #>" type="module"></script>
+  </body>
+</html>
