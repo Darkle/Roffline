@@ -32,6 +32,7 @@ const PostPage = Vue.defineComponent({
     }
   },
   methods: {
+    // eslint-disable-next-line max-lines-per-function
     addSubreddit({ target }: { target: HTMLFormElement }): void {
       const formData = new FormData(target)
       const subToAdd = (formData.get('subToAdd') as string).trim()
@@ -49,6 +50,11 @@ const PostPage = Vue.defineComponent({
 
           this.subredditThatWasAddedOrRemoved = subToAdd
           this.subredditWasAdded = true
+
+          const addSubInputElem = this.$refs['addSubredditInput'] as HTMLInputElement
+
+          // eslint-disable-next-line functional/immutable-data
+          addSubInputElem.value = ''
 
           wait(threeSeconds).then(() => {
             this.subredditWasAdded = false
