@@ -38,6 +38,7 @@ import {
   adminListTablesInDB,
 } from './db-admin'
 import { CommentContainer } from './entities/Comments'
+import { noop } from '../server/utils'
 
 const sqliteDBPath = process.env['SQLITE_DBPATH'] || './roffline-sqlite.db'
 const commentsDBPath = process.env['COMMENTS_DBPATH'] || './roffline-comments-lmdb.db'
@@ -177,11 +178,12 @@ const db = {
         return this.getAllUsersSubredditsBarOneUser(userName, transaction)
       })
       .then(
-        (allUsersSubreddits): Promise<number | void> =>
+        (allUsersSubreddits): Promise<void> =>
           noOtherUserHasSubreddit(allUsersSubreddits, subredditToRemove)
-            ? removeSubredditTable(subredditToRemove).then(() =>
-                SubredditsMasterListModel.destroy({ where: { subreddit: subredditToRemove } })
-              )
+            ? Promise.all([
+                removeSubredditTable(subredditToRemove),
+                SubredditsMasterListModel.destroy({ where: { subreddit: subredditToRemove } }),
+              ]).then(noop)
             : Promise.resolve()
       )
   },
