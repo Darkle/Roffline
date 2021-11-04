@@ -140,7 +140,7 @@ const db = {
     }
 
     await UserModel.update(
-      { subreddits: omitDuplicateSubs(userSubs as string[], subreddits) },
+      { subreddits: omitDuplicateSubs(userSubs, subreddits) },
       { where: { name: userName }, transaction }
     )
   },
