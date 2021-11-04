@@ -22,11 +22,14 @@ const mainPreHandlers = [checkUserLoggedIn, setDefaultTemplateProps, getUserSett
 
 // eslint-disable-next-line max-lines-per-function
 const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) => void): void => {
-  fastify.get('/login', { preHandler: redirectLoginPageToHomeIfAlreadyLoggedIn }, (_, reply) => {
-    reply.view('login-page', {
+  fastify.get('/login', { preHandler: redirectLoginPageToHomeIfAlreadyLoggedIn }, (req, reply) => {
+    const userNotFound = req.cookies['userNotFound'] as string | null
+
+    reply.clearCookie('userNotFound').view('login-page', {
       pageTitle: 'Roffline - Login',
       uniqueUsername: generateRandomUniqueUsername(),
       csrfToken: createCsrfToken(),
+      userNotFound,
     })
   })
 

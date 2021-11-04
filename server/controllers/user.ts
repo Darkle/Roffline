@@ -9,7 +9,6 @@ import diceware from 'diceware'
 
 import { db } from '../../db/db'
 import { User } from '../../db/entities/Users/User'
-import { createCsrfToken } from './csrf'
 
 type CookieProps = {
   httpOnly: boolean
@@ -34,11 +33,7 @@ const isValidCookie = RA.isNotNilOrEmpty
 const isLoginLogoutPage = (path: string): boolean =>
   path === '/login' || path === '/login/' || path === '/logout' || path === '/logout/'
 
-type FastifyReplyWithLocals = {
-  locals: ReplyLocals
-} & FastifyReply
-
-type ReplyLocals = {
+type UserSettingsTemplateLocal = {
   userSettings: User
 }
 
@@ -46,7 +41,7 @@ async function getUserSettings(req: FastifyRequest, reply: FastifyReply): Promis
   const user = req.cookies['loggedInUser'] as string
 
   await db.getUserSettings(user).then(userSettings => {
-    const replyWithLocals = reply as FastifyReplyWithLocals
+    const replyWithLocals = reply as { locals: UserSettingsTemplateLocal } & FastifyReply
     replyWithLocals.locals.userSettings = userSettings
   })
 }
@@ -112,13 +107,7 @@ async function logUserIn(req: FastifyRequest, reply: FastifyReply): Promise<void
 
   maybeUser.cata({
     Just: () => reply.setCookie('loggedInUser', loginUsername, getCookieProperties()).redirect('/'),
-    Nothing: () =>
-      reply.view('login-page', {
-        pageTitle: 'Roffline - Login',
-        uniqueUsername: generateRandomUniqueUsername(),
-        csrfToken: createCsrfToken(),
-        userNotFound: loginUsername,
-      }),
+    Nothing: () => reply.setCookie('userNotFound', loginUsername, getCookieProperties()).redirect('/'),
   })
 }
 

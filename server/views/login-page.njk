@@ -2,7 +2,7 @@
 <html lang="en">
   {% include "partials/head.njk" %}
   <body class="login-page">
-    <h2 class="title">Roffline Login</h2>
+    <h1 class="title">Roffline Login</h1>
     <nav class="nav">
       <div class="nav-left">
         <div class="tabs">
@@ -55,6 +55,11 @@
         </div>
         <button class="button primary" id="signupUsernameButton">Sign Up</button>
       </form>
+      {% if userNotFound %}
+      <div class="login-error-message">
+        <span class="text-error">Error logging in. User </span><code class="text-error"><# userNotFound #></code><span class="text-error"> not found</span>
+      </div>
+      {% endif %}
     </main>
 
     <script src="/js/login-page.js<# cacheBustString #>" type="module"></script>
