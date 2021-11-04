@@ -94,12 +94,6 @@ function redirectLoginPageToHomeIfAlreadyLoggedIn(
   return reply.code(HttpStatusCode.TEMPORARY_REDIRECT).redirect('/')
 }
 
-const numberOfDicewareWordsToGenerate = 4
-
-const generateRandomUniqueUsername = (): string =>
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  `${diceware(numberOfDicewareWordsToGenerate).split(' ').join('-')}-${crypto.randomInt(0, 10)}`
-
 async function logUserIn(req: FastifyRequest, reply: FastifyReply): Promise<void> {
   const { loginUsername } = req.body as { loginUsername: string }
   console.log(loginUsername)
@@ -121,6 +115,12 @@ async function createUser(req: FastifyRequest, reply: FastifyReply): Promise<voi
     .setCookie('loggedInUser', signupUsername, getCookieProperties())
     .redirect('/')
 }
+
+const numberOfDicewareWordsToGenerate = 4
+
+const generateRandomUniqueUsername = (): string =>
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  `${diceware(numberOfDicewareWordsToGenerate).split(' ').join('-')}-${crypto.randomInt(0, 10)}`
 
 export {
   getUserSettings,
