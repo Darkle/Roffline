@@ -1,5 +1,4 @@
 import { Sequelize, QueryTypes } from 'sequelize'
-import { User } from './entities/Users/User'
 import { UserModel } from './entities/Users/Users'
 
 const postsPerPage = 30
@@ -13,6 +12,7 @@ type SearchLimitedPostType = {
   author: string
   permalink: string
 }
+
 type SearchReturnType = [SearchLimitedPostType[], [{ count: number }]]
 
 /*****
@@ -40,16 +40,16 @@ function searchPosts({
     // eslint-disable-next-line max-lines-per-function
     transaction =>
       UserModel.findOne({ where: { name: userName }, attributes: ['subreddits'], transaction })
-        .then(user => user?.get('subreddits') as User[keyof User])
+        .then(user => user?.get('subreddits') as string[])
         // eslint-disable-next-line max-lines-per-function
-        .then(subredits =>
+        .then(subreddits =>
           Promise.all([
             sequelize.query(
               `SELECT title, id, score, subreddit, created_utc, author, permalink FROM posts WHERE subreddit in (?) AND (' ' || title || ' ') LIKE ? LIMIT ? ${
                 page > 1 ? 'OFFSET ?' : ''
               }`,
               {
-                replacements: [subredits.toString(), sqlBindings],
+                replacements: [subreddits, ...sqlBindings],
                 transaction,
                 raw: true,
                 type: QueryTypes.SELECT,
@@ -58,7 +58,7 @@ function searchPosts({
             sequelize.query(
               "SELECT COUNT(id) as `count` from posts WHERE subreddit in (?) AND (' ' || title || ' ') LIKE ?",
               {
-                replacements: [subredits.toString(), sqlBindings],
+                replacements: [subreddits, ...sqlBindings],
                 transaction,
                 raw: true,
                 type: QueryTypes.SELECT,
