@@ -3,6 +3,8 @@
   "rules": {
     "no-descending-specificity": null,
     "selector-id-pattern": null,
+    "declaration-block-no-redundant-longhand-properties": null,
+    "font-family-name-quotes": "always-where-recommended",
     "value-keyword-case": ["lower", { "ignoreKeywords": ["SFMono-Regular", "Consolas", "Menlo"] }]
   },
   "ignoreFiles": ["./.eslintrc.cjs", "**/*.cjs", "node_modules/**/*", "LICENSE", "**/*.js", "**/*.njk"]
