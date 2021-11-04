@@ -13,9 +13,6 @@ const LoginPage = Vue.defineComponent({
     signupForm.removeAttribute('x-cloak')
   },
   methods: {
-    setUserIsLoggingIn(val: boolean) {
-      this.userIsLoggingIn = val
-    },
     copyNewUsernameToClipboard() {
       const signupInput = document.querySelector('#signupUsernameInput') as HTMLInputElement
       // eslint-disable-next-line functional/no-conditional-statement

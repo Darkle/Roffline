@@ -51,4 +51,25 @@ const removeUserSubSchema = {
   },
 }
 
-export { updateUserSettingsSchema, bulkImportUserSubsSchema, addUserSubSchema, removeUserSubSchema }
+const logUserInSchema = {
+  body: {
+    type: 'object',
+    required: ['csrfToken'],
+    properties: {
+      csrfToken: {
+        type: 'string',
+      },
+      loginUsername: {
+        type: 'string',
+      },
+    },
+  },
+}
+
+export {
+  updateUserSettingsSchema,
+  bulkImportUserSubsSchema,
+  addUserSubSchema,
+  removeUserSubSchema,
+  logUserInSchema,
+}

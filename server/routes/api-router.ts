@@ -5,12 +5,13 @@ import { mainLogger } from '../../logging/logging'
 import { csrfProtection } from '../controllers/csrf'
 import { infiniteScrollGetMorePosts } from '../controllers/posts/posts'
 import { bulkImportSubreddits, exportUserSubs, addSubreddit, removeSubreddit } from '../controllers/subs'
-import { checkUserLoggedIn, updateUserSetting } from '../controllers/user'
+import { checkUserLoggedIn, logUserIn, updateUserSetting } from '../controllers/user'
 import {
   updateUserSettingsSchema,
   bulkImportUserSubsSchema,
   addUserSubSchema,
   removeUserSubSchema,
+  logUserInSchema,
 } from './api-router-schema'
 
 const mainPreHandlers = [checkUserLoggedIn]
@@ -23,6 +24,18 @@ const apiRoutes = (fastify: FastifyInstance, _: unknown, done: (err?: Error) => 
   })
 
   fastify.get('/export-user-subs', { preHandler: mainPreHandlers }, exportUserSubs)
+
+  fastify.post('/login-user', {
+    preHandler: csrfProtection,
+    handler: logUserIn,
+    schema: logUserInSchema,
+  })
+
+  // fastify.post('/create-user', {
+  //   preHandler: [...mainPreHandlers, csrfProtection],
+  //   // handler: updateUserSetting,
+  //   // schema: updateUserSettingsSchema,
+  // })
 
   fastify.put('/update-user-setting', {
     preHandler: [...mainPreHandlers, csrfProtection],

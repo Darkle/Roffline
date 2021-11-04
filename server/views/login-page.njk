@@ -6,8 +6,8 @@
     <nav class="nav">
       <div class="nav-left">
         <div class="tabs">
-          <a href="#" v-bind:class="{ active: userIsLoggingIn }" @click="setUserIsLoggingIn(true)">Login</a>
-          <a href="#" v-bind:class="{ active: !userIsLoggingIn }" @click="setUserIsLoggingIn(false)">Sign Up</a>
+          <a href="#" v-bind:class="{ active: userIsLoggingIn }" @click="userIsLoggingIn = true">Login</a>
+          <a href="#" v-bind:class="{ active: !userIsLoggingIn }" @click="userIsLoggingIn = false">Sign Up</a>
         </div>
       </div>
     </nav>

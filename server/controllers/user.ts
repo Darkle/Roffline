@@ -9,11 +9,13 @@ import diceware from 'diceware'
 
 import { db } from '../../db/db'
 import { User } from '../../db/entities/Users/User'
+import { createCsrfToken } from './csrf'
 
 type CookieProps = {
   httpOnly: boolean
   sameSite: boolean
   expires: Date
+  path: '/'
 }
 
 const fourYearsInMilliseconds = 125798400000
@@ -22,6 +24,7 @@ const getCookieProperties = (): CookieProps => ({
   httpOnly: true,
   sameSite: true,
   expires: new Date(Date.now() + fourYearsInMilliseconds),
+  path: '/',
 })
 
 const isApiRoute = R.startsWith('/api/')
@@ -96,34 +99,39 @@ function redirectLoginPageToHomeIfAlreadyLoggedIn(
   return reply.code(HttpStatusCode.TEMPORARY_REDIRECT).redirect('/')
 }
 
-type RequestWithUsernameBody = {
-  userName: string
-}
-
-async function logUserIn(req: FastifyRequest, reply: FastifyReply): Promise<void> {
-  const { userName } = req.body as RequestWithUsernameBody
-
-  const maybeUser: Maybe<User> = await db.findUser(userName.trim())
-
-  maybeUser.cata({
-    Just: () => reply.setCookie('loggedInUser', userName, getCookieProperties()).redirect('/'),
-    Nothing: () => reply.code(HttpStatusCode.BAD_REQUEST).send('User Does Not Exist'),
-  })
-}
-
-async function createUser(req: FastifyRequest, reply: FastifyReply): Promise<void> {
-  const { userName } = req.body as RequestWithUsernameBody
-
-  await db.createUser(userName)
-
-  reply.code(HttpStatusCode.CREATED).cookie('loggedInUser', userName, getCookieProperties()).redirect('/')
-}
-
 const numberOfDicewareWordsToGenerate = 4
 
 const generateRandomUniqueUsername = (): string =>
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   `${diceware(numberOfDicewareWordsToGenerate).split(' ').join('-')}-${crypto.randomInt(0, 10)}`
+
+async function logUserIn(req: FastifyRequest, reply: FastifyReply): Promise<void> {
+  const { loginUsername } = req.body as { loginUsername: string }
+  console.log(loginUsername)
+  const maybeUser: Maybe<User> = await db.findUser(loginUsername.trim())
+
+  maybeUser.cata({
+    Just: () => reply.setCookie('loggedInUser', loginUsername, getCookieProperties()).redirect('/'),
+    Nothing: () =>
+      reply.view('login-page', {
+        pageTitle: 'Roffline - Login',
+        uniqueUsername: generateRandomUniqueUsername(),
+        csrfToken: createCsrfToken(),
+        userNotFound: loginUsername,
+      }),
+  })
+}
+
+async function createUser(req: FastifyRequest, reply: FastifyReply): Promise<void> {
+  const { signupUsername } = req.body as { signupUsername: string }
+
+  await db.createUser(signupUsername)
+
+  reply
+    .code(HttpStatusCode.CREATED)
+    .setCookie('loggedInUser', signupUsername, getCookieProperties())
+    .redirect('/')
+}
 
 export {
   getUserSettings,

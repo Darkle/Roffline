@@ -14,6 +14,7 @@ import { getPostsPaginated, getPostsPaginatedForSubreddit } from '../controllers
 import { searchPosts } from '../controllers/search'
 import { generatePost } from '../controllers/posts/single-post'
 import { version as appVersion } from '../../package.json'
+import { createCsrfToken } from '../controllers/csrf'
 
 type SubParams = { subreddit: string }
 
@@ -22,7 +23,11 @@ const mainPreHandlers = [checkUserLoggedIn, setDefaultTemplateProps, getUserSett
 // eslint-disable-next-line max-lines-per-function
 const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) => void): void => {
   fastify.get('/login', { preHandler: redirectLoginPageToHomeIfAlreadyLoggedIn }, (_, reply) => {
-    reply.view('login-page', { pageTitle: 'Roffline - Login', uniqueUsername: generateRandomUniqueUsername() })
+    reply.view('login-page', {
+      pageTitle: 'Roffline - Login',
+      uniqueUsername: generateRandomUniqueUsername(),
+      csrfToken: createCsrfToken(),
+    })
   })
 
   fastify.get('/logout', logUserOut)

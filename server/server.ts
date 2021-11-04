@@ -11,6 +11,7 @@ import fastifyUrlData from 'fastify-url-data'
 import templateManager from 'point-of-view'
 import helmet from 'fastify-helmet'
 import fastifyCookie from 'fastify-cookie'
+import fastifyFormbody from 'fastify-formbody'
 import nunjucks from 'nunjucks'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 import fastifyRequestLogger from '@mgcrea/fastify-request-logger'
@@ -41,6 +42,7 @@ const fastify = createFastify({
 isDev && fastify.register(fastifyRequestLogger, fastifyDevlogIgnore)
 isDev && fastify.register(disableCache)
 isDev && fastify.register(fastifyErrorPage)
+fastify.register(fastifyFormbody)
 fastify.register(fastifyFavicon, { path: './frontend/static/images', name: 'favicon.png' })
 fastify.register(noAdditionalProperties)
 fastify.register(fastifyCompress) // must come before fastifyStatic
