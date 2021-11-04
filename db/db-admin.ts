@@ -38,8 +38,8 @@ function adminGetAnyTableDataPaginated(
 
   return sequelize.transaction(transaction =>
     Promise.all([
-      sequelize.query(`SELECT * FROM ? LIMIT ? ${page > 1 ? 'OFFSET ?' : ''}`, {
-        replacements: [tableName, limit, offset],
+      sequelize.query(`SELECT * FROM :tableName LIMIT :limit ${page > 1 ? 'OFFSET :offset' : ''}`, {
+        replacements: { tableName, limit, offset },
         transaction,
         raw: true,
         type: QueryTypes.SELECT,
