@@ -1,7 +1,9 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
+import { DateTime } from 'luxon'
 
 import { db } from '../../db/db'
 import { SearchLimitedPostType } from '../../db/db-search-posts'
+import { genPrettyDateCreatedAgoFromUTC } from './posts/pretty-date-created-ago'
 
 type Query = {
   page?: number
@@ -20,6 +22,33 @@ type Locals = {
   pageNumber?: number
   pagination?: number
   totalResults: number
+}
+
+type SearchResults = { rows: SearchLimitedPostType[]; count: number }
+
+type SearchResultsWithPrettyDates = { rows: SearchLimitedPostTypeWithPrettyDates[]; count: number }
+
+type SearchLimitedPostTypeWithPrettyDates = SearchLimitedPostType & {
+  prettyDateCreated: string
+  prettyDateCreatedAgo: string
+}
+
+/*****
+  created_utc is a unix timestamp, which is in seconds, not milliseconds.
+  We need to use { zone: 'Etc/UTC' } as that is where created_utc is set.
+*****/
+function addPrettyDatesForEachResult(results: SearchResults): SearchResultsWithPrettyDates {
+  // eslint-disable-next-line functional/immutable-data,no-param-reassign
+  results.rows = results.rows.map(post => ({
+    ...post,
+    prettyDateCreated: DateTime.fromSeconds(post.created_utc, { zone: 'Etc/UTC' }).toFormat(
+      'yyyy LLL dd, h:mm a'
+    ),
+
+    prettyDateCreatedAgo: genPrettyDateCreatedAgoFromUTC(post.created_utc),
+  }))
+
+  return results as SearchResultsWithPrettyDates
 }
 
 const resultsPerPage = 30
@@ -54,6 +83,7 @@ async function searchPosts(request: FastifyRequest, reply: FastifyReply): Promis
 
   await db
     .searchPosts(user, searchTerm, pageNumber, fuzzySearch)
+    .then(addPrettyDatesForEachResult)
     .then(results => addResultsDataToTemplateLocals(replyWithLocals, pageNumber, results))
 }
 

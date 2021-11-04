@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% include "partials/head.njk" %}
+  <body class="search-page {% if userSettings.darkModeTheme == true %}dark-theme{% endif %}">
+    {# Redeclaring these variables makes them available in the includes #}
+    {% set userSettings = userSettings %}
+    {% set basePath = basePath %}
+    {% set isSubPage = isSubPage %}
+    {% set pageNumber = pageNumber %}
+    {% set searchTerm = searchTerm %}
+    {% set fuzzySearch = fuzzySearch %}
+    {% include 'partials/page-header.njk' %}
+    <main>
+      <form role="search" method="get">
+        <div class="search-input-container">
+          <input id="search-input" type="text" name="searchTerm" value="{% if searchTerm %}<# searchTerm #>{% endif %}" placeholder="Search Post Titles" aria-label="Search Post Titles"/>
+          <button type="submit" class="button primary">Search</button>
+        </div>
+        <div class="fuzzy-search-checkbox-container">
+          <input 
+            id="fuzzySearch" 
+            name="fuzzySearch" 
+            v-model="fuzzySearchEnabled"
+            type="checkbox"
+          >
+          <label for="fuzzySearch">Fuzzy Search</label>
+        </div>
+      </form>
+      {% if searchTerm %}
+      <h4 class="search-results-meta-description"><# totalResults #> results for "<# searchTerm #>"</h4>
+      {% endif %}
+      {% for result in searchResults %}
+      <article>
+        <h2>
+          <a href="/post/<# result.id #>"><# result.title | safe #></a>
+        </h2>
+         <small class="post-meta-container">
+          <ul>
+            <li>
+              <data value="<# result.score #>"><# result.score #> {% if result.score === 0 %} points{% elif result.score > 1 %} points{% else %} point{% endif %}</data>
+            </li>
+            <li>
+              <span>from <a href="/sub/<# result.subreddit #>"><# result.subreddit #></a></span>
+            </li>
+            <li class="submission-data">
+              <span>submitted</span>
+              <time datetime="<# result.prettyDateCreated #>"><# result.prettyDateCreatedAgo #></time>
+              <span>by</span>
+              <a href="https://www.reddit.com/u/<# result.author #>"><# result.author #></a>
+            </li>
+            <li>
+              <a href="https://www.reddit.com<# result.permalink #>">original url</a>
+            </li>
+          </ul>
+        </small>
+      </article>
+      {% endfor %}
+      {% if searchTerm and pagination > 1 %}
+        {% include 'partials/pagination.njk' %} 
+      {% endif %}
+    </main>
+    <script src="/js/search-page.js<# cacheBustString #>" type="module"></script>
+  </body>
+</html>

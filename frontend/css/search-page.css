@@ -101,10 +101,6 @@
   margin: 0;
 }
 
-.search-page main > .search-results-meta-description {
-  font-family: monospace;
-}
-
 .search-page main > article .post-meta-container {
   width: 100%;
 }
@@ -137,4 +133,8 @@
 
 .search-page main > article .post-meta-container ul li {
   margin-right: 8px;
+}
+
+.search-page main article .post-meta-container ul li.submission-data > * {
+  margin-right: 0.3rem;
 }
