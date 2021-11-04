@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% include "partials/head.njk" %}
+  <body class="help-page {% if userSettings.darkModeTheme %}dark-theme{% endif %}">
+    {# Redeclaring these variables makes them available in the includes #}
+    {% set userSettings = userSettings %}
+    {% set basePath = basePath %}
+    {% set isSubPage = isSubPage %}
+    {% include 'partials/page-header.njk' %}
+    <main>
+      <div class="roffline-logotitle">
+        {% include 'partials/roffline-logo.njk' %}
+        <h1>Roffline</h1>
+        <span><# appVersion #></span>
+      </div>
+
+      <p class="external-link-container">
+        <a href="https://github.com/Darkle/Roffline" target="_blank" rel="noopener">Offical Roffline Home Page</a>
+      </p>
+      <p class="external-link-container">
+        <a href="https://github.com/Darkle/Roffline/issues" target="_blank" rel="noopener">Support/Issues</a>
+      </p>
+      <p class="external-link-container">
+        <a href="https://www.buymeacoffee.com/2yhzJxd4B" target="_blank" rel="noopener"
+          >Donate Via Buy Me a Coffee</a
+        >
+      </p>
+      <div class="bitcoin-donation">
+        <span>Donate via Bitcoin: </span>
+        <pre>3AxsaeTYVbSSJYXSciszTCmnBcMASsJLpg</pre>
+      </div>
+      <hr />
+      <h3 class="faq-header">FAQ</h3>
+      <div class="faq">
+        <h4 id="bulk-import-reddit-subs">How To Bulk Import Your Reddit Subscriptions</h4>
+        <ol>
+          <li>Log in to reddit in a browser</li>
+          <li>
+            Go to the
+            <a href="https://www.reddit.com/subreddits/mine" target="_blank" rel="noopener"
+              >https://www.reddit.com/subreddits/mine</a
+            >
+            page
+          </li>
+          <li>
+            Right-click on the link on the right of the page that says "multireddit of your subscriptions"
+            <p>
+              It should look like this:
+              <img src="/static/images/multireddit-screenshot.png" alt="Screenshot Of Multireddit Link" />
+            </p>
+          </li>
+          <li>Go to the Roffline settings page here: <a href="/settings">Settings</a></li>
+          <li>Paste the link into the "Bulk Subreddit Importer" section</li>
+          <li>Click the "Import Subs" button</li>
+        </ol>
+      </div>
+    </main>
+
+    <script src="/js/help-page.js<# cacheBustString #>" type="module"></script>
+  </body>
+</html>

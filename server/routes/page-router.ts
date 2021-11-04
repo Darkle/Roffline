@@ -13,6 +13,7 @@ import { setDefaultTemplateProps } from '../controllers/default-template-props'
 import { getPostsPaginated, getPostsPaginatedForSubreddit } from '../controllers/posts/posts'
 import { searchPosts } from '../controllers/search'
 import { generatePost } from '../controllers/posts/single-post'
+import { version as appVersion } from '../../package.json'
 
 type SubParams = { subreddit: string }
 
@@ -65,7 +66,7 @@ const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) =
   })
 
   fastify.get('/help', { preHandler: mainPreHandlers }, (_, reply) => {
-    reply.view('help-page', { pageTitle: 'Roffline Help' })
+    reply.view('help-page', { pageTitle: 'Roffline Help', appVersion })
   })
 
   fastify.all('*', (req, reply) => {
