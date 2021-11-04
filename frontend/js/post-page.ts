@@ -25,7 +25,7 @@ const PostPage = Vue.defineComponent({
   computed: {
     postTitle(): string {
       // unescape to convert &amp; to &. Eg https://api.reddit.com/api/info/?id=t3_qaolx9
-      return unescape(this.post?.title as string)
+      return unescape(this.post?.title)
     },
     haveComments(): boolean {
       const comments = this.post.comments as PostWithComments['comments']
