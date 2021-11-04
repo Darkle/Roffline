@@ -96,12 +96,11 @@ function redirectLoginPageToHomeIfAlreadyLoggedIn(
 
 async function logUserIn(req: FastifyRequest, reply: FastifyReply): Promise<void> {
   const { loginUsername } = req.body as { loginUsername: string }
-  console.log(loginUsername)
   const maybeUser: Maybe<User> = await db.findUser(loginUsername.trim())
 
   maybeUser.cata({
     Just: () => reply.setCookie('loggedInUser', loginUsername, getCookieProperties()).redirect('/'),
-    Nothing: () => reply.setCookie('userNotFound', loginUsername, getCookieProperties()).redirect('/'),
+    Nothing: () => reply.setCookie('userNotFound', loginUsername, getCookieProperties()).redirect('/login'),
   })
 }
 
