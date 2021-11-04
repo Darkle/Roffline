@@ -109,10 +109,7 @@ async function createUser(req: FastifyRequest, reply: FastifyReply): Promise<voi
 
   await db.createUser(signupUsername)
 
-  reply
-    .code(HttpStatusCode.CREATED)
-    .setCookie('loggedInUser', signupUsername, getCookieProperties())
-    .redirect('/')
+  reply.setCookie('loggedInUser', signupUsername, getCookieProperties()).redirect('/')
 }
 
 const numberOfDicewareWordsToGenerate = 4

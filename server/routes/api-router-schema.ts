@@ -66,10 +66,26 @@ const logUserInSchema = {
   },
 }
 
+const createUserInSchema = {
+  body: {
+    type: 'object',
+    required: ['csrfToken'],
+    properties: {
+      csrfToken: {
+        type: 'string',
+      },
+      signupUsername: {
+        type: 'string',
+      },
+    },
+  },
+}
+
 export {
   updateUserSettingsSchema,
   bulkImportUserSubsSchema,
   addUserSubSchema,
   removeUserSubSchema,
   logUserInSchema,
+  createUserInSchema,
 }
