@@ -111,7 +111,7 @@ const PostContentItem = Vue.defineComponent({
   computed: {
     postHtml(): string {
       const postHtml = this.post?.selftext_html as string
-      return unescape(postHtml) as string
+      return unescape(postHtml)
     },
   },
   template: /* html */ `
