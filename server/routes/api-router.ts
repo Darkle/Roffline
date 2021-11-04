@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify'
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 
 import { mainLogger } from '../../logging/logging'
@@ -48,11 +48,10 @@ const apiRoutes = (fastify: FastifyInstance, _: unknown, done: (err?: Error) => 
     schema: bulkImportUserSubsSchema,
   })
 
-  fastify.all('*', (req, reply) => {
+  fastify.setNotFoundHandler((req: FastifyRequest, reply: FastifyReply) => {
     mainLogger.error(`404, page not found: ${req.url}`)
     reply.code(HttpStatusCode.NOT_FOUND).send()
   })
-
   done()
 }
 

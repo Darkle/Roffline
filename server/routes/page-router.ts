@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify'
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 
 import { mainLogger } from '../../logging/logging'
@@ -69,9 +69,9 @@ const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) =
     reply.view('help-page', { pageTitle: 'Roffline Help', appVersion })
   })
 
-  fastify.all('*', (req, reply) => {
+  fastify.setNotFoundHandler((req: FastifyRequest, reply: FastifyReply) => {
     mainLogger.error(`404, page not found: ${req.url}`)
-    reply.code(HttpStatusCode.NOT_FOUND).send(`${HttpStatusCode.NOT_FOUND} Page not found`)
+    reply.code(HttpStatusCode.NOT_FOUND).view('404-page', { pageTitle: 'Page Not Found' })
   })
 
   done()

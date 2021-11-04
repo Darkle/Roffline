@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% include "partials/head.njk" %}
+  <body class="not-found-page {% if userSettings.darkModeTheme %}dark-theme{% endif %}">
+    {# Redeclaring these variables makes them available in the includes #}
+    {% set userSettings = userSettings %}
+    {% set basePath = basePath %}
+    {% set isSubPage = isSubPage %}
+    {% set pageNumber = pageNumber %}
+    {% set currentSubredditBrowsing = currentSubredditBrowsing %}
+    {% set topFilter = topFilter %}
+    {% set searchTerm = searchTerm %}
+    {% set fuzzySearch = fuzzySearch %}
+    {% include 'partials/page-header.njk' %}
+    <main>
+      <h1>404: Page not found</h1>
+    </main>
+
+  </body>
+</html>

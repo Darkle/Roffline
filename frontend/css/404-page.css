@@ -1,0 +1,47 @@
+.not-found-page main {
+  margin-top: 10rem;
+  max-width: 65vw;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+@media only screen and (max-width: 696px) {
+  .not-found-page main {
+    margin-top: 10rem;
+    max-width: 82vw;
+  }
+
+  .not-found-page main #posts article {
+    max-width: 82vw;
+  }
+}
+
+@media only screen and (max-width: 561px) {
+  .not-found-page main {
+    margin-top: 12rem;
+  }
+}
+
+@media only screen and (max-width: 319px) {
+  .not-found-page main {
+    margin-top: 16rem;
+  }
+}
+
+@media only screen and (max-width: 246px) {
+  .not-found-page main {
+    margin-top: 18rem;
+  }
+}
+
+@media only screen and (max-width: 200px) {
+  .not-found-page main {
+    margin-top: 19rem;
+  }
+}
+
+.not-found-page main > h1 {
+  text-align: center;
+  font-size: 1.5em;
+}
