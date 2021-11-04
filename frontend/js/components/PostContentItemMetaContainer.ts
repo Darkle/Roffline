@@ -29,13 +29,14 @@ const PostContentItemMetaContainer = Vue.defineComponent({
         <span>submitted</span>
         <time v-bind:datetime="post.prettyDateCreated">{{ post.prettyDateCreatedAgo }}</time>
         <span>by</span>
-        <a v-bind:href="redditAuthorHref">{{ post.author }}</a>
+        <a v-bind:href="redditAuthorHref" target="_blank" rel="noopener">{{ post.author }}</a>
       </li>
       <li>
         <a
           v-bind:href="'https://www.reddit.com' + post.permalink"
           aria-label="Go to the original reddit url of this post"
           title="Go to the original reddit url of this post"
+          target="_blank" rel="noopener"
           >original url</a>
       </li>
     </ul>
