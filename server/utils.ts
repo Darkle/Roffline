@@ -51,16 +51,16 @@ const ModeltoPOJO = (model: TableModels | undefined): TableModelTypes | undefine
 //   return o[propertyName] // o[propertyName] is of type T[K]
 // }
 
-type GetTextPropCurriedReturnType = string | ((obj: Record<string, unknown>) => string)
+// type GetTextPropCurriedReturnType = string | ((obj: Record<string, unknown>) => string)
 
-function getTextPropCurried(propertyName: string, obj: Record<string, unknown>): GetTextPropCurriedReturnType {
-  return arguments.length === 2
-    ? (obj[propertyName] as string)
-    : // eslint-disable-next-line @typescript-eslint/no-shadow
-      function (obj: Record<string, unknown>): string {
-        return obj[propertyName] as string
-      }
-}
+// function getTextPropCurried(propertyName: string, obj: Record<string, unknown>): GetTextPropCurriedReturnType {
+//   return arguments.length === 2
+//     ? (obj[propertyName] as string)
+//     : // eslint-disable-next-line @typescript-eslint/no-shadow
+//       function (obj: Record<string, unknown>): string {
+//         return obj[propertyName] as string
+//       }
+// }
 
 export {
   isDev,
@@ -72,5 +72,5 @@ export {
   arrayToLowerCase,
   ensurePostsMediaDownloadFolderExists,
   ModeltoPOJO,
-  getTextPropCurried,
+  // getTextPropCurried,
 }
