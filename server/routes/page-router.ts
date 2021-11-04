@@ -23,6 +23,12 @@ const mainPreHandlers = [checkUserLoggedIn, setDefaultTemplateProps, getUserSett
 // eslint-disable-next-line max-lines-per-function
 const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) => void): void => {
   fastify.get('/login', { preHandler: redirectLoginPageToHomeIfAlreadyLoggedIn }, (req, reply) => {
+    /*****
+      The login redirects to itself if the login fails due to username not found. We show
+      a notice if this is the case. Since the login api route and the login page route are
+      seperate, we need to use a cookie to tell if we should show the error notification
+      on the login page. We then need to clear the cookie.
+    *****/
     const userNotFound = req.cookies['userNotFound'] as string | null
 
     reply.clearCookie('userNotFound').view('login-page', {
