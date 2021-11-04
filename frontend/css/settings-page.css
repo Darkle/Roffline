@@ -110,7 +110,12 @@
   font-size: calc(0.94em + 0.2vw);
 }
 
-.settings-page .downloads input:not(#enable-video-downloads) {
+.settings-page .logout-button {
+  font-size: calc(0.94em + 0.2vw);
+  margin-top: 1rem;
+}
+
+.settings-page .downloads input {
   margin-top: 0.3rem;
 }
 
@@ -125,13 +130,4 @@
 .settings-page .feed-updating .updates-description {
   margin-top: 0.3rem;
   max-width: 630px;
-}
-
-.settings-page .feed-updating #update-starting-hour {
-  margin-top: 0.3rem;
-  margin-bottom: 0.6rem;
-}
-
-.settings-page .feed-updating #update-ending-hour {
-  margin-top: 0.3rem;
 }
