@@ -13,6 +13,7 @@ const shellOptions = { nopipe: true, async: undefined }
 const prepareAndCleanDir = dir => {
   if (fs.existsSync(dir)) fs.rmdirSync(dir, { recursive: true })
   fs.mkdirSync(dir)
+  fs.writeFileSync(path.join(dir, '.gitkeep'), '')
 }
 
 const pDelay = ms =>
