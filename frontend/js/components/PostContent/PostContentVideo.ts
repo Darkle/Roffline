@@ -3,14 +3,14 @@ import * as Vue from 'vue'
 import { FrontendPost } from '../../frontend-global-types'
 
 const getLocallyStoredVolumeSetting = (): number => {
-  const volume = localStorage.getItem('volume')
+  const storedVolume = localStorage.getItem('volume')
   // Volume is between 0 and 1. 1 being 100%.
-  return volume ? Number(volume) : 1
+  return storedVolume ? Number(storedVolume) : 1
 }
 
 const getLocallyStoredMuteSetting = (): boolean => {
-  const muted = localStorage.getItem('muted')
-  return muted === 'true'
+  const storedMuted = localStorage.getItem('muted')
+  return storedMuted === 'true'
 }
 
 const volume = Vue.ref(getLocallyStoredVolumeSetting())
