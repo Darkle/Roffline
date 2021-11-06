@@ -1,10 +1,29 @@
-// import { FastifyInstance } from 'fastify'
+import { FastifyInstance } from 'fastify'
+
+import { basicAuth } from '../controllers/admin/basic-auth'
 
 //TODO: add fastify validation to all the routes
 
-// const adminRoutes = (fastify: FastifyInstance, _: unknown, done: (err?: Error) => void): void => {
-//   fastify.get('/user', handler_v1)
-//   done()
-// }
+const mainPreHandlers = [basicAuth]
 
-// export { adminRoutes }
+const adminRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) => void): void => {
+  fastify.get('/', { preHandler: mainPreHandlers }, (_: unknown, reply) => {
+    reply.view('admin/stats-page', {
+      pageTitle: 'Roffline::Stats',
+    })
+  })
+
+  // router.get('/logs-viewer', (req, res) => res.render('admin/logs-viewer', { pageTitle: 'Roffline::Logs Viewer' }))
+
+  // router.get('/downloads-viewer', (req, res) =>
+  //   res.render('admin/downloads-viewer', { pageTitle: 'Roffline::Downloads Viewer' })
+  // )
+
+  // router.get('/database-viewer', (req, res) =>
+  //   res.render('admin/database-viewer', { pageTitle: 'Roffline::Database Viewer' })
+  // )
+
+  done()
+}
+
+export { adminRoutes }
