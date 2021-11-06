@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+  {% set page = 'admin-stats-page' %}
+  {% set isAdminPage = true %}
   {% include "partials/head.njk" %}
-  <body class="stats-page">
+  <body class="admin-stats-page">
     <h2 class="title">Roffline Admin</h2>
-    {% set page = 'stats' %}
     {% include 'partials/admin-menu.njk' %}
     <main>
-      <ul="stats">
+      <h4 v-show="!cpuUsage">Loading Stats...</h4>
+      <ul x-cloak v-show="cpuUsage" ref="statsList">
         <li>
           <abbr title="Resident Set Size: the total amount of ram your node.js process is currently using">RSS</abbr>
-          <span><# stats.rss #></span>
+          <span>{{ rss }}</span>
         </li>
-        <li><# stats.cpuUsage #></li>
-        <li><# stats.uptime #></li>
-        <li><# stats.numSubs #></li>
-        <li><# stats.numPosts #></li>
-        <li><# stats.numUsers #></li>
-        <li><# stats.postsWithMediaStillToDownload #></li>
-        <li><# stats.postsMediaFolderSize #></li>
-        <li><# stats.dbSize #></li>
-        <li><# stats.commentsDBSize #></li>
-        <li><# stats.lastScheduledUpdateTime #></li>
+        <li>{{ cpuUsage }}</li>
+        <li>{{ uptime }}</li>
+        <li>{{ numSubs }}</li>
+        <li>{{ numPosts }}</li>
+        <li>{{ numUsers }}</li>
+        <li>{{ postsWithMediaStillToDownload }}</li>
+        <li>{{ postsMediaFolderSize }}</li>
+        <li>{{ dbSize }}</li>
+        <li>{{ commentsDBSize }}</li>
       </ul>
     </main>
 
+    <script src="/js/admin/stats-page.js<# cacheBustString #>" type="module"></script>
   </body>
 </html>

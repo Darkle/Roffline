@@ -1,0 +1,68 @@
+import * as R from 'ramda'
+import * as Vue from 'vue'
+
+import { Fetcher, ignoreScriptTagCompilationWarnings } from '../frontend-utils'
+
+const prependString = R.curry((str: string, val: string) => `${str}${val}`)
+
+const convertRawStatsToText = R.evolve({
+  cpuUsage: (rss: string) => `CPU Usage: ${rss}%`,
+  rss: prependString('Memory Usage: '),
+  dbSize: prependString('DB Size: '),
+  commentsDBSize: prependString('Comments DB Size: '),
+  postsWithMediaStillToDownload: prependString('Posts With Media Still To Download: '),
+  postsMediaFolderSize: prependString('Media Folder Size: '),
+  uptime: prependString('Uptime: '),
+  numSubs: prependString('Number Subreddits Tracked: '),
+  numPosts: prependString('Number Posts: '),
+  numUsers: prependString('Number Users: '),
+})
+
+const state = Vue.reactive({
+  cpuUsage: '',
+  rss: '',
+  dbSize: '',
+  commentsDBSize: '',
+  postsWithMediaStillToDownload: '',
+  postsMediaFolderSize: '',
+  uptime: '',
+  numSubs: '',
+  numPosts: '',
+  numUsers: '',
+})
+
+const AdminStatsPage = Vue.defineComponent({
+  data() {
+    return state
+  },
+  mounted() {
+    const signupForm = this.$refs['statsList'] as HTMLUListElement
+    signupForm.removeAttribute('x-cloak')
+
+    Fetcher.getJSON('/admin/api/get-stats-json')
+      .then(convertRawStatsToText)
+      .then(formattedStats => {
+        /* eslint-disable functional/immutable-data */
+        state.cpuUsage = formattedStats['cpuUsage'] as string
+        state.rss = formattedStats['rss'] as string
+        state.dbSize = formattedStats['dbSize'] as string
+        state.commentsDBSize = formattedStats['commentsDBSize'] as string
+        state.postsWithMediaStillToDownload = formattedStats['postsWithMediaStillToDownload'] as string
+        state.postsMediaFolderSize = formattedStats['postsMediaFolderSize'] as string
+        state.uptime = formattedStats['uptime'] as string
+        state.numSubs = formattedStats['numSubs'] as string
+        state.numPosts = formattedStats['numPosts'] as string
+        state.numUsers = formattedStats['numUsers'] as string
+        /* eslint-enable functional/immutable-data */
+      })
+      .catch(err => console.error(err))
+  },
+  methods: {},
+})
+
+const app = Vue.createApp(AdminStatsPage)
+
+// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
+app.config.warnHandler = ignoreScriptTagCompilationWarnings
+
+app.mount('main')

@@ -23,7 +23,7 @@ import { apiRoutes } from './routes/api-router'
 import { notFoundHandler } from './not-found-handler'
 import { adminRoutes } from './routes/admin-router'
 import { fastifyErrorHandler } from './error-handler'
-// import { adminApiRoutes } from './routes/admin-api-router'
+import { adminApiRoutes } from './routes/admin-api-router'
 
 const port = 3000
 
@@ -85,12 +85,12 @@ fastify.setSchemaErrorFormatter((errors): Error => {
 })
 
 fastify.setErrorHandler(fastifyErrorHandler)
-
 fastify.setNotFoundHandler(notFoundHandler)
+
 fastify.register(pageRoutes)
 fastify.register(apiRoutes, { prefix: '/api' })
 fastify.register(adminRoutes, { prefix: '/admin' })
-// fastify.register(adminApiRoutes, { prefix: '/admin/api' })
+fastify.register(adminApiRoutes, { prefix: '/admin/api' })
 
 const startServer = (): Promise<string | void> => fastify.listen(port, '0.0.0.0').then(browserSyncReminderForDev)
 
