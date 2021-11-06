@@ -1,5 +1,3 @@
-import fs from 'fs'
-
 import * as R from 'ramda'
 import { Sequelize, Transaction, Op, QueryTypes } from 'sequelize'
 import { match } from 'ts-pattern'
@@ -40,7 +38,7 @@ import {
   adminListTablesInDB,
 } from './db-admin'
 import { CommentContainer } from './entities/Comments'
-import { getEnvFilePath, noop } from '../server/utils'
+import { getEnvFilePath, getFileSize, noop } from '../server/utils'
 
 const sqliteDBPath = process.env['SQLITE_DBPATH'] || './roffline-sqlite.db'
 const commentsDBPath = process.env['COMMENTS_DBPATH'] || './roffline-comments-lmdb.db'
@@ -440,7 +438,7 @@ const db = {
               }
             ) as Promise<[{ size: number }]>
           ).then((result: [{ size: number }]): number => result[0].size),
-          fs.promises.stat(commentsDBFilePath).then(result => result.size),
+          getFileSize(commentsDBFilePath),
         ])
       )
       .then(sizes => ({
