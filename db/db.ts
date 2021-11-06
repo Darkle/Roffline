@@ -421,23 +421,22 @@ const db = {
   }> {
     const commentsDBFilePath = getEnvFilePath(process.env['COMMENTS_DBPATH'])
 
+    const getSQLiteDBSize = (transaction: Transaction): Promise<number> =>
+      (
+        sequelize.query(`SELECT page_count * page_size as size FROM pragma_page_count(), pragma_page_size();`, {
+          transaction,
+          raw: true,
+          type: QueryTypes.SELECT,
+        }) as Promise<[{ size: number }]>
+      ).then((result: [{ size: number }]): number => result[0].size)
+
     return sequelize
       .transaction(transaction =>
         Promise.all([
           SubredditsMasterListModel.count({ transaction }),
           PostModel.count({ transaction }),
           UserModel.count({ transaction }),
-          // DB size
-          (
-            sequelize.query(
-              `SELECT page_count * page_size as size FROM pragma_page_count(), pragma_page_size();`,
-              {
-                transaction,
-                raw: true,
-                type: QueryTypes.SELECT,
-              }
-            ) as Promise<[{ size: number }]>
-          ).then((result: [{ size: number }]): number => result[0].size),
+          getSQLiteDBSize(transaction),
           getFileSize(commentsDBFilePath),
         ])
       )
