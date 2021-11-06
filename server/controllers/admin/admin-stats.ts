@@ -15,7 +15,7 @@ type DBStats = {
   totalCommentsDBSizeInBytes: number
 }
 
-type UnformattedAdminStats = [number, DBStats, number, number, string, number, number]
+type UnformattedAdminStats = [number, DBStats, number, number, number, number]
 
 type FormattedAdminStats = {
   cpuUsage: number
@@ -25,7 +25,6 @@ type FormattedAdminStats = {
   postsWithMediaStillToDownload: number
   postsMediaFolderSize: string
   uptime: string
-  lastScheduledUpdateTime: string
   numSubs: number
   numPosts: number
   numUsers: number
@@ -65,7 +64,6 @@ const processResults = (results: UnformattedAdminStats): FormattedAdminStats => 
     },
     postsWithMediaStillToDownload,
     postsMediaFolderSize,
-    lastScheduledUpdateTime,
     rss,
     uptime,
   ] = results
@@ -80,32 +78,23 @@ const processResults = (results: UnformattedAdminStats): FormattedAdminStats => 
       postsMediaFolderSize,
       uptime,
     }),
-    lastScheduledUpdateTime,
     numSubs,
     numPosts,
     numUsers,
   }
 }
 
-type StatsTemplateLocals = {
-  stats: FormattedAdminStats
-}
-
-async function adminStats(_: FastifyRequest, reply: FastifyReply): Promise<void> {
+async function getAdminStats(_: FastifyRequest, reply: FastifyReply): Promise<void> {
   const stats = await Promise.all([
     getCpuUsagePercentP(),
     db.getDBStats(),
     db.getCountOfAllPostsWithMediaStillToDownload(),
     getFolderSize(postsMediaFolder),
-    db.getLastScheduledUpdateTime(),
     Promise.resolve(process.memoryUsage().rss),
     Promise.resolve(process.uptime()),
   ]).then(processResults)
 
-  const replyWithLocals = reply as { locals: StatsTemplateLocals } & FastifyReply
-
-  // eslint-disable-next-line functional/immutable-data
-  replyWithLocals.locals = { stats }
+  reply.send(stats)
 }
 
-export { adminStats }
+export { getAdminStats }
