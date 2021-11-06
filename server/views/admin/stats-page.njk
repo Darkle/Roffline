@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% include "partials/head.njk" %}
+  <body class="stats-page">
+    <h2 class="title">Roffline Admin</h2>
+    {% set page = 'stats' %}
+    {% include 'partials/admin-menu.njk' %}
+    <main>
+      <ul="stats">
+        <li>
+          <abbr title="Resident Set Size: the total amount of ram your node.js process is currently using">RSS</abbr>
+          <span><# stats.rss #></span>
+        </li>
+        <li><# stats.cpuUsage #></li>
+        <li><# stats.uptime #></li>
+        <li><# stats.numSubs #></li>
+        <li><# stats.numPosts #></li>
+        <li><# stats.numUsers #></li>
+        <li><# stats.postsWithMediaStillToDownload #></li>
+        <li><# stats.postsMediaFolderSize #></li>
+        <li><# stats.dbSize #></li>
+        <li><# stats.commentsDBSize #></li>
+        <li><# stats.lastScheduledUpdateTime #></li>
+      </ul>
+    </main>
+
+  </body>
+</html>

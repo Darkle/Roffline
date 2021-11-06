@@ -1,0 +1,15 @@
+<nav class="nav admin-menu">
+  <div class="nav-left">
+    <div class="tabs">
+      <a class="{% if page == 'stats' %}active{% else %} {% endif %}" href="/admin/stats">Stats</a>
+      <a class="{% if page == 'logs' %}active{% else %} {% endif %}" href="/admin/logs-viewer">Logs</a>
+      <a class="{% if page == 'database' %}active{% else %} {% endif %}" href="/admin/database-viewer"
+        >Database Viewer</a>
+      <a class="{% if page == 'downloads' %}active{% else %} {% endif %}" href="/admin/downloads-viewer"
+        >Downloads</a>
+      <a class="{% if page == 'users' %}active{% else %} {% endif %}" href="/admin/users-viewer"
+        >Users</a>
+      <a href="/">Exit Admin</a>
+    </div>
+  </div>
+</nav>

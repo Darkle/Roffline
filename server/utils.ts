@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 
-// type unused = unknown
+// import * as R from 'ramda'
 
 import { TableModels, TableModelTypes } from '../db/entities/entity-types'
 
@@ -44,23 +44,35 @@ async function ensurePostsMediaDownloadFolderExists(): Promise<void | fs.Stats> 
   }
 }
 
+// Modified version of https://github.com/alessioalex/get-folder-size
+async function getFolderSize(folderPath: string): Promise<number> {
+  const fileSizes: Map<number, number> = new Map()
+
+  async function processItem(itemPath: string): Promise<void> {
+    const stats = await fs.promises.lstat(itemPath)
+
+    // eslint-disable-next-line functional/no-conditional-statement
+    if (typeof stats !== 'object') return
+    fileSizes.set(stats.ino, stats.size)
+
+    // eslint-disable-next-line functional/no-conditional-statement
+    if (stats.isDirectory()) {
+      const directoryItems = await fs.promises.readdir(itemPath)
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (typeof directoryItems !== 'object') return
+      await Promise.all(directoryItems.map(directoryItem => processItem(path.join(itemPath, directoryItem))))
+    }
+  }
+
+  await processItem(folderPath)
+
+  const folderSize = Array.from(fileSizes.values()).reduce((total, fileSize) => total + fileSize, 0)
+
+  return folderSize
+}
+
 const ModeltoPOJO = (model: TableModels | undefined): TableModelTypes | undefined =>
   model?.get() as TableModelTypes | undefined
-
-// function getProperty<K extends keyof T, T>(propertyName: K, o: T): T[K] {
-//   return o[propertyName] // o[propertyName] is of type T[K]
-// }
-
-// type GetTextPropCurriedReturnType = string | ((obj: Record<string, unknown>) => string)
-
-// function getTextPropCurried(propertyName: string, obj: Record<string, unknown>): GetTextPropCurriedReturnType {
-//   return arguments.length === 2
-//     ? (obj[propertyName] as string)
-//     : // eslint-disable-next-line @typescript-eslint/no-shadow
-//       function (obj: Record<string, unknown>): string {
-//         return obj[propertyName] as string
-//       }
-// }
 
 export {
   isDev,
@@ -71,6 +83,6 @@ export {
   encaseInArrayIfNotArray,
   arrayToLowerCase,
   ensurePostsMediaDownloadFolderExists,
+  getFolderSize,
   ModeltoPOJO,
-  // getTextPropCurried,
 }

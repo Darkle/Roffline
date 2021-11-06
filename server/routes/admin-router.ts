@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify'
 
+import { adminStats } from '../controllers/admin/admin-stats'
 import { basicAuth } from '../controllers/admin/basic-auth'
 
 //TODO: add fastify validation to all the routes
@@ -7,7 +8,7 @@ import { basicAuth } from '../controllers/admin/basic-auth'
 const mainPreHandlers = [basicAuth]
 
 const adminRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) => void): void => {
-  fastify.get('/', { preHandler: mainPreHandlers }, (_: unknown, reply) => {
+  fastify.get('/', { preHandler: [...mainPreHandlers, adminStats] }, (_: unknown, reply) => {
     reply.view('admin/stats-page', {
       pageTitle: 'Roffline::Stats',
     })

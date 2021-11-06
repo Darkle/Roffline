@@ -17,3 +17,16 @@ declare module '*.vue' {
   const component: ReturnType<typeof defineComponent>
   export default component
 }
+
+declare module 'prettify-time' {
+  export default function (number): string
+}
+
+declare module 'cpu-stat' {
+  function usagePercent(callback: (error: Error, percent: number, seconds: number) => void): void
+  export { usagePercent }
+}
+
+declare module 'get-folder-size' {
+  export default function (string): Promise<{ size: number; errors: Array<Error> | null }>
+}
