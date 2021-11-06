@@ -13,9 +13,9 @@ const convertRawStatsToText = R.evolve({
   postsWithMediaStillToDownload: prependString('Posts With Media Still To Download: '),
   postsMediaFolderSize: prependString('Media Folder Size: '),
   uptime: prependString('Uptime: '),
-  numSubs: prependString('Number Subreddits Tracked: '),
-  numPosts: prependString('Number Posts: '),
-  numUsers: prependString('Number Users: '),
+  numSubs: prependString('Subreddits Tracked: '),
+  numPosts: prependString('Posts: '),
+  numUsers: prependString('Users: '),
 })
 
 const state = Vue.reactive({
