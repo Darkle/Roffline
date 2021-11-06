@@ -13,7 +13,6 @@ import helmet from 'fastify-helmet'
 import fastifyCookie from 'fastify-cookie'
 import fastifyFormbody from 'fastify-formbody'
 import nunjucks from 'nunjucks'
-import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 import fastifyRequestLogger from '@mgcrea/fastify-request-logger'
 import prettifier from '@mgcrea/pino-pretty-compact'
 
@@ -23,6 +22,7 @@ import { pageRoutes } from './routes/page-router'
 import { apiRoutes } from './routes/api-router'
 import { notFoundHandler } from './not-found-handler'
 import { adminRoutes } from './routes/admin-router'
+import { fastifyErrorHandler } from './error-handler'
 // import { adminApiRoutes } from './routes/admin-api-router'
 
 const port = 3000
@@ -81,17 +81,10 @@ fastify.register(helmet, {
 
 fastify.setSchemaErrorFormatter((errors): Error => {
   mainLogger.error(errors)
-
   return new Error(errors.toString())
 })
 
-fastify.setErrorHandler((err, _, reply) => {
-  mainLogger.error(err)
-
-  reply
-    .code(HttpStatusCode.INTERNAL_SERVER_ERROR)
-    .send(`${HttpStatusCode.INTERNAL_SERVER_ERROR} Internal Server Error`)
-})
+fastify.setErrorHandler(fastifyErrorHandler)
 
 fastify.setNotFoundHandler(notFoundHandler)
 fastify.register(pageRoutes)
