@@ -1,7 +1,5 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
-import { StatusCodes as HttpStatusCode } from 'http-status-codes'
+import { FastifyInstance } from 'fastify'
 
-import { mainLogger } from '../../logging/logging'
 import { csrfProtection } from '../controllers/csrf'
 import { infiniteScrollGetMorePosts } from '../controllers/posts/posts'
 import { bulkImportSubreddits, exportUserSubs, addSubreddit, removeSubreddit } from '../controllers/subs'
@@ -62,10 +60,6 @@ const apiRoutes = (fastify: FastifyInstance, _: unknown, done: (err?: Error) => 
     schema: bulkImportUserSubsSchema,
   })
 
-  fastify.setNotFoundHandler((req: FastifyRequest, reply: FastifyReply) => {
-    mainLogger.error(`404, page not found: ${req.url}`)
-    reply.code(HttpStatusCode.NOT_FOUND).send()
-  })
   done()
 }
 
