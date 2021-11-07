@@ -127,6 +127,7 @@ module.exports = {
               'this\\.subredditThatWasAddedOrRemoved',
               'this\\.subredditWasAdded',
               'this\\.subredditWasRemoved',
+              'state\\.*',
             ],
           },
         ],

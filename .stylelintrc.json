@@ -2,6 +2,7 @@
   "extends": "stylelint-config-standard",
   "rules": {
     "no-descending-specificity": null,
+    "string-quotes": null,
     "selector-id-pattern": null,
     "declaration-block-no-redundant-longhand-properties": null,
     "font-family-name-quotes": "always-where-recommended",

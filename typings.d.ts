@@ -27,6 +27,7 @@ declare module 'cpu-stat' {
   export { usagePercent }
 }
 
-declare module 'get-folder-size' {
-  export default function (string): Promise<{ size: number; errors: Array<Error> | null }>
+declare module 'vue-good-table-next' {
+  import { VueGoodTable } from 'vue-good-table-next'
+  export default VueGoodTable
 }
