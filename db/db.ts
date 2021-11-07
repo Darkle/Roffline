@@ -1,22 +1,19 @@
 import * as R from 'ramda'
 import { Sequelize, Transaction, Op, QueryTypes } from 'sequelize'
-import { match } from 'ts-pattern'
 import { Timer } from 'timer-node'
 import * as lmdb from 'lmdb'
-import { nullable as MaybeNullable, Maybe } from 'pratica'
+import { nullable as MaybeNullable } from 'pratica'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { firstRun } from './db-first-run'
 import { dbLogger } from '../logging/logging'
 import { UpdatesTrackerModel } from './entities/UpdatesTracker'
-import { User } from './entities/Users/User'
 import { UserModel } from './entities/Users/Users'
 import { PostModel } from './entities/Posts/Posts'
 import { Post, PostWithComments } from './entities/Posts/Post'
 import {
   createAndSyncSubredditTable,
   loadSubredditTableModels,
-  removeSubredditTable,
   SubredditTable,
   TopPostsRowType,
   subredditTablesMap,
@@ -38,8 +35,21 @@ import {
   adminListTablesInDB,
   getAllUsersDBDataForAdmin,
 } from './db-admin'
+import {
+  createUser,
+  findUser,
+  getUserSettings,
+  getSpecificUserSetting,
+  getUserSubreddits,
+  setUserSpecificSetting,
+  batchAddUserSubreddits,
+  addUserSubreddit,
+  getAllUsersSubredditsBarOneUser,
+  removeUserSubreddit,
+  getAllSubreddits,
+} from './db-user'
 import { CommentContainer } from './entities/Comments'
-import { getEnvFilePath, getFileSize, noop } from '../server/utils'
+import { getEnvFilePath, getFileSize } from '../server/utils'
 
 const sqliteDBPath = process.env['SQLITE_DBPATH'] || './roffline-sqlite.db'
 const commentsDBPath = process.env['COMMENTS_DBPATH'] || './roffline-comments-lmdb.db'
@@ -89,112 +99,20 @@ const db = {
   async setLastScheduledUpdateTime(date: string | Date): Promise<void> {
     await UpdatesTrackerModel.update({ lastUpdateDateAsString: date }, { where: { id: 1 } })
   },
-  async createUser(userName: string): Promise<void> {
-    await UserModel.create({ name: userName }, { ignoreDuplicates: true })
+  createUser,
+  findUser,
+  getUserSettings,
+  getSpecificUserSetting,
+  getUserSubreddits,
+  setUserSpecificSetting,
+  batchAddUserSubreddits,
+  addUserSubreddit,
+  getAllUsersSubredditsBarOneUser,
+  removeUserSubreddit(userName: string, subreddit: string): Promise<void> {
+    return removeUserSubreddit(sequelize, userName, subreddit)
   },
-  findUser(userName: string): Promise<Maybe<User>> {
-    return this.getUserSettings(userName).then(MaybeNullable)
-  },
-  getUserSettings(userName: string): Promise<User> {
-    return UserModel.findOne({ where: { name: userName } }).then(userAsModel => userAsModel?.get() as User)
-  },
-  getSpecificUserSetting(userName: string, settingName: keyof User): Promise<User[keyof User]> {
-    return UserModel.findOne({ where: { name: userName }, attributes: [settingName] }).then(
-      user => user?.get(settingName) as User[keyof User]
-    )
-  },
+  getAllSubreddits,
   getAllUsersDBDataForAdmin,
-  getUserSubreddits(userName: string): Promise<string[]> {
-    return this.getSpecificUserSetting(userName, 'subreddits') as Promise<string[]>
-  },
-  async setUserSpecificSetting(
-    userName: string,
-    settingName: keyof User,
-    settingValue: User[keyof User]
-  ): Promise<void> {
-    const updateDetails = {
-      settingName,
-      settingValIsArray: Array.isArray(settingValue),
-    }
-
-    await match(updateDetails)
-      .with({ settingName: 'subreddits', settingValIsArray: false }, () =>
-        db.addUserSubreddit(userName, settingValue as string)
-      )
-      .with({ settingName: 'subreddits', settingValIsArray: true }, () =>
-        db.batchAddUserSubreddits(userName, settingValue as string[])
-      )
-      .otherwise(() => UserModel.update({ [settingName]: settingValue }, { where: { name: userName } }))
-  },
-  async batchAddUserSubreddits(
-    userName: string,
-    subreddits: string[],
-    transaction: TransactionType = null
-  ): Promise<void> {
-    const userSubs = await db.getUserSubreddits(userName)
-
-    const omitDuplicateSubs = (currentSubs: string[], newSubs: string[]): string[] => {
-      const currentSubsLowercase = currentSubs.length ? currentSubs.map((sub: string) => sub.toLowerCase()) : []
-      // Lowercase new subs in case they misstype and add a duplicate - e.g. Cats and then CAts
-      const newSubsLowercase = newSubs.map((sub: string) => sub.toLowerCase())
-
-      return R.uniq([...currentSubsLowercase, ...newSubsLowercase])
-    }
-
-    await UserModel.update(
-      { subreddits: omitDuplicateSubs(userSubs, subreddits) },
-      { where: { name: userName }, transaction }
-    )
-  },
-  addUserSubreddit(userName: string, subreddit: string, transaction: TransactionType = null): Promise<void> {
-    return db.batchAddUserSubreddits(userName, [subreddit], transaction)
-  },
-  getAllUsersSubredditsBarOneUser(userToOmit: string, transaction: TransactionType = null): Promise<string[]> {
-    return UserModel.findAll({
-      attributes: ['subreddits'],
-      where: { name: { [Op.not]: userToOmit } },
-      transaction,
-    }).then((users): string[] =>
-      users.flatMap(userModelSubsAttr => userModelSubsAttr.get('subreddits') as string[])
-    )
-  },
-  // eslint-disable-next-line max-lines-per-function
-  async removeUserSubreddit(userName: string, subreddit: string): Promise<void> {
-    const subredditToRemove = subreddit.toLowerCase()
-
-    const removeSubFromUser = async (userSubs: string[], transaction: Transaction): Promise<void> => {
-      await UserModel.update(
-        { subreddits: R.without([subredditToRemove], userSubs) },
-        { where: { name: userName }, transaction }
-      )
-    }
-
-    const noOtherUserHasSubreddit = (allUsersSubs: string[], subToRemove: string): boolean =>
-      !allUsersSubs.includes(subToRemove)
-
-    await sequelize
-      .transaction(async transaction => {
-        await this.getUserSubreddits(userName).then((userSubs: User[keyof User]) =>
-          removeSubFromUser(userSubs as string[], transaction)
-        )
-
-        return this.getAllUsersSubredditsBarOneUser(userName, transaction)
-      })
-      .then(
-        (allUsersSubreddits): Promise<void> =>
-          noOtherUserHasSubreddit(allUsersSubreddits, subredditToRemove)
-            ? Promise.all([
-                removeSubredditTable(subredditToRemove),
-                SubredditsMasterListModel.destroy({ where: { subreddit: subredditToRemove } }),
-              ]).then(noop)
-            : Promise.resolve()
-      )
-  },
-  getAllSubreddits(): Promise<string[]> {
-    return SubredditsMasterListModel.findAll({ attributes: ['subreddit'] }).then(subs =>
-      subs.map(subModelAttr => subModelAttr.get('subreddit') as string)
-    )
-  },
   async batchAddSubredditsToMasterList(subreddits: string[], transaction: TransactionType = null): Promise<void> {
     const subs = subreddits.map(subreddit => ({ subreddit }))
 
