@@ -2,7 +2,7 @@ import { Sequelize, DataTypes, Model } from 'sequelize'
 
 type AdminSettings = {
   downloadComments: boolean
-  numberDownloadsAtOnce: number
+  numberMediaDownloadsAtOnce: number
   downloadVideos: boolean
   videoDownloadMaxFileSize: string
   videoDownloadResolution: string
@@ -19,7 +19,7 @@ const tableSchema = {
     allowNull: false,
     defaultValue: true,
   },
-  numberDownloadsAtOnce: {
+  numberMediaDownloadsAtOnce: {
     type: DataTypes.NUMBER,
     allowNull: false,
     defaultValue: 2,

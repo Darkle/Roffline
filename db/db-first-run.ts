@@ -10,7 +10,7 @@ import { initUserModel } from './entities/Users/Users'
 
 const defaultAdminSettings = {
   downloadComments: true,
-  numberDownloadsAtOnce: 2,
+  numberMediaDownloadsAtOnce: 2,
   downloadVideos: false,
   videoDownloadMaxFileSize: '300',
   videoDownloadResolution: '480p',

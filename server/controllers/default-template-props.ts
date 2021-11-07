@@ -6,11 +6,7 @@ import { version as appVersion } from '../../package.json'
 import { isDev } from '../utils'
 import { createCsrfToken } from './csrf'
 
-type FastifyReplyWithLocals = {
-  locals: ReplyLocals
-} & FastifyReply
-
-type ReplyLocals = {
+type DefaultLocals = {
   basePath: string
   isSubPage: boolean
   currentSubredditBrowsing: string
@@ -29,7 +25,7 @@ function setDefaultTemplateProps(
   const path = request.urlData().path as string
   const basePath = path.split('/')[1]
   const csrfToken = createCsrfToken()
-  const replyWithLocals = reply as FastifyReplyWithLocals
+  const replyWithLocals = reply as { locals: DefaultLocals } & FastifyReply
 
   // eslint-disable-next-line functional/no-conditional-statement
   if (!replyWithLocals.locals) {

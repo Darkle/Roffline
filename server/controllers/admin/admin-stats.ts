@@ -5,7 +5,7 @@ import R from 'ramda'
 import { FastifyReply, FastifyRequest } from 'fastify'
 
 import { db } from '../../../db/db'
-import { getEnvFilePath, getFolderSize } from '../../utils.js'
+import { getEnvFilePath, getFolderSize } from '../../utils'
 
 type DBStats = {
   subsMasterListTableNumRows: number
