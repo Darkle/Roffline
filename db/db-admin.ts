@@ -6,7 +6,9 @@ import { TableModelTypes } from './entities/entity-types'
 /* eslint-disable max-lines-per-function */
 
 function getAdminSettings(): Promise<AdminSettings> {
-  return AdminSettingsModel.findByPk(1).then(item => item?.get() as AdminSettings)
+  return AdminSettingsModel.findByPk(1, {
+    attributes: { exclude: ['id'] },
+  }).then(item => item?.get() as AdminSettings)
 }
 
 function getSingleAdminSetting(
