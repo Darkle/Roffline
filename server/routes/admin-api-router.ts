@@ -7,8 +7,7 @@ import { basicAuth } from '../controllers/admin/basic-auth'
 import { csrfProtection } from '../controllers/csrf'
 import { updateAdminSettingsSchema } from './api-router-schema'
 
-//TODO: add fastify validation to all the routes
-//TODO: Dont forget to do the basic auth for api too
+//TODO: add fastify validation to all the routes that need it
 
 const mainPreHandlers = [basicAuth]
 

@@ -5,9 +5,7 @@ import { FastifyInstance } from 'fastify'
 
 import { basicAuth } from '../controllers/admin/basic-auth'
 import { createCsrfToken } from '../controllers/csrf'
-import { getAdminSettingsForAdminSettingsPage } from '../controllers/admin/admin-settings'
-
-//TODO: add fastify validation to all the routes
+import { getAdminSettingsForAdminPage } from '../controllers/admin/admin-settings'
 
 const mainPreHandlers = [basicAuth]
 
@@ -21,7 +19,7 @@ const adminRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) 
 
   fastify.get(
     '/settings',
-    { preHandler: [...mainPreHandlers, getAdminSettingsForAdminSettingsPage] },
+    { preHandler: [...mainPreHandlers, getAdminSettingsForAdminPage] },
     (_: unknown, reply) => {
       reply.view('admin/admin-settings-page', {
         pageTitle: 'Roffline::Admin::Settings',
@@ -33,7 +31,7 @@ const adminRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) 
 
   fastify.get(
     '/users',
-    { preHandler: [...mainPreHandlers, getAdminSettingsForAdminSettingsPage] },
+    { preHandler: [...mainPreHandlers, getAdminSettingsForAdminPage] },
     (_: unknown, reply) => {
       reply.view('admin/admin-users-page', {
         pageTitle: 'Roffline::Admin::Users',

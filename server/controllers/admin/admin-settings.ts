@@ -21,7 +21,7 @@ type TemplateLocalsAdminSettings = {
   adminSettings: AdminSettings
 }
 
-async function getAdminSettingsForAdminSettingsPage(_: FastifyRequest, reply: FastifyReply): Promise<void> {
+async function getAdminSettingsForAdminPage(_: FastifyRequest, reply: FastifyReply): Promise<void> {
   const adminSettings = await db.getAdminSettings()
 
   const replyWithLocals = reply as { locals: TemplateLocalsAdminSettings } & FastifyReply
@@ -29,4 +29,4 @@ async function getAdminSettingsForAdminSettingsPage(_: FastifyRequest, reply: Fa
   replyWithLocals.locals = { adminSettings }
 }
 
-export { updateAdminSetting, getAdminSettingsForAdminSettingsPage }
+export { updateAdminSetting, getAdminSettingsForAdminPage }
