@@ -39,7 +39,7 @@ const AdminStatsPage = Vue.defineComponent({
     const signupForm = this.$refs['statsList'] as HTMLUListElement
     signupForm.removeAttribute('x-cloak')
 
-    Fetcher.getJSON('/admin/api/get-stats-json')
+    Fetcher.getJSON('/admin/api/get-stats')
       .then(convertRawStatsToText)
       .then(formattedStats => {
         /* eslint-disable functional/immutable-data */
