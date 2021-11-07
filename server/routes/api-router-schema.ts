@@ -81,6 +81,30 @@ const createUserInSchema = {
   },
 }
 
+const updateAdminSettingsSchema = {
+  body: {
+    type: 'object',
+    // Sometimes the csrf token is send via request headers in the fetch, and sometimes its sent as the body of a form.
+    required: ['settingName', 'settingValue'],
+    properties: {
+      settingName: {
+        enum: [
+          'downloadComments',
+          'numberMediaDownloadsAtOnce',
+          'downloadVideos',
+          'videoDownloadMaxFileSize',
+          'videoDownloadResolution',
+          'updateAllDay',
+          'updateStartingHour',
+          'updateEndingHour',
+        ],
+      },
+      settingValue: { type: ['boolean', 'number', 'string'] },
+      csrfToken: { type: 'string' },
+    },
+  },
+}
+
 export {
   updateUserSettingsSchema,
   bulkImportUserSubsSchema,
@@ -88,4 +112,5 @@ export {
   removeUserSubSchema,
   logUserInSchema,
   createUserInSchema,
+  updateAdminSettingsSchema,
 }

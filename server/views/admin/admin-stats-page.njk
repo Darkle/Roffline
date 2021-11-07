@@ -5,7 +5,7 @@
   {% include "partials/head.njk" %}
   <body class="admin-stats-page">
     <h2 class="title">Roffline Admin</h2>
-    {% include 'partials/admin-menu.njk' %}
+    {% include 'admin/partials/admin-menu.njk' %}
     <main>
       <h4 v-show="!cpuUsage">Loading Stats...</h4>
       <ul x-cloak v-show="cpuUsage" ref="statsList">
@@ -25,6 +25,6 @@
       </ul>
     </main>
 
-    <script src="/js/admin/stats-page.js<# cacheBustString #>" type="module"></script>
+    <script src="/js/admin/admin-stats-page.js<# cacheBustString #>" type="module"></script>
   </body>
 </html>

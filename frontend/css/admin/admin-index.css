@@ -1,5 +1,6 @@
 @import '../fonts.css';
 @import './admin-main.css';
+@import './admin-settings-page.css';
 @import './logs-viewer-page.css';
 @import './stats-page.css';
 @import './downloads-viewer.css';

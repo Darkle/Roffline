@@ -1,0 +1,66 @@
+body.admin-settings-page {
+  flex-direction: column;
+  max-width: 90vw;
+}
+
+.admin-settings-page main {
+  margin-top: 3rem;
+  max-width: 90vw;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 8rem;
+}
+
+.admin-settings-page fieldset {
+  margin-bottom: 2rem;
+}
+
+.admin-settings-page button,
+.admin-settings-page .export-subs {
+  font-size: calc(0.94em + 0.2vw);
+}
+
+.admin-settings-page fieldset > p {
+  margin-bottom: 1.4rem;
+}
+
+.admin-settings-page .checkbox-label {
+  display: flex;
+  align-items: center;
+}
+
+.admin-settings-page .checkbox-label > input {
+  margin-right: 0.4rem;
+}
+
+.admin-settings-page .downloads input:not(#enable-video-downloads) {
+  margin-top: 0.3rem;
+}
+
+.admin-settings-page .downloads > p:nth-of-type(1) {
+  margin-top: 1rem;
+}
+
+.admin-settings-page .downloads select {
+  margin-top: 0.3rem;
+}
+
+.admin-settings-page .feed-updating .updates-description {
+  margin-top: 0.3rem;
+  max-width: 630px;
+}
+
+.admin-settings-page .feed-updating #update-starting-hour {
+  margin-top: 0.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.admin-settings-page .feed-updating #update-ending-hour {
+  margin-top: 0.3rem;
+}
+
+/* .admin-settings-page input[type='submit'] {
+  font-size: calc(0.94em + 0.2vw);
+  width: 100%;
+} */
