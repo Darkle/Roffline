@@ -2,6 +2,8 @@ import { QueryTypes, Sequelize } from 'sequelize'
 
 import { AdminSettings, AdminSettingsModel } from './entities/AdminSettings'
 import { TableModelTypes } from './entities/entity-types'
+import { User } from './entities/Users/User'
+import { UserModel } from './entities/Users/Users'
 
 /* eslint-disable max-lines-per-function */
 
@@ -134,6 +136,10 @@ async function adminSearchAnyDBTable(
   )
 }
 
+function getAllUsersDBDataForAdmin(): Promise<User[]> {
+  return UserModel.findAll().then((users): User[] => users.flatMap(userModel => userModel.get() as User[]))
+}
+
 export {
   getAdminSettings,
   getSingleAdminSetting,
@@ -141,4 +147,5 @@ export {
   setAdminData,
   adminGetAnyTableDataPaginated,
   adminSearchAnyDBTable,
+  getAllUsersDBDataForAdmin,
 }

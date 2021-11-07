@@ -36,6 +36,7 @@ import {
   adminGetAnyTableDataPaginated,
   adminSearchAnyDBTable,
   adminListTablesInDB,
+  getAllUsersDBDataForAdmin,
 } from './db-admin'
 import { CommentContainer } from './entities/Comments'
 import { getEnvFilePath, getFileSize, noop } from '../server/utils'
@@ -97,13 +98,14 @@ const db = {
   getUserSettings(userName: string): Promise<User> {
     return UserModel.findOne({ where: { name: userName } }).then(userAsModel => userAsModel?.get() as User)
   },
-  getUserSpecificSetting(userName: string, settingName: keyof User): Promise<User[keyof User]> {
+  getSpecificUserSetting(userName: string, settingName: keyof User): Promise<User[keyof User]> {
     return UserModel.findOne({ where: { name: userName }, attributes: [settingName] }).then(
       user => user?.get(settingName) as User[keyof User]
     )
   },
+  getAllUsersDBDataForAdmin,
   getUserSubreddits(userName: string): Promise<string[]> {
-    return this.getUserSpecificSetting(userName, 'subreddits') as Promise<string[]>
+    return this.getSpecificUserSetting(userName, 'subreddits') as Promise<string[]>
   },
   async setUserSpecificSetting(
     userName: string,

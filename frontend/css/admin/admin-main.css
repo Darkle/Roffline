@@ -24,7 +24,7 @@ body {
   display: none !important;
 }
 
-body > .title {
+body h1.title {
   margin-top: 2.2rem;
   line-height: 2rem;
   text-align: center;

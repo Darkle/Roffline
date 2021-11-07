@@ -31,6 +31,18 @@ const adminRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) 
     }
   )
 
+  fastify.get(
+    '/users',
+    { preHandler: [...mainPreHandlers, getAdminSettingsForAdminSettingsPage] },
+    (_: unknown, reply) => {
+      reply.view('admin/admin-users-page', {
+        pageTitle: 'Roffline::Admin::Users',
+        csrfToken: createCsrfToken(),
+        unescapeHTML: querystring.unescape,
+      })
+    }
+  )
+
   // router.get('/users', (req, res) => res.render('admin/users-page', { pageTitle: 'Roffline::Logs Viewer' }))
   // router.get('/logs-viewer', (req, res) => res.render('admin/logs-viewer', { pageTitle: 'Roffline::Logs Viewer' }))
   // router.get('/database-viewer', (req, res) =>

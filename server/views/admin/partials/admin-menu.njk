@@ -1,15 +1,12 @@
 <nav class="nav admin-menu">
   <div class="nav-left">
     <div class="tabs">
-      <a class="{% if page == 'admin-stats-page' %}active{% else %} {% endif %}" href="/admin/stats">Stats</a>
+      <a class="{% if page == 'admin-stats-page' %}active{% else %} {% endif %}" href="/admin/">Stats</a>
       <a class="{% if page == 'admin-settings-page' %}active{% else %} {% endif %}" href="/admin/settings">Settings</a>
-      <a class="{% if page == 'logs' %}active{% else %} {% endif %}" href="/admin/logs-viewer">Logs</a>
-      <a class="{% if page == 'database' %}active{% else %} {% endif %}" href="/admin/database-viewer"
-        >Database Viewer</a>
-      <a class="{% if page == 'downloads' %}active{% else %} {% endif %}" href="/admin/downloads-viewer"
-        >Downloads</a>
-      <a class="{% if page == 'users' %}active{% else %} {% endif %}" href="/admin/users-viewer"
-        >Users</a>
+      <a class="{% if page == 'admin-users-page' %}active{% else %} {% endif %}" href="/admin/users">Users</a>
+      <a class="{% if page == 'admin-logs-page' %}active{% else %} {% endif %}" href="/admin/logs">Logs</a>
+      <a class="{% if page == 'admin-database-page' %}active{% else %} {% endif %}" href="/admin/database">Database</a>
+      <a class="{% if page == 'admin-downloads-page' %}active{% else %} {% endif %}" href="/admin/downloads">Downloads</a>
       <a href="/">Exit Admin</a>
     </div>
   </div>

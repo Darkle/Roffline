@@ -63,4 +63,4 @@ const ignoreScriptTagCompilationWarnings = (message: string): void => {
   }
 }
 
-export { Fetcher, wait, $, $$, isDev, noop, ignoreScriptTagCompilationWarnings }
+export { Fetcher, wait, $, $$, isDev, noop, ignoreScriptTagCompilationWarnings, checkFetchResponseStatus }

@@ -1,0 +1,30 @@
+body.admin-users-page {
+  flex-direction: column;
+  max-width: 90vw;
+}
+
+.admin-users-page main {
+  margin-top: 3rem;
+  max-width: 90vw;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 8rem;
+}
+
+.admin-users-page main #vgt-table > thead > tr > th.line-numbers {
+  width: 2.3rem;
+}
+
+.admin-users-page main #vgt-table > tbody td[data-label='Delete User'] {
+  text-align: center;
+}
+
+/* .admin-users-page main #vgt-table > tbody td[data-label='Delete User'] button {
+  font-size: 0.8rem;
+  padding: 0.5rem;
+}
+
+.admin-users-page main select[name='perPageSelect'] {
+  background-image: none;
+} */
