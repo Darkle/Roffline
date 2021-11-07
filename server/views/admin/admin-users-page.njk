@@ -4,6 +4,7 @@
   {% set isAdminPage = true %}
   {% include "partials/head.njk" %}
   <body class="admin-users-page">
+    {# We dont want chota messing up the data tables styling, so we have a seperate scoped chota just for the admin heading and nav #}
     <div class="scoped-chota">
       <h1 class="title">Roffline Admin</h1>
       {% include 'admin/partials/admin-menu.njk' %}
