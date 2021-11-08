@@ -5,7 +5,7 @@ import { FastifyInstance } from 'fastify'
 
 import { basicAuth } from '../controllers/admin/basic-auth'
 import { createCsrfToken } from '../controllers/csrf'
-import { getAdminSettingsForAdminPage } from '../controllers/admin/admin-settings'
+import { getAdminSettingsForAnAdminPage } from '../controllers/admin/admin-settings'
 
 const mainPreHandlers = [basicAuth]
 
@@ -19,7 +19,7 @@ const adminRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) 
 
   fastify.get(
     '/settings',
-    { preHandler: [...mainPreHandlers, getAdminSettingsForAdminPage] },
+    { preHandler: [...mainPreHandlers, getAdminSettingsForAnAdminPage] },
     (_: unknown, reply) => {
       reply.view('admin/admin-settings-page', {
         pageTitle: 'Roffline::Admin::Settings',
@@ -31,7 +31,7 @@ const adminRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) 
 
   fastify.get(
     '/users',
-    { preHandler: [...mainPreHandlers, getAdminSettingsForAdminPage] },
+    { preHandler: [...mainPreHandlers, getAdminSettingsForAnAdminPage] },
     (_: unknown, reply) => {
       reply.view('admin/admin-users-page', {
         pageTitle: 'Roffline::Admin::Users',

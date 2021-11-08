@@ -7,7 +7,7 @@ import { AdminSettings } from '../../../db/entities/AdminSettings'
 type RequestWithSettingsBody = {
   settingName: keyof AdminSettings
   settingValue: AdminSettings[keyof AdminSettings]
-}
+} & FastifyRequest
 
 async function updateAdminSetting(req: FastifyRequest, reply: FastifyReply): Promise<FastifyReply> {
   const { settingName, settingValue } = req.body as RequestWithSettingsBody
@@ -21,7 +21,7 @@ type TemplateLocalsAdminSettings = {
   adminSettings: AdminSettings
 }
 
-async function getAdminSettingsForAdminPage(_: FastifyRequest, reply: FastifyReply): Promise<void> {
+async function getAdminSettingsForAnAdminPage(_: FastifyRequest, reply: FastifyReply): Promise<void> {
   const adminSettings = await db.getAdminSettings()
 
   const replyWithLocals = reply as { locals: TemplateLocalsAdminSettings } & FastifyReply
@@ -29,4 +29,4 @@ async function getAdminSettingsForAdminPage(_: FastifyRequest, reply: FastifyRep
   replyWithLocals.locals = { adminSettings }
 }
 
-export { updateAdminSetting, getAdminSettingsForAdminPage }
+export { updateAdminSetting, getAdminSettingsForAnAdminPage }
