@@ -105,6 +105,17 @@ const updateAdminSettingsSchema = {
   },
 }
 
+const deleteUserSchema = {
+  body: {
+    type: 'object',
+    required: ['userToDelete'],
+    properties: {
+      userToDelete: { type: 'string' },
+      csrfToken: { type: 'string' },
+    },
+  },
+}
+
 export {
   updateUserSettingsSchema,
   bulkImportUserSubsSchema,
@@ -113,4 +124,5 @@ export {
   logUserInSchema,
   createUserInSchema,
   updateAdminSettingsSchema,
+  deleteUserSchema,
 }
