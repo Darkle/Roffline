@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { DateTime } from 'luxon'
 
 import { db } from '../../db/db'
-import { SearchLimitedPostType } from '../../db/db-search-posts'
+import { SearchLimitedPostType } from '../../db/posts/db-search-posts'
 import { genPrettyDateCreatedAgoFromUTC } from './posts/pretty-date-created-ago'
 
 type Query = {
