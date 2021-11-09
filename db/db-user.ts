@@ -11,6 +11,7 @@ import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { UserModel } from './entities/Users/Users'
 import { PostModel } from './entities/Posts/Posts'
 import { batchRemovePostsFolder } from '../server/controllers/posts/remove-posts-folders'
+import { noop } from '../server/utils'
 
 type TransactionType = Transaction | null | undefined
 
@@ -105,27 +106,22 @@ async function removeUserSubreddit(
   const subredditToRemove = subreddit.toLowerCase()
   // eslint-disable-next-line functional/no-let
   let postIdsFromSubWeAreRemoving: string[] = []
-
-  const removeSubFromUser = async (userSubs: string[], transaction: Transaction): Promise<void> => {
-    await UserModel.update(
-      { subreddits: R.without([subredditToRemove], userSubs) },
-      { where: { name: userName }, transaction }
-    )
-  }
-
+  const allUsersSubreddits = await getAllUsersSubredditsBarOneUser(userName)
   const noOtherUserHasSubreddit = (allUsersSubs: string[], subToRemove: string): boolean =>
     !allUsersSubs.includes(subToRemove)
+  const thereAreSubsAndPostsNoLongerInUse = noOtherUserHasSubreddit(allUsersSubreddits, subredditToRemove)
 
   await sequelize
     .transaction(async transaction => {
-      await getUserSubreddits(userName).then((userSubs: User[keyof User]) =>
-        removeSubFromUser(userSubs as string[], transaction)
+      await getUserSubreddits(userName).then((userSubs: string[]) =>
+        UserModel.update(
+          { subreddits: R.without([subredditToRemove], userSubs) },
+          { where: { name: userName }, transaction }
+        )
       )
 
-      const allUsersSubreddits = await getAllUsersSubredditsBarOneUser(userName)
-
       // eslint-disable-next-line functional/no-conditional-statement
-      if (noOtherUserHasSubreddit(allUsersSubreddits, subredditToRemove)) {
+      if (thereAreSubsAndPostsNoLongerInUse) {
         postIdsFromSubWeAreRemoving = await PostModel.findAll({
           where: { subreddit },
           attributes: ['id'],
@@ -140,10 +136,15 @@ async function removeUserSubreddit(
     })
     /*****
       We only drop a table and remove comments after a transacion has succeded as dropping tables cant be part of
-       a transaction and removing comments uses a different database.
+       a transaction and comments uses a different database.
     *****/
     .then(() =>
-      Promise.all([removeSubredditTable(subredditToRemove), batchRemoveComments(postIdsFromSubWeAreRemoving)])
+      thereAreSubsAndPostsNoLongerInUse
+        ? Promise.all([
+            removeSubredditTable(subredditToRemove),
+            batchRemoveComments(postIdsFromSubWeAreRemoving),
+          ]).then(noop)
+        : Promise.resolve()
     )
 }
 
@@ -165,26 +166,24 @@ async function deleteUser(
   const subsOfUserToDelete = await getUserSubreddits(userName)
   const otherUsersSubreddits = await getAllUsersSubredditsBarOneUser(userName)
   const subsOfUserToDeleteThatNoOtherUserHas = R.without(otherUsersSubreddits, subsOfUserToDelete)
-
-  // eslint-disable-next-line functional/no-conditional-statement
-  if (RA.isEmptyArray(subsOfUserToDeleteThatNoOtherUserHas)) return
+  const thereAreSubsAndPostsNoLongerInUse = RA.isNonEmptyArray(subsOfUserToDeleteThatNoOtherUserHas)
 
   await sequelize
     .transaction(async transaction => {
-      await Promise.all([
-        UserModel.destroy({ where: { name: userName }, transaction }),
-        SubredditsMasterListModel.destroy({
-          where: { subreddit: { [Op.in]: subsOfUserToDeleteThatNoOtherUserHas } },
-        }),
-      ])
+      await UserModel.destroy({ where: { name: userName }, transaction })
+
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (!thereAreSubsAndPostsNoLongerInUse) return
+
+      await SubredditsMasterListModel.destroy({
+        where: { subreddit: { [Op.in]: subsOfUserToDeleteThatNoOtherUserHas } },
+        transaction,
+      })
 
       postIdsFromSubsWeAreRemoving = await PostModel.findAll({
         where: { subreddit: { [Op.in]: subsOfUserToDeleteThatNoOtherUserHas } },
         attributes: ['id'],
       }).then(items => items.map(item => (item.get() as { id: string }).id as string))
-
-      console.log(subsOfUserToDeleteThatNoOtherUserHas)
-      console.log(postIdsFromSubsWeAreRemoving)
 
       return Promise.all([
         batchRemovePosts(postIdsFromSubsWeAreRemoving, transaction),
@@ -194,15 +193,17 @@ async function deleteUser(
     .then(() =>
       /*****
         We only drop a table and remove comments after a transacion has succeded as dropping tables cant be part of
-        a transaction and removing comments uses a different database.
+        a transaction and comments uses a different database.
       *****/
-      Promise.all([
-        Prray.from(subsOfUserToDeleteThatNoOtherUserHas).forEachAsync(sub => {
-          const subreddit = sub as string
-          return removeSubredditTable(subreddit)
-        }),
-        batchRemoveComments(postIdsFromSubsWeAreRemoving),
-      ])
+      thereAreSubsAndPostsNoLongerInUse
+        ? Promise.all([
+            Prray.from(subsOfUserToDeleteThatNoOtherUserHas).forEachAsync(sub => {
+              const subreddit = sub as string
+              return removeSubredditTable(subreddit)
+            }),
+            batchRemoveComments(postIdsFromSubsWeAreRemoving),
+          ]).then(noop)
+        : Promise.resolve()
     )
 }
 
