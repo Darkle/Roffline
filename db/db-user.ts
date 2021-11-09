@@ -2,12 +2,15 @@ import * as R from 'ramda'
 import { match } from 'ts-pattern'
 import { nullable as MaybeNullable, Maybe } from 'pratica'
 import { Transaction, Op, Sequelize } from 'sequelize'
+import RA from 'ramda-adjunct'
+import Prray from 'prray'
 
 import { User } from './entities/Users/User'
 import { removeSubredditTable } from './entities/SubredditTable'
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
-import { noop } from '../server/utils'
 import { UserModel } from './entities/Users/Users'
+import { PostModel } from './entities/Posts/Posts'
+import { batchRemovePostsFolder } from '../server/controllers/posts/remove-posts-folders'
 
 type TransactionType = Transaction | null | undefined
 
@@ -82,22 +85,26 @@ async function setUserSpecificSetting(
     .otherwise(() => UserModel.update({ [settingName]: settingValue }, { where: { name: userName } }))
 }
 
-function getAllUsersSubredditsBarOneUser(
-  userToOmit: string,
-  transaction: TransactionType = null
-): Promise<string[]> {
+function getAllUsersSubredditsBarOneUser(userToOmit: string): Promise<string[]> {
   return UserModel.findAll({
     attributes: ['subreddits'],
     where: { name: { [Op.not]: userToOmit } },
-    transaction,
   }).then((users): string[] =>
     users.flatMap(userModelSubsAttr => userModelSubsAttr.get('subreddits') as string[])
   )
 }
 
-// eslint-disable-next-line max-lines-per-function
-async function removeUserSubreddit(sequelize: Sequelize, userName: string, subreddit: string): Promise<void> {
+// eslint-disable-next-line max-lines-per-function,max-params
+async function removeUserSubreddit(
+  sequelize: Sequelize,
+  batchRemovePosts: (postsToRemove: string[], transaction?: Transaction) => Promise<void>,
+  batchRemoveComments: (postIdsToRemove: string[]) => Promise<void>,
+  userName: string,
+  subreddit: string
+): Promise<void> {
   const subredditToRemove = subreddit.toLowerCase()
+  // eslint-disable-next-line functional/no-let
+  let postIdsFromSubWeAreRemoving: string[] = []
 
   const removeSubFromUser = async (userSubs: string[], transaction: Transaction): Promise<void> => {
     await UserModel.update(
@@ -115,16 +122,28 @@ async function removeUserSubreddit(sequelize: Sequelize, userName: string, subre
         removeSubFromUser(userSubs as string[], transaction)
       )
 
-      return getAllUsersSubredditsBarOneUser(userName, transaction)
+      const allUsersSubreddits = await getAllUsersSubredditsBarOneUser(userName)
+
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (noOtherUserHasSubreddit(allUsersSubreddits, subredditToRemove)) {
+        postIdsFromSubWeAreRemoving = await PostModel.findAll({
+          where: { subreddit },
+          attributes: ['id'],
+        }).then(items => items.map(item => (item.get() as { id: string }).id as string))
+
+        await Promise.all([
+          SubredditsMasterListModel.destroy({ where: { subreddit: subredditToRemove }, transaction }),
+          batchRemovePosts(postIdsFromSubWeAreRemoving, transaction),
+          batchRemovePostsFolder(postIdsFromSubWeAreRemoving),
+        ])
+      }
     })
-    .then(
-      (allUsersSubreddits): Promise<void> =>
-        noOtherUserHasSubreddit(allUsersSubreddits, subredditToRemove)
-          ? Promise.all([
-              removeSubredditTable(subredditToRemove),
-              SubredditsMasterListModel.destroy({ where: { subreddit: subredditToRemove } }),
-            ]).then(noop)
-          : Promise.resolve()
+    /*****
+      We only drop a table and remove comments after a transacion as dropping tables cant be part of
+       a transaction and removing comments uses a different database.
+    *****/
+    .then(() =>
+      Promise.all([removeSubredditTable(subredditToRemove), batchRemoveComments(postIdsFromSubWeAreRemoving)])
     )
 }
 
@@ -134,8 +153,61 @@ function getAllSubreddits(): Promise<string[]> {
   )
 }
 
+// eslint-disable-next-line max-lines-per-function
+async function deleteUser(
+  sequelize: Sequelize,
+  batchRemovePosts: (postsToRemove: string[], transaction?: Transaction) => Promise<void>,
+  batchRemoveComments: (postIdsToRemove: string[]) => Promise<void>,
+  userName: string
+): Promise<void> {
+  // eslint-disable-next-line functional/no-let
+  let postIdsFromSubsWeAreRemoving: string[] = []
+  const subsOfUserToDelete = await getUserSubreddits(userName)
+  const otherUsersSubreddits = await getAllUsersSubredditsBarOneUser(userName)
+  const subsOfUserToDeleteThatNoOtherUserHas = R.without(otherUsersSubreddits, subsOfUserToDelete)
+
+  // eslint-disable-next-line functional/no-conditional-statement
+  if (RA.isEmptyArray(subsOfUserToDeleteThatNoOtherUserHas)) return
+
+  await sequelize
+    .transaction(async transaction => {
+      await UserModel.destroy({ where: { name: userName }, transaction })
+
+      await SubredditsMasterListModel.destroy({
+        where: { subreddit: { [Op.in]: subsOfUserToDeleteThatNoOtherUserHas } },
+      })
+
+      postIdsFromSubsWeAreRemoving = await PostModel.findAll({
+        where: { subreddit: { [Op.in]: subsOfUserToDeleteThatNoOtherUserHas } },
+        attributes: ['id'],
+      }).then(items => items.map(item => (item.get() as { id: string }).id as string))
+
+      console.log(subsOfUserToDeleteThatNoOtherUserHas)
+      console.log(postIdsFromSubsWeAreRemoving)
+
+      return Promise.all([
+        batchRemovePosts(postIdsFromSubsWeAreRemoving, transaction),
+        batchRemovePostsFolder(postIdsFromSubsWeAreRemoving),
+      ])
+    })
+    .then(() =>
+      /*****
+        We only drop a table and remove comments after a transacion as dropping tables cant be part of
+        a transaction and removing comments uses a different database.
+      *****/
+      Promise.all([
+        Prray.from(subsOfUserToDeleteThatNoOtherUserHas).forEachAsync(sub => {
+          const subreddit = sub as string
+          return removeSubredditTable(subreddit)
+        }),
+        batchRemoveComments(postIdsFromSubsWeAreRemoving),
+      ])
+    )
+}
+
 export {
   createUser,
+  deleteUser,
   findUser,
   getUserSettings,
   getSpecificUserSetting,
