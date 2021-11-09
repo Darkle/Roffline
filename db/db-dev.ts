@@ -125,34 +125,18 @@ const dev = {
     setTimeout(() => {
       console.log('!!DEV DB FUNCTIONS ARE BEING RUN!!')
       dbLogger.warn('!!DEV DB FUNCTIONS ARE BEING RUN!!')
-      //   // const sub = ''
-      //   // const postIds = ['q9e82c', 'q9kwew', 'q9lf66', 'n2s4g0', 'n2scls', 'n2tj9x']
-      //   // const subs = ['selfhosted', 'node', 'videos', 'Twitter', 'Twitter', 'fo4']
-      //   // dev
-      //   //   .createUser(db, 'Merp')
-      //   //   .then(() => dev.addSubs(db, 'Merp', subs))
-      //   //   .then(() => dev.addIndividualPosts(db, postIds))
-      //   // dev
-      //   //   .addIndividualPosts(db, ['n2tj9x'])
-      //   //   // .then(() => dev.addSubPostIdRefs(sub))
-      //   //   .then(() => console.log('FINISHED DEV DB STUFF'))
-      dev
-        .addComments(db)
-        // .addSubs(db, 'Merp', ['AskReddit'])
-        // .then(() => dev.addPosts(db, 'AskReddit'))
-        // got('https://api.reddit.com/api/info/?id=t3_qaolx9')
-        //   .json()
-        // .then(result => {
-        //   // @ts-expect-error asdf
-        //   console.log(result.data.children[0].data)
-        //   return result
-        // })
-        //// @ts-expect-error asd
-        // .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
-        .then(() => {
-          console.log('finished db stuff')
-        })
-        .catch((err: Error) => console.error(err))
+
+      // dev
+      //   .createUser(db, 'Coop')
+      //   .then(() => dev.addSubs(db, 'Coop', ['space']))
+      //   .then(() => dev.addPosts(db, 'space'))
+
+      //   //// @ts-expect-error asd
+      //   // .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
+      //   .then(() => {
+      //     console.log('finished db stuff')
+      //   })
+      //   .catch((err: Error) => console.error(err))
     }, 3000)
   },
 }
