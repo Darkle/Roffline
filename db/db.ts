@@ -216,15 +216,18 @@ const db = {
 
     const postIds = postsComments.map(({ id }) => id)
 
-    await sequelize.transaction(transaction =>
-      PostModel.update({ commentsDownloaded: true }, { transaction, where: { id: { [Op.in]: postIds } } })
-    )
-
-    await commentsDB.transactionAsync(() => {
-      postsComments.forEach(({ id, comments }) => {
-        commentsDB.put(id, comments)
-      })
-    })
+    await sequelize
+      .transaction(transaction =>
+        PostModel.update({ commentsDownloaded: true }, { transaction, where: { id: { [Op.in]: postIds } } })
+      )
+      .then(() =>
+        // Only run this if the previous transaction completed successfully
+        commentsDB.transactionAsync(() => {
+          postsComments.forEach(({ id, comments }) => {
+            commentsDB.put(id, comments)
+          })
+        })
+      )
 
     dbLogger.debug(
       `db.batchAddCommentsToPosts for ${postsComments.length} posts comments took ${timer.format(
