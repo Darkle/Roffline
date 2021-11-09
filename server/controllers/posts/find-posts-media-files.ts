@@ -5,10 +5,11 @@ import * as RA from 'ramda-adjunct'
 import Prray from 'prray'
 
 import { Post } from '../../../db/entities/Posts/Post'
+import { getEnvFilePath } from '../../utils'
 
-const postsMediaDir = path.join(process.cwd(), 'posts-media')
+const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
 
-const getPostMediaDir = (postId: string): string => path.join(postsMediaDir, postId)
+const getPostMediaDir = (postId: string): string => path.join(postsMediaFolder, postId)
 
 const getListOfPostsDownloadedFiles = (postId: string): Promise<string[]> =>
   fs.promises.readdir(getPostMediaDir(postId))
