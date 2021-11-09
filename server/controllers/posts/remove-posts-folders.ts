@@ -8,11 +8,11 @@ type PostIds = string[]
 
 const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
 
-const getPostFolderPath = (postId: string): string => path.join(postsMediaFolder, postId)
+const getPostMediaDir = (postId: string): string => path.join(postsMediaFolder, postId)
 
 function batchRemovePostsFolder(posts: PostIds): Promise<void> {
   return Prray.from(posts).forEachAsync(postId => {
-    const postFolderPath = getPostFolderPath(postId)
+    const postFolderPath = getPostMediaDir(postId)
 
     return pDeleteFolder(postFolderPath)
   })
