@@ -139,7 +139,7 @@ async function removeUserSubreddit(
       }
     })
     /*****
-      We only drop a table and remove comments after a transacion as dropping tables cant be part of
+      We only drop a table and remove comments after a transacion has succeded as dropping tables cant be part of
        a transaction and removing comments uses a different database.
     *****/
     .then(() =>
@@ -171,11 +171,12 @@ async function deleteUser(
 
   await sequelize
     .transaction(async transaction => {
-      await UserModel.destroy({ where: { name: userName }, transaction })
-
-      await SubredditsMasterListModel.destroy({
-        where: { subreddit: { [Op.in]: subsOfUserToDeleteThatNoOtherUserHas } },
-      })
+      await Promise.all([
+        UserModel.destroy({ where: { name: userName }, transaction }),
+        SubredditsMasterListModel.destroy({
+          where: { subreddit: { [Op.in]: subsOfUserToDeleteThatNoOtherUserHas } },
+        }),
+      ])
 
       postIdsFromSubsWeAreRemoving = await PostModel.findAll({
         where: { subreddit: { [Op.in]: subsOfUserToDeleteThatNoOtherUserHas } },
@@ -192,7 +193,7 @@ async function deleteUser(
     })
     .then(() =>
       /*****
-        We only drop a table and remove comments after a transacion as dropping tables cant be part of
+        We only drop a table and remove comments after a transacion has succeded as dropping tables cant be part of
         a transaction and removing comments uses a different database.
       *****/
       Promise.all([
