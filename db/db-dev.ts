@@ -1,7 +1,11 @@
+import fs from 'fs'
+import path from 'path'
+
 import Prray from 'prray'
 import got from 'got'
 
 import { dbLogger } from '../logging/logging'
+import { folderExists, getEnvFilePath } from '../server/utils'
 
 /* eslint-disable @typescript-eslint/explicit-function-return-type,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,max-lines-per-function,functional/no-conditional-statement,functional/no-let,functional/immutable-data,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-magic-numbers,complexity,@typescript-eslint/no-unsafe-return,@typescript-eslint/explicit-module-boundary-types,@typescript-eslint/no-unused-vars */
 
@@ -121,18 +125,35 @@ const dev = {
     )
   },
   // @ts-expect-error asd
+  mockMediaForPosts(db) {
+    const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
+
+    const getPostMediaDir = (postId: string): string => path.join(postsMediaFolder, postId)
+
+    return db.getAllPostIds().then((postIds: string[]) =>
+      Prray.from(postIds).forEachAsync(postId => {
+        const postMediaDir = getPostMediaDir(postId)
+
+        return folderExists(postMediaDir).then(exists =>
+          exists ? Promise.resolve() : fs.promises.mkdir(getPostMediaDir(postId))
+        )
+      })
+    )
+  },
+  // @ts-expect-error asd
   init(db) {
     setTimeout(() => {
       console.log('!!DEV DB FUNCTIONS ARE BEING RUN!!')
       dbLogger.warn('!!DEV DB FUNCTIONS ARE BEING RUN!!')
 
       // dev
-      //   .createUser(db, 'Coop')
-      //   .then(() => dev.addSubs(db, 'Coop', ['space']))
-      //   .then(() => dev.addPosts(db, 'space'))
+      //   .mockMediaForPosts(db)
+      //   //   .createUser(db, 'Coop')
+      //   //   .then(() => dev.addSubs(db, 'Coop', ['space']))
+      //   //   .then(() => dev.addPosts(db, 'space'))
 
-      //   //// @ts-expect-error asd
-      //   // .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
+      //   //   //// @ts-expect-error asd
+      //   //   // .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
       //   .then(() => {
       //     console.log('finished db stuff')
       //   })
