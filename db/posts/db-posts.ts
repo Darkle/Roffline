@@ -1,7 +1,6 @@
 import * as R from 'ramda'
 import { Timer } from 'timer-node'
-import { Op, Sequelize } from 'sequelize'
-import lmdb from 'lmdb-store'
+import { Op, Sequelize, Transaction } from 'sequelize'
 
 import { SubredditTable, TopPostsRowType, subredditTablesMap } from '../entities/SubredditTable'
 import { Post, PostWithComments } from '../entities/Posts/Post'
@@ -12,6 +11,8 @@ import { CommentContainer } from '../entities/Comments'
 type SubsPostsIdDataType = {
   [subreddit: string]: TopPostsRowType[]
 }
+
+type TransactionType = Transaction | null | undefined
 
 function getSinglePostData(
   getPostComments: (postId: string) => Promise<CommentContainer[] | [] | null>,
@@ -55,21 +56,13 @@ async function incrementPostMediaDownloadTry(postId: string): Promise<void> {
   await PostModel.increment('mediaDownloadTries', { where: { id: postId } })
 }
 
-// eslint-disable-next-line max-lines-per-function
-async function batchRemovePosts(
-  commentsDB: lmdb.RootDatabase<string, lmdb.Key>,
-  postsToRemove: string[]
-): Promise<void> {
+type PostIds = string[]
+
+async function batchRemovePosts(postsToRemove: PostIds, transaction: TransactionType = null): Promise<void> {
   const timer = new Timer()
   timer.start()
 
-  await PostModel.destroy({ where: { id: { [Op.in]: postsToRemove } } })
-
-  await commentsDB.transactionAsync(() => {
-    postsToRemove.forEach(postId => {
-      commentsDB.remove(postId)
-    })
-  })
+  await PostModel.destroy({ where: { id: { [Op.in]: postsToRemove } }, transaction })
 
   dbLogger.debug(
     `db.batchRemovePosts for ${postsToRemove.length} posts and their comments took ${timer.format(
