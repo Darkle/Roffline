@@ -58,7 +58,7 @@ import {
 } from './posts/db-posts'
 
 import { CommentContainer } from './entities/Comments'
-import { getEnvFilePath, getFileSize } from '../server/utils'
+import { getEnvFilePath, getFileSize /*, isDev*/ } from '../server/utils'
 
 const sqliteDBPath = process.env['SQLITE_DBPATH'] || './roffline-sqlite.db'
 const commentsDBPath = process.env['COMMENTS_DBPATH'] || './roffline-comments-lmdb.db'
@@ -69,6 +69,8 @@ type TopFilterType = 'day' | 'week' | 'month' | 'year' | 'all'
 type SubsPostsIdDataType = {
   [subreddit: string]: TopPostsRowType[]
 }
+
+type PostIds = string[]
 
 /*****
   Notes:
@@ -109,7 +111,9 @@ const db = {
     await UpdatesTrackerModel.update({ lastUpdateDateAsString: date }, { where: { id: 1 } })
   },
   createUser,
-  deleteUser,
+  deleteUser(userName: string): Promise<void> {
+    return deleteUser(sequelize, this.batchRemovePosts, this.batchRemoveComments, userName)
+  },
   findUser,
   getUserSettings,
   getSpecificUserSetting,
@@ -119,7 +123,7 @@ const db = {
   addUserSubreddit,
   getAllUsersSubredditsBarOneUser,
   removeUserSubreddit(userName: string, subreddit: string): Promise<void> {
-    return removeUserSubreddit(sequelize, userName, subreddit)
+    return removeUserSubreddit(sequelize, this.batchRemovePosts, this.batchRemoveComments, userName, subreddit)
   },
   getAllSubreddits,
   getAllUsersDBDataForAdmin,
@@ -193,8 +197,8 @@ const db = {
   getCountOfAllPostsWithMediaStillToDownload,
   setMediaDownloadedTrueForPost,
   incrementPostMediaDownloadTry,
-  batchRemovePosts(postsToRemove: string[]): Promise<void> {
-    return batchRemovePosts(commentsDB, postsToRemove)
+  batchRemovePosts(postsToRemove: PostIds, transaction: TransactionType = null): Promise<void> {
+    return batchRemovePosts(postsToRemove, transaction)
   },
   batchAddNewPosts(postsToAdd: Post[]): Promise<void> {
     return batchAddNewPosts(sequelize, postsToAdd)
@@ -224,6 +228,24 @@ const db = {
 
     dbLogger.debug(
       `db.batchAddCommentsToPosts for ${postsComments.length} posts comments took ${timer.format(
+        '[%s] seconds [%ms] ms'
+      )} to complete`
+    )
+
+    timer.clear()
+  },
+  async batchRemoveComments(postIdsToRemove: string[]): Promise<void> {
+    const timer = new Timer()
+    timer.start()
+
+    await commentsDB.transactionAsync(() => {
+      postIdsToRemove.forEach(postId => {
+        commentsDB.remove(postId)
+      })
+    })
+
+    dbLogger.debug(
+      `db.batchRemoveComments for ${postIdsToRemove.length} posts comments took ${timer.format(
         '[%s] seconds [%ms] ms'
       )} to complete`
     )
@@ -305,8 +327,6 @@ const db = {
 
 // // eslint-disable-next-line import/first
 // import { dev } from './db-dev'
-// // eslint-disable-next-line import/first
-//import { isDev } from '../server/utils'
 // isDev && dev.init(db)
 
 export { db }
