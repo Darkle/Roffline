@@ -44,6 +44,11 @@ const Fetcher = {
       checkFetchResponseStatus
     )
   },
+  deleteJSON(path: string, data: Record<string, unknown>): Promise<Response | never> {
+    return fetch(path, { method: 'DELETE', headers: fetchPostPutHeaders, body: JSON.stringify(data) }).then(
+      checkFetchResponseStatus
+    )
+  },
 }
 
 function wait(ms: number): Promise<void> {
