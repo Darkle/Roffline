@@ -125,7 +125,7 @@ async function removeUserSubreddit(
         postIdsFromSubWeAreRemoving = await PostModel.findAll({
           where: { subreddit },
           attributes: ['id'],
-        }).then(items => items.map(item => (item.get() as { id: string }).id as string))
+        }).then(items => items.map(item => (item.get() as { id: string }).id))
 
         await Promise.all([
           SubredditsMasterListModel.destroy({ where: { subreddit: subredditToRemove }, transaction }),
@@ -183,7 +183,7 @@ async function deleteUser(
       postIdsFromSubsWeAreRemoving = await PostModel.findAll({
         where: { subreddit: { [Op.in]: subsOfUserToDeleteThatNoOtherUserHas } },
         attributes: ['id'],
-      }).then(items => items.map(item => (item.get() as { id: string }).id as string))
+      }).then(items => items.map(item => (item.get() as { id: string }).id))
 
       return Promise.all([
         batchRemovePosts(postIdsFromSubsWeAreRemoving, transaction),
