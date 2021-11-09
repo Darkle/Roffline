@@ -29,17 +29,29 @@ function arrayToLowerCase(arr: string[]): string[] {
   return arr.map(thing => thing.toLowerCase())
 }
 
-async function ensurePostsMediaDownloadFolderExists(): Promise<void | fs.Stats> {
-  const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
-
+async function folderExists(folderPath: string): Promise<boolean> {
   /*****
      We want to ignore errors of the folder not being there.
      Using stat instead of access as access returns nothing when successfull.
   *****/
-  const folderExists = await fs.promises.stat(postsMediaFolder).catch(noop)
+  const exists = await fs.promises.stat(folderPath).catch(noop)
+
+  return !!exists
+}
+
+async function pDeleteFolder(folderPath: string): Promise<void> {
+  const exists = await folderExists(folderPath)
+
+  return exists ? fs.promises.rmdir(folderPath, { recursive: true }) : Promise.resolve()
+}
+
+async function ensurePostsMediaDownloadFolderExists(): Promise<void | fs.Stats> {
+  const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
+
+  const exists = await folderExists(postsMediaFolder)
 
   // eslint-disable-next-line functional/no-conditional-statement
-  if (!folderExists) {
+  if (!exists) {
     await fs.promises.mkdir(postsMediaFolder, { recursive: true })
   }
 }
@@ -95,4 +107,6 @@ export {
   getFileSize,
   getFolderSize,
   ModeltoPOJO,
+  pDeleteFolder,
+  folderExists,
 }
