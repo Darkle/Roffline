@@ -105,6 +105,18 @@ const updateAdminSettingsSchema = {
   },
 }
 
+const adminGetPaginatedTableDataSchema = {
+  querystring: {
+    type: 'object',
+    required: ['tableName', 'page'],
+    properties: {
+      tableName: { type: 'string' },
+      page: { type: 'integer' },
+      searchTerm: { type: 'string' },
+    },
+  },
+}
+
 const deleteUserSchema = {
   body: {
     type: 'object',
@@ -124,5 +136,6 @@ export {
   logUserInSchema,
   createUserInSchema,
   updateAdminSettingsSchema,
+  adminGetPaginatedTableDataSchema,
   deleteUserSchema,
 }

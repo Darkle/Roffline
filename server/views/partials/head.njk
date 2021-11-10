@@ -5,14 +5,14 @@
   <title><# pageTitle #></title>
   <link rel="icon" href="/static/images/favicon.png" />
   <link rel="stylesheet" href="/static/vendor/css/modern-normalize@v1.1.0.min.css<# cacheBustString #>" />
-  {% if page === 'admin-users-page' or page === 'admin-logs-page' or page === 'admin-database-page' or page === 'admin-downloads-page' %}
+  {% if page === 'admin-users-page' or page === 'admin-logs-page' or page === 'admin-database-viewer-page' or page === 'admin-downloads-page' %}
   {# We dont want chota messing up the data tables styling, so we have a seperate scoped chota just for the admin header #}
   <link rel="stylesheet" href="/static/vendor/css/scoped-chota@0.8.0.min.css<# cacheBustString #>" />
   {% else %}
   <link rel="stylesheet" href="/static/vendor/css/chota@0.8.0.min.css<# cacheBustString #>" />
   {% endif %}
   <link rel="stylesheet" href="/static/vendor/css/splide@3.1.6.min.css<# cacheBustString #>" />
-  {% if page === 'admin-users-page' or page === 'admin-logs-page' or page === 'admin-database-page' %}
+  {% if page === 'admin-users-page' or page === 'admin-logs-page' or page === 'admin-database-viewer-page' %}
   <link rel="stylesheet" href="/static/vendor/css/vue-good-table-next@0.1.0.css<# cacheBustString #>" />
   {% endif %}
   {% if isAdminPage %}

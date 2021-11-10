@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  {% set page = 'admin-database-viewer-page' %}
+  {% set isAdminPage = true %}
+  {% include "partials/head.njk" %}
+  <body class="admin-database-viewer-page">
+    {# We dont want chota messing up the data tables styling, so we have a seperate scoped chota just for the admin heading and nav #}
+    <div class="scoped-chota">
+      <h1 class="title">Roffline Admin</h1>
+      {% include 'admin/partials/admin-menu.njk' %}
+    </div>
+    <main>
+      <admin-db-viewer-table></admin-db-viewer-table>
+    </main>
+
+    {# Doing it this way so the editor doesnt complain about the nunjucks tags in the script element not being valid JS #}
+    <# unescapeHTML('%3Cscript%3E') | safe #> 
+      window.csrfToken = <# csrfToken | dump | safe #> 
+    <# unescapeHTML('%3C/script%3E') | safe #>
+    <script src="/js/admin/admin-database-viewer-page.js<# cacheBustString #>" type="module"></script>
+  </body>
+</html>

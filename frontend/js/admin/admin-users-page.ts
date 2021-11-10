@@ -8,6 +8,7 @@ import { checkFetchResponseStatus, Fetcher, ignoreScriptTagCompilationWarnings }
 const boolToString = (bool: boolean): string => `${bool.toString()}`
 
 const state = Vue.reactive({
+  isLoading: true,
   columns: [
     {
       label: 'Name',
@@ -60,6 +61,7 @@ const AdminUsersTable = Vue.defineComponent({
       .then(checkFetchResponseStatus)
       .then(res => res.json() as Promise<User[]>)
       .then(users => {
+        state.isLoading = false
         state.rows = users as User[]
       })
       .catch(err => console.error(err))
@@ -97,6 +99,7 @@ const AdminUsersTable = Vue.defineComponent({
         enabled: true,
         mode: 'pages'
       }"
+      :isLoading.sync="state.isLoading"
       compactMode
       >
       <template #table-row="props">
