@@ -13,12 +13,10 @@ const state = Vue.reactive({
     {
       label: 'Name',
       field: 'name',
-      sortable: true,
     },
     {
       label: 'Subreddits',
       field: 'subreddits',
-      sortable: false,
       width: '650px',
       // VueGoodTablePlugin hides arrays if they are empty
       formatFn: (arr: string[]): string => JSON.stringify(arr, null, ' '),
@@ -61,6 +59,7 @@ const AdminUsersTable = Vue.defineComponent({
       .then(checkFetchResponseStatus)
       .then(res => res.json() as Promise<User[]>)
       .then(users => {
+        console.log(users)
         state.isLoading = false
         state.rows = users as User[]
       })
@@ -100,6 +99,9 @@ const AdminUsersTable = Vue.defineComponent({
         mode: 'pages'
       }"
       :isLoading.sync="state.isLoading"
+      :sort-options="{
+        enabled: false,
+      }"
       compactMode
       >
       <template #table-row="props">
