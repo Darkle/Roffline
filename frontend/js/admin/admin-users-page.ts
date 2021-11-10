@@ -2,7 +2,7 @@ import * as Vue from 'vue'
 import VueGoodTablePlugin from 'vue-good-table-next'
 
 import { User } from '../../../db/entities/Users/User'
-import { checkFetchResponseStatus, ignoreScriptTagCompilationWarnings } from '../frontend-utils'
+import { checkFetchResponseStatus, Fetcher, ignoreScriptTagCompilationWarnings } from '../frontend-utils'
 
 // VueGoodTablePlugin hides bool values if they are false
 const boolToString = (bool: boolean): string => `${bool.toString()}`
@@ -64,7 +64,26 @@ const AdminUsersTable = Vue.defineComponent({
       })
       .catch(err => console.error(err))
   },
-  methods: {},
+  methods: {
+    removeUserFromRows(userName: string) {
+      return state.rows.filter(row => row.name !== userName)
+    },
+    deleteUser(event: Event): void {
+      const buttonElem = event.target as HTMLButtonElement
+      const userName = buttonElem.dataset['userName']?.trim() as string
+
+      const deleteUserConfirmation = confirm(`Delete User "${userName}"?`) // eslint-disable-line no-alert
+
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (!deleteUserConfirmation) return
+
+      Fetcher.deleteJSON('/admin/api/delete-user', { userToDelete: userName })
+        .then(() => {
+          state.rows = this.removeUserFromRows(userName)
+        })
+        .catch(err => console.error(err))
+    },
+  },
   template: /* html */ `
     <vue-good-table
       :columns="state.columns"
@@ -80,11 +99,15 @@ const AdminUsersTable = Vue.defineComponent({
       }"
       compactMode
       >
-    <template #table-row="props">
-      <span v-if="props.column.field == 'deleteUser'">
-        <button title="Click To Delete User">Delete</button>
-      </span>
-    </template>
+      <template #table-row="props">
+        <span v-if="props.column.field == 'deleteUser'">
+          <button 
+            title="Click To Delete User" 
+            @click="deleteUser"
+            v-bind:data-user-name="props.row.name"
+          >Delete</button>
+        </span>
+      </template>
   </vue-good-table>
   `,
 })
