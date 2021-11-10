@@ -7,7 +7,6 @@ import { nullable as MaybeNullable } from 'pratica'
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { firstRun } from './db-first-run'
 import { dbLogger } from '../logging/logging'
-import { UpdatesTrackerModel } from './entities/UpdatesTracker'
 import { UserModel } from './entities/Users/Users'
 import { PostModel } from './entities/Posts/Posts'
 import { Post, PostWithComments } from './entities/Posts/Post'
@@ -101,14 +100,6 @@ const db = {
   async close(): Promise<void> {
     await sequelize.close()
     commentsDB.close()
-  },
-  getLastScheduledUpdateTime(): Promise<string> {
-    return UpdatesTrackerModel.findByPk(1, { attributes: ['lastUpdateDateAsString'] }).then(
-      item => item?.get('lastUpdateDateAsString') as string
-    )
-  },
-  async setLastScheduledUpdateTime(date: string | Date): Promise<void> {
-    await UpdatesTrackerModel.update({ lastUpdateDateAsString: date }, { where: { id: 1 } })
   },
   createUser,
   deleteUser(userName: string): Promise<void> {

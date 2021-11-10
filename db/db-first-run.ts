@@ -5,7 +5,6 @@ import { initAdminSettingsModel, AdminSettingsModel } from './entities/AdminSett
 import { initFeedsToFetchModel } from './entities/FeedsToFetch'
 import { initPostModel } from './entities/Posts/Posts'
 import { initSubredditsMasterListModel } from './entities/SubredditsMasterList'
-import { initUpdatesTrackerModel, UpdatesTrackerModel } from './entities/UpdatesTracker'
 import { initUserModel } from './entities/Users/Users'
 
 const defaultAdminSettings = {
@@ -19,17 +18,8 @@ const defaultAdminSettings = {
   updateEndingHour: 5, // eslint-disable-line @typescript-eslint/no-magic-numbers
 }
 
-const defaultUpdatesTrackerSettings = {
-  lastUpdateDateAsString: new Date().toString(),
-}
-
-async function populateTablesOnFirstRun(sequelize: Sequelize): Promise<void> {
-  await sequelize.transaction(transaction =>
-    Promise.all([
-      AdminSettingsModel.create(defaultAdminSettings, { transaction }),
-      UpdatesTrackerModel.create(defaultUpdatesTrackerSettings, { transaction }),
-    ])
-  )
+async function populateTablesOnFirstRun(): Promise<void> {
+  await AdminSettingsModel.create(defaultAdminSettings)
 }
 
 async function createTables(sequelize: Sequelize): Promise<void> {
@@ -38,14 +28,13 @@ async function createTables(sequelize: Sequelize): Promise<void> {
     initFeedsToFetchModel(sequelize),
     initPostModel(sequelize),
     initSubredditsMasterListModel(sequelize),
-    initUpdatesTrackerModel(sequelize),
     initUserModel(sequelize),
   ])
 }
 
 function firstRun(sequelize: Sequelize): Promise<void> {
   return createTables(sequelize).then(() =>
-    AdminSettingsModel.findByPk(1).then(result => (result ? noop() : populateTablesOnFirstRun(sequelize)))
+    AdminSettingsModel.findByPk(1).then(result => (result ? noop() : populateTablesOnFirstRun()))
   )
 }
 
