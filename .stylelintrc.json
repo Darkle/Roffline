@@ -4,6 +4,8 @@
     "no-descending-specificity": null,
     "string-quotes": null,
     "selector-id-pattern": null,
+    "selector-class-pattern": null,
+    "alpha-value-notation": null,
     "declaration-block-no-redundant-longhand-properties": null,
     "font-family-name-quotes": "always-where-recommended",
     "value-keyword-case": ["lower", { "ignoreKeywords": ["SFMono-Regular", "Consolas", "Menlo"] }]
