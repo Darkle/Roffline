@@ -36,8 +36,8 @@ function adminGetAnyTableDataPaginated(
   sequelize: Sequelize,
   tableName: string,
   page = 1
-): Promise<{ rows: TableModelTypes[]; count: number }> {
-  const limit = 200
+): Promise<{ rows: TableModelTypes[]; totalRowsCount: number }> {
+  const limit = 50
   const offset = (page - 1) * limit
 
   return sequelize.transaction(transaction =>
@@ -48,19 +48,19 @@ function adminGetAnyTableDataPaginated(
         raw: true,
         type: QueryTypes.SELECT,
       }) as Promise<TableModelTypes[]>,
-      sequelize.query('SELECT COUNT(*) as `count` from ?', {
+      sequelize.query('SELECT COUNT(*) as `totalRowsCount` from ?', {
         replacements: [tableName],
         transaction,
         raw: true,
         type: QueryTypes.SELECT,
-      }) as Promise<[{ count: number }]>,
+      }) as Promise<[{ totalRowsCount: number }]>,
     ]).then(
-      ([rows, count]: [TableModelTypes[], [{ count: number }]]): {
+      ([rows, totalRowsCount]: [TableModelTypes[], [{ totalRowsCount: number }]]): {
         rows: TableModelTypes[]
-        count: number
+        totalRowsCount: number
       } => ({
         rows,
-        count: count[0].count,
+        totalRowsCount: totalRowsCount[0].totalRowsCount,
       })
     )
   )
@@ -81,7 +81,7 @@ async function adminSearchAnyDBTable(
   searchTerm: string,
   page = 1
 ): Promise<{ rows: TableModelTypes[]; count: number }> {
-  const limit = 200
+  const limit = 50
   const offset = (page - 1) * limit
   const wrappedSearchTerm = `%${searchTerm}%`
 
