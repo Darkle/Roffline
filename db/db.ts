@@ -270,7 +270,10 @@ const db = {
   adminListTablesInDB(): Promise<{ name: string }[]> {
     return adminListTablesInDB(sequelize)
   },
-  adminGetPaginatedTableData(tableName: string, page = 1): Promise<{ rows: TableModelTypes[]; count: number }> {
+  adminGetPaginatedTableData(
+    tableName: string,
+    page = 1
+  ): Promise<{ rows: TableModelTypes[]; totalRowsCount: number }> {
     return adminGetAnyTableDataPaginated(sequelize, tableName, page)
   },
   adminSearchDBTable(
