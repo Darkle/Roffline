@@ -6,7 +6,10 @@ import { User } from '../../../db/entities/Users/User'
 import { checkFetchResponseStatus, ignoreScriptTagCompilationWarnings } from '../frontend-utils'
 
 // VueGoodTablePlugin hides bool values if they are false
-// const boolToString = (bool: boolean): string => `${bool.toString()}`
+const boolToString = (bool: boolean): string => `${bool.toString()}`
+
+// VueGoodTablePlugin hides arrays if they are empty
+// const arrayString = (arr: string[]): string => JSON.stringify(arr, null, ' ')
 
 type AdminSettings = {
   downloadComments: boolean
@@ -52,8 +55,50 @@ type DatabaseTypes =
 
 type DbTables = string[]
 
-const tableColumns = {
+type TableColumnType = {
+  label: string
+  field: string
+  type?: string
+  sortable?: boolean
+  width?: string
+  formatFn?: (value: unknown) => string
+}
+
+type TablesColumnsType = {
+  [key: string]: TableColumnType[]
+}
+
+const tablesColumns = {
   users: [
+    {
+      label: 'Name',
+      field: 'name',
+      sortable: true,
+    },
+    {
+      label: 'Subreddits',
+      field: 'subreddits',
+      sortable: false,
+      width: '650px',
+    },
+    {
+      label: 'hideStickiedPosts',
+      field: 'hideStickiedPosts',
+      type: 'boolean',
+      formatFn: boolToString,
+    },
+    {
+      label: 'infiniteScroll',
+      field: 'infiniteScroll',
+      type: 'boolean',
+      formatFn: boolToString,
+    },
+    {
+      label: 'darkModeTheme',
+      field: 'darkModeTheme',
+      type: 'boolean',
+      formatFn: boolToString,
+    },
     {
       label: 'Delete Row',
       field: 'deleteRow',
@@ -61,6 +106,27 @@ const tableColumns = {
     },
   ],
   posts: [
+      id: string
+  subreddit: string
+  author: string
+  title: string
+  selftext: string
+  selftext_html: string
+  score: number
+  is_self: boolean
+  //  created_utc is a unix timestamp (ie the number of seconds since the epoch)
+  created_utc: number
+  domain: string
+  is_video: boolean
+  stickied: boolean
+  media_has_been_downloaded: boolean
+  mediaDownloadTries: number
+  post_hint: string
+  permalink: string
+  url: string
+  media: PostMediaKey
+  crosspost_parent: string
+  commentsDownloaded: boolean
     {
       label: 'Delete Row',
       field: 'deleteRow',
@@ -108,7 +174,7 @@ const state = Vue.reactive({
   totalRows: 0,
   isLoading: true,
   dbTables: [] as DbTables,
-  columns: [],
+  columns: [] as TableColumnType[],
   rows: [] as DatabaseTypes,
 })
 
@@ -146,8 +212,8 @@ const AdminDBViewerTable = Vue.defineComponent({
           console.log(`Paginated Table Data For "${tableName}" table (50 rows or less):`, paginatedTableData)
 
           const columns = tableName.startsWith('subreddit_table_')
-            ? tableColumns.subredditTable
-            : tableColumns[tableName]
+            ? tablesColumns.subredditTable
+            : ((tablesColumns as TablesColumnsType)[tableName] as TableColumnType[])
 
           state.isLoading = false
           state.columns = columns
