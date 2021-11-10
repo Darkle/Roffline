@@ -15,7 +15,6 @@
 
     {# Doing it this way so the editor doesnt complain about the nunjucks tags in the script element not being valid JS #}
     <# unescapeHTML('%3Cscript%3E') | safe #> 
-      window.users = <# users | dump | safe #>
       window.csrfToken = <# csrfToken | dump | safe #> 
     <# unescapeHTML('%3C/script%3E') | safe #>
     <script src="/js/admin/admin-users-page.js<# cacheBustString #>" type="module"></script>
