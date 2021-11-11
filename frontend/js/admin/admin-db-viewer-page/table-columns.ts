@@ -7,13 +7,15 @@ const trimText = (text: string): string => (text ? `${text.slice(0, 80)}...` : t
 // VueGoodTablePlugin hides arrays if they are empty
 // const arrayString = (arr: string[]): string => JSON.stringify(arr, null, ' ')
 
+const rowOpsColumn = {
+  label: 'Row Ops',
+  field: 'rowOps',
+  width: '8rem',
+}
+
 const tablesColumns = {
+  rowOpsColumn,
   users: [
-    {
-      label: 'Row Ops',
-      field: 'rowOps',
-      width: '8rem',
-    },
     {
       label: 'Name',
       field: 'name',
@@ -43,11 +45,7 @@ const tablesColumns = {
     },
   ],
   posts: [
-    {
-      label: 'Row Ops',
-      field: 'rowOps',
-      width: '8rem',
-    },
+    rowOpsColumn,
     {
       label: 'id',
       field: 'id',
@@ -153,11 +151,7 @@ const tablesColumns = {
     },
   ],
   admin_settings: [
-    {
-      label: 'Row Ops',
-      field: 'rowOps',
-      width: '8rem',
-    },
+    rowOpsColumn,
     {
       label: 'downloadComments',
       field: 'downloadComments',
@@ -201,11 +195,7 @@ const tablesColumns = {
     },
   ],
   comments: [
-    {
-      label: 'Row Ops',
-      field: 'rowOps',
-      width: '8rem',
-    },
+    rowOpsColumn,
     {
       label: 'PostId',
       field: 'key',
@@ -218,33 +208,21 @@ const tablesColumns = {
     },
   ],
   feeds_to_fetch: [
-    {
-      label: 'Row Ops',
-      field: 'rowOps',
-      width: '8rem',
-    },
+    rowOpsColumn,
     {
       label: 'feed',
       field: 'feed',
     },
   ],
   subreddits_master_list: [
-    {
-      label: 'Row Ops',
-      field: 'rowOps',
-      width: '8rem',
-    },
+    rowOpsColumn,
     {
       label: 'subreddit',
       field: 'subreddit',
     },
   ],
   subredditTable: [
-    {
-      label: 'Row Ops',
-      field: 'rowOps',
-      width: '8rem',
-    },
+    rowOpsColumn,
     {
       label: 'posts_Default',
       field: 'posts_Default',
