@@ -41,6 +41,7 @@ const adminApiRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Erro
   fastify.get(
     '/get-paginated-table-data',
     { preHandler: mainPreHandlers, schema: adminGetPaginatedTableDataSchema },
+    // eslint-disable-next-line max-lines-per-function
     async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
       type Query = {
         tableName: string
@@ -51,7 +52,10 @@ const adminApiRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Erro
 
       // eslint-disable-next-line functional/no-conditional-statement
       if (tableName === 'comments') {
-        const paginatedCommentsTableData = await db.adminGetCommentsDBDataPaginated(page)
+        const paginatedCommentsTableData = searchTerm
+          ? db.adminSearchCommentsDBDataPaginated(searchTerm, page)
+          : await db.adminGetCommentsDBDataPaginated(page)
+
         reply.send(paginatedCommentsTableData)
         return
       }

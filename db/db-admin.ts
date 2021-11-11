@@ -90,7 +90,38 @@ function adminGetCommentsDBDataPaginated(
   // Make it promise based. Confusing if one db is promise based and other is sync.
   return Promise.resolve({
     rows: Array.from(commentsDB.getRange({ limit, offset })),
-    totalRowsCount: Array.from(commentsDB.getRange({ limit: Infinity })).length,
+    // Loading the values might take up GB of memory, so just grab the keys to get the number of rows.
+    totalRowsCount: Array.from(commentsDB.getKeys({ limit: Infinity })).length,
+  })
+}
+
+function adminSearchCommentsDBDataPaginated(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  commentsDB: lmdb.RootDatabase<any, lmdb.Key>,
+  searchTerm: string,
+  page = 1
+): Promise<{
+  rows: {
+    key: lmdb.Key
+    value: string
+  }[]
+  totalRowsCount: number
+}> {
+  const limit = rowLimit
+  const offset = (page - 1) * limit
+
+  const results = commentsDB
+    .getRange({ limit, offset })
+    .filter(
+      ({ key, value }: { key: lmdb.Key; value: string }) =>
+        (key as string).includes(searchTerm) || value.includes(searchTerm)
+    )
+
+  // Make it promise based. Confusing if one db is promise based and other is sync.
+  return Promise.resolve({
+    rows: Array.from(results),
+    // lmdb-store doesnt provide a way to get a count, so gonna fudge it.
+    totalRowsCount: Infinity,
   })
 }
 
@@ -103,7 +134,7 @@ type ColumnInfoType = {
   pk: number
 }
 
-async function adminSearchAnyDBTable(
+async function adminSearchAnyDBTablePaginated(
   sequelize: Sequelize,
   tableName: string,
   searchTerm: string,
@@ -174,7 +205,8 @@ export {
   adminListTablesInDB,
   setAdminData,
   adminGetAnyTableDataPaginated,
-  adminSearchAnyDBTable,
+  adminSearchAnyDBTablePaginated,
   getAllUsersDBDataForAdmin,
   adminGetCommentsDBDataPaginated,
+  adminSearchCommentsDBDataPaginated,
 }

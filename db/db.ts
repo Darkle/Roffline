@@ -24,10 +24,11 @@ import {
   getSingleAdminSetting,
   setAdminData,
   adminGetAnyTableDataPaginated,
-  adminSearchAnyDBTable,
+  adminSearchAnyDBTablePaginated,
   adminListTablesInDB,
   getAllUsersDBDataForAdmin,
   adminGetCommentsDBDataPaginated,
+  adminSearchCommentsDBDataPaginated,
 } from './db-admin'
 import {
   createUser,
@@ -278,7 +279,7 @@ const db = {
     searchTerm: string,
     page = 1
   ): Promise<{ rows: TableModelTypes[]; count: number }> {
-    return adminSearchAnyDBTable(sequelize, tableName, searchTerm, page)
+    return adminSearchAnyDBTablePaginated(sequelize, tableName, searchTerm, page)
   },
   adminGetCommentsDBDataPaginated(page: number | undefined): Promise<{
     rows: {
@@ -288,6 +289,18 @@ const db = {
     totalRowsCount: number
   }> {
     return adminGetCommentsDBDataPaginated(commentsDB, page)
+  },
+  adminSearchCommentsDBDataPaginated(
+    searchTerm: string,
+    page: number | undefined
+  ): Promise<{
+    rows: {
+      key: lmdb.Key
+      value: string
+    }[]
+    totalRowsCount: number
+  }> {
+    return adminSearchCommentsDBDataPaginated(commentsDB, searchTerm, page)
   },
   // eslint-disable-next-line max-lines-per-function
   getDBStats(): Promise<{
