@@ -14,8 +14,8 @@ const rowOpsColumn = {
 }
 
 const tablesColumns = {
-  rowOpsColumn,
   users: [
+    rowOpsColumn,
     {
       label: 'Name',
       field: 'name',
