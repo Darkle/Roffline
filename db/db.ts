@@ -1,7 +1,7 @@
 import * as R from 'ramda'
 import { Sequelize, Transaction, Op, QueryTypes } from 'sequelize'
 import { Timer } from 'timer-node'
-import * as lmdb from 'lmdb'
+import lmdb from 'lmdb-store'
 import { nullable as MaybeNullable } from 'pratica'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
@@ -27,6 +27,7 @@ import {
   adminSearchAnyDBTable,
   adminListTablesInDB,
   getAllUsersDBDataForAdmin,
+  adminGetCommentsDBDataPaginated,
 } from './db-admin'
 import {
   createUser,
@@ -86,11 +87,7 @@ const sequelize = new Sequelize({
   // logging: true,
 })
 
-const commentsDB = lmdb.open({
-  path: commentsDBPath,
-  compression: true,
-  encoding: 'string',
-})
+const commentsDB = lmdb.open({ path: commentsDBPath, compression: true, encoding: 'string' })
 
 const db = {
   sequelize,
@@ -282,6 +279,15 @@ const db = {
     page = 1
   ): Promise<{ rows: TableModelTypes[]; count: number }> {
     return adminSearchAnyDBTable(sequelize, tableName, searchTerm, page)
+  },
+  adminGetCommentsDBDataPaginated(page: number | undefined): Promise<{
+    rows: {
+      key: lmdb.Key
+      value: string
+    }[]
+    totalRowsCount: number
+  }> {
+    return adminGetCommentsDBDataPaginated(commentsDB, page)
   },
   // eslint-disable-next-line max-lines-per-function
   getDBStats(): Promise<{
