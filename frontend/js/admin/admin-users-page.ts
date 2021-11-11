@@ -8,7 +8,6 @@ import { checkFetchResponseStatus, Fetcher, ignoreScriptTagCompilationWarnings }
 const boolToString = (bool: boolean): string => `${bool.toString()}`
 
 const state = Vue.reactive({
-  isLoading: true,
   columns: [
     {
       label: 'Name',
@@ -42,6 +41,7 @@ const state = Vue.reactive({
     {
       label: 'Delete User',
       field: 'deleteUser',
+      width: '8rem',
       sortable: false,
     },
   ],
@@ -60,7 +60,6 @@ const AdminUsersTable = Vue.defineComponent({
       .then(res => res.json() as Promise<User[]>)
       .then(users => {
         console.log(users)
-        state.isLoading = false
         state.rows = users as User[]
       })
       .catch(err => console.error(err))
@@ -98,7 +97,6 @@ const AdminUsersTable = Vue.defineComponent({
         enabled: true,
         mode: 'pages'
       }"
-      :isLoading.sync="state.isLoading"
       :sort-options="{
         enabled: false,
       }"
