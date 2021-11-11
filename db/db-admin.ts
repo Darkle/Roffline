@@ -53,8 +53,8 @@ function adminGetAnyTableDataPaginated(
       raw: true,
       type: QueryTypes.SELECT,
     }) as Promise<TableModelTypes[]>,
-    sequelize.query('SELECT COUNT(*) as `totalRowsCount` from ?', {
-      replacements: [tableName],
+    sequelize.query('SELECT COUNT(*) as `totalRowsCount` from :tableName', {
+      replacements: { tableName },
       raw: true,
       type: QueryTypes.SELECT,
     }) as Promise<[{ totalRowsCount: number }]>,
