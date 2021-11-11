@@ -57,11 +57,11 @@ const dev = {
   addSubPostIdRefs(db, sub: string) {
     const urls = [
       `https://www.reddit.com/r/${sub}/.json`,
-      // `https://www.reddit.com/r/${sub}/top/.json?t=day`,
-      // `https://www.reddit.com/r/${sub}/top/.json?t=week`,
-      // `https://www.reddit.com/r/${sub}/top/.json?t=month`,
-      // `https://www.reddit.com/r/${sub}/top/.json?t=year`,
-      // `https://www.reddit.com/r/${sub}/top/.json?t=all`,
+      `https://www.reddit.com/r/${sub}/top/.json?t=day`,
+      `https://www.reddit.com/r/${sub}/top/.json?t=week`,
+      `https://www.reddit.com/r/${sub}/top/.json?t=month`,
+      `https://www.reddit.com/r/${sub}/top/.json?t=year`,
+      `https://www.reddit.com/r/${sub}/top/.json?t=all`,
     ]
 
     return Prray.from(urls)
@@ -147,7 +147,9 @@ const dev = {
       dbLogger.warn('!!DEV DB FUNCTIONS ARE BEING RUN!!')
 
       // dev
-      //   .mockMediaForPosts(db)
+      //   .addSubPostIdRefs(db, 'abruptchaos')
+      //   .then(res => db.batchAddSubredditsPostIdReferences(res))
+      //   // .mockMediaForPosts(db)
       //   //   .createUser(db, 'Coop')
       //   //   .then(() => dev.addSubs(db, 'Coop', ['space']))
       //   //   .then(() => dev.addPosts(db, 'space'))
