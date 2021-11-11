@@ -47,29 +47,25 @@ function adminGetAnyTableDataPaginated(
   const limit = rowLimit
   const offset = (page - 1) * limit
 
-  return sequelize.transaction(transaction =>
-    Promise.all([
-      sequelize.query(`SELECT * FROM :tableName LIMIT :limit ${page > 1 ? 'OFFSET :offset' : ''}`, {
-        replacements: { tableName, limit, offset },
-        transaction,
-        raw: true,
-        type: QueryTypes.SELECT,
-      }) as Promise<TableModelTypes[]>,
-      sequelize.query('SELECT COUNT(*) as `totalRowsCount` from ?', {
-        replacements: [tableName],
-        transaction,
-        raw: true,
-        type: QueryTypes.SELECT,
-      }) as Promise<[{ totalRowsCount: number }]>,
-    ]).then(
-      ([rows, totalRowsCount]: [TableModelTypes[], [{ totalRowsCount: number }]]): {
-        rows: TableModelTypes[]
-        totalRowsCount: number
-      } => ({
-        rows,
-        totalRowsCount: totalRowsCount[0].totalRowsCount,
-      })
-    )
+  return Promise.all([
+    sequelize.query(`SELECT * FROM :tableName LIMIT :limit ${page > 1 ? 'OFFSET :offset' : ''}`, {
+      replacements: { tableName, limit, offset },
+      raw: true,
+      type: QueryTypes.SELECT,
+    }) as Promise<TableModelTypes[]>,
+    sequelize.query('SELECT COUNT(*) as `totalRowsCount` from ?', {
+      replacements: [tableName],
+      raw: true,
+      type: QueryTypes.SELECT,
+    }) as Promise<[{ totalRowsCount: number }]>,
+  ]).then(
+    ([rows, totalRowsCount]: [TableModelTypes[], [{ totalRowsCount: number }]]): {
+      rows: TableModelTypes[]
+      totalRowsCount: number
+    } => ({
+      rows,
+      totalRowsCount: totalRowsCount[0].totalRowsCount,
+    })
   )
 }
 
@@ -120,7 +116,7 @@ function adminSearchCommentsDBDataPaginated(
   // Make it promise based. Confusing if one db is promise based and other is sync.
   return Promise.resolve({
     rows: Array.from(results),
-    // lmdb-store doesnt provide a way to get a count, so gonna fudge it.
+    // lmdb-store doesnt provide a way to get full count, so gonna fudge it.
     totalRowsCount: Infinity,
   })
 }
@@ -164,34 +160,30 @@ async function adminSearchAnyDBTablePaginated(
     .map(tabName => `${tabName} LIKE :wrappedSearchTerm`)
     .join(' OR ')
 
-  return sequelize.transaction(transaction =>
-    Promise.all([
-      sequelize.query(
-        `SELECT * FROM :tableName WHERE ${tableColumnSearchQueries} LIMIT :limit ${
-          page > 1 ? 'OFFSET :offset' : ''
-        }`,
-        {
-          replacements: { tableName, wrappedSearchTerm, limit, offset },
-          transaction,
-          raw: true,
-          type: QueryTypes.SELECT,
-        }
-      ) as Promise<TableModelTypes[]>,
-      sequelize.query(`SELECT COUNT(*) as count FROM :tableName WHERE ${tableColumnSearchQueries}`, {
-        replacements: { tableName, wrappedSearchTerm },
-        transaction,
+  return Promise.all([
+    sequelize.query(
+      `SELECT * FROM :tableName WHERE ${tableColumnSearchQueries} LIMIT :limit ${
+        page > 1 ? 'OFFSET :offset' : ''
+      }`,
+      {
+        replacements: { tableName, wrappedSearchTerm, limit, offset },
         raw: true,
         type: QueryTypes.SELECT,
-      }) as Promise<[{ count: number }]>,
-    ]).then(
-      ([rows, count]: [TableModelTypes[], [{ count: number }]]): {
-        rows: TableModelTypes[]
-        count: number
-      } => ({
-        rows,
-        count: count[0].count,
-      })
-    )
+      }
+    ) as Promise<TableModelTypes[]>,
+    sequelize.query(`SELECT COUNT(*) as count FROM :tableName WHERE ${tableColumnSearchQueries}`, {
+      replacements: { tableName, wrappedSearchTerm },
+      raw: true,
+      type: QueryTypes.SELECT,
+    }) as Promise<[{ count: number }]>,
+  ]).then(
+    ([rows, count]: [TableModelTypes[], [{ count: number }]]): {
+      rows: TableModelTypes[]
+      count: number
+    } => ({
+      rows,
+      count: count[0].count,
+    })
   )
 }
 
