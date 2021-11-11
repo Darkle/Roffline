@@ -1,3 +1,4 @@
+import lmdb from 'lmdb-store'
 import { QueryTypes, Sequelize } from 'sequelize'
 
 import { AdminSettings, AdminSettingsModel } from './entities/AdminSettings'
@@ -28,16 +29,22 @@ async function setAdminData(
   await AdminSettingsModel.update({ [adminSettingName]: value }, { where: { id: 1 } })
 }
 
-function adminListTablesInDB(sequelize: Sequelize): Promise<{ name: string }[]> {
-  return sequelize.showAllSchemas({ logging: false }) as Promise<{ name: string }[]>
+async function adminListTablesInDB(sequelize: Sequelize): Promise<{ name: string }[]> {
+  return (sequelize.showAllSchemas({ logging: false }) as Promise<{ name: string }[]>).then(tableNames => [
+    ...tableNames,
+    // need to manually add the comments table name as it is a seperate lmdb db
+    { name: 'comments' },
+  ])
 }
+
+const rowLimit = 50
 
 function adminGetAnyTableDataPaginated(
   sequelize: Sequelize,
   tableName: string,
   page = 1
 ): Promise<{ rows: TableModelTypes[]; totalRowsCount: number }> {
-  const limit = 50
+  const limit = rowLimit
   const offset = (page - 1) * limit
 
   return sequelize.transaction(transaction =>
@@ -66,6 +73,27 @@ function adminGetAnyTableDataPaginated(
   )
 }
 
+function adminGetCommentsDBDataPaginated(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  commentsDB: lmdb.RootDatabase<any, lmdb.Key>,
+  page = 1
+): Promise<{
+  rows: {
+    key: lmdb.Key
+    value: string
+  }[]
+  totalRowsCount: number
+}> {
+  const limit = rowLimit
+  const offset = (page - 1) * limit
+
+  // Make it promise based. Confusing if one db is promise based and other is sync.
+  return Promise.resolve({
+    rows: Array.from(commentsDB.getRange({ limit, offset })),
+    totalRowsCount: Array.from(commentsDB.getRange({ limit: Infinity })).length,
+  })
+}
+
 type ColumnInfoType = {
   cid: number
   name: string
@@ -81,7 +109,7 @@ async function adminSearchAnyDBTable(
   searchTerm: string,
   page = 1
 ): Promise<{ rows: TableModelTypes[]; count: number }> {
-  const limit = 50
+  const limit = rowLimit
   const offset = (page - 1) * limit
   const wrappedSearchTerm = `%${searchTerm}%`
 
@@ -148,4 +176,5 @@ export {
   adminGetAnyTableDataPaginated,
   adminSearchAnyDBTable,
   getAllUsersDBDataForAdmin,
+  adminGetCommentsDBDataPaginated,
 }
