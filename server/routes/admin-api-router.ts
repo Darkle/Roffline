@@ -49,6 +49,13 @@ const adminApiRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Erro
       }
       const { tableName, page, searchTerm } = request.query as Query
 
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (tableName === 'comments') {
+        const paginatedCommentsTableData = await db.adminGetCommentsDBDataPaginated(page)
+        reply.send(paginatedCommentsTableData)
+        return
+      }
+
       const paginatedTableData = searchTerm
         ? await db.adminSearchDBTable(tableName, searchTerm, page)
         : await db.adminGetPaginatedTableData(tableName, page)

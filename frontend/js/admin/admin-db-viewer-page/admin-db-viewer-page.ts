@@ -2,16 +2,23 @@ import * as Vue from 'vue'
 import VueGoodTablePlugin from 'vue-good-table-next'
 
 import { DbTables, TableColumnType, DatabaseTypes, TablesColumnsType } from './admin-db-viewer-page-types'
-import { checkFetchResponseStatus, ignoreScriptTagCompilationWarnings } from '../../frontend-utils'
+import { checkFetchResponseStatus, ignoreScriptTagCompilationWarnings, $ } from '../../frontend-utils'
 import { tablesColumns } from './table-columns'
 
 const state = Vue.reactive({
   totalRows: 0,
-  isLoading: true,
+  currentTable: '',
   dbTables: [] as DbTables,
   columns: [] as TableColumnType[],
   rows: [] as DatabaseTypes,
 })
+
+type PageChangeParams = {
+  currentPage: number
+  prevPage: number
+  currentPerPage: number
+  total: number
+}
 
 const AdminDBViewerTable = Vue.defineComponent({
   data() {
@@ -34,8 +41,6 @@ const AdminDBViewerTable = Vue.defineComponent({
   methods: {
     // eslint-disable-next-line max-lines-per-function
     fetchTableData(tableName: string, page = 1, searchTerm = null) {
-      state.isLoading = true
-
       fetch(
         `/admin/api/get-paginated-table-data?tableName=${tableName}&page=${page}${
           searchTerm ? `&searchTerm=${searchTerm as string}` : ''
@@ -44,35 +49,52 @@ const AdminDBViewerTable = Vue.defineComponent({
         .then(checkFetchResponseStatus)
         .then(res => res.json() as Promise<{ rows: DatabaseTypes; totalRowsCount: number }>)
         .then(paginatedTableData => {
-          console.log(`Paginated Table Data For "${tableName}" table (50 rows or less):`, paginatedTableData)
+          console.log(
+            `Paginated Table Data For "${tableName}" table, page ${page} (50 rows or less):`,
+            paginatedTableData
+          )
 
           const columns = tableName.startsWith('subreddit_table_')
             ? tablesColumns.subredditTable
             : ((tablesColumns as TablesColumnsType)[tableName] as TableColumnType[])
 
-          state.isLoading = false
-          state.columns = columns
-          state.rows = paginatedTableData.rows
-          state.totalRows = paginatedTableData.totalRowsCount
+          // dont need the Row Ops column if no rows, makes it confusing
+          if (paginatedTableData.rows.length === 0) columns.shift() // eslint-disable-line functional/no-conditional-statement,functional/immutable-data
+
+          /*****
+            For some reason vue-good-table-next errors when switching tables and assigning the new rows data if the new
+            table has less columns. Adding a reset here and a small tick before update to fix that.
+          *****/
+          state.columns = []
+          state.rows = []
+          state.totalRows = 0
+
+          this.$nextTick(() => {
+            state.columns = columns
+            state.rows = paginatedTableData.rows
+            state.totalRows = paginatedTableData.totalRowsCount
+          })
         })
+        .then(this.scrollTableToTop)
+    },
+    scrollTableToTop() {
+      const tableContainer = $('.vgt-responsive') as HTMLDivElement
+      // eslint-disable-next-line functional/immutable-data
+      tableContainer.scrollTop = 0
     },
     dbSelectHandler(event: Event) {
       const selectElem = event?.target as HTMLSelectElement
       const tableName = selectElem.value as string
 
+      state.currentTable = tableName
+
       this.fetchTableData(tableName)
     },
-    deleteRow() {
-      console.log('deleteRow')
+    rowOps() {
+      console.log('rowOps')
     },
-    onPageChange() {
-      console.log('onPageChange')
-    },
-    onSortChange() {
-      console.log('onSortChange')
-    },
-    onColumnFilter() {
-      console.log('onColumnFilter')
+    onPageChange(params: PageChangeParams) {
+      this.fetchTableData(state.currentTable, params.currentPage)
     },
     onSearch() {
       //TODO:debounce
@@ -92,10 +114,10 @@ const AdminDBViewerTable = Vue.defineComponent({
     <vue-good-table
       mode="remote"
       compactMode
+      max-height="50vh"
       :totalRows="state.totalRows"
       :columns="state.columns"
       :rows="state.rows"
-      :fixed-header="true"
       :line-numbers="true"
       :search-options="{
         enabled: true
@@ -106,18 +128,18 @@ const AdminDBViewerTable = Vue.defineComponent({
         perPage: 50,
         perPageDropdownEnabled: false,
       }"
-      :isLoading.sync="state.isLoading"
+      :sort-options="{
+        enabled: false,
+      }"
       v-on:page-change="onPageChange"
-      v-on:sort-change="onSortChange"
-      v-on:column-filter="onColumnFilter"
       v-on:search="onSearch"
       >
       <template #table-row="props">
-        <span v-if="props.column.field == 'deleteRow'">
+        <span v-if="props.column.field == 'rowOps'">
         <!-- TODO:v-bind:data-row-index="props.row.index" may need to be changed  --> 
           <button 
             title="Click To Delete Row" 
-            @click="deleteRow"
+            @click="rowOps"
             v-bind:data-row-index="props.row.index"
           >Delete</button>
         </span>

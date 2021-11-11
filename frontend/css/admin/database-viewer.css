@@ -34,10 +34,31 @@ body.admin-database-viewer-page {
   max-width: 80vw;
 }
 
-.admin-database-viewer-page td {
+.admin-database-viewer-page .vgt-wrap {
+  max-width: 90vw;
+}
+
+.admin-database-viewer-page .vgt-wrap td {
   overflow-wrap: break-word;
   word-wrap: break-word;
   word-break: break-word;
+}
+
+.admin-database-viewer-page .vgt-wrap th {
+  position: sticky;
+  top: 0;
+}
+
+.admin-database-viewer-page main #vgt-table > tbody td[data-label='Row Ops'] {
+  text-align: center;
+}
+
+.admin-database-viewer-page main .vgt-wrap__footer {
+  padding: 0.7rem;
+}
+
+.admin-database-viewer-page main .vgt-wrap__footer * {
+  font-size: 0.8rem;
 }
 
 .admin-database-viewer-page .json-object-view-wrapper {
@@ -92,20 +113,4 @@ body.admin-database-viewer-page {
 .admin-database-viewer-page .clipboardInput {
   position: absolute;
   top: -99999999999999px;
-}
-
-.admin-database-viewer-page main #vgt-table > thead > tr > th.line-numbers {
-  width: 2.3rem;
-}
-
-.admin-database-viewer-page main #vgt-table > tbody td[data-label='Delete Row'] {
-  text-align: center;
-}
-
-.admin-database-viewer-page main .vgt-wrap__footer {
-  padding: 0.7rem;
-}
-
-.admin-database-viewer-page main .vgt-wrap__footer * {
-  font-size: 0.8rem;
 }
