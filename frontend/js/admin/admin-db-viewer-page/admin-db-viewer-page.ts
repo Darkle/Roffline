@@ -7,7 +7,9 @@ import { tablesColumns } from './table-columns'
 
 const state = Vue.reactive({
   totalRows: 0,
+  isLoading: true,
   currentTable: '',
+  currentPage: 1,
   dbTables: [] as DbTables,
   columns: [] as TableColumnType[],
   rows: [] as DatabaseTypes,
@@ -32,7 +34,7 @@ const AdminDBViewerTable = Vue.defineComponent({
       .then(res => res.json() as Promise<{ name: string }[]>)
       .then(dbTables => {
         console.log('DB Tables:', dbTables)
-
+        state.isLoading = false
         state.dbTables = dbTables.map(dbTable => dbTable.name)
 
         this.fetchTableData(state.dbTables[0] as string)
@@ -76,6 +78,9 @@ const AdminDBViewerTable = Vue.defineComponent({
           })
         })
         .then(this.scrollTableToTop)
+        .then(() => {
+          state.isLoading = false
+        })
     },
     scrollTableToTop() {
       const tableContainer = $('.vgt-responsive') as HTMLDivElement
@@ -86,6 +91,7 @@ const AdminDBViewerTable = Vue.defineComponent({
       const selectElem = event?.target as HTMLSelectElement
       const tableName = selectElem.value as string
 
+      state.isLoading = true
       state.currentTable = tableName
 
       this.fetchTableData(tableName)
@@ -94,11 +100,20 @@ const AdminDBViewerTable = Vue.defineComponent({
       console.log('rowOps')
     },
     onPageChange(params: PageChangeParams) {
+      state.currentPage = params.currentPage
+
+      // I dont know why but the comments table pages take longer to load.
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (state.currentTable === 'comments') {
+        state.isLoading = true
+      }
+
       this.fetchTableData(state.currentTable, params.currentPage)
     },
     onSearch() {
       //TODO:debounce
       console.log('onSearch')
+      // this.fetchTableData(state.currentTable, state.currentPage, searchTerm)
     },
   },
   template: /* html */ `
@@ -115,6 +130,7 @@ const AdminDBViewerTable = Vue.defineComponent({
       mode="remote"
       compactMode
       max-height="50vh"
+      :isLoading.sync="state.isLoading"
       :totalRows="state.totalRows"
       :columns="state.columns"
       :rows="state.rows"
