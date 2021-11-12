@@ -99,9 +99,6 @@ const AdminDBViewerTable = Vue.defineComponent({
             ? tablesColumns.subredditTable
             : ((tablesColumns as TablesColumnsType)[state.currentTable] as TableColumnType[])
 
-          // dont need the Row Ops column if no rows, makes it confusing
-          if (paginatedTableData.rows.length === 0) columns.shift() // eslint-disable-line functional/no-conditional-statement,functional/immutable-data
-
           /*****
             For some reason vue-good-table-next errors when switching tables and assigning the new rows data if the new
             table has less columns. Adding a reset here and a small tick before update to fix that.
