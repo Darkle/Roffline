@@ -87,7 +87,6 @@ const AdminDBViewerTable = Vue.defineComponent({
       )
         .then(checkFetchResponseStatus)
         .then(res => res.json() as Promise<{ rows: DatabaseTypes; count: number }>)
-        // eslint-disable-next-line max-lines-per-function
         .then(paginatedTableData => {
           console.log(
             `Paginated Table Data For "${state.currentTable}" table, page ${state.currentPage} (50 rows or less):`,
@@ -107,9 +106,7 @@ const AdminDBViewerTable = Vue.defineComponent({
             For some reason vue-good-table-next errors when switching tables and assigning the new rows data if the new
             table has less columns. Adding a reset here and a small tick before update to fix that.
           *****/
-          state.columns = []
-          state.rows = []
-          state.totalRows = 0
+          this.resetRowData()
 
           this.$nextTick(() => {
             state.columns = columns
@@ -131,6 +128,11 @@ const AdminDBViewerTable = Vue.defineComponent({
       const tableContainer = $('.vgt-responsive') as HTMLDivElement
       // eslint-disable-next-line functional/immutable-data
       tableContainer.scrollTop = 0
+    },
+    resetRowData() {
+      state.columns = []
+      state.rows = []
+      state.totalRows = 0
     },
     resetSearchInput() {
       this.$nextTick(() => {
