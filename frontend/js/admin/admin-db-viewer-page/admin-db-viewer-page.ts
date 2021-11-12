@@ -1,13 +1,19 @@
 import * as Vue from 'vue'
 import VueGoodTablePlugin from 'vue-good-table-next'
+import debounce from 'lodash.debounce'
 
 import { DbTables, TableColumnType, DatabaseTypes, TablesColumnsType } from './admin-db-viewer-page-types'
 import { checkFetchResponseStatus, ignoreScriptTagCompilationWarnings, $ } from '../../frontend-utils'
 import { tablesColumns } from './table-columns'
 
+const defaultNumRowsPerPage = 50
+const commentsNumRowsPerPage = 200
+
 const state = Vue.reactive({
   totalRows: 0,
+  rowsPerPage: defaultNumRowsPerPage,
   isLoading: true,
+  searchTerm: '',
   currentTable: '',
   currentPage: 1,
   dbTables: [] as DbTables,
@@ -28,6 +34,20 @@ const AdminDBViewerTable = Vue.defineComponent({
       state,
     }
   },
+  created() {
+    const delay = 500
+    // eslint-disable-next-line functional/immutable-data
+    this['onSearch'] = debounce(({ searchTerm }: { searchTerm: string }) => {
+      state.isLoading = true
+      /*****
+        If doing a search in comments db, because of limitations of comments db search,
+        we cant return the total count for a search, so we just show 200 results and hope thats enough.
+      *****/
+      state.rowsPerPage = state.currentTable === 'comments' ? commentsNumRowsPerPage : defaultNumRowsPerPage
+      state.searchTerm = searchTerm
+      this.fetchTableData(state.currentPage)
+    }, delay)
+  },
   mounted() {
     fetch('/admin/api/list-db-tables')
       .then(checkFetchResponseStatus)
@@ -36,29 +56,32 @@ const AdminDBViewerTable = Vue.defineComponent({
         console.log('DB Tables:', dbTables)
         state.isLoading = false
         state.dbTables = dbTables.map(dbTable => dbTable.name)
+        state.currentTable = state.dbTables[0] as string
 
-        this.fetchTableData(state.dbTables[0] as string)
+        this.fetchTableData()
       })
   },
   methods: {
     // eslint-disable-next-line max-lines-per-function
-    fetchTableData(tableName: string, page = 1, searchTerm = null) {
+    fetchTableData(page = 1, newTable = false) {
+      const searching = state.searchTerm.length > 0
+
       fetch(
-        `/admin/api/get-paginated-table-data?tableName=${tableName}&page=${page}${
-          searchTerm ? `&searchTerm=${searchTerm as string}` : ''
+        `/admin/api/get-paginated-table-data?tableName=${state.currentTable}&page=${page}${
+          searching ? `&searchTerm=${state.searchTerm.trim()}` : ''
         }`
       )
         .then(checkFetchResponseStatus)
-        .then(res => res.json() as Promise<{ rows: DatabaseTypes; totalRowsCount: number }>)
+        .then(res => res.json() as Promise<{ rows: DatabaseTypes; count: number }>)
         .then(paginatedTableData => {
           console.log(
-            `Paginated Table Data For "${tableName}" table, page ${page} (50 rows or less):`,
+            `Paginated Table Data For "${state.currentTable}" table, page ${page} (50 rows or less):`,
             paginatedTableData
           )
 
-          const columns = tableName.startsWith('subreddit_table_')
+          const columns = state.currentTable.startsWith('subreddit_table_')
             ? tablesColumns.subredditTable
-            : ((tablesColumns as TablesColumnsType)[tableName] as TableColumnType[])
+            : ((tablesColumns as TablesColumnsType)[state.currentTable] as TableColumnType[])
 
           // dont need the Row Ops column if no rows, makes it confusing
           if (paginatedTableData.rows.length === 0) columns.shift() // eslint-disable-line functional/no-conditional-statement,functional/immutable-data
@@ -74,12 +97,17 @@ const AdminDBViewerTable = Vue.defineComponent({
           this.$nextTick(() => {
             state.columns = columns
             state.rows = paginatedTableData.rows
-            state.totalRows = paginatedTableData.totalRowsCount
+            state.totalRows = paginatedTableData.count
           })
         })
         .then(this.scrollTableToTop)
         .then(() => {
           state.isLoading = false
+          // eslint-disable-next-line functional/no-conditional-statement
+          if (newTable) {
+            // Clear any search in search input if we have loaded a new table.
+            this.resetSearchInput()
+          }
         })
     },
     scrollTableToTop() {
@@ -87,33 +115,41 @@ const AdminDBViewerTable = Vue.defineComponent({
       // eslint-disable-next-line functional/immutable-data
       tableContainer.scrollTop = 0
     },
+    resetSearchInput() {
+      this.$nextTick(() => {
+        const searchInput = $('input[id^="vgt-search-"]') as HTMLInputElement
+        // eslint-disable-next-line functional/immutable-data
+        searchInput.value = ''
+      })
+    },
     dbSelectHandler(event: Event) {
       const selectElem = event?.target as HTMLSelectElement
       const tableName = selectElem.value as string
+      const newTable = true
+      const page = 1
 
       state.isLoading = true
       state.currentTable = tableName
+      state.searchTerm = ''
 
-      this.fetchTableData(tableName)
+      this.fetchTableData(page, newTable)
     },
-    rowOps() {
-      console.log('rowOps')
+    deleteRow() {
+      console.log('deleteRow')
+    },
+    inspectRowData() {
+      console.log('inspectRowData')
     },
     onPageChange(params: PageChangeParams) {
       state.currentPage = params.currentPage
 
-      // I dont know why but the comments table pages take longer to load.
+      // The comments table pages take longer to load.
       // eslint-disable-next-line functional/no-conditional-statement
       if (state.currentTable === 'comments') {
         state.isLoading = true
       }
 
-      this.fetchTableData(state.currentTable, params.currentPage)
-    },
-    onSearch() {
-      //TODO:debounce
-      console.log('onSearch')
-      // this.fetchTableData(state.currentTable, state.currentPage, searchTerm)
+      this.fetchTableData(params.currentPage)
     },
   },
   template: /* html */ `
@@ -141,7 +177,7 @@ const AdminDBViewerTable = Vue.defineComponent({
       :pagination-options="{
         enabled: true,
         mode: 'pages',
-        perPage: 50,
+        perPage: state.rowsPerPage,
         perPageDropdownEnabled: false,
       }"
       :sort-options="{
@@ -155,9 +191,14 @@ const AdminDBViewerTable = Vue.defineComponent({
         <!-- TODO:v-bind:data-row-index="props.row.index" may need to be changed  --> 
           <button 
             title="Click To Delete Row" 
-            @click="rowOps"
+            @click="deleteRow"
             v-bind:data-row-index="props.row.index"
-          >Delete</button>
+          >Delete Row</button>
+          <button 
+            title="Click To Inspect Row Data" 
+            @click="inspectRowData"
+            v-bind:data-row-index="props.row.index"
+          >Inspect Data</button>
         </span>
       </template>
   </vue-good-table>

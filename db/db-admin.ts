@@ -43,7 +43,7 @@ function adminGetAnyTableDataPaginated(
   sequelize: Sequelize,
   tableName: string,
   page = 1
-): Promise<{ rows: TableModelTypes[]; totalRowsCount: number }> {
+): Promise<{ rows: TableModelTypes[]; count: number }> {
   const limit = rowLimit
   const offset = (page - 1) * limit
 
@@ -53,18 +53,18 @@ function adminGetAnyTableDataPaginated(
       raw: true,
       type: QueryTypes.SELECT,
     }) as Promise<TableModelTypes[]>,
-    sequelize.query('SELECT COUNT(*) as `totalRowsCount` from :tableName', {
+    sequelize.query('SELECT COUNT(*) as `count` from :tableName', {
       replacements: { tableName },
       raw: true,
       type: QueryTypes.SELECT,
-    }) as Promise<[{ totalRowsCount: number }]>,
+    }) as Promise<[{ count: number }]>,
   ]).then(
-    ([rows, totalRowsCount]: [TableModelTypes[], [{ totalRowsCount: number }]]): {
+    ([rows, count]: [TableModelTypes[], [{ count: number }]]): {
       rows: TableModelTypes[]
-      totalRowsCount: number
+      count: number
     } => ({
       rows,
-      totalRowsCount: totalRowsCount[0].totalRowsCount,
+      count: count[0].count,
     })
   )
 }
@@ -78,7 +78,7 @@ function adminGetCommentsDBDataPaginated(
     key: lmdb.Key
     value: string
   }[]
-  totalRowsCount: number
+  count: number
 }> {
   const limit = rowLimit
   const offset = (page - 1) * limit
@@ -87,37 +87,40 @@ function adminGetCommentsDBDataPaginated(
   return Promise.resolve({
     rows: Array.from(commentsDB.getRange({ limit, offset })),
     // Loading the values might take up GB of memory, so just grab the keys to get the number of rows.
-    totalRowsCount: Array.from(commentsDB.getKeys({ limit: Infinity })).length,
+    count: Array.from(commentsDB.getKeys({ limit: Infinity })).length,
   })
 }
 
 function adminSearchCommentsDBDataPaginated(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   commentsDB: lmdb.RootDatabase<any, lmdb.Key>,
-  searchTerm: string,
-  page = 1
+  searchTerm: string
 ): Promise<{
   rows: {
     key: lmdb.Key
     value: string
   }[]
-  totalRowsCount: number
+  count: number
 }> {
-  const limit = rowLimit
-  const offset = (page - 1) * limit
+  /*****
+    Since there is no way to get a count of all results with lmdb-store without loading them all into memory,
+    we are just going to limit the search results to 200 results and show them all on one page.
+  *****/
+  const limit = 200
 
-  const results = commentsDB
-    .getRange({ limit, offset })
-    .filter(
-      ({ key, value }: { key: lmdb.Key; value: string }) =>
-        (key as string).includes(searchTerm) || value.includes(searchTerm)
-    )
+  const results = Array.from(
+    commentsDB
+      .getRange({ limit })
+      .filter(
+        ({ key, value }: { key: lmdb.Key; value: string }) =>
+          (key as string).includes(searchTerm) || value.includes(searchTerm)
+      )
+  )
 
   // Make it promise based. Confusing if one db is promise based and other is sync.
   return Promise.resolve({
-    rows: Array.from(results),
-    // lmdb-store doesnt provide a way to get full count, so gonna fudge it.
-    totalRowsCount: Infinity,
+    rows: results,
+    count: results.length,
   })
 }
 

@@ -1,9 +1,11 @@
 // VueGoodTablePlugin hides bool values if they are false
 const boolToString = (bool: boolean): string => `${bool.toString()}`
 
-// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-const trimText = (text: string, textLength = 80): string => (text ? `${text.slice(0, textLength)}...` : text)
-
+const trimText = (text: string, textLength: number): string => {
+  const defaultTextLength = 80
+  const textEnd = typeof textLength === 'number' ? textLength : defaultTextLength
+  return text ? `${text.slice(0, textEnd)}...` : text
+}
 // VueGoodTablePlugin hides arrays if they are empty
 // const arrayString = (arr: string[]): string => JSON.stringify(arr, null, ' ')
 

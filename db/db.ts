@@ -268,10 +268,7 @@ const db = {
   adminListTablesInDB(): Promise<{ name: string }[]> {
     return adminListTablesInDB(sequelize)
   },
-  adminGetPaginatedTableData(
-    tableName: string,
-    page = 1
-  ): Promise<{ rows: TableModelTypes[]; totalRowsCount: number }> {
+  adminGetPaginatedTableData(tableName: string, page = 1): Promise<{ rows: TableModelTypes[]; count: number }> {
     return adminGetAnyTableDataPaginated(sequelize, tableName, page)
   },
   adminSearchDBTable(
@@ -286,21 +283,18 @@ const db = {
       key: lmdb.Key
       value: string
     }[]
-    totalRowsCount: number
+    count: number
   }> {
     return adminGetCommentsDBDataPaginated(commentsDB, page)
   },
-  adminSearchCommentsDBDataPaginated(
-    searchTerm: string,
-    page: number | undefined
-  ): Promise<{
+  adminSearchCommentsDBDataPaginated(searchTerm: string): Promise<{
     rows: {
       key: lmdb.Key
       value: string
     }[]
-    totalRowsCount: number
+    count: number
   }> {
-    return adminSearchCommentsDBDataPaginated(commentsDB, searchTerm, page)
+    return adminSearchCommentsDBDataPaginated(commentsDB, searchTerm)
   },
   // eslint-disable-next-line max-lines-per-function
   getDBStats(): Promise<{
