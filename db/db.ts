@@ -59,7 +59,7 @@ import {
 } from './posts/db-posts'
 
 import { CommentContainer } from './entities/Comments'
-import { getEnvFilePath, getFileSize /*, isDev*/ } from '../server/utils'
+import { getEnvFilePath, getFileSize /*, isDev */ } from '../server/utils'
 
 const sqliteDBPath = process.env['SQLITE_DBPATH'] || './roffline-sqlite.db'
 const commentsDBPath = process.env['COMMENTS_DBPATH'] || './roffline-comments-lmdb.db'
