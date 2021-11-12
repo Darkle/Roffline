@@ -94,6 +94,8 @@ const AdminDBViewerTable = Vue.defineComponent({
             paginatedTableData
           )
 
+          localRowsStore = paginatedTableData.rows
+
           const columns = state.currentTable.startsWith('subreddit_table_')
             ? tablesColumns.subredditTable
             : ((tablesColumns as TablesColumnsType)[state.currentTable] as TableColumnType[])
@@ -108,8 +110,6 @@ const AdminDBViewerTable = Vue.defineComponent({
           state.columns = []
           state.rows = []
           state.totalRows = 0
-
-          localRowsStore = paginatedTableData.rows
 
           this.$nextTick(() => {
             state.columns = columns
