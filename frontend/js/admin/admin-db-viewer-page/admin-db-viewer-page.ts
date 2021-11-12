@@ -28,6 +28,9 @@ type PageChangeParams = {
   total: number
 }
 
+//// eslint-disable-next-line functional/no-let
+// let foo = false
+
 const AdminDBViewerTable = Vue.defineComponent({
   data() {
     return {
@@ -45,7 +48,7 @@ const AdminDBViewerTable = Vue.defineComponent({
       *****/
       state.rowsPerPage = state.currentTable === 'comments' ? commentsNumRowsPerPage : defaultNumRowsPerPage
       state.searchTerm = searchTerm
-      this.fetchTableData(state.currentPage)
+      this.fetchTableData()
     }, delay)
   },
   mounted() {
@@ -63,11 +66,11 @@ const AdminDBViewerTable = Vue.defineComponent({
   },
   methods: {
     // eslint-disable-next-line max-lines-per-function
-    fetchTableData(page = 1, newTable = false) {
+    fetchTableData(newTable = false) {
       const searching = state.searchTerm.length > 0
 
       fetch(
-        `/admin/api/get-paginated-table-data?tableName=${state.currentTable}&page=${page}${
+        `/admin/api/get-paginated-table-data?tableName=${state.currentTable}&page=${state.currentPage}${
           searching ? `&searchTerm=${state.searchTerm.trim()}` : ''
         }`
       )
@@ -75,7 +78,7 @@ const AdminDBViewerTable = Vue.defineComponent({
         .then(res => res.json() as Promise<{ rows: DatabaseTypes; count: number }>)
         .then(paginatedTableData => {
           console.log(
-            `Paginated Table Data For "${state.currentTable}" table, page ${page} (50 rows or less):`,
+            `Paginated Table Data For "${state.currentTable}" table, page ${state.currentPage} (50 rows or less):`,
             paginatedTableData
           )
 
@@ -126,22 +129,19 @@ const AdminDBViewerTable = Vue.defineComponent({
       const selectElem = event?.target as HTMLSelectElement
       const tableName = selectElem.value as string
       const newTable = true
-      const page = 1
 
       state.isLoading = true
       state.currentTable = tableName
       state.searchTerm = ''
+      state.currentPage = 1
 
-      this.fetchTableData(page, newTable)
+      this.fetchTableData(newTable)
     },
-    deleteRow(event: Event) {
+    inspectRowData(event: Event) {
       const button = event.target as HTMLButtonElement
       const rowIndex = Number(button.dataset['rowIndex'])
 
-      console.log('rowIndex', rowIndex)
-    },
-    inspectRowData() {
-      console.log('inspectRowData')
+      console.log('inspectRowData', rowIndex)
     },
     onPageChange(params: PageChangeParams) {
       state.currentPage = params.currentPage
@@ -152,7 +152,7 @@ const AdminDBViewerTable = Vue.defineComponent({
         state.isLoading = true
       }
 
-      this.fetchTableData(params.currentPage)
+      this.fetchTableData()
     },
   },
   template: /* html */ `
@@ -182,6 +182,7 @@ const AdminDBViewerTable = Vue.defineComponent({
         mode: 'pages',
         perPage: state.rowsPerPage,
         perPageDropdownEnabled: false,
+        setCurrentPage:state.currentPage
       }"
       :sort-options="{
         enabled: false,
@@ -191,11 +192,6 @@ const AdminDBViewerTable = Vue.defineComponent({
       >
       <template #table-row="props">
         <span v-if="props.column.field == 'rowOps'">
-        <button 
-            title="Click To Delete Row" 
-            @click="deleteRow"
-            v-bind:data-row-index="props.index"
-          >Delete Row</button>
           <button 
             title="Click To Inspect Row Data" 
             @click="inspectRowData"
