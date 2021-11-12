@@ -24,7 +24,7 @@ const dev = {
 
     return (
       Prray.from(urls)
-        .mapAsync(item => got(item).json())
+        .mapAsync(item => got(item).json(), { concurrency: 4 })
         // .then(results => console.log(results))
         // @ts-expect-error asd
         .then(postsData => db.batchAddNewPosts(postsData.map(postData => postData.data.children[0].data)))
@@ -115,11 +115,15 @@ const dev = {
   addComments(db) {
     return db.getAllPostIds().then((postIds: string[]) =>
       Prray.from(postIds)
-        .mapAsync(postId =>
-          got(`https://www.reddit.com/comments/${postId}.json`).then(resp => ({
-            comments: resp.body,
-            id: postId,
-          }))
+        .mapAsync(
+          postId => {
+            console.log(`https://www.reddit.com/comments/${postId}.json`)
+            return got(`https://www.reddit.com/comments/${postId}.json`).then(resp => ({
+              comments: resp.body,
+              id: postId,
+            }))
+          },
+          { concurrency: 4 }
         )
         .then(comments => db.batchSaveComments(comments))
     )
@@ -146,20 +150,21 @@ const dev = {
       console.log('!!DEV DB FUNCTIONS ARE BEING RUN!!')
       dbLogger.warn('!!DEV DB FUNCTIONS ARE BEING RUN!!')
 
-      // dev
-      //   .addSubPostIdRefs(db, 'abruptchaos')
-      //   .then(res => db.batchAddSubredditsPostIdReferences(res))
-      //   // .mockMediaForPosts(db)
-      //   //   .createUser(db, 'Coop')
-      //   //   .then(() => dev.addSubs(db, 'Coop', ['space']))
-      //   //   .then(() => dev.addPosts(db, 'space'))
+      dev
+        .addComments(db)
+        // .addSubPostIdRefs(db, 'abruptchaos')
+        // .then(res => db.batchAddSubredditsPostIdReferences(res))
+        // .mockMediaForPosts(db)
+        //   .createUser(db, 'Coop')
+        //   .then(() => dev.addSubs(db, 'Coop', ['space']))
+        //   .then(() => dev.addPosts(db, 'space'))
 
-      //   //   //// @ts-expect-error asd
-      //   //   // .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
-      //   .then(() => {
-      //     console.log('finished db stuff')
-      //   })
-      //   .catch((err: Error) => console.error(err))
+        //   //// @ts-expect-error asd
+        //   // .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
+        .then(() => {
+          console.log('finished db stuff')
+        })
+        .catch((err: Error) => console.error(err))
     }, 3000)
   },
 }
