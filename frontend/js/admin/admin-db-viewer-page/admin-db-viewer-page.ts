@@ -108,6 +108,7 @@ const AdminDBViewerTable = Vue.defineComponent({
           state.columns = []
           state.rows = []
           state.totalRows = 0
+
           localRowsStore = paginatedTableData.rows
 
           this.$nextTick(() => {
