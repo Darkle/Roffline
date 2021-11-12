@@ -117,9 +117,9 @@ const AdminDBViewerTable = Vue.defineComponent({
             state.totalRows = paginatedTableData.count
           })
         })
-        .then(this.scrollTableToTop)
         .then(() => {
           state.isLoading = false
+          this.scrollTableToTop()
           // eslint-disable-next-line functional/no-conditional-statement
           if (newTable) {
             // Clear any search in search input if we have loaded a new table.
