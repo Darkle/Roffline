@@ -103,7 +103,7 @@ const AdminDBViewerTable = Vue.defineComponent({
             For some reason vue-good-table-next errors when switching tables and assigning the new rows data if the new
             table has less columns. Adding a reset here and a small tick before update to fix that.
           *****/
-          this.resetRowData()
+          this.resetStateRowData()
           this.$nextTick(() => {
             state.columns = columns
             state.rows = paginatedTableData.rows
@@ -125,7 +125,7 @@ const AdminDBViewerTable = Vue.defineComponent({
       // eslint-disable-next-line functional/immutable-data
       tableContainer.scrollTop = 0
     },
-    resetRowData() {
+    resetStateRowData() {
       state.columns = []
       state.rows = []
       state.totalRows = 0
