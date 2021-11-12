@@ -2,7 +2,7 @@
 const boolToString = (bool: boolean): string => `${bool.toString()}`
 
 // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-const trimText = (text: string): string => (text ? `${text.slice(0, 80)}...` : text)
+const trimText = (text: string, textLength = 80): string => (text ? `${text.slice(0, textLength)}...` : text)
 
 // VueGoodTablePlugin hides arrays if they are empty
 // const arrayString = (arr: string[]): string => JSON.stringify(arr, null, ' ')
@@ -203,8 +203,11 @@ const tablesColumns = {
     {
       label: 'Comments',
       field: 'value',
-      width: '16rem',
-      formatFn: trimText,
+      width: '36rem',
+      formatFn: (val: string): string => {
+        const textLength = 120
+        return trimText(val, textLength)
+      },
     },
   ],
   feeds_to_fetch: [
