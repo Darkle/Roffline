@@ -134,8 +134,11 @@ const AdminDBViewerTable = Vue.defineComponent({
 
       this.fetchTableData(page, newTable)
     },
-    deleteRow() {
-      console.log('deleteRow')
+    deleteRow(event: Event) {
+      const button = event.target as HTMLButtonElement
+      const rowIndex = Number(button.dataset['rowIndex'])
+
+      console.log('rowIndex', rowIndex)
     },
     inspectRowData() {
       console.log('inspectRowData')
@@ -188,16 +191,15 @@ const AdminDBViewerTable = Vue.defineComponent({
       >
       <template #table-row="props">
         <span v-if="props.column.field == 'rowOps'">
-        <!-- TODO:v-bind:data-row-index="props.row.index" may need to be changed  --> 
-          <button 
+        <button 
             title="Click To Delete Row" 
             @click="deleteRow"
-            v-bind:data-row-index="props.row.index"
+            v-bind:data-row-index="props.index"
           >Delete Row</button>
           <button 
             title="Click To Inspect Row Data" 
             @click="inspectRowData"
-            v-bind:data-row-index="props.row.index"
+            v-bind:data-row-index="props.index"
           >Inspect Data</button>
         </span>
       </template>
