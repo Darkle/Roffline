@@ -104,7 +104,6 @@ const AdminDBViewerTable = Vue.defineComponent({
             table has less columns. Adding a reset here and a small tick before update to fix that.
           *****/
           this.resetRowData()
-
           this.$nextTick(() => {
             state.columns = columns
             state.rows = paginatedTableData.rows
