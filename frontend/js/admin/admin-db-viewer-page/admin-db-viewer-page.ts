@@ -182,17 +182,24 @@ const AdminDBViewerTable = Vue.defineComponent({
 
       this.fetchTableData()
     },
+    vacuumDB() {
+      fetch('/admin/api/vacuum-db').then(checkFetchResponseStatus)
+    },
   },
   template: /* html */ `
-    <aside class="console-note-aside">
-      <small>Note: this data is also logged to the browser console for easier inpecting/copying.</small>
-    </aside>
+    <button class="vacuum-button" @click="vacuumDB">
+      <abbr title="Vacuum optimises the database and makes it smaller">Vacuum DB</abbr>
+    </button>
+    <hr />
     <label for="table-select">Select a DB table:</label>
     <select name="table-select" id="table-select" @change="dbSelectHandler">
       <template v-for="table in state.dbTables">
-        <option v-bind:value="table">{{table}}</option>
+      <option v-bind:value="table">{{table}}</option>
       </template>
     </select>      
+    <aside class="console-note-aside">
+      <small>Note: this data is also logged to the browser console for easy inpecting/copying.</small>
+    </aside>
     <vue-good-table
       mode="remote"
       compactMode

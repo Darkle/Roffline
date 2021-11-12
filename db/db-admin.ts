@@ -194,6 +194,10 @@ function getAllUsersDBDataForAdmin(): Promise<User[]> {
   return UserModel.findAll().then((users): User[] => users.flatMap(userModel => userModel.get() as User[]))
 }
 
+async function adminVacuumDB(sequelize: Sequelize): Promise<void> {
+  await sequelize.query(`VACUUM;`, { raw: true })
+}
+
 export {
   getAdminSettings,
   getSingleAdminSetting,
@@ -204,4 +208,5 @@ export {
   getAllUsersDBDataForAdmin,
   adminGetCommentsDBDataPaginated,
   adminSearchCommentsDBDataPaginated,
+  adminVacuumDB,
 }

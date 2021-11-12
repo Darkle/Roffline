@@ -13,13 +13,6 @@ body.admin-database-viewer-page {
   align-items: center;
 }
 
-.admin-database-viewer-page main .console-note-aside {
-  margin-bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-}
-
 /* .admin-database-viewer-page main .console-note-aside small {
   margin-bottom: 1rem;
 } */
@@ -28,10 +21,27 @@ body.admin-database-viewer-page {
   margin-bottom: 1rem;
 }
 
+.admin-database-viewer-page main .vacuum-button {
+  margin-bottom: 1rem;
+}
+
+.admin-database-viewer-page main .vacuum-button + hr {
+  margin-bottom: 3rem;
+  width: 100%;
+  max-width: 30vw;
+}
+
 .admin-database-viewer-page main #table-select {
   text-align-last: center;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
   max-width: 80vw;
+}
+
+.admin-database-viewer-page main .console-note-aside {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
 }
 
 .admin-database-viewer-page .vgt-wrap {

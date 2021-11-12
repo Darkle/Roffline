@@ -68,6 +68,15 @@ const adminApiRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Erro
     }
   )
 
+  fastify.get(
+    '/vacuum-db',
+    { preHandler: mainPreHandlers },
+    async (_: FastifyRequest, reply: FastifyReply): Promise<void> => {
+      await db.adminVacuumDB()
+      reply.code(HttpStatusCode.OK).send()
+    }
+  )
+
   fastify.put(
     '/update-admin-setting',
     { preHandler: [...mainPreHandlers, csrfProtection], schema: updateAdminSettingsSchema },

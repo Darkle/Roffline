@@ -29,6 +29,7 @@ import {
   getAllUsersDBDataForAdmin,
   adminGetCommentsDBDataPaginated,
   adminSearchCommentsDBDataPaginated,
+  adminVacuumDB,
 } from './db-admin'
 import {
   createUser,
@@ -295,6 +296,9 @@ const db = {
     count: number
   }> {
     return adminSearchCommentsDBDataPaginated(commentsDB, searchTerm)
+  },
+  adminVacuumDB(): Promise<void> {
+    return adminVacuumDB(sequelize)
   },
   // eslint-disable-next-line max-lines-per-function
   getDBStats(): Promise<{
