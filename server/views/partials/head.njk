@@ -15,6 +15,9 @@
   {% if page === 'admin-users-page' or page === 'admin-logs-page' or page === 'admin-database-viewer-page' %}
   <link rel="stylesheet" href="/static/vendor/css/vue-good-table-next@0.1.0.css<# cacheBustString #>" />
   {% endif %}
+  {% if page === 'admin-logs-page' or page === 'admin-database-viewer-page' %}
+  <link rel="stylesheet" href="/static/vendor/css/vue3-json-viewer@1.0.4.css<# cacheBustString #>" />
+  {% endif %}
   {% if isAdminPage %}
   <link rel="stylesheet" href="/css/admin/admin-index.css<# cacheBustString #>" />
   {% else %}

@@ -1,10 +1,19 @@
 import * as Vue from 'vue'
 import VueGoodTablePlugin from 'vue-good-table-next'
 import debounce from 'lodash.debounce'
+import JsonViewer from 'vue3-json-viewer'
 
-import { DbTables, TableColumnType, DatabaseTypes, TablesColumnsType } from './admin-db-viewer-page-types'
+import {
+  DbTables,
+  TableColumnType,
+  DatabaseTypes,
+  TablesColumnsType,
+  JsonViewerData,
+  CommentsFromCommentsDB,
+} from './admin-db-viewer-page-types'
 import { checkFetchResponseStatus, ignoreScriptTagCompilationWarnings, $ } from '../../frontend-utils'
 import { tablesColumns } from './table-columns'
+import { CommentsWithMetadata } from '../../../../db/entities/Comments'
 
 const defaultNumRowsPerPage = 50
 const commentsNumRowsPerPage = 200
@@ -19,6 +28,8 @@ const state = Vue.reactive({
   dbTables: [] as DbTables,
   columns: [] as TableColumnType[],
   rows: [] as DatabaseTypes,
+  showJSONViewer: false,
+  jsonViewerData: {} as JsonViewerData,
 })
 
 type PageChangeParams = {
@@ -28,8 +39,8 @@ type PageChangeParams = {
   total: number
 }
 
-//// eslint-disable-next-line functional/no-let
-// let foo = false
+// eslint-disable-next-line functional/no-let
+let localRowsStore: DatabaseTypes = []
 
 const AdminDBViewerTable = Vue.defineComponent({
   data() {
@@ -76,6 +87,7 @@ const AdminDBViewerTable = Vue.defineComponent({
       )
         .then(checkFetchResponseStatus)
         .then(res => res.json() as Promise<{ rows: DatabaseTypes; count: number }>)
+        // eslint-disable-next-line max-lines-per-function
         .then(paginatedTableData => {
           console.log(
             `Paginated Table Data For "${state.currentTable}" table, page ${state.currentPage} (50 rows or less):`,
@@ -96,6 +108,7 @@ const AdminDBViewerTable = Vue.defineComponent({
           state.columns = []
           state.rows = []
           state.totalRows = 0
+          localRowsStore = paginatedTableData.rows
 
           this.$nextTick(() => {
             state.columns = columns
@@ -141,7 +154,23 @@ const AdminDBViewerTable = Vue.defineComponent({
       const button = event.target as HTMLButtonElement
       const rowIndex = Number(button.dataset['rowIndex'])
 
-      console.log('inspectRowData', rowIndex)
+      console.log('Row Data:', localRowsStore[rowIndex])
+
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (state.currentTable === 'comments') {
+        const commentRowData = localRowsStore[rowIndex] as CommentsFromCommentsDB
+        const comments = JSON.parse(commentRowData.value) as CommentsWithMetadata
+
+        state.jsonViewerData = {
+          postId: commentRowData.key,
+          comments,
+        }
+        state.showJSONViewer = true
+        return
+      }
+
+      state.jsonViewerData = localRowsStore[rowIndex] as JsonViewerData
+      state.showJSONViewer = true
     },
     onPageChange(params: PageChangeParams) {
       state.currentPage = params.currentPage
@@ -196,10 +225,14 @@ const AdminDBViewerTable = Vue.defineComponent({
             title="Click To Inspect Row Data" 
             @click="inspectRowData"
             v-bind:data-row-index="props.index"
-          >Inspect Data</button>
+          >Inspect</button>
         </span>
       </template>
   </vue-good-table>
+  <div class="json-object-view-wrapper" v-if="state.showJSONViewer">
+    <div class="close-button" @click="state.showJSONViewer = false">✕</div>
+    <json-viewer :value="state.jsonViewerData" />
+  </div>
   `,
 })
 
@@ -208,4 +241,4 @@ const app = Vue.createApp(AdminDBViewerTable)
 // warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
 app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
-app.use(VueGoodTablePlugin).mount('main')
+app.use(VueGoodTablePlugin).use(JsonViewer).mount('main')

@@ -73,8 +73,9 @@ body.admin-database-viewer-page {
   padding-left: 1rem;
   padding-right: 1rem;
   box-shadow: 5px 10px var(--color-darkGrey);
-  width: 96vw;
-  max-height: 70vh;
+  outline: 1px solid var(--color-darkGrey);
+  width: 90vw;
+  max-height: 60vh;
   overflow: scroll;
 }
 
@@ -92,25 +93,12 @@ body.admin-database-viewer-page {
   color: var(--color-grey);
 }
 
-.admin-database-viewer-page .json-object-view {
+.admin-database-viewer-page .jv-container {
   max-height: 50vh;
 }
 
-.admin-database-viewer-page .json-object-view > .key-value:last-of-type {
-  padding-bottom: 2rem;
-}
-
-.admin-database-viewer-page .json-object-view * {
+.admin-database-viewer-page .jv-container * {
   overflow-wrap: break-word;
   word-wrap: break-word;
   word-break: break-word;
-}
-
-.admin-database-viewer-page .json-object-view .key::before {
-  margin-right: 0.3rem;
-}
-
-.admin-database-viewer-page .clipboardInput {
-  position: absolute;
-  top: -99999999999999px;
 }

@@ -1,5 +1,6 @@
 import { Post } from '../../../../db/entities/Posts/Post'
 import { User } from '../../../../db/entities/Users/User'
+import { CommentsWithMetadata } from '../../../../db/entities/Comments'
 
 type AdminSettings = {
   downloadComments: boolean
@@ -43,6 +44,15 @@ type DatabaseTypes =
   | SubredditsMasterListRow[]
   | SubredditTableRow[]
 
+type JsonViewerData =
+  | User
+  | Post
+  | AdminSettings
+  | { postId: string; comments: CommentsWithMetadata }
+  | FeedsToFetch
+  | SubredditsMasterListRow
+  | SubredditTableRow
+
 type DbTables = string[]
 
 type TableColumnType = {
@@ -58,4 +68,4 @@ type TablesColumnsType = {
   [key: string]: TableColumnType[]
 }
 
-export { DbTables, TableColumnType, DatabaseTypes, TablesColumnsType }
+export { DbTables, TableColumnType, DatabaseTypes, TablesColumnsType, JsonViewerData, CommentsFromCommentsDB }

@@ -31,3 +31,8 @@ declare module 'vue-good-table-next' {
   import { VueGoodTable } from 'vue-good-table-next'
   export default VueGoodTable
 }
+
+declare module 'vue3-json-viewer' {
+  import JsonViewer from 'vue3-json-viewer'
+  export default JsonViewer
+}
