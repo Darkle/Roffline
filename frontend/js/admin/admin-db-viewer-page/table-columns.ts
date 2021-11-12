@@ -1,13 +1,10 @@
-// VueGoodTablePlugin hides bool values if they are false
-const boolToString = (bool: boolean): string => `${bool.toString()}`
+const sqliteBoolToString = (sqliteBoolean: number): string => `${sqliteBoolean === 0 ? 'false' : 'true'}`
 
 const trimText = (text: string, textLength: number): string => {
   const defaultTextLength = 80
   const textEnd = typeof textLength === 'number' ? textLength : defaultTextLength
   return text ? `${text.slice(0, textEnd)}...` : text
 }
-// VueGoodTablePlugin hides arrays if they are empty
-// const arrayString = (arr: string[]): string => JSON.stringify(arr, null, ' ')
 
 const rowOpsColumn = {
   label: 'Row Ops',
@@ -31,19 +28,19 @@ const tablesColumns = {
       label: 'hideStickiedPosts',
       field: 'hideStickiedPosts',
       type: 'boolean',
-      formatFn: boolToString,
+      formatFn: sqliteBoolToString,
     },
     {
       label: 'infiniteScroll',
       field: 'infiniteScroll',
       type: 'boolean',
-      formatFn: boolToString,
+      formatFn: sqliteBoolToString,
     },
     {
       label: 'darkModeTheme',
       field: 'darkModeTheme',
       type: 'boolean',
-      formatFn: boolToString,
+      formatFn: sqliteBoolToString,
     },
   ],
   posts: [
@@ -87,7 +84,7 @@ const tablesColumns = {
       label: 'is_self',
       field: 'is_self',
       type: 'boolean',
-      formatFn: boolToString,
+      formatFn: sqliteBoolToString,
     },
     {
       label: 'created_utc',
@@ -102,19 +99,19 @@ const tablesColumns = {
       label: 'is_video',
       field: 'is_video',
       type: 'boolean',
-      formatFn: boolToString,
+      formatFn: sqliteBoolToString,
     },
     {
       label: 'stickied',
       field: 'stickied',
       type: 'boolean',
-      formatFn: boolToString,
+      formatFn: sqliteBoolToString,
     },
     {
       label: 'media_has_been_downloaded',
       field: 'media_has_been_downloaded',
       type: 'boolean',
-      formatFn: boolToString,
+      formatFn: sqliteBoolToString,
     },
     {
       label: 'mediaDownloadTries',
@@ -149,16 +146,15 @@ const tablesColumns = {
       label: 'commentsDownloaded',
       field: 'commentsDownloaded',
       type: 'boolean',
-      formatFn: boolToString,
+      formatFn: sqliteBoolToString,
     },
   ],
   admin_settings: [
-    rowOpsColumn,
     {
       label: 'downloadComments',
       field: 'downloadComments',
       type: 'boolean',
-      formatFn: boolToString,
+      formatFn: sqliteBoolToString,
     },
     {
       label: 'numberMediaDownloadsAtOnce',
@@ -169,7 +165,7 @@ const tablesColumns = {
       label: 'downloadVideos',
       field: 'downloadVideos',
       type: 'boolean',
-      formatFn: boolToString,
+      formatFn: sqliteBoolToString,
     },
     {
       label: 'videoDownloadMaxFileSize',
@@ -183,7 +179,7 @@ const tablesColumns = {
       label: 'updateAllDay',
       field: 'updateAllDay',
       type: 'boolean',
-      formatFn: boolToString,
+      formatFn: sqliteBoolToString,
     },
     {
       label: 'updateStartingHour',
@@ -213,21 +209,18 @@ const tablesColumns = {
     },
   ],
   feeds_to_fetch: [
-    rowOpsColumn,
     {
       label: 'feed',
       field: 'feed',
     },
   ],
   subreddits_master_list: [
-    rowOpsColumn,
     {
       label: 'subreddit',
       field: 'subreddit',
     },
   ],
   subredditTable: [
-    rowOpsColumn,
     {
       label: 'posts_Default',
       field: 'posts_Default',
