@@ -30,7 +30,9 @@
     "roffline-comments-lmdb.db": true,
     "roffline-sqlite.db": true,
     "frontend/js/admin/admin-db-viewer-page/admin-db-viewer-page.css": true,
-    "frontend/js/admin/admin-db-viewer-page/admin-db-viewer-page.css.map": true
+    "frontend/js/admin/admin-db-viewer-page/admin-db-viewer-page.css.map": true,
+    "frontend/js/admin/admin-logs-viewer-page.css": true,
+    "frontend/js/admin/admin-logs-viewer-page.css.map": true
   },
   "search.exclude": {
     "tsconfig.tsbuildinfo": true,

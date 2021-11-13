@@ -40,3 +40,5 @@ roffline-comments-lmdb.db
 roffline-sqlite.db
 frontend/js/admin/admin-db-viewer-page/admin-db-viewer-page.css
 frontend/js/admin/admin-db-viewer-page/admin-db-viewer-page.css.map
+frontend/js/admin/admin-logs-viewer-page.css
+frontend/js/admin/admin-logs-viewer-page.css.map
