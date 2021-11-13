@@ -34,12 +34,7 @@ const sortLogsLatestFirst = (logs: Logs): Logs => R.reverse(R.sortBy(R.prop('tim
 const joinLogsAndRemoveEmptyLines = (logs: string[]): string[] =>
   logs.flatMap(logFile => logFile.split(/\n/gu)).filter(logLine => logLine.length > 0)
 
-const getAllLogFileNames = (): Promise<string[]> =>
-  fs.promises
-    .readdir(logDir)
-    .then(R.filter(isLogFile))
-    // eslint-disable-next-line functional/immutable-data
-    .then(logData => logData.sort())
+const getAllLogFileNames = (): Promise<string[]> => fs.promises.readdir(logDir).then(R.filter(isLogFile))
 
 const readAllLogFiles = (): Promise<Logs> =>
   getAllLogFileNames()
