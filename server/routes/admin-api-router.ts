@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 
 import { db } from '../../db/db'
+import { getLogs } from '../controllers/admin/admin-get-logs'
 import { updateAdminSetting } from '../controllers/admin/admin-settings'
 import { getAdminStats } from '../controllers/admin/admin-stats'
 import { basicAuth } from '../controllers/admin/basic-auth'
@@ -76,6 +77,8 @@ const adminApiRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Erro
       reply.code(HttpStatusCode.OK).send()
     }
   )
+
+  fastify.get('/get-logs', { preHandler: mainPreHandlers }, getLogs)
 
   fastify.put(
     '/update-admin-setting',

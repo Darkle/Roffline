@@ -1,10 +1,10 @@
-body.logs-viewer-page {
+body.admin-logs-viewer-page {
   flex-direction: column;
   align-items: center;
   max-width: 90vw;
 }
 
-.logs-viewer-page main {
+.admin-logs-viewer-page main {
   margin-top: 3rem;
   max-width: 90vw;
   display: flex;
@@ -13,104 +13,41 @@ body.logs-viewer-page {
   align-items: center;
 }
 
-.logs-viewer-page main .download-link {
-  font-size: 1rem;
-  text-decoration: underline;
+.admin-logs-viewer-page main .console-note-aside {
   margin-bottom: 2rem;
-}
-
-.logs-viewer-page main .gridjs-head {
-  font-size: 0.8rem;
-}
-
-.logs-viewer-page main .gridjs-container {
-  max-width: 80vw;
-}
-
-.logs-viewer-page main .gridjs-wrapper {
-  max-height: 70vh;
-}
-
-.logs-viewer-page main table.gridjs-table {
-  max-height: 70vh;
-  table-layout: initial;
-  font-size: 0.8rem;
-  max-width: 80vw;
-}
-
-.logs-viewer-page main table.gridjs-table td.gridjs-td {
-  padding: 0.4rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.logs-viewer-page main table.gridjs-table th[data-column-id='service'] {
-  min-width: 76px;
-}
-
-.logs-viewer-page main table.gridjs-table th[data-column-id='level'] {
-  min-width: 76px;
-}
-
-.logs-viewer-page main table.gridjs-table td[data-column-id='clipboard'] {
+  display: flex;
+  flex-direction: column;
   text-align: center;
 }
 
-.logs-viewer-page main table.gridjs-table td[data-column-id='message'] {
-  max-width: 250px;
+.admin-logs-viewer-page .vgt-wrap {
+  max-width: 90vw;
 }
 
-.logs-viewer-page main table.gridjs-table td[data-column-id='data'] {
-  max-width: 500px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.admin-logs-viewer-page .vgt-wrap td {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
-.logs-viewer-page main table.gridjs-table .object-view-open-button {
-  font-size: 0.8rem;
-  padding-left: 0.2rem;
-  padding-right: 0.2rem;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  line-height: 0.9rem;
-  transform: initial;
-  color: var(--color-grey);
+.admin-logs-viewer-page .vgt-wrap th {
+  position: sticky;
+  top: 0;
 }
 
-.logs-viewer-page main table.gridjs-table .object-view-open-button:hover {
-  color: var(--color-darkGrey);
-  opacity: 1;
+.admin-logs-viewer-page main #vgt-table > tbody td[data-label='Row Ops'] {
+  text-align: center;
 }
 
-.logs-viewer-page main table.gridjs-table .copy-to-clipboard-button {
-  font-size: 1.2rem;
-  padding-left: 0;
-  padding-right: 0;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  line-height: 0.9rem;
-  transform: initial;
-  background: none;
-  border: none;
-  color: var(--color-grey);
+.admin-logs-viewer-page main .vgt-wrap__footer {
+  padding: 0.7rem;
 }
 
-.logs-viewer-page main table.gridjs-table .copy-to-clipboard-button:hover {
-  cursor: pointer;
-  color: var(--color-darkGrey);
-}
-
-.logs-viewer-page main .gridjs-footer > * {
+.admin-logs-viewer-page main .vgt-wrap__footer * {
   font-size: 0.8rem;
 }
 
-.logs-viewer-page main .gridjs-footer .gridjs-pages button {
-  font-size: 0.8rem;
-}
-
-.logs-viewer-page .json-object-view-wrapper {
+.admin-logs-viewer-page .json-object-view-wrapper {
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -122,12 +59,13 @@ body.logs-viewer-page {
   padding-left: 1rem;
   padding-right: 1rem;
   box-shadow: 5px 10px var(--color-darkGrey);
-  width: 96vw;
-  max-height: 70vh;
+  outline: 1px solid var(--color-darkGrey);
+  width: 90vw;
+  max-height: 60vh;
   overflow: scroll;
 }
 
-.logs-viewer-page .json-object-view-wrapper .close-button {
+.admin-logs-viewer-page .json-object-view-wrapper .close-button {
   font-size: 3rem;
   margin-right: 1rem;
   margin-bottom: 2rem;
@@ -136,30 +74,17 @@ body.logs-viewer-page {
   top: 0;
 }
 
-.logs-viewer-page .json-object-view-wrapper .close-button:hover {
+.admin-logs-viewer-page .json-object-view-wrapper .close-button:hover {
   cursor: pointer;
   color: var(--color-grey);
 }
 
-.logs-viewer-page .json-object-view {
+.admin-logs-viewer-page .jv-container {
   max-height: 50vh;
 }
 
-.logs-viewer-page .json-object-view > .key-value:last-of-type {
-  padding-bottom: 2rem;
-}
-
-.logs-viewer-page .json-object-view * {
+.admin-logs-viewer-page .jv-container * {
   overflow-wrap: break-word;
   word-wrap: break-word;
   word-break: break-word;
-}
-
-.logs-viewer-page .json-object-view .key::before {
-  margin-right: 0.3rem;
-}
-
-.logs-viewer-page .clipboardInput {
-  position: absolute;
-  top: -99999999999999px;
 }

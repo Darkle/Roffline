@@ -45,11 +45,13 @@ const adminRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) 
     })
   })
 
-  // router.get('/users', (req, res) => res.render('admin/users-page', { pageTitle: 'Roffline::Logs Viewer' }))
-  // router.get('/logs-viewer', (req, res) => res.render('admin/logs-viewer', { pageTitle: 'Roffline::Logs Viewer' }))
-  // router.get('/database-viewer', (req, res) =>
-  //   res.render('admin/database-viewer', { pageTitle: 'Roffline::Database Viewer' })
-  // )
+  fastify.get('/logs-viewer', { preHandler: mainPreHandlers }, (_: unknown, reply) => {
+    reply.view('admin/admin-logs-viewer-page', {
+      pageTitle: 'Roffline::Admin::Logs-Viewer',
+      csrfToken: createCsrfToken(),
+      unescapeHTML: querystring.unescape,
+    })
+  })
 
   // router.get('/downloads-viewer', (req, res) =>
   //   res.render('admin/downloads-viewer', { pageTitle: 'Roffline::Downloads Viewer' })
