@@ -9,7 +9,7 @@ const checkendEnvVars = envVarChecker(process.env, {
   SQLITE_DBPATH: str({ default: './roffline-sqlite.db' }),
   COMMENTS_DBPATH: str({ default: './roffline-comments-lmdb.db' }),
   NODE_ENV: str({ choices: ['development', 'test', 'testing', 'production'], default: 'production' }),
-  LOGGING_LEVEL: str({ choices: ['debug', 'error'], default: 'error' }),
+  LOGGING_LEVEL: str({ choices: ['trace', 'debug', 'error'], default: 'error' }),
   ADMIN_PASS: str({ default: 'foo' }),
 })
 
