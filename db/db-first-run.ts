@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize'
 
 import { noop } from '../server/utils'
 import { initAdminSettingsModel, AdminSettingsModel } from './entities/AdminSettings'
-import { initFeedsToFetchModel } from './entities/FeedsToFetch'
+import { initPostsToGetModel } from './entities/PostsToGet'
 import { initPostModel } from './entities/Posts/Posts'
 import { initSubredditsMasterListModel } from './entities/SubredditsMasterList'
 import { initUserModel } from './entities/Users/Users'
@@ -26,7 +26,7 @@ async function populateTablesOnFirstRun(): Promise<void> {
 async function createTables(sequelize: Sequelize): Promise<void> {
   await Promise.all([
     initAdminSettingsModel(sequelize),
-    initFeedsToFetchModel(sequelize),
+    initPostsToGetModel(sequelize),
     initPostModel(sequelize),
     initSubredditsMasterListModel(sequelize),
     initUserModel(sequelize),

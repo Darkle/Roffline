@@ -14,8 +14,8 @@ type AdminSettings = {
   updateEndingHour: number
 }
 
-type FeedsToFetch = {
-  feed: string
+type PostsToGet = {
+  id: string
 }
 
 type SubredditsMasterListRow = {
@@ -41,7 +41,7 @@ type DatabaseTypes =
   | Post[]
   | [AdminSettings]
   | CommentsFromCommentsDB[]
-  | FeedsToFetch[]
+  | PostsToGet[]
   | SubredditsMasterListRow[]
   | SubredditTableRow[]
 
@@ -50,7 +50,7 @@ type JsonViewerData =
   | Post
   | AdminSettings
   | { postId: string; comments: CommentsWithMetadata }
-  | FeedsToFetch
+  | PostsToGet
   | SubredditsMasterListRow
   | SubredditTableRow
 
