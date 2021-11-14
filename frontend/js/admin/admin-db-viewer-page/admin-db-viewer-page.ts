@@ -74,6 +74,7 @@ const AdminDBViewerTable = Vue.defineComponent({
 
         this.fetchTableData()
       })
+      .catch(err => console.error(err))
   },
   methods: {
     // eslint-disable-next-line max-lines-per-function
@@ -119,6 +120,7 @@ const AdminDBViewerTable = Vue.defineComponent({
             this.resetSearchInput()
           }
         })
+        .catch(err => console.error(err))
     },
     scrollTableToTop() {
       const tableContainer = $('.vgt-responsive') as HTMLDivElement
