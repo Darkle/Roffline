@@ -13,19 +13,30 @@ body.admin-database-viewer-page {
   align-items: center;
 }
 
-/* .admin-database-viewer-page main .console-note-aside small {
-  margin-bottom: 1rem;
-} */
-
 .admin-database-viewer-page main label[for='table-select'] {
   margin-bottom: 1rem;
 }
 
-.admin-database-viewer-page main .vacuum-button {
-  margin-bottom: 1rem;
+.admin-database-viewer-page main .vacuum-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.admin-database-viewer-page main .vacuum-button + hr {
+.admin-database-viewer-page main .vacuum-container button {
+  margin-bottom: 2rem;
+}
+
+.admin-database-viewer-page main .vacuum-container .vacumm-success-message {
+  color: #14854f;
+}
+
+.admin-database-viewer-page main .vacuum-container .vacumm-failure-message {
+  color: var(--color-error);
+}
+
+.admin-database-viewer-page main .vacuum-container + hr {
   margin-bottom: 3rem;
   width: 100%;
   max-width: 30vw;

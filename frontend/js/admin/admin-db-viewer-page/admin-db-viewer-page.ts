@@ -11,12 +11,13 @@ import {
   JsonViewerData,
   CommentsFromCommentsDB,
 } from './admin-db-viewer-page-types'
-import { checkFetchResponseStatus, ignoreScriptTagCompilationWarnings, $ } from '../../frontend-utils'
+import { checkFetchResponseStatus, ignoreScriptTagCompilationWarnings, $, wait } from '../../frontend-utils'
 import { tablesColumns } from './table-columns'
 import { CommentsWithMetadata } from '../../../../db/entities/Comments'
 
 const defaultNumRowsPerPage = 50
 const commentsNumRowsPerPage = 200
+const threeSeconds = 3000
 
 const state = Vue.reactive({
   totalRows: 0,
@@ -30,6 +31,8 @@ const state = Vue.reactive({
   rows: [] as DatabaseTypes,
   showJSONViewer: false,
   jsonViewerData: {} as JsonViewerData,
+  dbVacuumSucceeded: false,
+  dbVacuumFailed: false,
 })
 
 type PageChangeParams = {
@@ -185,13 +188,31 @@ const AdminDBViewerTable = Vue.defineComponent({
       this.fetchTableData()
     },
     vacuumDB() {
-      fetch('/admin/api/vacuum-db').then(checkFetchResponseStatus)
+      fetch('/admin/api/vacuum-db')
+        .then(checkFetchResponseStatus)
+        .then(() => {
+          state.dbVacuumSucceeded = true
+        })
+        .catch(err => {
+          console.error(err)
+          state.dbVacuumFailed = true
+        })
+        .finally(() => {
+          wait(threeSeconds).then(() => {
+            state.dbVacuumSucceeded = false
+            state.dbVacuumFailed = false
+          })
+        })
     },
   },
   template: /* html */ `
-    <button class="vacuum-button" @click="vacuumDB">
-      <abbr title="Vacuum optimises the database and makes it smaller">Vacuum DB</abbr>
-    </button>
+    <div class="vacuum-container">  
+      <button class="vacuum-button" @click="vacuumDB">
+        <abbr title="Vacuum optimises the database and makes it smaller">Vacuum DB</abbr>
+      </button>
+      <span class="vacumm-success-message" v-show="state.dbVacuumSucceeded">DB Vacuum Succeeded</span>
+      <span class="vacumm-failure-message" v-show="state.dbVacuumFailed">DB Vacuum Failed - Error logged to console.</span>
+    </div>
     <hr />
     <label for="table-select">Select a DB table:</label>
     <select name="table-select" id="table-select" @change="dbSelectHandler">
