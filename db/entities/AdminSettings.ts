@@ -2,8 +2,8 @@ import { Sequelize, DataTypes, Model } from 'sequelize'
 
 type AdminSettings = {
   downloadComments: boolean
-  numberMediaDownloadsAtOnce: number
   numberFeedsOrPostsDownloadsAtOnce: number
+  numberMediaDownloadsAtOnce: number
   downloadVideos: boolean
   videoDownloadMaxFileSize: string
   videoDownloadResolution: string
@@ -58,13 +58,13 @@ const tableSchema = {
     type: DataTypes.NUMBER,
     allowNull: false,
     defaultValue: 1,
-    validate: { min: 1, max: 24 }, // eslint-disable-line @typescript-eslint/no-magic-numbers
+    validate: { min: 0, max: 23 }, // eslint-disable-line @typescript-eslint/no-magic-numbers
   },
   updateEndingHour: {
     type: DataTypes.NUMBER,
     allowNull: false,
     defaultValue: 5, // eslint-disable-line @typescript-eslint/no-magic-numbers
-    validate: { min: 1, max: 24 }, // eslint-disable-line @typescript-eslint/no-magic-numbers
+    validate: { min: 0, max: 23 }, // eslint-disable-line @typescript-eslint/no-magic-numbers
   },
 }
 

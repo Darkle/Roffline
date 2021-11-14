@@ -64,7 +64,7 @@
             </select>
           </p>
           <p>
-            <label for="num-downloads-at-once">Max Simultaneous Feed/Posts Downloads At Once:</label>
+            <label for="num-downloads-at-once">Max Simultaneous Feeds/Posts Downloads At Once:</label>
             <input
               type="number"
               id="num-feedposts-downloads-at-once"
@@ -105,8 +105,8 @@
             <input
               type="number"
               id="update-starting-hour"
-              min="1"
-              max="24"
+              min="0"
+              max="23"
               v-model="updateStartingHour"
               v-bind:disabled="updateAllDay"
             />
@@ -114,8 +114,8 @@
             <input
               type="number"
               id="update-ending-hour"
-              min="1"
-              max="24"
+              min="0"
+              max="23"
               v-model="updateEndingHour"
               v-bind:disabled="updateAllDay"
             />
