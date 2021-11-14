@@ -9,7 +9,7 @@ import { initUserModel } from './entities/Users/Users'
 
 const defaultAdminSettings = {
   downloadComments: true,
-  numberFeedPostsDownloadsAtOnce: 4, // eslint-disable-line @typescript-eslint/no-magic-numbers
+  numberFeedsOrPostsDownloadsAtOnce: 4, // eslint-disable-line @typescript-eslint/no-magic-numbers
   numberMediaDownloadsAtOnce: 2,
   downloadVideos: false,
   videoDownloadMaxFileSize: '300',

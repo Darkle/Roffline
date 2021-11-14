@@ -90,7 +90,7 @@ const updateAdminSettingsSchema = {
       settingName: {
         enum: [
           'downloadComments',
-          'numberFeedPostsDownloadsAtOnce',
+          'numberFeedsOrPostsDownloadsAtOnce',
           'numberMediaDownloadsAtOnce',
           'downloadVideos',
           'videoDownloadMaxFileSize',
