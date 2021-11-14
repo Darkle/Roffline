@@ -18,6 +18,11 @@ const tableSchema = {
     primaryKey: true,
     validate: { notEmpty: true },
   },
+  lastUpdate: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    validate: { notEmpty: true },
+  },
 }
 
 const initSubredditsMasterListModel = (sequelize: Sequelize): Promise<SubredditsMasterListModel> => {

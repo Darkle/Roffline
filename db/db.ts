@@ -2,6 +2,7 @@ import * as R from 'ramda'
 import { Sequelize, Transaction, Op, QueryTypes } from 'sequelize'
 import { Timer } from 'timer-node'
 import lmdb from 'lmdb-store'
+import { DateTime } from 'luxon'
 import { nullable as MaybeNullable } from 'pratica'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
@@ -118,7 +119,9 @@ const db = {
   getAllSubreddits,
   getAllUsersDBDataForAdmin,
   async batchAddSubredditsToMasterList(subreddits: string[], transaction: TransactionType = null): Promise<void> {
-    const subs = subreddits.map(subreddit => ({ subreddit }))
+    const twoDaysAgo = new Date(DateTime.now().minus({ days: 2 }).toMillis())
+    // We set the lastUpdate to two days ago on creation so its feeds will be updated straight away
+    const subs = subreddits.map(subreddit => ({ subreddit, lastUpdate: twoDaysAgo.toString() }))
 
     await SubredditsMasterListModel.bulkCreate(subs, {
       ignoreDuplicates: true,
@@ -127,8 +130,10 @@ const db = {
     })
   },
   async addSingleSubredditToMasterList(newSub: string, transaction: TransactionType = null): Promise<void> {
+    const twoDaysAgo = new Date(DateTime.now().minus({ days: 2 }).toMillis())
+    // We set the lastUpdate to two days ago on creation so its feeds will be updated straight away
     await SubredditsMasterListModel.create(
-      { subreddit: newSub },
+      { subreddit: newSub, lastUpdate: twoDaysAgo.toString() },
       { ignoreDuplicates: true, fields: ['subreddit'], transaction }
     )
   },
