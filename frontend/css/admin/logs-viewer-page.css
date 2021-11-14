@@ -24,6 +24,21 @@ body.admin-logs-viewer-page {
   max-width: 90vw;
 }
 
+.admin-logs-viewer-page .vgt-wrap .vgt-global-search__actions {
+  display: flex;
+}
+
+.admin-logs-viewer-page .vgt-wrap .download-logs-link {
+  color: var(--color-darkGrey);
+  margin-right: 1rem;
+  margin-left: 0.6rem;
+  text-align: center;
+}
+
+.admin-logs-viewer-page .vgt-wrap .download-logs-link:hover {
+  opacity: 0.75;
+}
+
 .admin-logs-viewer-page .vgt-wrap td {
   overflow-wrap: break-word;
   word-wrap: break-word;

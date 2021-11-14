@@ -53,4 +53,16 @@ async function getLogs(_: FastifyRequest, reply: FastifyReply): Promise<void> {
   reply.code(HttpStatusCode.OK).send(logData)
 }
 
-export { getLogs }
+const formatLogsForDownload = R.compose(R.join('\n'), R.map(JSON.stringify))
+
+function downloadLogs(_: FastifyRequest, reply: FastifyReply): Promise<void> {
+  return readAllLogFiles()
+    .then(formatLogsForDownload)
+    .then(logDataAsText => {
+      reply.header('Content-disposition', 'attachment; filename=rofflinelogs.txt')
+      reply.type('txt')
+      reply.send(logDataAsText)
+    })
+}
+
+export { getLogs, downloadLogs }

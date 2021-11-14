@@ -129,22 +129,19 @@ const AdminLogsViewerTable = Vue.defineComponent({
         state.isLoading = false
         state.rows = formattedLogs
       })
+      .catch(err => console.error(err))
   },
   methods: {
     inspectRowData(event: Event) {
       const button = event.target as HTMLButtonElement
       const rowIndex = Number(button.dataset['rowIndex'])
-      //TODO:this will need to be fixed as getting all logs at once - is the index right? console log the index and also check the data it shows - if hard, could fall back to getting row number textContent or summin
-      console.log('rowIndex:', rowIndex)
+
       console.log('Row Data:', localRowsStore[rowIndex])
 
-      // state.jsonViewerData = localRowsStore[rowIndex] as JsonViewerData
-      // state.showJSONViewer = true
+      state.jsonViewerData = localRowsStore[rowIndex] as Log
+      state.showJSONViewer = true
     },
-    downloadLogs() {
-      console.log('downloadLogs')
-    },
-    onPageChange() {
+    scrollTableToTop() {
       this.$nextTick(() => {
         const tableContainer = $('.vgt-responsive') as HTMLDivElement
         // eslint-disable-next-line functional/immutable-data
@@ -173,17 +170,18 @@ const AdminLogsViewerTable = Vue.defineComponent({
         perPage: state.rowsPerPage,
         perPageDropdownEnabled: false,
       }"
-      v-on:page-change="onPageChange"
+      v-on:page-change="scrollTableToTop"
+      v-on:sort-change="scrollTableToTop"
       >
       <template #table-actions>
-      <button class="download-button" @click="downloadLogs">Download Logs</button>
+        <a class="download-logs-link" href="/admin/api/download-logs">Download Logs</a>
       </template>
       <template #table-row="props">
         <span v-if="props.column.field == 'rowOps'">
           <button 
             title="Click To Inspect Row Data" 
             @click="inspectRowData"
-            v-bind:data-row-index="props.index"
+            v-bind:data-row-index="props.row.originalIndex"
           >Inspect</button>
         </span>
       </template>
