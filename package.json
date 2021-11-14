@@ -86,6 +86,7 @@
     "@types/html-escaper": "^3.0.0",
     "@types/lodash.debounce": "^4.0.6",
     "@types/luxon": "^2.0.5",
+    "@types/node": "^16.11.7",
     "@types/nunjucks": "^3.2.0",
     "@types/ramda": "^0.27.46",
     "@types/validator": "^13.6.6",
