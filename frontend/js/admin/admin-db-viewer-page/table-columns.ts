@@ -157,6 +157,11 @@ const tablesColumns = {
       formatFn: sqliteBoolToString,
     },
     {
+      label: 'numberFeedPostsDownloadsAtOnce',
+      field: 'numberFeedPostsDownloadsAtOnce',
+      type: 'number',
+    },
+    {
       label: 'numberMediaDownloadsAtOnce',
       field: 'numberMediaDownloadsAtOnce',
       type: 'number',

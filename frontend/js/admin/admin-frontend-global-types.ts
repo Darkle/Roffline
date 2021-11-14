@@ -1,5 +1,6 @@
 type AdminSettingsForFrontend = {
   downloadComments: boolean
+  numberFeedPostsDownloadsAtOnce: number
   numberMediaDownloadsAtOnce: number
   downloadVideos: boolean
   videoDownloadMaxFileSize: string

@@ -4,6 +4,7 @@ import { CommentsWithMetadata } from '../../../../db/entities/Comments'
 
 type AdminSettings = {
   downloadComments: boolean
+  numberFeedPostsDownloadsAtOnce: number
   numberMediaDownloadsAtOnce: number
   downloadVideos: boolean
   videoDownloadMaxFileSize: string

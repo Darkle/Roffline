@@ -64,6 +64,16 @@
             </select>
           </p>
           <p>
+            <label for="num-downloads-at-once">Max Simultaneous Feed/Posts Downloads At Once:</label>
+            <input
+              type="number"
+              id="num-feedposts-downloads-at-once"
+              min="1"
+              step="1"
+              v-model="numberFeedPostsDownloadsAtOnce"
+            />
+          </p>
+          <p>
             <label for="num-downloads-at-once">Max Simultaneous Media Downloads At Once:</label>
             <input
               type="number"
