@@ -213,16 +213,20 @@ const tablesColumns = {
       },
     },
   ],
-  feeds_to_fetch: [
+  posts_to_get: [
     {
-      label: 'feed',
-      field: 'feed',
+      label: 'id',
+      field: 'id',
     },
   ],
   subreddits_master_list: [
     {
       label: 'subreddit',
       field: 'subreddit',
+    },
+    {
+      label: 'lastUpdate',
+      field: 'lastUpdate',
     },
   ],
   subredditTable: [
