@@ -1,5 +1,5 @@
 require('dotenv').config()
-const { cleanEnv: envVarChecker, str, port } = require('envalid')
+const { cleanEnv: envVarChecker, str, port, url } = require('envalid')
 
 const checkendEnvVars = envVarChecker(process.env, {
   PORT: port({ default: 8080 }),
@@ -11,6 +11,7 @@ const checkendEnvVars = envVarChecker(process.env, {
   NODE_ENV: str({ choices: ['development', 'test', 'testing', 'production'], default: 'production' }),
   LOGGING_LEVEL: str({ choices: ['trace', 'debug', 'info', 'warn', 'error', 'fatal'], default: 'error' }),
   ADMIN_PASS: str({ default: 'foo' }),
+  OFFLINE_CHECK_URL: url({ default: 'https://www.google.com/' }),
 })
 
 /* eslint-disable functional/immutable-data */
