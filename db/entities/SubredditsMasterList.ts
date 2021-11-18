@@ -19,9 +19,9 @@ const tableSchema = {
     validate: { notEmpty: true },
   },
   lastUpdate: {
-    type: DataTypes.TEXT,
+    type: DataTypes.DATE,
     allowNull: false,
-    validate: { notEmpty: true },
+    validate: { isDate: true },
   },
 }
 
