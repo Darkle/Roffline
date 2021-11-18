@@ -1,0 +1,1 @@
+generateAndFetchSubredditsFeeds(adminSettings, subsToUpdate).then(batchAddSubredditsPostIdReferences)
