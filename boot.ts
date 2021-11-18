@@ -2,6 +2,7 @@ import { startServer } from './server/server'
 import { mainLogger } from './logging/logging'
 import { db } from './db/db'
 import { ensurePostsMediaDownloadFolderExists } from './server/utils'
+import { scheduleUpdates } from './downloads/update-scheduler'
 
 function bailOnFatalError(err: Error): void {
   console.error(err)
@@ -29,6 +30,7 @@ process.on('uncaughtException', bailOnFatalError)
 db.init()
   .then(ensurePostsMediaDownloadFolderExists)
   .then(startServer)
+  .then(scheduleUpdates)
   .catch(err => {
     console.error(err)
     mainLogger.fatal(err)
