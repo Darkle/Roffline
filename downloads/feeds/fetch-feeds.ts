@@ -5,7 +5,7 @@ import Prray from 'prray'
 
 import { AdminSettings } from '../../db/entities/AdminSettings'
 import { feedsLogger } from '../../logging/logging'
-import { FeedWithData, updateFeedsWithPaginationForEachSubredditFeed } from './generate-feeds'
+import { FeedWithData, updatePaginationForEachFeedsUrl } from './generate-feeds'
 import { Post } from '../../db/entities/Posts/Post'
 
 type RawSubFeedData = { children: Post[]; after: null | string; before: null | string }
@@ -80,8 +80,7 @@ async function fetchFeeds(
 
   // eslint-disable-next-line functional/no-conditional-statement
   if (someFeedsHaveMoreDataToGet(fetchedFeeds)) {
-    const subsFeedsWithDataWithUpdatedPaginationInFeedUrl =
-      updateFeedsWithPaginationForEachSubredditFeed(subsFeedsWithData)
+    const subsFeedsWithDataWithUpdatedPaginationInFeedUrl = updatePaginationForEachFeedsUrl(subsFeedsWithData)
 
     return fetchFeeds(adminSettings, subsFeedsWithDataWithUpdatedPaginationInFeedUrl)
   }

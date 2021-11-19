@@ -39,7 +39,7 @@ const createInitialFeedsForEachSubreddit = (subs: string[]): FeedWithData[] =>
 const setPaginationQueryParam = (feedUrl: string, pagination: string | null): string =>
   pagination ? `${feedUrl.split('&after=')[0] as string}&after=${pagination}` : feedUrl
 
-const updateFeedsWithPaginationForEachSubredditFeed = (feeds: FeedWithData[]): FeedWithData[] =>
+const updatePaginationForEachFeedsUrl = (feeds: FeedWithData[]): FeedWithData[] =>
   feeds.map(
     (feed: FeedWithData): FeedWithData =>
       feed.data
@@ -54,7 +54,7 @@ export {
   createInitialFeedsForEachSubreddit,
   feedCategoryToUrlQueryParam,
   setPaginationQueryParam,
-  updateFeedsWithPaginationForEachSubredditFeed,
+  updatePaginationForEachFeedsUrl,
   feedCategories,
   FeedWithData,
 }
