@@ -1,27 +1,26 @@
 import { db } from '../db/db'
 import { AdminSettings } from '../db/entities/AdminSettings'
 import { Post } from '../db/entities/Posts/Post'
-import { PostsToGet } from '../db/entities/PostsToGet'
 import { SubredditsMasterList } from '../db/entities/SubredditsMasterList'
 import { mainLogger } from '../logging/logging'
 import { isOffline } from './check-if-offline'
 import { updateSubsFeeds } from './feeds/update-subs-feeds'
 
-const thirtySecondsInMs = 30000
-
 /* eslint-disable functional/no-conditional-statement,functional/no-try-statement,functional/no-let,complexity,array-bracket-newline, max-lines-per-function */
 
-let timer: ReturnType<typeof global.setTimeout>
-let downloadsAreRunning = false
-let adminSettingsCache: AdminSettings
-
 type PostId = string
+type Subreddit = string
 
 type DownloadsStore = {
-  subsToUpdate: Set<PostId>
+  subsToUpdate: Set<Subreddit>
   commentsToRetrieved: Set<PostId>
   postsMediaToBeDownloaded: Map<PostId, Post>
 }
+
+const thirtySecondsInMs = 30000
+let timer: ReturnType<typeof global.setTimeout>
+let downloadsAreRunning = false
+let adminSettingsCache: AdminSettings
 
 const downloadsStore: DownloadsStore = {
   subsToUpdate: new Set(),
@@ -44,7 +43,6 @@ function shouldRunNewUpdate(): boolean {
 
 function addThingsToBeDownloadedToDownloadsStore([subs, commentsToGet, mediaToGet]: [
   subs: SubredditsMasterList[],
-  postsToGet: PostsToGet[],
   commentsToGet: Post[],
   mediaToGet: Post[]
 ]): void {
@@ -82,6 +80,7 @@ const moreToDownload = (): boolean =>
 function startSomeDownloads(): Promise<void> {
   if (moreSubsToUpdate()) {
     return updateSubsFeeds(adminSettingsCache, downloadsStore.subsToUpdate)
+    // .then(savePosts) remember to deduplicate - i think the functions are in feed-processors
     // .then(subsUpdated =>
     //   removeSuccessfullDownloadsFromDownloadStore(subsUpdated, 'subsToUpdate')
     // )

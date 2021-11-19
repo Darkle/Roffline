@@ -1,5 +1,4 @@
-import * as R from 'ramda'
-import RA from 'ramda-adjunct'
+import { Post } from '../../db/entities/Posts/Post'
 
 const feedCategories = [
   'posts_Default',
@@ -10,16 +9,19 @@ const feedCategories = [
   'topPosts_All',
 ]
 
-type Feeds = {
+type FeedData = { children: Post[]; after: null | string; before: null | string }
+
+type FeedWithData = {
   subreddit: string
   feedCategory: string
   feedUrl: string
+  data: FeedData | null
 }
 
 const feedCategoryToUrlQueryParam = (feedCategory: string): string =>
   (feedCategory.split('_')[1] as string).toLowerCase()
 
-const createInitialFeedsForEachSubreddit = (subs: string[]): Feeds[] =>
+const createInitialFeedsForEachSubreddit = (subs: string[]): FeedWithData[] =>
   subs.flatMap(subreddit =>
     feedCategories.map(feedCategory => ({
       subreddit,
@@ -30,38 +32,29 @@ const createInitialFeedsForEachSubreddit = (subs: string[]): Feeds[] =>
           : `https://www.reddit.com/r/${subreddit}/top/.json?limit=100&t=${feedCategoryToUrlQueryParam(
               feedCategory
             )}&count=100`,
+      data: null,
     }))
   )
 
-const setPaginationQueryParam = (feedUrl: string, pagination: string): string =>
-  `${feedUrl.split('&after=')[0] as string}&after=${pagination}`
+const setPaginationQueryParam = (feedUrl: string, pagination: string | null): string =>
+  pagination ? `${feedUrl.split('&after=')[0] as string}&after=${pagination}` : feedUrl
 
-const feedUrlsNeedToBeUpdatedForPagination = R.compose(RA.isNotNil, R.path(['feedUrl']))
-
-const updateFeedsWithPaginationForEachSubredditFeed = R.map(
-  R.when(feedUrlsNeedToBeUpdatedForPagination, feedData => ({
-    ...feedData,
-    feedUrl: setPaginationQueryParam(feedData.feedUrl, feedData.data.after),
-  }))
-)
-
-const isNotObject = R.complement(R.is(Object))
-
-const isInitalListOfSubs = R.all(isNotObject)
-
-const generateSubFeeds = R.ifElse(
-  isInitalListOfSubs,
-  createInitialFeedsForEachSubreddit,
-  updateFeedsWithPaginationForEachSubredditFeed
-)
+const updateFeedsWithPaginationForEachSubredditFeed = (feeds: FeedWithData[]): FeedWithData[] =>
+  feeds.map(
+    (feed: FeedWithData): FeedWithData =>
+      feed.data
+        ? {
+            ...feed,
+            feedUrl: setPaginationQueryParam(feed.feedUrl, feed.data.after),
+          }
+        : feed
+  )
 
 export {
   createInitialFeedsForEachSubreddit,
-  generateSubFeeds,
   feedCategoryToUrlQueryParam,
   setPaginationQueryParam,
   updateFeedsWithPaginationForEachSubredditFeed,
   feedCategories,
-  isInitalListOfSubs,
-  feedUrlsNeedToBeUpdatedForPagination,
+  FeedWithData,
 }

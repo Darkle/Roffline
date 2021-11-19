@@ -1,54 +1,89 @@
 import R from 'ramda'
-import fetch from 'node-fetch'
+import fetch, { Response } from 'node-fetch'
+import RA from 'ramda-adjunct'
+import Prray from 'prray'
 
 import { AdminSettings } from '../../db/entities/AdminSettings'
 import { feedsLogger } from '../../logging/logging'
-import { removeEmptyFeeds } from './feed-processors'
+import { FeedWithData, updateFeedsWithPaginationForEachSubredditFeed } from './generate-feeds'
+import { Post } from '../../db/entities/Posts/Post'
+
+type RawSubFeedData = { children: Post[]; after: null | string; before: null | string }
+
+type RawSubFeedWithData = {
+  kind: string
+  data: RawSubFeedData
+}
+
+type EmptyFeedResponseData = { children: never[]; after: null; before: null }
+
+type EmptyFeedResponse = { data: EmptyFeedResponseData }
 
 const emptyFeedResponseForFetchError = { data: { children: [], after: null, before: null } }
 
-const addNewPostsToFeedData = (feedData, newFeedData) => {
-  const currentFeedPosts = getPostsFromFeedData(feedData)
-  const newFeedPosts = getPostsFromFeedData(newFeedData)
+const getPostsFromFeedData = (feedData: FeedWithData | RawSubFeedWithData | EmptyFeedResponse): Post[] =>
+  feedData.data?.children ? feedData.data.children : []
+
+const isNotEmptyFeed = R.both(R.pathSatisfies(RA.isNotEmpty, ['data', 'children']), RA.isNotNil)
+
+const removeEmptyFeeds = R.filter(isNotEmptyFeed)
+
+const addNewPostsToSubFeedData = (
+  subFeedData: FeedWithData,
+  newSubFeedData: RawSubFeedWithData | EmptyFeedResponse
+): FeedWithData => {
+  const currentFeedPosts = getPostsFromFeedData(subFeedData)
+  const newFeedPosts = getPostsFromFeedData(newSubFeedData)
   const totalPostsForFeed = [...currentFeedPosts, ...newFeedPosts]
 
   return {
-    ...feedData,
-    ...newFeedData,
-    ...{ data: { ...newFeedData.data, children: totalPostsForFeed } },
+    subreddit: subFeedData.subreddit,
+    feedCategory: subFeedData.feedCategory,
+    feedUrl: subFeedData.feedUrl,
+    data: { ...newSubFeedData.data, children: totalPostsForFeed },
   }
 }
 
-const handleFeedFetchResponse = resp => (resp.ok ? resp.json() : emptyFeedResponseForFetchError)
+const handleFeedFetchResponse = (resp: Response): Promise<RawSubFeedWithData | EmptyFeedResponse> =>
+  resp.ok ? (resp.json() as Promise<RawSubFeedWithData>) : Promise.resolve(emptyFeedResponseForFetchError)
 
-function fetchFeed(feedData) {
-  feedUpdateLogger.debug(`fetching ${feedData.feedUrl}`)
+function fetchFeed(subFeedData: FeedWithData): Promise<FeedWithData | void> {
+  feedsLogger.debug(`fetching ${subFeedData.feedUrl}`)
 
   // prettier-ignore
-  return (
-    fetch(feedData.feedUrl)
-      .then(handleFeedFetchResponse)
-      .then(newFeedData => addNewPostsToFeedData(feedData, newFeedData))
-      /*****
-      Not bothering to log here generally on error as this will happen fairly regularly
-        when the host goes offline.
-      *****/
-      .catch(err => feedsLogger.trace(err))
-  )
+  return fetch(subFeedData.feedUrl)
+  .then(handleFeedFetchResponse)
+  .then(newSubFeedData => addNewPostsToSubFeedData(subFeedData, newSubFeedData))
+  /*****
+   Not bothering to log here on error generally as this will happen fairly regularly when the host goes offline.
+   The .catch void returns are removed later with removeEmptyFeeds.
+   *****/
+  .catch(err => feedsLogger.trace(err))
 }
+
+const subHasMoreFeedData = R.pathSatisfies(RA.isNotNil, ['data', 'after'])
 
 const fetchFeedIfItHasMoreData = R.when(subHasMoreFeedData, fetchFeed)
 
-async function fetchFeeds(adminSettings: AdminSettings, subreddits) {
-  const subFeeds = generateSubFeeds(R.pluck('subreddit', subreddits))
+// R.any checks all items in an array
+const someFeedsHaveMoreDataToGet = R.any(R.pathSatisfies(RA.isNotNil, ['data', 'after']))
 
-  const fetchedFeeds = await Prray.from(subFeeds)
+async function fetchFeeds(
+  adminSettings: AdminSettings,
+  subsFeedsWithData: FeedWithData[]
+): Promise<FeedWithData[]> {
+  const fetchedFeeds = await Prray.from(subsFeedsWithData)
     .mapAsync(fetchFeedIfItHasMoreData, { concurrency: adminSettings.numberFeedsOrPostsDownloadsAtOnce })
     .then(removeEmptyFeeds)
 
-  // return await as opposed to just return the promise is for the stacktrace
-  // eslint-disable-next-line functional/no-conditional-statement, no-return-await
-  if (someFeedsHaveMoreDataToGet(fetchedFeeds)) return await fetchFeeds(fetchedFeeds)
+  // eslint-disable-next-line functional/no-conditional-statement
+  if (someFeedsHaveMoreDataToGet(fetchedFeeds)) {
+    const subsFeedsWithDataWithUpdatedPaginationInFeedUrl =
+      updateFeedsWithPaginationForEachSubredditFeed(subsFeedsWithData)
+    // return await as opposed to just return the promise is for the stacktrace
+    // eslint-disable-next-line no-return-await
+    return await fetchFeeds(adminSettings, subsFeedsWithDataWithUpdatedPaginationInFeedUrl)
+  }
 
   // eslint-disable-next-line functional/no-conditional-statement
   if (fetchedFeeds.length) {
@@ -59,3 +94,5 @@ async function fetchFeeds(adminSettings: AdminSettings, subreddits) {
 
   return fetchedFeeds
 }
+
+export { fetchFeeds }
