@@ -52,9 +52,7 @@ const updatePaginationForEachFeedsUrl = (feeds: FeedWithData[]): FeedWithData[] 
 
 export {
   createInitialFeedsForEachSubreddit,
-  feedCategoryToUrlQueryParam,
   setPaginationQueryParam,
   updatePaginationForEachFeedsUrl,
-  feedCategories,
   FeedWithData,
 }
