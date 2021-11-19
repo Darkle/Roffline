@@ -31,7 +31,7 @@ const feedCategoryToUrlQueryParam = (feedCategory: string): string =>
 
 const createInitialFeedsForEachSubreddit = (subs: string[]): FeedWithData[] =>
   subs.flatMap(subreddit =>
-    feedCategories.map((feedCategory: FeedCategory) => ({
+    feedCategories.map(feedCategory => ({
       subreddit,
       feedCategory,
       feedUrl:
