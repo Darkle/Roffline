@@ -306,7 +306,6 @@ const db = {
   adminVacuumDB(): Promise<void> {
     return adminVacuumDB(sequelize)
   },
-  // eslint-disable-next-line max-lines-per-function
   getThingsThatNeedToBeDownloaded(): Promise<[SubredditsMasterList[], PostsToGet[], Post[], Post[]]> {
     const twoHoursAgo = new Date(DateTime.now().minus({ hours: 2 }).toMillis())
 
@@ -315,25 +314,20 @@ const db = {
     const processModels = (models: Models): (SubredditsMasterList | PostsToGet | Post)[] =>
       models.length > 0 ? models.map(model => model.get() as SubredditsMasterList | PostsToGet | Post) : []
 
-    return sequelize.transaction(transaction =>
-      Promise.all([
-        SubredditsMasterListModel.findAll({ where: { lastUpdate: { [Op.lt]: twoHoursAgo } }, transaction }),
-        PostsToGetModel.findAll({ transaction }),
-        PostModel.findAll({ where: { commentsDownloaded: false }, transaction }),
-        PostModel.findAll({
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-          where: { media_has_been_downloaded: false, mediaDownloadTries: { [Op.lt]: 3 } },
-          transaction,
-        }),
-      ]).then(
-        ([subredditModels, PostsToGetModels, PostModelsWithCommentsToGet, PostModelsWithMediaToDownload]) => [
-          processModels(subredditModels) as SubredditsMasterList[],
-          processModels(PostsToGetModels) as PostsToGet[],
-          processModels(PostModelsWithCommentsToGet) as Post[],
-          processModels(PostModelsWithMediaToDownload) as Post[],
-        ]
-      )
-    )
+    return Promise.all([
+      SubredditsMasterListModel.findAll({ where: { lastUpdate: { [Op.lt]: twoHoursAgo } } }),
+      PostsToGetModel.findAll(),
+      PostModel.findAll({ where: { commentsDownloaded: false } }),
+      PostModel.findAll({
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        where: { media_has_been_downloaded: false, mediaDownloadTries: { [Op.lt]: 3 } },
+      }),
+    ]).then(([subredditModels, PostsToGetModels, PostModelsWithCommentsToGet, PostModelsWithMediaToDownload]) => [
+      processModels(subredditModels) as SubredditsMasterList[],
+      processModels(PostsToGetModels) as PostsToGet[],
+      processModels(PostModelsWithCommentsToGet) as Post[],
+      processModels(PostModelsWithMediaToDownload) as Post[],
+    ])
   },
   // eslint-disable-next-line max-lines-per-function
   getDBStats(): Promise<{
