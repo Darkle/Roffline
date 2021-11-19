@@ -44,13 +44,13 @@ function fetchFeed(subFeedData: FeedWithData): Promise<FeedWithData | void> {
 
   // prettier-ignore
   return fetch(subFeedData.feedUrl)
-  .then(handleFeedFetchResponse)
-  .then(newSubFeedData => addNewPostsToSubFeedData(subFeedData, newSubFeedData))
-  /*****
-   Not bothering to log here on error generally as this will happen fairly regularly when the host goes offline.
-   The .catch void returns are removed later with removeEmptyFeeds.
-   *****/
-  .catch(err => feedsLogger.trace(err))
+    .then(handleFeedFetchResponse)
+    .then(newSubFeedData => addNewPostsToSubFeedData(subFeedData, newSubFeedData))
+    /*****
+     Not bothering to log here on error generally as this will happen fairly regularly when the host goes offline.
+    The .catch void returns are removed later with removeEmptyFeeds.
+    *****/
+    .catch(err => feedsLogger.trace(err))
 }
 
 const subHasMoreFeedData = R.pathSatisfies(RA.isNotNil, ['data', 'after'])
