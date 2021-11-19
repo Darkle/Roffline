@@ -21,7 +21,7 @@ type EmptyFeedResponse = { data: EmptyFeedResponseData }
 
 const emptyFeedResponseForFetchError = { data: { children: [], after: null, before: null } }
 
-const addNewPostsToSubFeedData = (
+const addNewPostsToSubsFeedCategoryData = (
   subFeedData: FeedWithData,
   newSubFeedData: RawSubFeedWithData | EmptyFeedResponse
 ): FeedWithData => {
@@ -45,7 +45,7 @@ function fetchFeed(subFeedData: FeedWithData): Promise<FeedWithData | void> {
   // prettier-ignore
   return fetch(subFeedData.feedUrl)
     .then(handleFeedFetchResponse)
-    .then(newSubFeedData => addNewPostsToSubFeedData(subFeedData, newSubFeedData))
+    .then(newSubFeedData => addNewPostsToSubsFeedCategoryData(subFeedData, newSubFeedData))
     /*****
      Not bothering to log here on error generally as this will happen fairly regularly when the host goes offline.
     The .catch void returns are removed later with removeEmptyFeeds.
