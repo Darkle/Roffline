@@ -1,6 +1,23 @@
 import { Post } from '../../db/entities/Posts/Post'
 
-const feedCategories = [
+type FeedData = { children: Post[]; after: null | string; before: null | string }
+
+type FeedCategory =
+  | 'posts_Default'
+  | 'topPosts_Day'
+  | 'topPosts_Week'
+  | 'topPosts_Month'
+  | 'topPosts_Year'
+  | 'topPosts_All'
+
+type FeedWithData = {
+  subreddit: string
+  feedCategory: FeedCategory
+  feedUrl: string
+  data: FeedData | null
+}
+
+const feedCategories: FeedCategory[] = [
   'posts_Default',
   'topPosts_Day',
   'topPosts_Week',
@@ -9,21 +26,12 @@ const feedCategories = [
   'topPosts_All',
 ]
 
-type FeedData = { children: Post[]; after: null | string; before: null | string }
-
-type FeedWithData = {
-  subreddit: string
-  feedCategory: string
-  feedUrl: string
-  data: FeedData | null
-}
-
 const feedCategoryToUrlQueryParam = (feedCategory: string): string =>
   (feedCategory.split('_')[1] as string).toLowerCase()
 
 const createInitialFeedsForEachSubreddit = (subs: string[]): FeedWithData[] =>
   subs.flatMap(subreddit =>
-    feedCategories.map(feedCategory => ({
+    feedCategories.map((feedCategory: FeedCategory) => ({
       subreddit,
       feedCategory,
       feedUrl:
