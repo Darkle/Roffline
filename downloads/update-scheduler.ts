@@ -5,6 +5,7 @@ import { PostsToGet } from '../db/entities/PostsToGet'
 import { SubredditsMasterList } from '../db/entities/SubredditsMasterList'
 import { mainLogger } from '../logging/logging'
 import { isOffline } from './check-if-offline'
+import { updateSubsFeeds } from './feeds/update-subs-feeds'
 
 const thirtySecondsInMs = 30000
 
@@ -14,14 +15,25 @@ let timer: ReturnType<typeof global.setTimeout>
 let downloadsAreRunning = false
 let adminSettingsCache: AdminSettings
 
-const downloadsStore = {
+type PostId = string
+
+type DownloadsStore = {
+  subsToUpdate: Set<PostId>
+  postsToBeRetrieved: Set<PostId>
+  commentsToRetrieved: Set<PostId>
+  postsMediaToBeDownloaded: Map<PostId, Post>
+}
+
+const downloadsStore: DownloadsStore = {
   subsToUpdate: new Set(),
   postsToBeRetrieved: new Set(),
   commentsToRetrieved: new Set(),
-  postsMediaToBeDownloaded: new Set(),
+  postsMediaToBeDownloaded: new Map(),
 }
 
-function shouldRunNewUpdate({ updateAllDay, updateStartingHour, updateEndingHour }: AdminSettings): boolean {
+function shouldRunNewUpdate(): boolean {
+  const { updateAllDay, updateStartingHour, updateEndingHour } = adminSettingsCache
+
   if (updateAllDay) return true
 
   const now = new Date()
@@ -51,14 +63,21 @@ function addThingsToBeDownloadedToDownloadsStore([subs, postsToGet, commentsToGe
     downloadsStore.commentsToRetrieved.add(id)
   })
 
-  mediaToGet.forEach(({ id }) => {
-    downloadsStore.postsMediaToBeDownloaded.add(id)
+  mediaToGet.forEach(post => {
+    if (!downloadsStore.postsMediaToBeDownloaded.has(post.id)) {
+      /*****
+        We save the whole post in a Map as we need different properties later on
+        for checking what to download when doing media downloads.
+      *****/
+      downloadsStore.postsMediaToBeDownloaded.set(post.id, post)
+    }
   })
 }
 
-function removeSuccessfullDownloadsFromDownloadStore(downloadedItems, downloadsType) {
-  downloadsStore
-}
+// function removeSuccessfullDownloadsFromDownloadStore(downloadedItems, downloadsType) {
+//   downloadsStore
+//   // remember to account for if its a Map or a Set here
+// }
 
 const moreSubsToUpdate = (): boolean => downloadsStore.subsToUpdate.size > 0
 const morePostsToBeRetrieved = (): boolean => downloadsStore.postsToBeRetrieved.size > 0
@@ -69,9 +88,10 @@ const moreToDownload = (): boolean =>
 
 function startSomeDownloads(): Promise<void> {
   if (moreSubsToUpdate()) {
-    return fetchFeeds(adminSettingsCache, downloadsStore.subsToUpdate)
-      .then(updateSubsLastUpdate)
-      .then(subsUpdated => removeSuccessfullDownloadsFromDownloadStore(subsUpdated, 'subsToUpdate'))
+    return updateSubsFeeds(adminSettingsCache, downloadsStore.subsToUpdate)
+    // .then(subsUpdated =>
+    //   removeSuccessfullDownloadsFromDownloadStore(subsUpdated, 'subsToUpdate')
+    // )
   }
 
   // if (morePostsToBeRetrieved()) {
@@ -118,11 +138,9 @@ function scheduleUpdates(): void {
 
         adminSettingsCache = adminSettings
 
-        if (weAreOffline || !shouldRunNewUpdate(adminSettings)) return
+        if (weAreOffline || !shouldRunNewUpdate()) return
 
-        const now = new Date()
-
-        mainLogger.trace(`New update. Starting at: ${now.toString()}`)
+        mainLogger.trace(`New update. Starting at: ${new Date().toString()}`)
 
         await db.getThingsThatNeedToBeDownloaded().then(addThingsToBeDownloadedToDownloadsStore)
 
