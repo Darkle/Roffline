@@ -21,15 +21,12 @@ type EmptyFeedResponse = { data: EmptyFeedResponseData }
 
 const emptyFeedResponseForFetchError = { data: { children: [], after: null, before: null } }
 
-const getPostsFromFeedData = (feedData: FeedWithData | RawSubFeedWithData | EmptyFeedResponse): Post[] =>
-  feedData.data?.children ? feedData.data.children : []
-
 const addNewPostsToSubFeedData = (
   subFeedData: FeedWithData,
   newSubFeedData: RawSubFeedWithData | EmptyFeedResponse
 ): FeedWithData => {
-  const currentFeedPosts = getPostsFromFeedData(subFeedData)
-  const newFeedPosts = getPostsFromFeedData(newSubFeedData)
+  const currentFeedPosts = subFeedData.data?.children ?? []
+  const newFeedPosts = newSubFeedData.data?.children ?? []
 
   return {
     subreddit: subFeedData.subreddit,
@@ -67,7 +64,7 @@ const isNotEmptyFeed = R.both(R.pathSatisfies(RA.isNotEmpty, ['data', 'children'
 
 const removeEmptyFeeds = R.filter(isNotEmptyFeed)
 
-const trimFeedDataForLogging = R.reduceBy(
+const summarizeFeedDataForLogging = R.reduceBy(
   (postCount: number, feed: FeedWithData) => postCount + (feed.data?.children?.length || 0),
   0,
   (feed: FeedWithData) => feed.subreddit
@@ -90,7 +87,7 @@ async function fetchFeeds(
   }
 
   feedsLogger.debug(`Successfully fetched the following number of posts for these subs:`, {
-    fetchedFeeds: trimFeedDataForLogging(fetchedFeeds),
+    fetchedFeeds: summarizeFeedDataForLogging(fetchedFeeds),
   })
 
   return fetchedFeeds
