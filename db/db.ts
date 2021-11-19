@@ -59,7 +59,6 @@ import {
   batchAddSubredditsPostIdReferences,
   batchClearSubredditsPostIdReferences,
 } from './posts/db-posts'
-import { PostsToGetModel, PostsToGet } from './entities/PostsToGet'
 
 import { CommentContainer } from './entities/Comments'
 import { getEnvFilePath, getFileSize /*, isDev */ } from '../server/utils'
@@ -306,25 +305,23 @@ const db = {
   adminVacuumDB(): Promise<void> {
     return adminVacuumDB(sequelize)
   },
-  getThingsThatNeedToBeDownloaded(): Promise<[SubredditsMasterList[], PostsToGet[], Post[], Post[]]> {
+  getThingsThatNeedToBeDownloaded(): Promise<[SubredditsMasterList[], Post[], Post[]]> {
     const twoHoursAgo = new Date(DateTime.now().minus({ hours: 2 }).toMillis())
 
-    type Models = SubredditsMasterListModel[] | PostsToGetModel[] | PostModel[]
+    type Models = SubredditsMasterListModel[] | PostModel[]
 
-    const processModels = (models: Models): (SubredditsMasterList | PostsToGet | Post)[] =>
-      models.length > 0 ? models.map(model => model.get() as SubredditsMasterList | PostsToGet | Post) : []
+    const processModels = (models: Models): (SubredditsMasterList | Post)[] =>
+      models.length > 0 ? models.map(model => model.get() as SubredditsMasterList | Post) : []
 
     return Promise.all([
       SubredditsMasterListModel.findAll({ where: { lastUpdate: { [Op.lt]: twoHoursAgo } } }),
-      PostsToGetModel.findAll(),
       PostModel.findAll({ where: { commentsDownloaded: false } }),
       PostModel.findAll({
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         where: { media_has_been_downloaded: false, mediaDownloadTries: { [Op.lt]: 3 } },
       }),
-    ]).then(([subredditModels, PostsToGetModels, PostModelsWithCommentsToGet, PostModelsWithMediaToDownload]) => [
+    ]).then(([subredditModels, PostModelsWithCommentsToGet, PostModelsWithMediaToDownload]) => [
       processModels(subredditModels) as SubredditsMasterList[],
-      processModels(PostsToGetModels) as PostsToGet[],
       processModels(PostModelsWithCommentsToGet) as Post[],
       processModels(PostModelsWithMediaToDownload) as Post[],
     ])

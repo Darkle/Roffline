@@ -19,14 +19,12 @@ type PostId = string
 
 type DownloadsStore = {
   subsToUpdate: Set<PostId>
-  postsToBeRetrieved: Set<PostId>
   commentsToRetrieved: Set<PostId>
   postsMediaToBeDownloaded: Map<PostId, Post>
 }
 
 const downloadsStore: DownloadsStore = {
   subsToUpdate: new Set(),
-  postsToBeRetrieved: new Set(),
   commentsToRetrieved: new Set(),
   postsMediaToBeDownloaded: new Map(),
 }
@@ -44,7 +42,7 @@ function shouldRunNewUpdate(): boolean {
   return currentHour > updateStartingHour && currentHour < updateEndingHour
 }
 
-function addThingsToBeDownloadedToDownloadsStore([subs, postsToGet, commentsToGet, mediaToGet]: [
+function addThingsToBeDownloadedToDownloadsStore([subs, commentsToGet, mediaToGet]: [
   subs: SubredditsMasterList[],
   postsToGet: PostsToGet[],
   commentsToGet: Post[],
@@ -53,10 +51,6 @@ function addThingsToBeDownloadedToDownloadsStore([subs, postsToGet, commentsToGe
   // Since these are Set's, duplicates are ignored.
   subs.forEach(({ subreddit }) => {
     downloadsStore.subsToUpdate.add(subreddit)
-  })
-
-  postsToGet.forEach(({ id }) => {
-    downloadsStore.postsToBeRetrieved.add(id)
   })
 
   commentsToGet.forEach(({ id }) => {
@@ -80,11 +74,10 @@ function addThingsToBeDownloadedToDownloadsStore([subs, postsToGet, commentsToGe
 // }
 
 const moreSubsToUpdate = (): boolean => downloadsStore.subsToUpdate.size > 0
-const morePostsToBeRetrieved = (): boolean => downloadsStore.postsToBeRetrieved.size > 0
 const moreCommentsToRetrieved = (): boolean => downloadsStore.commentsToRetrieved.size > 0
 const morePostsMediaToBeDownloaded = (): boolean => downloadsStore.postsMediaToBeDownloaded.size > 0
 const moreToDownload = (): boolean =>
-  moreSubsToUpdate() || morePostsToBeRetrieved() || moreCommentsToRetrieved() || morePostsMediaToBeDownloaded()
+  moreSubsToUpdate() || moreCommentsToRetrieved() || morePostsMediaToBeDownloaded()
 
 function startSomeDownloads(): Promise<void> {
   if (moreSubsToUpdate()) {
@@ -93,11 +86,6 @@ function startSomeDownloads(): Promise<void> {
     //   removeSuccessfullDownloadsFromDownloadStore(subsUpdated, 'subsToUpdate')
     // )
   }
-
-  // if (morePostsToBeRetrieved()) {
-  //   return updateSubredditsFeeds(adminSettingsCache, downloadsStore.postsToBeRetrieved)
-  // .then(postsRetrieved => removeSuccessfullDownloadFromDownloadStore(postsRetrieved, 'postsToBeRetrieved'))
-  // }
 
   // if (moreCommentsToRetrieved()) {
   //   return updateSubredditsFeeds(adminSettingsCache, downloadsStore.commentsToRetrieved)
