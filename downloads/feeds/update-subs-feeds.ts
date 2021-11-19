@@ -1,4 +1,3 @@
-import { db } from '../../db/db'
 import { AdminSettings } from '../../db/entities/AdminSettings'
 import { fetchFeeds } from './fetch-feeds'
 import { createInitialFeedsForEachSubreddit } from './generate-feeds'
@@ -10,9 +9,7 @@ function updateSubsFeeds(adminSettings: AdminSettings, subs: Set<Subreddit>): Pr
 
   const initialSubsFeeds = createInitialFeedsForEachSubreddit(subsToUpdate)
 
-  return fetchFeeds(adminSettings, initialSubsFeeds)
-    .then(db.batchAddSubredditsPostIdReferences)
-    .then(updateSubsLastUpdate)
+  return fetchFeeds(adminSettings, initialSubsFeeds).then(saveEachSubsFeedDataToDB)
 }
 
 export { updateSubsFeeds }

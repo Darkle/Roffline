@@ -24,23 +24,18 @@ const emptyFeedResponseForFetchError = { data: { children: [], after: null, befo
 const getPostsFromFeedData = (feedData: FeedWithData | RawSubFeedWithData | EmptyFeedResponse): Post[] =>
   feedData.data?.children ? feedData.data.children : []
 
-const isNotEmptyFeed = R.both(R.pathSatisfies(RA.isNotEmpty, ['data', 'children']), RA.isNotNil)
-
-const removeEmptyFeeds = R.filter(isNotEmptyFeed)
-
 const addNewPostsToSubFeedData = (
   subFeedData: FeedWithData,
   newSubFeedData: RawSubFeedWithData | EmptyFeedResponse
 ): FeedWithData => {
   const currentFeedPosts = getPostsFromFeedData(subFeedData)
   const newFeedPosts = getPostsFromFeedData(newSubFeedData)
-  const totalPostsForFeed = [...currentFeedPosts, ...newFeedPosts]
 
   return {
     subreddit: subFeedData.subreddit,
     feedCategory: subFeedData.feedCategory,
     feedUrl: subFeedData.feedUrl,
-    data: { ...newSubFeedData.data, children: totalPostsForFeed },
+    data: { ...newSubFeedData.data, children: [...currentFeedPosts, ...newFeedPosts] },
   }
 }
 
@@ -68,29 +63,35 @@ const fetchFeedIfItHasMoreData = R.when(subHasMoreFeedData, fetchFeed)
 // R.any checks all items in an array
 const someFeedsHaveMoreDataToGet = R.any(R.pathSatisfies(RA.isNotNil, ['data', 'after']))
 
+const isNotEmptyFeed = R.both(R.pathSatisfies(RA.isNotEmpty, ['data', 'children']), RA.isNotNil)
+
+const removeEmptyFeeds = R.filter(isNotEmptyFeed)
+
+const trimFeedDataForLogging = R.reduceBy(
+  (postCount: number, feed: FeedWithData) => postCount + (feed.data?.children?.length || 0),
+  0,
+  (feed: FeedWithData) => feed.subreddit
+)
+
 async function fetchFeeds(
   adminSettings: AdminSettings,
   subsFeedsWithData: FeedWithData[]
 ): Promise<FeedWithData[]> {
-  const fetchedFeeds = await Prray.from(subsFeedsWithData)
+  const fetchedFeeds = (await Prray.from(subsFeedsWithData)
     .mapAsync(fetchFeedIfItHasMoreData, { concurrency: adminSettings.numberFeedsOrPostsDownloadsAtOnce })
-    .then(removeEmptyFeeds)
+    .then(removeEmptyFeeds)) as Prray<FeedWithData>
 
   // eslint-disable-next-line functional/no-conditional-statement
   if (someFeedsHaveMoreDataToGet(fetchedFeeds)) {
     const subsFeedsWithDataWithUpdatedPaginationInFeedUrl =
       updateFeedsWithPaginationForEachSubredditFeed(subsFeedsWithData)
-    // return await as opposed to just return the promise is for the stacktrace
-    // eslint-disable-next-line no-return-await
-    return await fetchFeeds(adminSettings, subsFeedsWithDataWithUpdatedPaginationInFeedUrl)
+
+    return fetchFeeds(adminSettings, subsFeedsWithDataWithUpdatedPaginationInFeedUrl)
   }
 
-  // eslint-disable-next-line functional/no-conditional-statement
-  if (fetchedFeeds.length) {
-    feedsLogger.debug(`successfully fetched the following feed data`, {
-      fetchedFeeds: trimFeedDataForLogging(fetchedFeeds),
-    })
-  }
+  feedsLogger.debug(`Successfully fetched the following number of posts for these subs:`, {
+    fetchedFeeds: trimFeedDataForLogging(fetchedFeeds),
+  })
 
   return fetchedFeeds
 }
