@@ -137,6 +137,14 @@ const db = {
       { ignoreDuplicates: true, fields: ['subreddit'], transaction }
     )
   },
+  async batchUpdateSubredditsLastUpdatedTime(subreddits: string[]): Promise<void> {
+    await sequelize.transaction(transaction =>
+      SubredditsMasterListModel.update(
+        { lastUpdate: new Date().toString() },
+        { where: { subreddit: { [Op.in]: subreddits } }, transaction }
+      )
+    )
+  },
   async addSubreddit(userName: string, newSub: string): Promise<void> {
     await sequelize.transaction(transaction =>
       Promise.all([
