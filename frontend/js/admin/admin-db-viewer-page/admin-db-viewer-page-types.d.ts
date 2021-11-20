@@ -14,10 +14,6 @@ type AdminSettings = {
   updateEndingHour: number
 }
 
-type PostsToGet = {
-  id: string
-}
-
 type SubredditsMasterListRow = {
   subreddit: string
 }
@@ -41,7 +37,6 @@ type DatabaseTypes =
   | Post[]
   | [AdminSettings]
   | CommentsFromCommentsDB[]
-  | PostsToGet[]
   | SubredditsMasterListRow[]
   | SubredditTableRow[]
 
@@ -50,7 +45,6 @@ type JsonViewerData =
   | Post
   | AdminSettings
   | { postId: string; comments: CommentsWithMetadata }
-  | PostsToGet
   | SubredditsMasterListRow
   | SubredditTableRow
 
