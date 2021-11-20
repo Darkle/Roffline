@@ -1,15 +1,20 @@
 import { AdminSettings } from '../../db/entities/AdminSettings'
+import { saveEachSubsFeedDataToDB } from '../subs/save-sub-feed-data'
 import { fetchFeeds } from './fetch-feeds'
-import { createInitialFeedsForEachSubreddit } from './generate-feeds'
+import { createInitialFeedsForEachSubreddit, FeedWithData } from './generate-feeds'
 
 type Subreddit = string
 
-function updateSubsFeeds(adminSettings: AdminSettings, subs: Set<Subreddit>): Promise<void> {
+async function updateSubsFeeds(adminSettings: AdminSettings, subs: Set<Subreddit>): Promise<FeedWithData[]> {
   const subsToUpdate = [...subs]
 
   const initialSubsFeeds = createInitialFeedsForEachSubreddit(subsToUpdate)
 
-  return fetchFeeds(adminSettings, initialSubsFeeds).then(saveEachSubsFeedDataToDB)
+  const subsFeedsData = await fetchFeeds(adminSettings, initialSubsFeeds)
+
+  await saveEachSubsFeedDataToDB(subsFeedsData)
+
+  return subsFeedsData
 }
 
 export { updateSubsFeeds }
