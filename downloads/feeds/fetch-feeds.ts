@@ -48,7 +48,7 @@ function fetchFeed(subFeedData: FeedWithData): Promise<FeedWithData | void> {
     .then(newSubFeedData => addNewPostsToSubsFeedCategoryData(subFeedData, newSubFeedData))
     /*****
      Not bothering to log here on error generally as this will happen fairly regularly when the host goes offline.
-    The .catch void returns are removed later with removeEmptyFeeds.
+     The .catch void returns are removed later with removeEmptyFeeds.
     *****/
     .catch(err => feedsLogger.trace(err))
 }
@@ -70,13 +70,14 @@ const summarizeFeedDataForLogging = R.reduceBy(
   (feed: FeedWithData) => feed.subreddit
 )
 
+// eslint-disable-next-line max-lines-per-function
 async function fetchFeeds(
   adminSettings: AdminSettings,
   subsFeedsWithData: FeedWithData[]
 ): Promise<FeedWithData[]> {
   const fetchedFeeds = (await Prray.from(subsFeedsWithData)
     .mapAsync(fetchFeedIfItHasMoreData, { concurrency: adminSettings.numberFeedsOrPostsDownloadsAtOnce })
-    .then(removeEmptyFeeds)) as Prray<FeedWithData>
+    .then(removeEmptyFeeds)) as FeedWithData[]
 
   // eslint-disable-next-line functional/no-conditional-statement
   if (someFeedsHaveMoreDataToGet(fetchedFeeds)) {
@@ -85,9 +86,12 @@ async function fetchFeeds(
     return fetchFeeds(adminSettings, subsFeedsWithDataWithUpdatedPaginationInFeedUrl)
   }
 
-  feedsLogger.debug(`Successfully fetched the following number of posts for these subs:`, {
-    fetchedFeeds: summarizeFeedDataForLogging(fetchedFeeds),
-  })
+  feedsLogger.debug(
+    `Successfully fetched the following number of posts (including duplicate posts) for these subs:`,
+    {
+      fetchedFeeds: summarizeFeedDataForLogging(fetchedFeeds),
+    }
+  )
 
   return fetchedFeeds
 }
