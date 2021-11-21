@@ -18,10 +18,11 @@ const tableSchema = {
     primaryKey: true,
     validate: { notEmpty: true },
   },
+  // lastUpdate is a Date.now() timestamp
   lastUpdate: {
-    type: DataTypes.DATE,
+    type: DataTypes.INTEGER,
     allowNull: false,
-    validate: { isDate: true },
+    validate: { isNumeric: true },
   },
 }
 

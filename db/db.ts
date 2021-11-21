@@ -61,7 +61,7 @@ import {
 } from './posts/db-posts'
 
 import { CommentContainer } from './entities/Comments'
-import { getEnvFilePath, getFileSize /*, isDev */ } from '../server/utils'
+import { getEnvFilePath, getFileSize /*isDev*/ } from '../server/utils'
 
 const sqliteDBPath = process.env['SQLITE_DBPATH'] || './roffline-sqlite.db'
 const commentsDBPath = process.env['COMMENTS_DBPATH'] || './roffline-comments-lmdb.db'
@@ -119,28 +119,32 @@ const db = {
   getAllSubreddits,
   getAllUsersDBDataForAdmin,
   async batchAddSubredditsToMasterList(subreddits: string[], transaction: TransactionType = null): Promise<void> {
-    const twoDaysAgo = new Date(DateTime.now().minus({ days: 2 }).toMillis())
     // We set the lastUpdate to two days ago on creation so its feeds will be updated straight away
-    const subs = subreddits.map(subreddit => ({ subreddit, lastUpdate: twoDaysAgo.toString() }))
+    const twoDaysAgoUnixTime = DateTime.now().minus({ days: 2 }).toMillis()
+
+    const subs = subreddits.map(subreddit => ({
+      subreddit,
+      lastUpdate: twoDaysAgoUnixTime,
+    }))
 
     await SubredditsMasterListModel.bulkCreate(subs, {
       ignoreDuplicates: true,
-      fields: ['subreddit'],
       transaction,
     })
   },
   async addSingleSubredditToMasterList(newSub: string, transaction: TransactionType = null): Promise<void> {
-    const twoDaysAgo = new Date(DateTime.now().minus({ days: 2 }).toMillis())
     // We set the lastUpdate to two days ago on creation so its feeds will be updated straight away
+    const twoDaysAgoUnixTime = DateTime.now().minus({ days: 2 }).toMillis()
+
     await SubredditsMasterListModel.create(
-      { subreddit: newSub, lastUpdate: twoDaysAgo.toString() },
-      { ignoreDuplicates: true, fields: ['subreddit'], transaction }
+      { subreddit: newSub, lastUpdate: twoDaysAgoUnixTime },
+      { ignoreDuplicates: true, transaction }
     )
   },
   async batchUpdateSubredditsLastUpdatedTime(subreddits: string[]): Promise<void> {
     await sequelize.transaction(transaction =>
       SubredditsMasterListModel.update(
-        { lastUpdate: new Date().toString() },
+        { lastUpdate: Date.now() },
         { where: { subreddit: { [Op.in]: subreddits } }, transaction }
       )
     )
@@ -314,7 +318,7 @@ const db = {
     return adminVacuumDB(sequelize)
   },
   getThingsThatNeedToBeDownloaded(): Promise<[SubredditsMasterList[], Post[], Post[]]> {
-    const twoHoursAgo = new Date(DateTime.now().minus({ hours: 2 }).toMillis())
+    const twoHoursAgoUnixTime = DateTime.now().minus({ hours: 2 }).toMillis()
 
     type Models = SubredditsMasterListModel[] | PostModel[]
 
@@ -322,7 +326,7 @@ const db = {
       models.length > 0 ? models.map(model => model.get() as SubredditsMasterList | Post) : []
 
     return Promise.all([
-      SubredditsMasterListModel.findAll({ where: { lastUpdate: { [Op.lt]: twoHoursAgo } } }),
+      SubredditsMasterListModel.findAll({ where: { lastUpdate: { [Op.lt]: twoHoursAgoUnixTime } } }),
       PostModel.findAll({ where: { commentsDownloaded: false } }),
       PostModel.findAll({
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
