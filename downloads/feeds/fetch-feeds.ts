@@ -1,5 +1,5 @@
 import R from 'ramda'
-import fetch, { Response } from 'node-fetch'
+import fetch, { Response } from 'node-fetch-commonjs'
 import RA from 'ramda-adjunct'
 import Prray from 'prray'
 
@@ -53,7 +53,11 @@ function fetchFeed(subFeedData: FeedWithData): Promise<FeedWithData | void> {
     .catch(err => feedsLogger.trace(err))
 }
 
-const subHasMoreFeedData = R.pathSatisfies(RA.isNotNil, ['data', 'after'])
+/*****
+ Feed has more paginated data to come if .data.after is a string, or if feed.data is null.
+ feed.data itself will be null if its an initial feed.
+*****/
+const subHasMoreFeedData = (feed: FeedWithData): boolean => typeof feed.data?.after === 'string' || !feed.data
 
 const fetchFeedIfItHasMoreData = R.when(subHasMoreFeedData, fetchFeed)
 
@@ -81,7 +85,7 @@ async function fetchFeeds(
 
   // eslint-disable-next-line functional/no-conditional-statement
   if (someFeedsHaveMoreDataToGet(fetchedFeeds)) {
-    const subsFeedsWithDataWithUpdatedPaginationInFeedUrl = updatePaginationForEachFeedsUrl(subsFeedsWithData)
+    const subsFeedsWithDataWithUpdatedPaginationInFeedUrl = updatePaginationForEachFeedsUrl(fetchedFeeds)
 
     return fetchFeeds(adminSettings, subsFeedsWithDataWithUpdatedPaginationInFeedUrl)
   }
