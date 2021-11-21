@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 
 import Prray from 'prray'
-import got from 'got'
+import fetch from 'node-fetch-commonjs'
 
 import { dbLogger } from '../logging/logging'
 import { folderExists, getEnvFilePath } from '../server/utils'
@@ -24,7 +24,7 @@ const dev = {
 
     return (
       Prray.from(urls)
-        .mapAsync(item => got(item).json(), { concurrency: 4 })
+        .mapAsync(item => fetch(item).then(resp => resp.json()), { concurrency: 4 })
         // .then(results => console.log(results))
         // @ts-expect-error asd
         .then(postsData => db.batchAddNewPosts(postsData.map(postData => postData.data.children[0].data)))
@@ -42,7 +42,7 @@ const dev = {
     ]
 
     return Prray.from(urls)
-      .mapAsync(item => got(item).json())
+      .mapAsync(item => fetch(item).then(resp => resp.json()))
       .then(subsPostData => {
         const finalisedSubsPostsData = subsPostData.flatMap(subPostsData =>
           // @ts-expect-error asd
@@ -65,7 +65,7 @@ const dev = {
     ]
 
     return Prray.from(urls)
-      .mapAsync(item => got(item).json())
+      .mapAsync(item => fetch(item).then(resp => resp.json()))
       .then(results => {
         const thing = {
           [sub]: [],
@@ -118,10 +118,12 @@ const dev = {
         .mapAsync(
           postId => {
             console.log(`https://www.reddit.com/comments/${postId}.json`)
-            return got(`https://www.reddit.com/comments/${postId}.json`).then(resp => ({
-              comments: resp.body,
-              id: postId,
-            }))
+            return fetch(`https://www.reddit.com/comments/${postId}.json`)
+              .then(resp => resp.json())
+              .then(comments => ({
+                comments,
+                id: postId,
+              }))
           },
           { concurrency: 4 }
         )
