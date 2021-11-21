@@ -193,6 +193,7 @@ const tests = {
       .finally(_ => sh(`fkill :8080 --silent`, shellOptions))
   },
   lighthouse() {
+    // TODO: rework this test, add all the new pages
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
     const prodEnvs = `NODE_ENV=production PUBLIC_FOLDER=frontend-build POSTS_MEDIA_DOWNLOAD_DIR='./posts-media' LOGDIR='./roffline-logs'`
 
