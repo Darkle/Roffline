@@ -119,7 +119,7 @@ function scheduleUpdates(): void {
           })
         }
       } catch (err) {
-        mainLogger.error(err)
+        mainLogger.error('Error with downloads:', { err })
         /*****
           The require-atomic-updates eslint error here seems to be a false-positive.
           See https://github.com/eslint/eslint/issues/11899

@@ -12,6 +12,27 @@ const pinoOptions = {
   timestamp(): string {
     return `,"time":"${DateTime.now().toISO({ includeOffset: true })}"`
   },
+  hooks: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    logMethod(inputArgs: any[], method: Pino.LogFn): void {
+      /*****
+        Pino expects an object first, then an optional string message. We want that reversed so
+        that we can pass in the string message first and the object second.
+      *****/
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (typeof inputArgs[0] === 'string' && typeof inputArgs[1] === 'object') {
+        // eslint-disable-next-line functional/immutable-data
+        const arg1 = inputArgs.shift() as string
+        // eslint-disable-next-line functional/immutable-data
+        const arg2 = inputArgs.shift() as Record<string, unknown>
+        // @ts-expect-error I'm not sure why this is erroring, this code is copied from the docs: https://getpino.io/#/docs/api?id=logmethod
+        return method.apply(this, [arg2, arg1, ...inputArgs]) // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+      }
+
+      // @ts-expect-error I'm not sure why this is erroring, this code is copied from the docs: https://getpino.io/#/docs/api?id=logmethod
+      return method.apply(this, inputArgs)
+    },
+  },
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
