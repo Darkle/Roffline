@@ -150,21 +150,22 @@ const dev = {
       console.log('!!DEV DB FUNCTIONS ARE BEING RUN!!')
       dbLogger.warn('!!DEV DB FUNCTIONS ARE BEING RUN!!')
 
-      dev
-        .addComments(db)
-        // .addSubPostIdRefs(db, 'abruptchaos')
-        // .then(res => db.batchAddSubredditsPostIdReferences(res))
-        // .mockMediaForPosts(db)
-        //   .createUser(db, 'Coop')
-        //   .then(() => dev.addSubs(db, 'Coop', ['space']))
-        //   .then(() => dev.addPosts(db, 'space'))
+      // dev
+      //   .createUser(db, 'Merp')
+      //   // .addSubPostIdRefs(db, 'abruptchaos')
+      //   .then(() => dev.addSubs(db, 'Merp', ['aww', 'hackernews', 'CabinPorn']))
+      //   // .then(res => res.get())
+      //   // .mockMediaForPosts(db)
+      //   //   .createUser(db, 'Coop')
+      //   //   .then(() => dev.addSubs(db, 'Coop', ['space']))
+      //   //   .then(() => dev.addPosts(db, 'space'))
 
-        //   //// @ts-expect-error asd
-        //   // .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
-        .then(() => {
-          console.log('finished db stuff')
-        })
-        .catch((err: Error) => console.error(err))
+      //   //   //// @ts-expect-error asd
+      //   //   // .then(postData => db.batchAddNewPosts([postData.data.children[0].data]))
+      //   .then(() => {
+      //     console.log('finished db stuff')
+      //   })
+      //   .catch((err: Error) => console.error(err))
     }, 3000)
   },
 }
