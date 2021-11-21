@@ -37,8 +37,8 @@ function addThingsToBeDownloadedToDownloadsStore([subs, commentsToGet, mediaToGe
     downloadsStore.subsToUpdate.add(subreddit)
   })
 
-  commentsToGet.forEach(({ id }) => {
-    downloadsStore.commentsToRetrieved.add(id)
+  commentsToGet.forEach(({ id: postId }) => {
+    downloadsStore.commentsToRetrieved.add(postId)
   })
 
   mediaToGet.forEach(post => {
