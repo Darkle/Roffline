@@ -4,29 +4,16 @@ import { Post } from '../db/entities/Posts/Post'
 import { SubredditsMasterList } from '../db/entities/SubredditsMasterList'
 import { mainLogger } from '../logging/logging'
 import { isOffline } from './check-if-offline'
+import { FeedWithData } from './feeds/generate-feeds'
 import { updateSubsFeeds } from './feeds/update-subs-feeds'
+import { downloadsStore } from './downloads-store'
 
 /* eslint-disable functional/no-conditional-statement,functional/no-try-statement,functional/no-let,complexity,array-bracket-newline, max-lines-per-function */
-
-type PostId = string
-type Subreddit = string
-
-type DownloadsStore = {
-  subsToUpdate: Set<Subreddit>
-  commentsToRetrieved: Set<PostId>
-  postsMediaToBeDownloaded: Map<PostId, Post>
-}
 
 const thirtySecondsInMs = 30000
 let timer: ReturnType<typeof global.setTimeout>
 let downloadsAreRunning = false
 let adminSettingsCache: AdminSettings
-
-const downloadsStore: DownloadsStore = {
-  subsToUpdate: new Set(),
-  commentsToRetrieved: new Set(),
-  postsMediaToBeDownloaded: new Map(),
-}
 
 function shouldRunNewUpdate(): boolean {
   const { updateAllDay, updateStartingHour, updateEndingHour } = adminSettingsCache
@@ -46,7 +33,6 @@ function addThingsToBeDownloadedToDownloadsStore([subs, commentsToGet, mediaToGe
   commentsToGet: Post[],
   mediaToGet: Post[]
 ]): void {
-  // Since these are Set's, duplicates are ignored.
   subs.forEach(({ subreddit }) => {
     downloadsStore.subsToUpdate.add(subreddit)
   })
@@ -71,28 +57,22 @@ function addThingsToBeDownloadedToDownloadsStore([subs, commentsToGet, mediaToGe
 //   // remember to account for if its a Map or a Set here
 // }
 
-const moreSubsToUpdate = (): boolean => downloadsStore.subsToUpdate.size > 0
-const moreCommentsToRetrieved = (): boolean => downloadsStore.commentsToRetrieved.size > 0
-const morePostsMediaToBeDownloaded = (): boolean => downloadsStore.postsMediaToBeDownloaded.size > 0
-const moreToDownload = (): boolean =>
-  moreSubsToUpdate() || moreCommentsToRetrieved() || morePostsMediaToBeDownloaded()
-
-function startSomeDownloads(): Promise<void> {
-  if (moreSubsToUpdate()) {
+function startSomeDownloads(): Promise<void | FeedWithData[]> {
+  if (downloadsStore.moreSubsToUpdate()) {
     return updateSubsFeeds(adminSettingsCache, downloadsStore.subsToUpdate)
     // .then(savePosts) remember to deduplicate - i think the functions are in feed-processors
-    // .then(subsUpdated =>
-    //   removeSuccessfullDownloadsFromDownloadStore(subsUpdated, 'subsToUpdate')
+    // .then(subsSuccessfullyUpdated =>
+    //   removeSuccessfullDownloadsFromDownloadStore(subsSuccessfullyUpdated, 'subsToUpdate')
     // )
   }
 
-  // if (moreCommentsToRetrieved()) {
-  //   return updateSubredditsFeeds(adminSettingsCache, downloadsStore.commentsToRetrieved)
+  // if (downloadsStore.moreCommentsToRetrieved()) {
+  //   return asd(adminSettingsCache, downloadsStore.commentsToRetrieved)
   // .then(commentsRetrieved => removeSuccessfullDownloadFromDownloadStore(commentsRetrieved, 'commentsToRetrieved'))
   // }
 
-  // if (morePostsMediaToBeDownloaded()) {
-  //   return updateSubredditsFeeds(adminSettingsCache, downloadsStore.postsMediaToBeDownloaded)
+  // if (downloadsStore.morePostsMediaToBeDownloaded()) {
+  //   return dfgf(adminSettingsCache, downloadsStore.postsMediaToBeDownloaded)
   // .then(mediaDownloads => removeSuccessfullDownloadFromDownloadStore(mediaDownloads, 'postsMediaToBeDownloaded'))
   // }
 
@@ -111,7 +91,7 @@ function startSomeDownloads(): Promise<void> {
   // Dont forget to update post_to_get and remove posts we have gotten.
   // Catch and log individual downloads inside their respective downloaders as a single failed download shouldnt bubble up to here
 
-  return moreToDownload() ? startSomeDownloads() : Promise.resolve()
+  return downloadsStore.moreToDownload() ? startSomeDownloads() : Promise.resolve()
 }
 
 function scheduleUpdates(): void {
@@ -129,18 +109,20 @@ function scheduleUpdates(): void {
 
         mainLogger.trace(`New update. Starting at: ${new Date().toString()}`)
 
-        await db.getThingsThatNeedToBeDownloaded().then(addThingsToBeDownloadedToDownloadsStore)
-
         if (!downloadsAreRunning) {
           downloadsAreRunning = true
-          await startSomeDownloads()
+
+          await db.getThingsThatNeedToBeDownloaded().then(addThingsToBeDownloadedToDownloadsStore)
+
+          await startSomeDownloads().then(() => {
+            downloadsAreRunning = false
+          })
         }
       } catch (err) {
-        mainLogger.error('Error with downloads', { err })
-      } finally {
+        mainLogger.error(err)
         /*****
           The require-atomic-updates eslint error here seems to be a false-positive.
-          See https://github.com/eslint/eslint/issues/11954 and https://github.com/eslint/eslint/issues/11899
+          See https://github.com/eslint/eslint/issues/11899
         *****/
         downloadsAreRunning = false // eslint-disable-line require-atomic-updates
       }
