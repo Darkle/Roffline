@@ -7,6 +7,7 @@ import { Post, PostWithComments } from '../entities/Posts/Post'
 import { PostModel } from '../entities/Posts/Posts'
 import { dbLogger } from '../../logging/logging'
 import { CommentContainer } from '../entities/Comments'
+import { SubredditsMasterListModel } from '../entities/SubredditsMasterList'
 
 type SubsPostsIdDataType = {
   [subreddit: string]: TopPostsRowType[]
@@ -48,29 +49,65 @@ function getCountOfAllPostsWithMediaStillToDownload(): Promise<number> {
   return PostModel.count({ where: { media_has_been_downloaded: false }, attributes: ['id'] })
 }
 
-async function setMediaDownloadedTrueForPost(postId: string): Promise<void> {
-  await PostModel.update({ media_has_been_downloaded: true }, { where: { id: postId } })
+async function batchSetCommentsDownloadedTrueForPosts(sequelize: Sequelize, postIds: string[]): Promise<void> {
+  await sequelize.transaction(transaction =>
+    PostModel.update({ commentsDownloaded: true }, { where: { id: { [Op.in]: postIds } }, transaction })
+  )
 }
 
-async function incrementPostMediaDownloadTry(postId: string): Promise<void> {
-  await PostModel.increment('mediaDownloadTries', { where: { id: postId } })
+async function setMediaDownloadedTrueForPost(sequelize: Sequelize, postId: string): Promise<void> {
+  await sequelize.transaction(transaction =>
+    PostModel.update({ media_has_been_downloaded: true }, { where: { id: postId }, transaction })
+  )
+}
+
+async function incrementPostMediaDownloadTry(sequelize: Sequelize, postId: string): Promise<void> {
+  await sequelize.transaction(transaction =>
+    PostModel.increment('mediaDownloadTries', {
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+      where: { id: postId, mediaDownloadTries: { [Op.lt]: 3 } },
+      transaction,
+    })
+  )
 }
 
 type PostIds = string[]
 
-async function batchRemovePosts(postsToRemove: PostIds, transaction: TransactionType = null): Promise<void> {
+// eslint-disable-next-line max-lines-per-function
+async function batchRemovePosts(
+  sequelize: Sequelize,
+  postsToRemove: PostIds,
+  transaction: TransactionType = null
+): Promise<void> {
   const timer = new Timer()
   timer.start()
 
-  await PostModel.destroy({ where: { id: { [Op.in]: postsToRemove } }, transaction })
+  // eslint-disable-next-line functional/no-conditional-statement
+  if (transaction) {
+    await PostModel.destroy({ where: { id: { [Op.in]: postsToRemove } }, transaction })
+  } else {
+    await sequelize.transaction(t =>
+      PostModel.destroy({ where: { id: { [Op.in]: postsToRemove } }, transaction: t })
+    )
+  }
 
   dbLogger.debug(
-    `db.batchRemovePosts for ${postsToRemove.length} posts and their comments took ${timer.format(
+    `db.batchRemovePosts for ${postsToRemove.length} posts took ${timer.format(
       '[%s] seconds [%ms] ms'
     )} to complete`
   )
 
   timer.clear()
+}
+
+async function findPostsWhichHaveNoSubOwner(): Promise<string[]> {
+  const allSubs = await SubredditsMasterListModel.findAll({ attributes: ['subreddit'] }).then(subs =>
+    subs.map(subModelItem => subModelItem.get('subreddit') as string)
+  )
+
+  return PostModel.findAll({ where: { subreddit: { [Op.notIn]: allSubs } } }).then(subs =>
+    subs.map(postModelItem => postModelItem.get('id') as string)
+  )
 }
 
 // eslint-disable-next-line max-lines-per-function
@@ -136,5 +173,7 @@ export {
   batchRemovePosts,
   batchAddNewPosts,
   batchAddSubredditsPostIdReferences,
+  findPostsWhichHaveNoSubOwner,
   batchClearSubredditsPostIdReferences,
+  batchSetCommentsDownloadedTrueForPosts,
 }

@@ -58,6 +58,8 @@ import {
   batchAddNewPosts,
   batchAddSubredditsPostIdReferences,
   batchClearSubredditsPostIdReferences,
+  findPostsWhichHaveNoSubOwner,
+  batchSetCommentsDownloadedTrueForPosts,
 } from './posts/db-posts'
 
 import { CommentContainer } from './entities/Comments'
@@ -198,14 +200,22 @@ const db = {
   getSinglePostData(postId: string): Promise<PostWithComments> {
     return getSinglePostData(this.getPostComments, postId)
   },
+  findPostsWhichHaveNoSubOwner,
   getAllPostIds,
   getPostIdsWithNoCommentsYetFetched,
   getPostsWithMediaStillToDownload,
   getCountOfAllPostsWithMediaStillToDownload,
-  setMediaDownloadedTrueForPost,
-  incrementPostMediaDownloadTry,
+  setMediaDownloadedTrueForPost(postId: string): Promise<void> {
+    return setMediaDownloadedTrueForPost(sequelize, postId)
+  },
+  batchSetCommentsDownloadedTrueForPosts(postIds: string[]): Promise<void> {
+    return batchSetCommentsDownloadedTrueForPosts(sequelize, postIds)
+  },
+  incrementPostMediaDownloadTry(postId: string): Promise<void> {
+    return incrementPostMediaDownloadTry(sequelize, postId)
+  },
   batchRemovePosts(postsToRemove: PostIds, transaction: TransactionType = null): Promise<void> {
-    return batchRemovePosts(postsToRemove, transaction)
+    return batchRemovePosts(sequelize, postsToRemove, transaction)
   },
   batchAddNewPosts(postsToAdd: Post[]): Promise<void> {
     return batchAddNewPosts(sequelize, postsToAdd)
