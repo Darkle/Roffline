@@ -7,6 +7,7 @@ import { AdminSettings } from '../../db/entities/AdminSettings'
 import { feedsLogger } from '../../logging/logging'
 import { FeedWithData, updatePaginationForEachFeedsUrl } from './generate-feeds'
 import { Post } from '../../db/entities/Posts/Post'
+import { isDev } from '../../server/utils'
 
 type RawSubFeedData = { children: Post[]; after: null | string; before: null | string }
 
@@ -50,7 +51,10 @@ function fetchFeed(subFeedData: FeedWithData): Promise<FeedWithData | void> {
      Not bothering to log here on error generally as this will happen fairly regularly when the host goes offline.
      The .catch void returns are removed later with removeEmptyFeeds.
     *****/
-    .catch(err => feedsLogger.trace(err))
+    .catch((err:Error) => {
+      isDev && console.error(err)
+      feedsLogger.trace(err)
+    })
 }
 
 /*****
