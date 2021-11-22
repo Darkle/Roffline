@@ -95,6 +95,9 @@ async function getFolderSize(folderPath: string): Promise<number> {
 const ModeltoPOJO = (model: TableModels | undefined): TableModelTypes | undefined =>
   model?.get() as TableModelTypes | undefined
 
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers
+const percentage = (amount: number, total: number): number => Math.round((amount / total) * 100)
+
 export {
   isDev,
   getEnvFilePath,
@@ -109,4 +112,5 @@ export {
   ModeltoPOJO,
   pDeleteFolder,
   folderExists,
+  percentage,
 }
