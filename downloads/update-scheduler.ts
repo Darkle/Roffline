@@ -7,6 +7,9 @@ import { isOffline } from './check-if-offline'
 import { FeedWithData } from './feeds/generate-feeds'
 import { updateSubsFeeds } from './feeds/update-subs-feeds'
 import { downloadsStore } from './downloads-store'
+import { savePosts } from './posts/save-posts'
+import { removeAnyPostsNoLongerNeeded } from './posts/posts-removal'
+import { getCommentsForPosts } from './comments/get-comments'
 
 /* eslint-disable functional/no-conditional-statement,functional/no-try-statement,functional/no-let,complexity,array-bracket-newline, max-lines-per-function */
 
@@ -38,7 +41,7 @@ function addThingsToBeDownloadedToDownloadsStore([subs, commentsToGet, mediaToGe
   })
 
   commentsToGet.forEach(({ id: postId }) => {
-    downloadsStore.commentsToRetrieved.add(postId)
+    downloadsStore.commentsToRetrieve.add(postId)
   })
 
   mediaToGet.forEach(post => {
@@ -52,24 +55,30 @@ function addThingsToBeDownloadedToDownloadsStore([subs, commentsToGet, mediaToGe
   })
 }
 
-// function removeSuccessfullDownloadsFromDownloadStore(downloadedItems, downloadsType) {
-//   downloadsStore
-//   // remember to account for if its a Map or a Set here
-// }
-
-function startSomeDownloads(): Promise<void | FeedWithData[]> {
+async function startSomeDownloads(): Promise<void | FeedWithData[]> {
   if (downloadsStore.moreSubsToUpdate()) {
-    return updateSubsFeeds(adminSettingsCache, downloadsStore.subsToUpdate)
-    // .then(savePosts) remember to deduplicate - i think the functions are in feed-processors
-    // .then(subsSuccessfullyUpdated =>
-    //   removeSuccessfullDownloadsFromDownloadStore(subsSuccessfullyUpdated, 'subsToUpdate')
-    // )
+    return (
+      updateSubsFeeds(adminSettingsCache, downloadsStore.subsToUpdate)
+        .then(savePosts)
+        .then((subsSuccessfullyUpdated: string[]) => {
+          subsSuccessfullyUpdated.forEach(sub => downloadsStore.subsToUpdate.delete(sub))
+        })
+        .then(removeAnyPostsNoLongerNeeded)
+        // We want to favour getting the subs and posts first, before comments and media downloads
+        .then(() => (downloadsStore.moreSubsToUpdate() ? startSomeDownloads() : Promise.resolve()))
+    )
   }
 
-  // if (downloadsStore.moreCommentsToRetrieved()) {
-  //   return asd(adminSettingsCache, downloadsStore.commentsToRetrieved)
-  // .then(commentsRetrieved => removeSuccessfullDownloadFromDownloadStore(commentsRetrieved, 'commentsToRetrieved'))
-  // }
+  if (downloadsStore.moreCommentsToRetrieve() && adminSettingsCache.downloadComments) {
+    return (
+      getCommentsForPosts(adminSettingsCache, downloadsStore.commentsToRetrieve)
+        .then((postIdsOfCommentsRetreived: string[]) => {
+          postIdsOfCommentsRetreived.forEach(sub => downloadsStore.commentsToRetrieve.delete(sub))
+        })
+        // We want to favour getting more subs and posts first, before media downloads
+        .then(() => (downloadsStore.moreSubsToUpdate() ? startSomeDownloads() : Promise.resolve()))
+    )
+  }
 
   // if (downloadsStore.morePostsMediaToBeDownloaded()) {
   //   return dfgf(adminSettingsCache, downloadsStore.postsMediaToBeDownloaded)
@@ -83,7 +92,6 @@ function startSomeDownloads(): Promise<void | FeedWithData[]> {
   // Also on download complete, we update these things:
   // - lastUpdate for a sub in subreddits_master_list needs to be updated with new date for each sub after finished getting all its feeds
   //   - And need to remove it from the feedsToBeFetched Set()
-  // - remove post id from posts_to_get table
   // - commentsDownloaded for a post in posts table needs to be set to true
   //   - And need to remove it from the commentsToBeRetrieved Set()
   // - mediaDownloadTries for a post needs to be updated in posts table regardless of success
