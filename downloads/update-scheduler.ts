@@ -90,11 +90,7 @@ async function startSomeDownloads(): Promise<void | FeedWithData[]> {
   // So on download completed, we check if there is anything more to do in the set()s, if not, we set downloadsAreRunning to false
   // On download completed of feeds, make sure to first clear that subs table first before store all the new data
   // Also on download complete, we update these things:
-  // - lastUpdate for a sub in subreddits_master_list needs to be updated with new date for each sub after finished getting all its feeds
-  //   - And need to remove it from the feedsToBeFetched Set()
-  // - commentsDownloaded for a post in posts table needs to be set to true
-  //   - And need to remove it from the commentsToBeRetrieved Set()
-  // - mediaDownloadTries for a post needs to be updated in posts table regardless of success
+  //   - mediaDownloadTries for a post needs to be updated in posts table regardless of success - how did we do this? did we set it before download starts??
   //   - On successful update, set media_has_been_downloaded to true in posts table
   // Dont forget to update post_to_get and remove posts we have gotten.
   // Catch and log individual downloads inside their respective downloaders as a single failed download shouldnt bubble up to here

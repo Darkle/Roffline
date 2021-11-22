@@ -156,7 +156,7 @@ async function batchAddSubredditsPostIdReferences(
   )
 }
 
-async function batchClearSubredditsPostIdReferences(sequelize: Sequelize, subs: string[]): Promise<void> {
+async function batchClearSubredditTables(sequelize: Sequelize, subs: string[]): Promise<void> {
   await sequelize.transaction(transaction =>
     Promise.all(subs.map(sub => subredditTablesMap.get(sub.toLowerCase())?.truncate({ transaction })))
   )
@@ -174,6 +174,6 @@ export {
   batchAddNewPosts,
   batchAddSubredditsPostIdReferences,
   findPostsWhichHaveNoSubOwner,
-  batchClearSubredditsPostIdReferences,
+  batchClearSubredditTables,
   batchSetCommentsDownloadedTrueForPosts,
 }

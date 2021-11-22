@@ -57,7 +57,7 @@ import {
   batchRemovePosts,
   batchAddNewPosts,
   batchAddSubredditsPostIdReferences,
-  batchClearSubredditsPostIdReferences,
+  batchClearSubredditTables,
   findPostsWhichHaveNoSubOwner,
   batchSetCommentsDownloadedTrueForPosts,
 } from './posts/db-posts'
@@ -223,8 +223,8 @@ const db = {
   batchAddSubredditsPostIdReferences(subsPostsIdRefs: SubsPostsIdDataType): Promise<void> {
     return batchAddSubredditsPostIdReferences(sequelize, subsPostsIdRefs)
   },
-  batchClearSubredditsPostIdReferences(subs: string[]): Promise<void> {
-    return batchClearSubredditsPostIdReferences(sequelize, subs)
+  batchClearSubredditTables(subs: string[]): Promise<void> {
+    return batchClearSubredditTables(sequelize, subs)
   },
   // eslint-disable-next-line max-lines-per-function
   async batchSaveComments(postsComments: { id: string; comments: string }[]): Promise<void> {
