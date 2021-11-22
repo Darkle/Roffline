@@ -70,8 +70,18 @@ const mainLogger = Pino(pinoOptions, transports)
 
 const feedsLogger = mainLogger.child({ sublogger: 'feeds' })
 
+const commentsDownloadsLogger = mainLogger.child({ sublogger: 'comments-downloads' })
+
 const mediaDownloadsLogger = mainLogger.child({ sublogger: 'media-downloads' })
 
 const dbLogger = mainLogger.child({ sublogger: 'db' })
 
-export { mainLogger, feedsLogger, mediaDownloadsLogger, dbLogger, fastifyDevlogIgnore, browserSyncReminderForDev }
+export {
+  mainLogger,
+  feedsLogger,
+  mediaDownloadsLogger,
+  dbLogger,
+  fastifyDevlogIgnore,
+  browserSyncReminderForDev,
+  commentsDownloadsLogger,
+}
