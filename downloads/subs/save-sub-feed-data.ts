@@ -37,21 +37,21 @@ const getPostsAmountTotal = R.compose(
 )
 
 async function saveEachSubsFeedDataToDB(subsFeedsData: FeedWithData[]): Promise<void> {
-  const subs = R.uniq(subsFeedsData.map((feedData: FeedWithData): string => feedData.subreddit))
+  const subsUpdating = R.uniq(subsFeedsData.map((feedData: FeedWithData): string => feedData.subreddit))
   const postsAmountTotal = getPostsAmountTotal(subsFeedsData)
   const subredditsPostIdReferencesFromFeeds = getEachSubredditsDataReadyForSubTable(subsFeedsData)
 
-  feedsLogger.trace(`Clearing each subs table for following subs: ${subs.join()}`)
+  feedsLogger.trace(`Clearing each subs table for following subs: ${subsUpdating.join()}`)
 
-  await db.batchClearSubredditTables(subs)
+  await db.batchClearSubredditTables(subsUpdating)
 
   feedsLogger.debug(
-    `Saving ${postsAmountTotal} post id's (this includes duplicate ids) for the following subs tables ${subs.join()}`
+    `Saving ${postsAmountTotal} post id's (this includes duplicate ids) for the following subs tables ${subsUpdating.join()}`
   )
 
   await db.batchAddSubredditsPostIdReferences(subredditsPostIdReferencesFromFeeds)
 
-  await db.batchUpdateSubredditsLastUpdatedTime(subs)
+  await db.batchUpdateSubredditsLastUpdatedTime(subsUpdating)
 }
 
 export { saveEachSubsFeedDataToDB }
