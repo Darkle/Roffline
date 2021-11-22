@@ -6,8 +6,8 @@ type Subreddit = string
 type DownloadsStore = {
   subsToUpdate: Set<Subreddit>
   moreSubsToUpdate: () => boolean
-  commentsToRetrieved: Set<PostId>
-  moreCommentsToRetrieved: () => boolean
+  commentsToRetrieve: Set<PostId>
+  moreCommentsToRetrieve: () => boolean
   postsMediaToBeDownloaded: Map<PostId, Post>
   morePostsMediaToBeDownloaded: () => boolean
   moreToDownload: () => boolean
@@ -18,16 +18,16 @@ const downloadsStore: DownloadsStore = {
   moreSubsToUpdate(): boolean {
     return this.subsToUpdate.size > 0
   },
-  commentsToRetrieved: new Set(),
-  moreCommentsToRetrieved(): boolean {
-    return this.commentsToRetrieved.size > 0
+  commentsToRetrieve: new Set(),
+  moreCommentsToRetrieve(): boolean {
+    return this.commentsToRetrieve.size > 0
   },
   postsMediaToBeDownloaded: new Map(),
   morePostsMediaToBeDownloaded(): boolean {
     return this.postsMediaToBeDownloaded.size > 0
   },
   moreToDownload(): boolean {
-    return this.moreSubsToUpdate() || this.moreCommentsToRetrieved() || this.morePostsMediaToBeDownloaded()
+    return this.moreSubsToUpdate() || this.moreCommentsToRetrieve() || this.morePostsMediaToBeDownloaded()
   },
 }
 
