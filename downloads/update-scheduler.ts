@@ -6,10 +6,10 @@ import { mainLogger } from '../logging/logging'
 import { isOffline } from './check-if-offline'
 import { FeedWithData } from './feeds/generate-feeds'
 import { updateSubsFeeds } from './feeds/update-subs-feeds'
-import { downloadsStore } from './downloads-store'
+import { downloadsStore, removeSuccessfullDownloadsFromDownloadStore } from './downloads-store'
 import { savePosts } from './posts/save-posts'
 import { removeAnyPostsNoLongerNeeded } from './posts/posts-removal'
-import { getCommentsForPosts } from './comments/get-comments'
+// import { getCommentsForPosts } from './comments/get-comments'
 
 /* eslint-disable functional/no-conditional-statement,functional/no-try-statement,functional/no-let,complexity,array-bracket-newline, max-lines-per-function */
 
@@ -61,7 +61,7 @@ async function startSomeDownloads(): Promise<void | FeedWithData[]> {
       updateSubsFeeds(adminSettingsCache, downloadsStore.subsToUpdate)
         .then(savePosts)
         .then((subsSuccessfullyUpdated: string[]) => {
-          subsSuccessfullyUpdated.forEach(sub => downloadsStore.subsToUpdate.delete(sub))
+          removeSuccessfullDownloadsFromDownloadStore(subsSuccessfullyUpdated, 'subsToUpdate')
         })
         .then(removeAnyPostsNoLongerNeeded)
         // We want to favour getting the subs and posts first, before comments and media downloads
@@ -69,30 +69,25 @@ async function startSomeDownloads(): Promise<void | FeedWithData[]> {
     )
   }
 
-  if (downloadsStore.moreCommentsToRetrieve() && adminSettingsCache.downloadComments) {
-    return (
-      getCommentsForPosts(adminSettingsCache, downloadsStore.commentsToRetrieve)
-        .then((postIdsOfCommentsRetreived: string[]) => {
-          postIdsOfCommentsRetreived.forEach(sub => downloadsStore.commentsToRetrieve.delete(sub))
-        })
-        // We want to favour getting more subs and posts first, before media downloads
-        .then(() => (downloadsStore.moreSubsToUpdate() ? startSomeDownloads() : Promise.resolve()))
-    )
-  }
+  // if (downloadsStore.moreCommentsToRetrieve() && adminSettingsCache.downloadComments) {
+  //   return (
+  //     getCommentsForPosts(adminSettingsCache, downloadsStore.commentsToRetrieve)
+  //       .then((postIdsOfCommentsRetreived: string[]) => {
+  // removeSuccessfullDownloadsFromDownloadStore(postIdsOfCommentsRetreived, 'commentsToRetrieve')
+  //       })
+  //       // We want to favour getting more subs and posts first, before media downloads
+  //       .then(() => (downloadsStore.moreSubsToUpdate() ? startSomeDownloads() : Promise.resolve()))
+  //   )
+  // }
 
   // if (downloadsStore.morePostsMediaToBeDownloaded()) {
   //   return dfgf(adminSettingsCache, downloadsStore.postsMediaToBeDownloaded)
-  // .then(mediaDownloads => removeSuccessfullDownloadFromDownloadStore(mediaDownloads, 'postsMediaToBeDownloaded'))
+  // .then(mediaDownloads => removeSuccessfullDownloadsFromDownloadStore(mediaDownloads, 'postsMediaToBeDownloaded'))
   // }
 
-  // Dont forget to do the concurrency dynamically based on the admin settings
-  // When downloading, need to send through the admin settings with that call as will want to know if downloading videos has changed et.al.
-  // So on download completed, we check if there is anything more to do in the set()s, if not, we set downloadsAreRunning to false
-  // On download completed of feeds, make sure to first clear that subs table first before store all the new data
   // Also on download complete, we update these things:
-  //   - mediaDownloadTries for a post needs to be updated in posts table regardless of success - how did we do this? did we set it before download starts??
+  //   - mediaDownloadTries for a post needs to be updated in posts table regardless of success - we do  first before download starts
   //   - On successful update, set media_has_been_downloaded to true in posts table
-  // Dont forget to update post_to_get and remove posts we have gotten.
   // Catch and log individual downloads inside their respective downloaders as a single failed download shouldnt bubble up to here
 
   return downloadsStore.moreToDownload() ? startSomeDownloads() : Promise.resolve()

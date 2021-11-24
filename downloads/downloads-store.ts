@@ -31,4 +31,13 @@ const downloadsStore: DownloadsStore = {
   },
 }
 
-export { downloadsStore }
+type DownloadsStoreKey = 'subsToUpdate' | 'commentsToRetrieve' | 'postsMediaToBeDownloaded'
+
+function removeSuccessfullDownloadsFromDownloadStore(
+  items: string[],
+  downloadsStoreKey: DownloadsStoreKey
+): void {
+  items.forEach((item: string) => downloadsStore[downloadsStoreKey].delete(item))
+}
+
+export { downloadsStore, removeSuccessfullDownloadsFromDownloadStore }
