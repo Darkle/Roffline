@@ -38,7 +38,6 @@ const collateAndDedupeAllPostsFromAllFeeds = R.compose(
   getPostsFromFeedItem
 )
 
-// eslint-disable-next-line max-lines-per-function
 function savePosts(allPostsFromTheSubsFeedsWhichIncludesDuplicatePosts: FeedWithData[]): Promise<string[]> {
   const subsWeUpdated = R.uniq(
     allPostsFromTheSubsFeedsWhichIncludesDuplicatePosts.map(
@@ -46,22 +45,9 @@ function savePosts(allPostsFromTheSubsFeedsWhichIncludesDuplicatePosts: FeedWith
     )
   )
 
-  console.log(
-    `feeds posts with duplicates length:${
-      R.compose(
-        filterDuplicatePosts,
-        getEachPostsData,
-        R.flatten,
-        getPostsFromFeedItem
-      )(allPostsFromTheSubsFeedsWhichIncludesDuplicatePosts).length
-    }`
-  )
-
   const allPostsFromTheSubsFeedsSansDuplicates = collateAndDedupeAllPostsFromAllFeeds(
     allPostsFromTheSubsFeedsWhichIncludesDuplicatePosts
   ) as Post[]
-
-  console.log(`allPostsFromAllFeedsSansDuplicates length:${allPostsFromTheSubsFeedsSansDuplicates.length}`)
 
   return db.batchAddNewPosts(allPostsFromTheSubsFeedsSansDuplicates).then(() => subsWeUpdated)
 }
