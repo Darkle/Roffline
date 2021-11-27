@@ -46,7 +46,7 @@ async function saveEachSubsFeedDataToDB(subsFeedsData: FeedWithData[]): Promise<
   await db.batchClearSubredditTables(subsUpdating)
 
   feedsLogger.debug(
-    `Saving ${postsAmountTotal} post id's (this includes duplicate ids) for the following subs tables ${subsUpdating.join()}`
+    `Saving ${postsAmountTotal} post id's (this includes duplicate ids) for the following subs tables: ${subsUpdating.join()}`
   )
 
   await db.batchAddSubredditsPostIdReferences(subredditsPostIdReferencesFromFeeds)
