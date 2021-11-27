@@ -18,7 +18,7 @@
     "vue": "vue/dist/vue.esm-bundler.js"
   },
   "engines": {
-    "node": ">=14.18.0"
+    "node": ">=16.13.0"
   },
   "browserslist": [
     "Firefox ESR",
@@ -36,6 +36,7 @@
     "cpu-stat": "^2.0.1",
     "csrf": "^3.1.0",
     "diceware": "^0.0.1",
+    "dns-cache": "^2.0.0",
     "dotenv": "^10.0.0",
     "envalid": "^7.2.2",
     "fastify": "^3.22.1",
@@ -98,7 +99,7 @@
     "check-my-headers": "^0.1.1",
     "concurrently": "^6.4.0",
     "csso-cli": "^3.0.0",
-    "esbuild": "^0.13.14",
+    "esbuild": "~0.13.14",
     "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-xo": "^0.39.0",

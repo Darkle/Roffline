@@ -1,3 +1,5 @@
+import dnscache from 'dns-cache'
+
 import { startServer } from './server/server'
 import { mainLogger } from './logging/logging'
 import { db } from './db/db'
@@ -26,6 +28,15 @@ function bailOnFatalError(err: Error): void {
 
 process.on('unhandledRejection', bailOnFatalError)
 process.on('uncaughtException', bailOnFatalError)
+
+/*****
+  We need to cache dns requests as we are sometimes making thousands of fetch requests
+  in a short timespan. Without this we used to get error messages like:
+  `FetchError: request to https://www.reddit.com/comments/qxy9ae.json failed, reason: getaddrinfo ENOTFOUND www.reddit.com`
+*****/
+const thirtyMinutesInMs = 1800000
+
+dnscache(thirtyMinutesInMs)
 
 db.init()
   .then(ensurePostsMediaDownloadFolderExists)

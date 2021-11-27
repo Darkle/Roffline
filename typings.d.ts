@@ -36,3 +36,7 @@ declare module 'vue3-json-viewer' {
   import JsonViewer from 'vue3-json-viewer'
   export default JsonViewer
 }
+
+declare module 'dns-cache' {
+  export default function (ttl: number): void
+}
