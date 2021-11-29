@@ -157,7 +157,7 @@ const AdminLogsViewerTable = Vue.defineComponent({
       compactMode
       max-height="50vh"
       :isLoading.sync="state.isLoading"
-      :totalRows="state.totalRows"
+      :total-rows="state.totalRows"
       :columns="state.columns"
       :rows="state.rows"
       :line-numbers="true"
