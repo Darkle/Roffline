@@ -45,6 +45,9 @@ async function pDeleteFolder(folderPath: string): Promise<void> {
   return exists ? fs.promises.rmdir(folderPath, { recursive: true }) : Promise.resolve()
 }
 
+const pCreateFolder = (folder: string): Promise<void> =>
+  fs.promises.access(folder).catch(_ => fs.promises.mkdir(folder))
+
 async function ensurePostsMediaDownloadFolderExists(): Promise<void | fs.Stats> {
   const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
 
@@ -113,4 +116,5 @@ export {
   pDeleteFolder,
   folderExists,
   percentage,
+  pCreateFolder,
 }
