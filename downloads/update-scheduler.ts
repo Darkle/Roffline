@@ -10,13 +10,20 @@ import { downloadsStore, removeSuccessfullDownloadsFromDownloadStore } from './d
 import { savePosts } from './posts/save-posts'
 import { removeAnyPostsNoLongerNeeded } from './posts/posts-removal'
 import { getCommentsForPosts } from './comments/get-comments'
+import { downloadPostsMedia } from './media/download-posts-media'
 
 /* eslint-disable functional/no-conditional-statement,functional/no-try-statement,functional/no-let,complexity,array-bracket-newline, max-lines-per-function */
+
+type PostId = string
+type Subreddit = string
 
 const thirtySecondsInMs = 30000
 let timer: ReturnType<typeof global.setTimeout>
 let downloadsAreRunning = false
 let adminSettingsCache: AdminSettings
+
+// So other modules can get the adminSettingsCache that is updated every 30 secs below.
+const getAdminSettingsCache = (): AdminSettings => adminSettingsCache
 
 function updateIsWithinAllowedTimeFrame(): boolean {
   const { updateAllDay, updateStartingHour, updateEndingHour } = adminSettingsCache
@@ -60,7 +67,7 @@ async function startSomeDownloads(): Promise<void | FeedWithData[]> {
     return (
       updateSubsFeeds(adminSettingsCache, downloadsStore.subsToUpdate)
         .then(savePosts)
-        .then((subsSuccessfullyUpdated: string[]) => {
+        .then((subsSuccessfullyUpdated: Subreddit[]) => {
           removeSuccessfullDownloadsFromDownloadStore(subsSuccessfullyUpdated, 'subsToUpdate')
         })
         .then(removeAnyPostsNoLongerNeeded)
@@ -72,7 +79,7 @@ async function startSomeDownloads(): Promise<void | FeedWithData[]> {
   if (downloadsStore.moreCommentsToRetrieve() && adminSettingsCache.downloadComments) {
     return (
       getCommentsForPosts(adminSettingsCache, downloadsStore.commentsToRetrieve)
-        .then((postIdsOfCommentsRetreived: string[]) => {
+        .then((postIdsOfCommentsRetreived: PostId[]) => {
           removeSuccessfullDownloadsFromDownloadStore(postIdsOfCommentsRetreived, 'commentsToRetrieve')
         })
         // We want to favour getting more subs and posts first, before media downloads
@@ -80,12 +87,17 @@ async function startSomeDownloads(): Promise<void | FeedWithData[]> {
     )
   }
 
-  // if (downloadsStore.morePostsMediaToBeDownloaded()) {
-  //   - mediaDownloadTries for a post needs to be updated in posts table regardless of success - we do  first before download starts
-  //   - On successful update, set media_has_been_downloaded to true in posts table
-  //   return dfgf(adminSettingsCache, downloadsStore.postsMediaToBeDownloaded)
-  // .then(mediaDownloads => removeSuccessfullDownloadsFromDownloadStore(mediaDownloads, 'postsMediaToBeDownloaded'))
-  // }
+  if (downloadsStore.morePostsMediaToBeDownloaded()) {
+    //TODO: - mediaDownloadTries for a post needs to be updated in posts table regardless of success - we do  first before download starts
+    //TODO: - On successful update, set media_has_been_downloaded to true in posts table
+    return downloadPostsMedia(adminSettingsCache, downloadsStore.postsMediaToBeDownloaded).then(
+      (postIdsOfMediaDownloadedSuccessfully: PostId[]) =>
+        removeSuccessfullDownloadsFromDownloadStore(
+          postIdsOfMediaDownloadedSuccessfully,
+          'postsMediaToBeDownloaded'
+        )
+    )
+  }
 
   return downloadsStore.moreToDownload() ? startSomeDownloads() : Promise.resolve()
 }
@@ -109,9 +121,13 @@ function scheduleUpdates(): void {
           downloadsAreRunning = true
 
           await db.getThingsThatNeedToBeDownloaded().then(addThingsToBeDownloadedToDownloadsStore)
-          console.log(downloadsStore.subsToUpdate)
-          console.log(downloadsStore.commentsToRetrieve.size)
-          console.log(downloadsStore.postsMediaToBeDownloaded.size)
+
+          console.log('downloadsStore.subsToUpdate', downloadsStore.subsToUpdate)
+          console.log('downloadsStore.commentsToRetrieve.size', downloadsStore.commentsToRetrieve.size)
+          console.log(
+            'downloadsStore.postsMediaToBeDownloaded.size',
+            downloadsStore.postsMediaToBeDownloaded.size
+          )
 
           await startSomeDownloads().then(() => {
             downloadsAreRunning = false
@@ -130,4 +146,4 @@ function scheduleUpdates(): void {
   }, thirtySecondsInMs)
 }
 
-export { scheduleUpdates }
+export { scheduleUpdates, getAdminSettingsCache }

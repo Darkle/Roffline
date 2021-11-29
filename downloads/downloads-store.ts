@@ -40,4 +40,4 @@ function removeSuccessfullDownloadsFromDownloadStore(
   items.forEach((item: string) => downloadsStore[downloadsStoreKey].delete(item))
 }
 
-export { downloadsStore, removeSuccessfullDownloadsFromDownloadStore }
+export { downloadsStore, removeSuccessfullDownloadsFromDownloadStore, DownloadsStore }
