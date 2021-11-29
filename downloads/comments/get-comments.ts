@@ -64,7 +64,9 @@ async function getCommentsForPosts(adminSettings: AdminSettings, postIds: Set<Po
 
   await db.batchSetCommentsDownloadedTrueForPosts(postIdsForCommentsToRetrieve)
 
-  return postIdsForCommentsToRetrieve
+  const postIdsOfCommentsSuccessfullyRetreived = comments.map(({ id }) => id)
+
+  return postIdsOfCommentsSuccessfullyRetreived
 }
 
 export { getCommentsForPosts }
