@@ -1,7 +1,7 @@
 import R from 'ramda'
 import fetch, { Response } from 'node-fetch-commonjs'
-import Prray from 'prray'
 import RA from 'ramda-adjunct'
+import Prray from 'prray'
 
 import { AdminSettings } from '../../db/entities/AdminSettings'
 import { db } from '../../db/db'
@@ -26,39 +26,41 @@ const assocCommentsWithPostId = (postId: PostId, comments: string): CommentsWith
   comments,
 })
 
-const getPostComments = (postId: PostId, index: number, prray: string[]): Promise<CommentsWithPostId | Error> => {
-  const itemNumber = index + 1
-  logGetCommentsProgress(itemNumber, prray.length)
-
-  // prettier-ignore
-  return fetch(`https://www.reddit.com/comments/${postId}.json`)
-      .then(handleCommentFetchResponse)
-      .then(commentsAsAString => assocCommentsWithPostId(postId, commentsAsAString))
-      // We are ignoring errors here as we will get a lot of them when go offline.
-      .catch((err:Error) => {
-        isDev && console.error(err)
-        commentsDownloadsLogger.trace(err)
-        return err
-      })
-}
+const getPostComments = (postId: PostId): Promise<CommentsWithPostId | Error> =>
+  fetch(`https://www.reddit.com/comments/${postId}.json`)
+    .then(handleCommentFetchResponse)
+    .then(commentsAsAString => assocCommentsWithPostId(postId, commentsAsAString))
+    // We are ignoring errors here as we will get a lot of them when go offline.
+    .catch((err: Error) => {
+      isDev && console.error(err)
+      commentsDownloadsLogger.trace(err)
+      return err
+    })
 
 const isNotError = R.complement(RA.isError)
 
 const removeItemsThatAreFetchErrors = (comments: (CommentsWithPostId | Error)[]): CommentsWithPostId[] =>
   comments.filter(isNotError) as CommentsWithPostId[]
 
-async function getCommentsForPosts(adminSettings: AdminSettings, comments: Set<PostId>): Promise<string[]> {
-  const postIdsForCommentsToRetrieve = [...comments]
+// eslint-disable-next-line max-lines-per-function
+async function getCommentsForPosts(adminSettings: AdminSettings, postIds: Set<PostId>): Promise<string[]> {
+  const postIdsForCommentsToRetrieve = [...postIds]
 
   commentsDownloadsLogger.debug(`Getting comments for ${postIdsForCommentsToRetrieve.length} posts`)
 
-  const commentsReadyForDB = await Prray.from(postIdsForCommentsToRetrieve)
-    .mapAsync(getPostComments, {
-      concurrency: adminSettings.numberFeedsOrPostsDownloadsAtOnce,
-    })
+  const comments = await Prray.from(postIdsForCommentsToRetrieve)
+    .mapAsync(
+      (postId: PostId) => {
+        logGetCommentsProgress(postId, postIdsForCommentsToRetrieve)
+        return getPostComments(postId)
+      },
+      {
+        concurrency: adminSettings.numberFeedsOrPostsDownloadsAtOnce,
+      }
+    )
     .then(removeItemsThatAreFetchErrors)
 
-  await db.batchSaveComments(commentsReadyForDB)
+  await db.batchSaveComments(comments)
 
   await db.batchSetCommentsDownloadedTrueForPosts(postIdsForCommentsToRetrieve)
 

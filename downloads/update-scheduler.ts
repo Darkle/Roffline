@@ -9,7 +9,7 @@ import { updateSubsFeeds } from './feeds/update-subs-feeds'
 import { downloadsStore, removeSuccessfullDownloadsFromDownloadStore } from './downloads-store'
 import { savePosts } from './posts/save-posts'
 import { removeAnyPostsNoLongerNeeded } from './posts/posts-removal'
-// import { getCommentsForPosts } from './comments/get-comments'
+import { getCommentsForPosts } from './comments/get-comments'
 
 /* eslint-disable functional/no-conditional-statement,functional/no-try-statement,functional/no-let,complexity,array-bracket-newline, max-lines-per-function */
 
@@ -18,7 +18,7 @@ let timer: ReturnType<typeof global.setTimeout>
 let downloadsAreRunning = false
 let adminSettingsCache: AdminSettings
 
-function shouldRunNewUpdate(): boolean {
+function updateIsWithinAllowedTimeFrame(): boolean {
   const { updateAllDay, updateStartingHour, updateEndingHour } = adminSettingsCache
 
   if (updateAllDay) return true
@@ -69,26 +69,23 @@ async function startSomeDownloads(): Promise<void | FeedWithData[]> {
     )
   }
 
-  // if (downloadsStore.moreCommentsToRetrieve() && adminSettingsCache.downloadComments) {
-  //   return (
-  //     getCommentsForPosts(adminSettingsCache, downloadsStore.commentsToRetrieve)
-  //       .then((postIdsOfCommentsRetreived: string[]) => {
-  // removeSuccessfullDownloadsFromDownloadStore(postIdsOfCommentsRetreived, 'commentsToRetrieve')
-  //       })
-  //       // We want to favour getting more subs and posts first, before media downloads
-  //       .then(() => (downloadsStore.moreSubsToUpdate() ? startSomeDownloads() : Promise.resolve()))
-  //   )
-  // }
+  if (downloadsStore.moreCommentsToRetrieve() && adminSettingsCache.downloadComments) {
+    return (
+      getCommentsForPosts(adminSettingsCache, downloadsStore.commentsToRetrieve)
+        .then((postIdsOfCommentsRetreived: string[]) => {
+          removeSuccessfullDownloadsFromDownloadStore(postIdsOfCommentsRetreived, 'commentsToRetrieve')
+        })
+        // We want to favour getting more subs and posts first, before media downloads
+        .then(() => (downloadsStore.moreSubsToUpdate() ? startSomeDownloads() : Promise.resolve()))
+    )
+  }
 
   // if (downloadsStore.morePostsMediaToBeDownloaded()) {
+  //   - mediaDownloadTries for a post needs to be updated in posts table regardless of success - we do  first before download starts
+  //   - On successful update, set media_has_been_downloaded to true in posts table
   //   return dfgf(adminSettingsCache, downloadsStore.postsMediaToBeDownloaded)
   // .then(mediaDownloads => removeSuccessfullDownloadsFromDownloadStore(mediaDownloads, 'postsMediaToBeDownloaded'))
   // }
-
-  // Also on download complete, we update these things:
-  //   - mediaDownloadTries for a post needs to be updated in posts table regardless of success - we do  first before download starts
-  //   - On successful update, set media_has_been_downloaded to true in posts table
-  // Catch and log individual downloads inside their respective downloaders as a single failed download shouldnt bubble up to here
 
   return downloadsStore.moreToDownload() ? startSomeDownloads() : Promise.resolve()
 }
@@ -104,7 +101,7 @@ function scheduleUpdates(): void {
 
         adminSettingsCache = adminSettings
 
-        if (weAreOffline || !shouldRunNewUpdate()) return
+        if (weAreOffline || !updateIsWithinAllowedTimeFrame()) return
 
         mainLogger.trace(`New update. Starting at: ${new Date().toString()}`)
 
@@ -112,6 +109,9 @@ function scheduleUpdates(): void {
           downloadsAreRunning = true
 
           await db.getThingsThatNeedToBeDownloaded().then(addThingsToBeDownloadedToDownloadsStore)
+          console.log(downloadsStore.subsToUpdate)
+          console.log(downloadsStore.commentsToRetrieve.size)
+          console.log(downloadsStore.postsMediaToBeDownloaded.size)
 
           await startSomeDownloads().then(() => {
             downloadsAreRunning = false

@@ -5,7 +5,9 @@ import { percentage } from '../../server/utils'
   We dont want to be too spammy with the logging here.
 *****/
 // eslint-disable-next-line complexity
-function logGetCommentsProgress(itemNumber: number, total: number): void {
+function logGetCommentsProgress(postId: string, fullItemsArr: string[]): void {
+  const total = fullItemsArr.length
+  const itemNumber = fullItemsArr.indexOf(postId) + 1
   const percentageProgressToLogOn = 10
   const moduloAmount = Math.round(total / percentageProgressToLogOn)
   const isNext10PercentDone = itemNumber % moduloAmount === 0
