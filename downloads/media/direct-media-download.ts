@@ -1,6 +1,7 @@
 import { DownloaderHelper, Stats } from 'node-downloader-helper'
 
 import { Post } from '../../db/entities/Posts/Post'
+import { adminMediaDownloadsViewerOrganiser } from './media-downloads-viewer-organiser'
 
 const gifvExtension = 'gifv'
 
@@ -9,6 +10,7 @@ const convertGifvLinkToMp4 = (url: string): string => `${url.slice(0, -gifvExten
 const convertAnyImgurGifvLinks = (url: string): string =>
   url.endsWith(`.${gifvExtension}`) ? convertGifvLinkToMp4(url) : url
 
+// eslint-disable-next-line max-lines-per-function
 function downloadDirectMediaLink({
   post,
   postMediaFolder,
@@ -26,9 +28,7 @@ function downloadDirectMediaLink({
     download.on('timeout', () => reject(new Error(`Timeout downloading direct media for post: ${post.id}`)))
 
     download.on('progress.throttled', (stats: Stats): void => {
-      // TODO: i guess we would update the post downloadProgressPercentage in postsMediaToBeDownloadedCache here
-      // TODO: also update the total filesize
-      // addDataToDownloadProgressHistory(post, downloadUpdateMessage)
+      adminMediaDownloadsViewerOrganiser.setDownloadProgress(post.id, stats.progress, stats.total)
     })
 
     download.on('end', () => resolve())

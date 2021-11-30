@@ -1,11 +1,15 @@
 import path from 'path'
+import Prray from 'prray'
 import * as R from 'ramda'
+import RA from 'ramda-adjunct'
 
+import { db } from '../../db/db'
 import { AdminSettings } from '../../db/entities/AdminSettings'
 import { Post } from '../../db/entities/Posts/Post'
-import { getEnvFilePath, pCreateFolder } from '../../server/utils'
+import { getEnvFilePath, pCreateFolder, isNotError } from '../../server/utils'
 import { DownloadsStore } from '../downloads-store'
 import { downloadDirectMediaLink } from './direct-media-download'
+import { adminMediaDownloadsViewerOrganiser } from './media-downloads-viewer-organiser'
 import {
   isDirectMediaLink,
   isCrossPost,
@@ -55,47 +59,71 @@ const downloadIndividualPostMedia = R.compose(
   // R.when(isTextPost, getUrlFromTextPost)
 )
 
+const removeFailedDownloads = (items: (PostId | undefined | Error)[]): PostId[] | [] =>
+  items.filter(R.compose(isNotError, RA.isNotNil)) as PostId[] | []
+
 // eslint-disable-next-line max-lines-per-function
 function downloadPostsMedia(
   adminSettings: AdminSettings,
   postsMediaToBeDownloaded: DownloadsStore['postsMediaToBeDownloaded']
-): Promise<PostId[]> {
-  const posts = [...postsMediaToBeDownloaded]
+): Promise<PostId[] | []> {
+  const postsArr = [...postsMediaToBeDownloaded.values()]
 
-  return Prray.from(posts).forEachAsync(
-    // eslint-disable-next-line max-lines-per-function
-    async post => {
-      // eslint-disable-next-line functional/no-conditional-statement
-      if (tooManyDownloadTries(post)) {
-        //TODO: What if rather than a download history, we had a postsMediaToBeDownloadedCache and we changed attributes on it and emitted events when we changed attributes - a proxy might be good here for emitting on gets/sets. So it would emit and that would trigger sending the update to the frontend via websockets
-        addPostToDownloadsSkippedHistory(post, 'Failed to download this post url on at least 3 occasions.')
-        return
-      }
+  adminMediaDownloadsViewerOrganiser.initializeWithNewPosts(postsArr)
 
-      await db.incrementPostMediaDownloadTry(post.id)
+  return (
+    Prray.from(postsArr)
+      .forEachAsync(
+        // eslint-disable-next-line max-lines-per-function
+        async (post: Post): Promise<PostId | Error | undefined> => {
+          // eslint-disable-next-line functional/no-conditional-statement
+          if (tooManyDownloadTries(post)) {
+            adminMediaDownloadsViewerOrganiser.setDownloadCancelled(
+              post.id,
+              'Download Skipped: Too many download tries (3).'
+            )
+            return
+          }
 
-      const postMediaFolder = await createMediaFolderForPost(post.id)
+          adminMediaDownloadsViewerOrganiser.incrementPostMediaDownloadTry(post.id)
 
-      // eslint-disable-next-line functional/no-try-statement
-      try {
-        addPostToDownloadHistory(post)
-        await downloadIndividualPostMedia({
-          post,
-          adminSettings,
-          postMediaFolder,
-        })
+          await db.incrementPostMediaDownloadTry(post.id)
 
-        await db.setMediaDownloadedTrueForPost(post.id)
-        //TODO:set post in postsMediaToBeDownloadedCache to have finishedDownload:true
-      } catch (err) {
-        await logDownloadErrorIfNotOffline(err, post)
-      }
-    },
-    {
-      concurrency: settings.numberMediaDownloadsAtOnce,
-    }
+          const postMediaFolder = await createMediaFolderForPost(post.id)
+
+          // eslint-disable-next-line functional/no-try-statement
+          try {
+            adminMediaDownloadsViewerOrganiser.setDownloadStarted(post.id)
+
+            await downloadIndividualPostMedia({
+              post,
+              adminSettings,
+              postMediaFolder,
+            })
+
+            adminMediaDownloadsViewerOrganiser.setDownloadSucceeded(post.id)
+
+            await db.setMediaDownloadedTrueForPost(post.id)
+
+            return post.id
+          } catch (err) {
+            //To appease the Typescript gods: https://github.com/microsoft/TypeScript/issues/20024
+            const downloadError = err as Error
+
+            adminMediaDownloadsViewerOrganiser.setDownloadFailed(post.id, downloadError)
+
+            await logDownloadErrorIfNotOffline(err, post)
+
+            return downloadError
+          }
+        },
+        {
+          concurrency: adminSettings.numberMediaDownloadsAtOnce,
+        }
+      )
+      // .then((items: (PostId | undefined | Error)[]): PostId[] => removeFailedDownloads(items) as PostId[])
+      .then(removeFailedDownloads)
   )
-  //TODO: .then(remove empty or errors and return postIds of successfull media downloads)
 }
 
 export { downloadPostsMedia }
