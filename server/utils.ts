@@ -1,7 +1,8 @@
 import path from 'path'
 import fs from 'fs'
 
-// import * as R from 'ramda'
+import * as R from 'ramda'
+import RA from 'ramda-adjunct'
 
 import { TableModels, TableModelTypes } from '../db/entities/entity-types'
 
@@ -101,6 +102,8 @@ const ModeltoPOJO = (model: TableModels | undefined): TableModelTypes | undefine
 // eslint-disable-next-line @typescript-eslint/no-magic-numbers
 const percentage = (amount: number, total: number): number => Math.round((amount / total) * 100)
 
+const isNotError = R.complement(RA.isError)
+
 export {
   isDev,
   getEnvFilePath,
@@ -117,4 +120,5 @@ export {
   folderExists,
   percentage,
   pCreateFolder,
+  isNotError,
 }

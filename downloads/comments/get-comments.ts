@@ -1,11 +1,9 @@
-import R from 'ramda'
 import fetch, { Response } from 'node-fetch-commonjs'
-import RA from 'ramda-adjunct'
 import Prray from 'prray'
 
 import { AdminSettings } from '../../db/entities/AdminSettings'
 import { db } from '../../db/db'
-import { isDev } from '../../server/utils'
+import { isDev, isNotError } from '../../server/utils'
 import { commentsDownloadsLogger } from '../../logging/logging'
 import { logGetCommentsProgress } from './log-get-comments-progress'
 
@@ -36,8 +34,6 @@ const getPostComments = (postId: PostId): Promise<CommentsWithPostId | Error> =>
       commentsDownloadsLogger.trace(err)
       return err
     })
-
-const isNotError = R.complement(RA.isError)
 
 const removeItemsThatAreFetchErrors = (comments: (CommentsWithPostId | Error)[]): CommentsWithPostId[] =>
   comments.filter(isNotError) as CommentsWithPostId[]
