@@ -1,7 +1,6 @@
 import * as R from 'ramda'
 import * as RA from 'ramda-adjunct'
 
-import { AdminSettings } from '../../db/entities/AdminSettings'
 import { Post, PostMediaKey, Oembed } from '../../db/entities/Posts/Post'
 
 /* eslint-disable security/detect-unsafe-regex */
@@ -13,19 +12,14 @@ const isDirectFileLink = R.test(/\.(zip|pdf)(\?.*)?$/u)
 
 // Reddit preview image urls need to be downloaded by gallery-dl
 const isNotARedditPreviewUrl = R.complement(R.test(/^https:\/\/preview.redd.it/u))
-
-type MediaDownload = {
-  post: Post & { isTextPostWithNoUrlsInPost?: boolean }
-  adminSettings: AdminSettings
-  postMediaFolder: string
-}
-
-const getPostProp = (downloadPostsData: MediaDownload | { post: Post }): Post => downloadPostsData.post
 const hasSelfText = (post: Post): boolean => RA.isNonEmptyString(post.selftext)
 const doesNotHaveSelfText = R.complement(hasSelfText)
 const getPostUrlProp = (post: Post): string => post.url
 const getPostHintProp = (post: Post): string => post.post_hint
 const getPostDomainProp = (post: Post): string => post.domain
+const crosspostParentPropNotNil = (post: Post): boolean => RA.isNotNil(post.crosspost_parent)
+const isTextPost = R.allPass([R.propEq('is_self', true), hasSelfText])
+const isNotTextPost = R.complement(isTextPost)
 
 const isDirectMediaLink = R.compose(
   // prettier-ignore
@@ -35,12 +29,6 @@ const isDirectMediaLink = R.compose(
   ]),
   R.path(['post', 'url'])
 )
-
-const isTextPost = R.compose(R.allPass([R.propEq('is_self', true), hasSelfText]), getPostProp)
-
-const isNotTextPost = (post: Post): boolean => !isTextPost({ post })
-
-const doesNotStartWith = R.curry((text: string, str: string) => !R.startsWith(text, str))
 
 const isSelfPost = R.allPass([
   R.anyPass([
@@ -52,30 +40,21 @@ const isSelfPost = R.allPass([
 
 const isNotSelfPostWithoutText = R.complement(R.allPass([isSelfPost, doesNotHaveSelfText]))
 
-const isNotRedditUrl = R.compose(
-  R.allPass([
-    R.compose(doesNotStartWith('https://www.reddit.com/r/'), getPostUrlProp),
-    R.compose(doesNotStartWith('https://old.reddit.com/r/'), getPostUrlProp),
-    R.compose(doesNotStartWith('/r/'), getPostUrlProp),
-  ]),
-  getPostProp
-)
+const isRedditUrl = R.anyPass([
+  R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
+  R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
+  R.compose(R.startsWith('/r/'), getPostUrlProp),
+])
 
-const isCrossPost = R.compose(
-  R.allPass([
-    R.anyPass([
-      R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
-      R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
-      R.compose(R.startsWith('/r/'), getPostUrlProp),
-      R.compose(RA.isNotNil, R.prop('crosspost_parent')),
-    ]),
-    // A self post with text will have its own url as the url, so check its not just a text post.
-    isNotTextPost,
-    // e.g. https://www.reddit.com/r/AskReddit/comments/ozxi8w/
-    isNotSelfPostWithoutText,
-  ]),
-  getPostProp
-)
+const isNotRedditUrl = R.complement(isRedditUrl)
+
+const isCrossPost = R.allPass([
+  R.anyPass([isRedditUrl, crosspostParentPropNotNil]),
+  // A self post with text will have its own url as the url, so check its not just a text post.
+  isNotTextPost,
+  // e.g. https://www.reddit.com/r/AskReddit/comments/ozxi8w/
+  isNotSelfPostWithoutText,
+])
 
 const isTextPostWithNoUrlInPost = R.pathSatisfies(RA.isTrue, ['post', 'isTextPostWithNoUrlsInPost'])
 
@@ -106,28 +85,22 @@ const videoHostDomains = ['vm.tiktok.com', 'youtube.com', 'youtu.be', 'gfycat.co
   Sometimes the post_hint property isnt present immediately on a new post, so also check
   other properties.
 *****/
-const isVideoPost = R.compose(
-  R.anyPass([
-    R.compose(R.includes('video'), getPostHintProp),
-    R.compose(isOneOf(videoHostDomains), getPostDomainProp),
-    isVideoEmbed,
-  ]),
-  getPostProp
-)
+const isVideoPost = R.anyPass([
+  R.compose(R.includes('video'), getPostHintProp),
+  R.compose(isOneOf(videoHostDomains), getPostDomainProp),
+  isVideoEmbed,
+])
 
 const isNotVideoPost = R.complement(isVideoPost)
 
-const isImgurImage = R.both((post: Post): boolean => isNotVideoPost({ post }), R.pathEq(['domain'], 'imgur.com'))
+const isImgurImage = R.both(isNotVideoPost, R.pathEq(['domain'], 'imgur.com'))
 
-const isImagePost = R.compose(
-  R.anyPass([
-    R.compose(R.includes('image'), getPostHintProp),
-    R.compose(R.startsWith('https://www.reddit.com/gallery/'), getPostUrlProp),
-    R.compose(R.startsWith('https://preview.redd.it'), getPostUrlProp),
-    isImgurImage,
-  ]),
-  getPostProp
-)
+const isImagePost = R.anyPass([
+  R.compose(R.includes('image'), getPostHintProp),
+  R.compose(R.startsWith('https://www.reddit.com/gallery/'), getPostUrlProp),
+  R.compose(R.startsWith('https://preview.redd.it'), getPostUrlProp),
+  isImgurImage,
+])
 
 const isNotDirectMediaLink = R.complement(isDirectMediaLink)
 const isNotImagePost = R.complement(isImagePost)

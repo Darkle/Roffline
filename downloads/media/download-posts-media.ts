@@ -24,6 +24,8 @@ import {
   isArticleToSaveAsPdf,
 } from './posts-media-categorizers'
 
+/* eslint-disable functional/no-conditional-statement */
+
 type PostId = string
 
 type MediaDownload = {
@@ -43,35 +45,50 @@ const createMediaFolderForPost = (postId: string): Promise<string> => {
   return pCreateFolder(postMediaFolder).then(_ => postMediaFolder)
 }
 
-const skipDownload = R.curry((skipReason: string, { post }: { post: Post }) => {
+const skipDownload = (skipReason: string, post: Post): Promise<void> => {
   adminMediaDownloadsViewerOrganiser.setDownloadCancelled(post.id, skipReason)
   mediaDownloadsLogger.info(`Didn't download this post: ${skipReason}`, { ...post, skipReason })
-})
+  return Promise.resolve()
+}
 
-const downloadIndividualPostMedia = R.compose(
-  R.cond([
-    [isDirectMediaLink, downloadDirectMediaLink],
-    // [isImagePost, downloadImage],
-    // [
-    //   isVideoPost,
-    //   R.ifElse(
-    //     R.pathEq(['settings', 'downloadVideos'], true),
-    //     downloadVideo,
-    //     skipDownload('Video downloads disabled')
-    //   ),
-    // ],
-    [isArticleToSaveAsPdf, savePageAsPdf],
-    [isTextPostWithNoUrlInPost, skipDownload('Is a text-post with no url in post')],
-    /*****
-     Ignore crossposts for now where the url links to another post (eg https://www.reddit.com/r/...)
-     Leave the crossposts check towards the end of the checks as it is sometimes possible to download
-      the video or image of a crosspost if the url is not a https://www.reddit.com/r/ url.
-    *****/
-    [isCrossPost, skipDownload('Is a cross-post with no direct download url')],
-    [R.T, skipDownload('No media match for download.')],
-  ]),
+// eslint-disable-next-line max-lines-per-function,complexity
+function downloadIndividualPostMedia({ post, adminSettings, postMediaFolder }: MediaDownload): Promise<void> {
   R.when(isTextPost, getUrlFromTextPost)
-)
+  if (isDirectMediaLink(post)) {
+    return downloadDirectMediaLink(post, postMediaFolder)
+  }
+
+  // if (isImagePost(post)) {
+  //   return downloadImage({ post, adminSettings, postMediaFolder })
+  // }
+
+  // if (isVideoPost(post)) {
+  //   return R.ifElse(
+  //     R.pathEq(['settings', 'downloadVideos'], true),
+  //     downloadVideo,
+  //     skipDownload('Video downloads disabled')
+  //   )
+  // }
+
+  if (isArticleToSaveAsPdf(post)) {
+    return savePageAsPdf({ post, adminSettings, postMediaFolder })
+  }
+
+  if (isTextPostWithNoUrlInPost(post)) {
+    return skipDownload('Is a text-post with no url in post', post)
+  }
+
+  /*****
+    Ignore crossposts for now where the url links to another post (eg https://www.reddit.com/r/...)
+    Leave the crossposts check towards the end of the checks as it is sometimes possible to download
+    the video or image of a crosspost if the url is not a https://www.reddit.com/r/ url.
+  *****/
+  if (isCrossPost(post)) {
+    return skipDownload('Is a cross-post with no direct download url', post)
+  }
+
+  return skipDownload('No media match for download.', post)
+}
 
 const removeFailedDownloads = (items: (PostId | undefined | Error)[]): PostId[] | [] =>
   items.filter(R.compose(isNotError, RA.isNotNil)) as PostId[] | []
@@ -85,12 +102,14 @@ function downloadPostsMedia(
 
   adminMediaDownloadsViewerOrganiser.initializeWithNewPosts(postsArr)
 
+  debugger
+
   return Prray.from(postsArr)
     .mapAsync(
       // eslint-disable-next-line max-lines-per-function
       async (post: Post) => {
-        // eslint-disable-next-line functional/no-conditional-statement
         if (tooManyDownloadTries(post)) {
+          debugger
           adminMediaDownloadsViewerOrganiser.setDownloadCancelled(
             post.id,
             'Download Skipped: Too many download tries (3).'
@@ -98,12 +117,18 @@ function downloadPostsMedia(
           return
         }
 
+        debugger
+
         adminMediaDownloadsViewerOrganiser.incrementPostMediaDownloadTry(post.id)
+
+        debugger
 
         await db.incrementPostMediaDownloadTry(post.id)
 
+        debugger
         const postMediaFolder = await createMediaFolderForPost(post.id)
 
+        debugger
         // eslint-disable-next-line functional/no-try-statement
         try {
           adminMediaDownloadsViewerOrganiser.setDownloadStarted(post.id)
@@ -114,21 +139,29 @@ function downloadPostsMedia(
             postMediaFolder,
           }
 
+          debugger
           await downloadIndividualPostMedia(mediaDownload)
 
+          debugger
           adminMediaDownloadsViewerOrganiser.setDownloadSucceeded(post.id)
 
+          debugger
           await db.setMediaDownloadedTrueForPost(post.id)
 
+          debugger
           return post.id
         } catch (err) {
+          debugger
           //To appease the Typescript gods: https://github.com/microsoft/TypeScript/issues/20024
           const downloadError = err as Error
 
+          debugger
           adminMediaDownloadsViewerOrganiser.setDownloadFailed(post.id, downloadError)
 
+          debugger
           await logDownloadErrorIfNotOffline(downloadError, post)
 
+          debugger
           return downloadError
         }
       },
