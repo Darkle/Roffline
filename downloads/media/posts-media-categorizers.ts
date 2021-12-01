@@ -93,9 +93,14 @@ type MediaObj = {
     and also in other places where the posts are already in the db (where media will be a JS object)
 *****/
 const isVideoEmbed = ({ media = {} }: { media: MediaObj | string }): boolean => {
-  const mediaObj: MediaObj = typeof media === 'string' ? (JSON.parse(media) as PostMediaKey) : media
+  // eslint-disable-next-line functional/no-try-statement
+  try {
+    const mediaObj: MediaObj = typeof media === 'string' ? (JSON.parse(media) as PostMediaKey) : media
 
-  return mediaObj?.oembed?.type === 'video'
+    return mediaObj?.oembed?.type === 'video'
+  } catch (error) {
+    return false
+  }
 }
 
 const isOneOf = R.curry((domains: string[], domain: string) => domains.includes(domain))
