@@ -54,7 +54,7 @@ function addThingsToBeDownloadedToDownloadsStore([subs, commentsToGet, mediaToGe
   mediaToGet.forEach(post => {
     if (!downloadsStore.postsMediaToBeDownloaded.has(post.id)) {
       /*****
-        We save the whole post in a Map as we need different properties later on
+        We save the whole post in a Map as we need different properties from the post later on
         for checking what to download when doing media downloads.
       *****/
       downloadsStore.postsMediaToBeDownloaded.set(post.id, post)
@@ -64,32 +64,29 @@ function addThingsToBeDownloadedToDownloadsStore([subs, commentsToGet, mediaToGe
 
 async function startSomeDownloads(): Promise<void | FeedWithData[]> {
   if (downloadsStore.moreSubsToUpdate()) {
-    return (
-      updateSubsFeeds(adminSettingsCache, downloadsStore.subsToUpdate)
-        .then(savePosts)
-        .then((subsSuccessfullyUpdated: Subreddit[]) => {
-          removeSuccessfullDownloadsFromDownloadStore(subsSuccessfullyUpdated, 'subsToUpdate')
-        })
-        .then(removeAnyPostsNoLongerNeeded)
-        // We want to favour getting the subs and posts first, before comments and media downloads
-        .then(() => (downloadsStore.moreSubsToUpdate() ? startSomeDownloads() : Promise.resolve()))
-    )
+    await updateSubsFeeds(adminSettingsCache, downloadsStore.subsToUpdate)
+      .then(savePosts)
+      .then((subsSuccessfullyUpdated: Subreddit[]) => {
+        removeSuccessfullDownloadsFromDownloadStore(subsSuccessfullyUpdated, 'subsToUpdate')
+      })
+      .then(removeAnyPostsNoLongerNeeded)
+
+    // We want to favour getting the subs and posts first, before comments and media downloads
+    return downloadsStore.moreSubsToUpdate() ? startSomeDownloads() : Promise.resolve()
   }
 
   if (downloadsStore.moreCommentsToRetrieve() && adminSettingsCache.downloadComments) {
-    return (
-      getCommentsForPosts(adminSettingsCache, downloadsStore.commentsToRetrieve)
-        .then((postIdsOfCommentsRetreived: PostId[]) => {
-          removeSuccessfullDownloadsFromDownloadStore(postIdsOfCommentsRetreived, 'commentsToRetrieve')
-        })
-        // We want to favour getting more subs and posts first, before media downloads
-        .then(() => (downloadsStore.moreSubsToUpdate() ? startSomeDownloads() : Promise.resolve()))
+    await getCommentsForPosts(adminSettingsCache, downloadsStore.commentsToRetrieve).then(
+      (postIdsOfCommentsRetreived: PostId[]) => {
+        removeSuccessfullDownloadsFromDownloadStore(postIdsOfCommentsRetreived, 'commentsToRetrieve')
+      }
     )
+
+    // We want to favour getting more subs and posts first, before media downloads
+    return downloadsStore.moreSubsToUpdate() ? startSomeDownloads() : Promise.resolve()
   }
 
   if (downloadsStore.morePostsMediaToBeDownloaded()) {
-    //TODO: - mediaDownloadTries for a post needs to be updated in posts table regardless of success - we do  first before download starts
-    //TODO: - On successful update, set media_has_been_downloaded to true in posts table
     return downloadPostsMedia(adminSettingsCache, downloadsStore.postsMediaToBeDownloaded).then(
       (postIdsOfMediaDownloadedSuccessfully: PostId[]) =>
         removeSuccessfullDownloadsFromDownloadStore(
