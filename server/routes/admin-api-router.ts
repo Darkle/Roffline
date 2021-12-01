@@ -114,42 +114,51 @@ const adminApiRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Erro
   //     const newDownloadBatchStarted = (posts: PostWithMediaDownloadInfo[]) => {
   //       reply.sse({ event: 'test', data: index })
   //     }
-  //     const downloadStarted = (postId: string) => {
+
+  //     const aDownloadStarted = (postId: string) => {
   //       reply.sse({ event: 'test', data: index })
   //     }
-  //     const downloadFailed = (postId: string, err: Error) => {
+
+  //     const aDownloadFailed = (postId: string, err: Error) => {
   //       reply.sse({ event: 'test', data: index })
   //     }
-  //     const downloadSucceeded = (postId: string) => {
+
+  //     const aDownloadSucceeded = (postId: string) => {
   //       reply.sse({ event: 'test', data: index })
   //     }
-  //     const downloadCancelled = (postId: string, reason: string) => {
+
+  //     const aDownloadCancelled = (postId: string, reason: string) => {
   //       reply.sse({ event: 'test', data: index })
   //     }
-  //     const downloadProgress = (postId: string, downloadProgress: number, downloadFileSize: number) => {
+
+  //     const progressOfADownload = (postId: string, downloadProgress: number, downloadFileSize: number) => {
   //       reply.sse({ event: 'test', data: index })
   //     }
-  //     const downloadMediaTryIncrement = (postId: string) => {
+
+  //     const downloadTryIncrementForDownload = (postId: string) => {
   //       reply.sse({ event: 'test', data: index })
   //     }
 
   //     adminMediaDownloadsViewerOrganiserEmitter.on('new-download-batch-started', newDownloadBatchStarted)
-  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-started', downloadStarted)
-  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-failed', downloadFailed)
-  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-succeeded', downloadSucceeded)
-  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-cancelled', downloadCancelled)
-  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-progress', downloadProgress)
-  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-media-try-increment', downloadMediaTryIncrement)
+  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-started', aDownloadStarted)
+  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-failed', aDownloadFailed)
+  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-succeeded', aDownloadSucceeded)
+  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-cancelled', aDownloadCancelled)
+  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-progress', progressOfADownload)
+  //     adminMediaDownloadsViewerOrganiserEmitter.on(
+  //       'download-media-try-increment',
+  //       downloadTryIncrementForDownload
+  //     )
 
   //     // https://github.com/fastify/fastify/issues/1352#issuecomment-490997485
   //     request.req.on('close', () => {
   //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', newDownloadBatchStarted)
-  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', downloadStarted)
-  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', downloadFailed)
-  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', downloadSucceeded)
-  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', downloadCancelled)
-  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', downloadProgress)
-  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', downloadMediaTryIncrement)
+  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', aDownloadStarted)
+  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', aDownloadFailed)
+  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', aDownloadSucceeded)
+  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', aDownloadCancelled)
+  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', progressOfADownload)
+  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', downloadTryIncrementForDownload)
   //     })
   //   }
   // )
