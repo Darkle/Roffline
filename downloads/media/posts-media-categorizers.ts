@@ -80,10 +80,7 @@ const isCrossPost = R.compose(
   getPostProp
 )
 
-const isTextPostWithNoUrlInPost = R.pathSatisfies(R.allPass([RA.isTrue, RA.isNotNil]), [
-  'post',
-  'isTextPostWithNoUrlsInPost',
-])
+const isTextPostWithNoUrlInPost = R.pathSatisfies(RA.isTrue, ['post', 'isTextPostWithNoUrlsInPost'])
 
 type MediaObj = {
   oembed?: Oembed
