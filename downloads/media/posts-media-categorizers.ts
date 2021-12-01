@@ -22,6 +22,7 @@ type MediaDownload = {
 
 const getPostProp = (downloadPostsData: MediaDownload | { post: Post }): Post => downloadPostsData.post
 const hasSelfText = (post: Post): boolean => RA.isNonEmptyString(post.selftext)
+const doesNotHaveSelfText = R.complement(hasSelfText)
 const getPostUrlProp = (post: Post): string => post.url
 const getPostHintProp = (post: Post): string => post.post_hint
 const getPostDomainProp = (post: Post): string => post.domain
@@ -39,18 +40,17 @@ const isTextPost = R.compose(R.allPass([R.propEq('is_self', true), hasSelfText])
 
 const isNotTextPost = (post: Post): boolean => !isTextPost({ post })
 
-const isNotSelfPostWithNoText = R.complement(
-  R.allPass([
-    R.anyPass([
-      R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
-      R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
-    ]),
-    R.propEq('is_self', true),
-    hasSelfText,
-  ])
-)
-
 const doesNotStartWith = R.curry((text: string, str: string) => !R.startsWith(text, str))
+
+const isSelfPost = R.allPass([
+  R.anyPass([
+    R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
+    R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
+  ]),
+  R.propEq('is_self', true),
+])
+
+const isNotSelfPostWithoutText = R.complement(R.allPass([isSelfPost, doesNotHaveSelfText]))
 
 const isNotRedditUrl = R.compose(
   R.allPass([
@@ -69,10 +69,10 @@ const isCrossPost = R.compose(
       R.compose(R.startsWith('/r/'), getPostUrlProp),
       R.compose(RA.isNotNil, R.prop('crosspost_parent')),
     ]),
-    // A self text post will have its own url as the url, so check its not just a text post.
+    // A self post with text will have its own url as the url, so check its not just a text post.
     isNotTextPost,
     // e.g. https://www.reddit.com/r/AskReddit/comments/ozxi8w/
-    isNotSelfPostWithNoText,
+    isNotSelfPostWithoutText,
   ]),
   getPostProp
 )
