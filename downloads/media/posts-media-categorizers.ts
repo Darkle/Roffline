@@ -99,6 +99,10 @@ const isVideoEmbed = ({ media = {} }: { media: MediaObj | string }): boolean => 
 }
 
 const isOneOf = R.curry((domains: string[], domain: string) => domains.includes(domain))
+
+//TODO: this should be expanded
+const videoHostDomains = ['vm.tiktok.com', 'youtube.com', 'youtu.be', 'gfycat.com', 'giphy.com', 'v.redd.it']
+
 /*****
   Sometimes the post_hint property isnt present immediately on a new post, so also check
   other properties.
@@ -106,10 +110,7 @@ const isOneOf = R.curry((domains: string[], domain: string) => domains.includes(
 const isVideoPost = R.compose(
   R.anyPass([
     R.compose(R.includes('video'), getPostHintProp),
-    R.compose(
-      isOneOf(['vm.tiktok.com', 'youtube.com', 'youtu.be', 'gfycat.com', 'giphy.com', 'v.redd.it']),
-      getPostDomainProp
-    ),
+    R.compose(isOneOf(videoHostDomains), getPostDomainProp),
     isVideoEmbed,
   ]),
   getPostProp
