@@ -22,7 +22,8 @@ const userAgentString =
 let browser: Browser | null
 
 // eslint-disable-next-line max-lines-per-function
-async function savePageAsPdf({ postMediaFolder, post }: MediaDownload): Promise<void | Error> {
+async function savePageAsPdf({ postMediaFolder, post }: MediaDownload): Promise<void> {
+  debugger
   // eslint-disable-next-line functional/no-try-statement
   try {
     // eslint-disable-next-line functional/no-conditional-statement
@@ -44,6 +45,7 @@ async function savePageAsPdf({ postMediaFolder, post }: MediaDownload): Promise<
 
     await page.pdf({ path: path.join(postMediaFolder, 'article.pdf') })
 
+    debugger
     page.close()
   } catch (err) {
     await browser?.close?.().catch?.(RA.noop)
