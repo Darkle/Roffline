@@ -1,6 +1,5 @@
 import * as Vue from 'vue'
 import * as R from 'ramda'
-import { compose } from 'ts-functional-pipe'
 import { unescape } from 'html-escaper'
 
 import { PostContentSingleImage } from './PostContentSingleImage'
@@ -21,35 +20,33 @@ const getPostUrlProp = (post: FrontendPost): string => post.url
 
 const hasSelfText = (post: FrontendPost): boolean => isNonEmptyString(post.selftext)
 
-const isTextPost = compose(R.allPass([R.propEq('is_self', true), hasSelfText]))
+const isTextPost = R.allPass([R.propEq('is_self', true), hasSelfText])
 
 const isNotTextPost = (post: FrontendPost): boolean => !isTextPost(post)
 
 const isNotSelfPostWithNoText = R.complement(
   R.allPass([
     R.anyPass([
-      compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
-      compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
+      R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
+      R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
     ]),
     R.propEq('is_self', true),
     hasSelfText,
   ])
 )
 
-const isCrossPost = compose(
-  R.allPass([
-    R.anyPass([
-      compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
-      compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
-      compose(R.startsWith('/r/'), getPostUrlProp),
-      compose(isNotNil, R.prop('crosspost_parent')),
-    ]),
-    // A self text post will have its own url as the url, so check its not just a text post.
-    isNotTextPost,
-    // e.g. https://www.reddit.com/r/AskReddit/comments/ozxi8w/
-    isNotSelfPostWithNoText,
-  ])
-)
+const isCrossPost = R.allPass([
+  R.anyPass([
+    R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
+    R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
+    R.compose(R.startsWith('/r/'), getPostUrlProp),
+    R.compose(isNotNil, R.prop('crosspost_parent')),
+  ]),
+  // A self text post will have its own url as the url, so check its not just a text post.
+  isNotTextPost,
+  // e.g. https://www.reddit.com/r/AskReddit/comments/ozxi8w/
+  isNotSelfPostWithNoText,
+])
 
 /* eslint-disable security/detect-unsafe-regex */
 const containsImageFile = R.any(R.test(/\.(png|jpe?g|gif|webp|svg|apng|avif|bmp|tiff?|avif|heif|heic)(\?.*)?$/u))
@@ -64,11 +61,14 @@ const doesNotcontainHTMLFile = R.complement(containsHTMLFile)
 
 const getDownloadedFilesProp = (post: FrontendPost): string[] => post.downloadedFiles
 
-const isScrapedArticle = compose(R.anyPass([containsHTMLFile, containsWebpageScreenshot]), getDownloadedFilesProp)
+const isScrapedArticle = R.compose(
+  R.anyPass([containsHTMLFile, containsWebpageScreenshot]),
+  getDownloadedFilesProp
+)
 
 const downloadedFilesAreMediaFiles = R.anyPass([containsImageFile, containsVideoFile])
 
-const isInlineMediaPost = compose(
+const isInlineMediaPost = R.compose(
   R.allPass([downloadedFilesAreMediaFiles, doesNotcontainHTMLFile, isNonEmptyArray]),
   getDownloadedFilesProp
 )

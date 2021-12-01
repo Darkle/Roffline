@@ -1,6 +1,6 @@
 import * as Vue from 'vue'
 import VueSplide from '@splidejs/vue-splide'
-import { compose } from 'ts-functional-pipe'
+import * as R from 'ramda'
 import * as RA from 'ramda-adjunct'
 
 import { FrontendPost, IndexPageWindowWithProps } from './frontend-global-types'
@@ -20,7 +20,7 @@ const IndexPage = Vue.defineComponent({
   methods: {
     updatePosts(posts: FrontendPost[]) {
       // Sort the posts by created_utc for the off chance that two fetch requests happen in quick succession and they are returned out of order.
-      const sortNewestPostsFirst = compose(p => p.reverse(), RA.sortByProps(['created_utc'])) // eslint-disable-line functional/immutable-data
+      const sortNewestPostsFirst = R.compose(p => p.reverse(), RA.sortByProps(['created_utc'])) // eslint-disable-line functional/immutable-data
       this.posts = sortNewestPostsFirst([...this.posts, ...posts]) as FrontendPost[]
     },
   },
