@@ -62,8 +62,8 @@ type MediaObj = {
   oembed?: Oembed
 }
 /*****
-  We use posts-media-categorizers when initially downloading posts (where media will be JSON as a string)
-    and also in other places where the posts are already in the db (where media will be a JS object)
+  We use posts-media-categorizers when initially downloading posts (where media will be JSON as a string).
+  We also use posts-media-categorizers in other places where the posts are already in the db (where media will be a JS object)
 *****/
 const isVideoEmbed = ({ media = {} }: { media: MediaObj | string }): boolean => {
   // eslint-disable-next-line functional/no-try-statement
