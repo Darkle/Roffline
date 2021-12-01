@@ -20,8 +20,6 @@ const fixMarkdownUrls = (url: string): string =>
 
 const getLinkUrlFromSelfText = ({ post: { selftext } }: MediaDownload): string[] | [] =>
   Array.from(
-    // I dont know why typescript thinks getUrls is an any call
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     getUrls(selftext, {
       requireSchemeOrWww: true,
       exclude: [

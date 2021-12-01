@@ -10,6 +10,7 @@ import { mediaDownloadsLogger } from '../../logging/logging'
 import { getEnvFilePath, pCreateFolder, isNotError } from '../../server/utils'
 import { DownloadsStore } from '../downloads-store'
 import { downloadDirectMediaLink } from './direct-media-download'
+import { savePageAsPdf } from './download-webpage'
 import { getUrlFromTextPost } from './get-url-from-text-post'
 import { logDownloadErrorIfNotOffline } from './log-download-errors'
 import { adminMediaDownloadsViewerOrganiser } from './media-downloads-viewer-organiser'
@@ -20,7 +21,7 @@ import {
   // isVideoPost,
   // isImagePost,
   isTextPostWithNoUrlInPost,
-  // isNotRedditUrl,
+  isArticleToSaveAsPdf,
 } from './posts-media-categorizers'
 
 type PostId = string
@@ -59,8 +60,8 @@ const downloadIndividualPostMedia = R.compose(
     //     skipDownload('Video downloads disabled')
     //   ),
     // ],
+    [isArticleToSaveAsPdf, savePageAsPdf],
     [isTextPostWithNoUrlInPost, skipDownload('Is a text-post with no url in post')],
-    // [isNotRedditUrl, saveWebPage],
     /*****
      Ignore crossposts for now where the url links to another post (eg https://www.reddit.com/r/...)
      Leave the crossposts check towards the end of the checks as it is sometimes possible to download

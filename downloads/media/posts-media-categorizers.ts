@@ -115,17 +115,28 @@ const isVideoPost = R.compose(
   getPostProp
 )
 
-const isNotVideoPost = (post: Post): boolean => !isVideoPost({ post })
-
 const isImagePost = R.compose(
   R.anyPass([
     R.compose(R.includes('image'), getPostHintProp),
     R.compose(R.startsWith('https://www.reddit.com/gallery/'), getPostUrlProp),
     R.compose(R.startsWith('https://preview.redd.it'), getPostUrlProp),
-    R.both(isNotVideoPost, R.pathEq(['domain'], 'imgur.com')),
+    R.both((post: Post): boolean => !isVideoPost({ post }), R.pathEq(['domain'], 'imgur.com')),
   ]),
   getPostProp
 )
+
+const isNotVideoPost = R.complement(isVideoPost)
+const isNotDirectMediaLink = R.complement(isDirectMediaLink)
+const isNotImagePost = R.complement(isImagePost)
+const isNotTextPostWithNoUrlInPost = R.complement(isTextPostWithNoUrlInPost)
+
+const isArticleToSaveAsPdf = R.allPass([
+  isNotRedditUrl,
+  isNotDirectMediaLink,
+  isNotImagePost,
+  isNotVideoPost,
+  isNotTextPostWithNoUrlInPost,
+])
 
 export {
   isDirectMediaLink,
@@ -143,4 +154,5 @@ export {
   isOneOf,
   isNotVideoPost,
   isNotRedditUrl,
+  isArticleToSaveAsPdf,
 }
