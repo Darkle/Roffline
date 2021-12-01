@@ -10,16 +10,10 @@ const convertGifvLinkToMp4 = (url: string): string => `${url.slice(0, -gifvExten
 const convertAnyImgurGifvLinks = (url: string): string =>
   url.endsWith(`.${gifvExtension}`) ? convertGifvLinkToMp4(url) : url
 
-// eslint-disable-next-line max-lines-per-function
-function downloadDirectMediaLink({
-  post,
-  postMediaFolder,
-}: {
-  post: Post
-  postMediaFolder: string
-}): Promise<void> {
+function downloadDirectMediaLink(post: Post, postMediaFolder: string): Promise<void> {
   const url = convertAnyImgurGifvLinks(post.url)
 
+  debugger
   return new Promise((resolve, reject) => {
     const download = new DownloaderHelper(url, postMediaFolder)
 
