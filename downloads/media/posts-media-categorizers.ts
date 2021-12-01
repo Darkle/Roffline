@@ -116,12 +116,14 @@ const isVideoPost = R.compose(
   getPostProp
 )
 
+const isImgurImage = R.both((post: Post): boolean => !isVideoPost({ post }), R.pathEq(['domain'], 'imgur.com'))
+
 const isImagePost = R.compose(
   R.anyPass([
     R.compose(R.includes('image'), getPostHintProp),
     R.compose(R.startsWith('https://www.reddit.com/gallery/'), getPostUrlProp),
     R.compose(R.startsWith('https://preview.redd.it'), getPostUrlProp),
-    R.both((post: Post): boolean => !isVideoPost({ post }), R.pathEq(['domain'], 'imgur.com')),
+    isImgurImage,
   ]),
   getPostProp
 )
