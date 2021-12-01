@@ -60,7 +60,7 @@ const adminMediaDownloadsViewerOrganiser = {
     const post = this.posts.get(postId) as PostWithMediaDownloadInfo
     this.posts.set(postId, { ...post, downloadCancelled: true, downloadCancellationReason: reason })
     adminMediaDownloadsViewerOrganiserEmitter.emit('download-cancelled', postId, reason)
-    this.setDownloadFailed(postId, new Error('Download Cancelled By User'))
+    this.setDownloadFailed(postId, new Error(reason))
   },
   setDownloadProgress(postId: string, downloadProgress: number, downloadFileSize = 0): void {
     const post = this.posts.get(postId) as PostWithMediaDownloadInfo
@@ -79,4 +79,8 @@ const adminMediaDownloadsViewerOrganiser = {
   },
 }
 
-export { adminMediaDownloadsViewerOrganiser, adminMediaDownloadsViewerOrganiserEmitter }
+export {
+  adminMediaDownloadsViewerOrganiser,
+  adminMediaDownloadsViewerOrganiserEmitter,
+  PostWithMediaDownloadInfo,
+}
