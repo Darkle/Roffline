@@ -35,10 +35,7 @@ const isDirectMediaLink = R.compose(
   R.path(['post', 'url'])
 )
 
-const isTextPost = R.compose(
-  R.allPass([R.propEq('is_self', true), hasSelfText]),
-  (mediaDownload: MediaDownload | { post: Post }): Post => mediaDownload.post
-)
+const isTextPost = R.compose(R.allPass([R.propEq('is_self', true), hasSelfText]), getPostProp)
 
 const isNotTextPost = (post: Post): boolean => !isTextPost({ post })
 
@@ -118,7 +115,9 @@ const isVideoPost = R.compose(
   getPostProp
 )
 
-const isImgurImage = R.both((post: Post): boolean => !isVideoPost({ post }), R.pathEq(['domain'], 'imgur.com'))
+const isNotVideoPost = R.complement(isVideoPost)
+
+const isImgurImage = R.both((post: Post): boolean => isNotVideoPost({ post }), R.pathEq(['domain'], 'imgur.com'))
 
 const isImagePost = R.compose(
   R.anyPass([
@@ -130,7 +129,6 @@ const isImagePost = R.compose(
   getPostProp
 )
 
-const isNotVideoPost = R.complement(isVideoPost)
 const isNotDirectMediaLink = R.complement(isDirectMediaLink)
 const isNotImagePost = R.complement(isImagePost)
 const isNotTextPostWithNoUrlInPost = R.complement(isTextPostWithNoUrlInPost)
