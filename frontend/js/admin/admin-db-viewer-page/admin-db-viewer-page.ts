@@ -70,7 +70,7 @@ const AdminDBViewerTable = Vue.defineComponent({
       .then(checkFetchResponseStatus)
       .then(res => res.json() as Promise<{ name: string }[]>)
       .then(dbTables => {
-        console.log('DB Tables:', dbTables)
+        console.info('DB Tables:', dbTables)
         state.isLoading = false
         state.dbTables = dbTables.map(dbTable => dbTable.name)
         state.currentTable = state.dbTables[0] as string
@@ -92,7 +92,7 @@ const AdminDBViewerTable = Vue.defineComponent({
         .then(checkFetchResponseStatus)
         .then(res => res.json() as Promise<{ rows: DatabaseTypes; count: number }>)
         .then(paginatedTableData => {
-          console.log(
+          console.info(
             `Paginated Table Data For "${state.currentTable}" table, page ${state.currentPage} (50 rows or less):`,
             paginatedTableData
           )
@@ -158,7 +158,7 @@ const AdminDBViewerTable = Vue.defineComponent({
       const button = event.target as HTMLButtonElement
       const rowIndex = Number(button.dataset['rowIndex'])
 
-      console.log('Row Data:', localRowsStore[rowIndex])
+      console.info('Row Data:', localRowsStore[rowIndex])
 
       // eslint-disable-next-line functional/no-conditional-statement
       if (state.currentTable === 'comments') {

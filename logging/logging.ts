@@ -62,7 +62,7 @@ const fastifyDevlogIgnore = {
 const browserSyncReminderForDev = (): void => {
   // eslint-disable-next-line functional/no-conditional-statement
   if (isDev) {
-    console.log(cliColor.white.bold(`Browsersync Url: ${cliColor.white.underline('http://0.0.0.0:8081')}`))
+    console.info(cliColor.white.bold(`Browsersync Url: ${cliColor.white.underline('http://0.0.0.0:8081')}`))
   }
 }
 

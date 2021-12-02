@@ -109,7 +109,7 @@ const AdminLogsViewerTable = Vue.defineComponent({
         window.logs = logs
         localRowsStore = logs
 
-        console.log(
+        console.info(
           '%c%s',
           'color: green; font-size: 16px;',
           'Logs can be accessed from the console via window.logs'
@@ -136,7 +136,7 @@ const AdminLogsViewerTable = Vue.defineComponent({
       const button = event.target as HTMLButtonElement
       const rowIndex = Number(button.dataset['rowIndex'])
 
-      console.log('Row Data:', localRowsStore[rowIndex])
+      console.info('Row Data:', localRowsStore[rowIndex])
 
       state.jsonViewerData = localRowsStore[rowIndex] as Log
       state.showJSONViewer = true

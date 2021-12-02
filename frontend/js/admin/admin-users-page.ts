@@ -59,7 +59,7 @@ const AdminUsersTable = Vue.defineComponent({
       .then(checkFetchResponseStatus)
       .then(res => res.json() as Promise<User[]>)
       .then(users => {
-        console.log(users)
+        console.info(users)
         state.rows = users as User[]
       })
       .catch(err => console.error(err))
