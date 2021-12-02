@@ -3,6 +3,8 @@ import { DownloaderHelper, Stats } from 'node-downloader-helper'
 import { Post } from '../../db/entities/Posts/Post'
 import { adminMediaDownloadsViewerOrganiser } from './media-downloads-viewer-organiser'
 
+type PostWithOptionalTextMetaData = Post & { isTextPostWithNoUrlsInPost?: boolean }
+
 const gifvExtension = 'gifv'
 
 const convertGifvLinkToMp4 = (url: string): string => `${url.slice(0, -gifvExtension.length)}mp4`
@@ -10,7 +12,7 @@ const convertGifvLinkToMp4 = (url: string): string => `${url.slice(0, -gifvExten
 const convertAnyImgurGifvLinks = (url: string): string =>
   url.endsWith(`.${gifvExtension}`) ? convertGifvLinkToMp4(url) : url
 
-function downloadDirectMediaLink(post: Post, postMediaFolder: string): Promise<void> {
+function downloadDirectMediaLink(post: PostWithOptionalTextMetaData, postMediaFolder: string): Promise<void> {
   const url = convertAnyImgurGifvLinks(post.url)
 
   debugger
