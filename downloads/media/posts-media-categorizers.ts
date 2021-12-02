@@ -2,6 +2,16 @@ import * as R from 'ramda'
 import * as RA from 'ramda-adjunct'
 
 import { Post, PostMediaKey, Oembed } from '../../db/entities/Posts/Post'
+import {
+  domainsToIgnoreForPdfGeneration,
+  imageHostDomains,
+  imgurDomains,
+  redditDomains,
+  videoHostDomains,
+  videoHostUrls,
+} from './domains'
+
+type PostWithOptionalTextMetaData = Post & { isTextPostWithNoUrlsInPost?: boolean }
 
 /* eslint-disable security/detect-unsafe-regex */
 const isDirectImageLink = R.test(/\.(png|jpe?g|gif|webp|svg|apng|avif|bmp|tiff?|heif|heic)(\?.*)?$/u)
@@ -10,51 +20,31 @@ const isDirectFileLink = R.test(/\.(zip|pdf)(\?.*)?$/u)
 
 // Reddit preview image urls need to be downloaded by gallery-dl
 const isNotARedditPreviewUrl = R.complement(R.test(/^https:\/\/preview.redd.it/u))
-const hasSelfText = (post: Post): boolean => RA.isNonEmptyString(post.selftext)
+const hasSelfText = (post: PostWithOptionalTextMetaData): boolean => RA.isNonEmptyString(post.selftext)
 const doesNotHaveSelfText = R.complement(hasSelfText)
-const getPostUrlProp = (post: Post): string => post.url
-const getPostHintProp = (post: Post): string => post.post_hint
-const getPostDomainProp = (post: Post): string => post.domain
-const crosspostParentPropNotNil = (post: Post): boolean => RA.isNotNil(post.crosspost_parent)
+const getPostUrlProp = (post: PostWithOptionalTextMetaData): string => post.url
+const getPostDomainProp = (post: PostWithOptionalTextMetaData): string => post.domain
+const crosspostParentPropNotNil = (post: PostWithOptionalTextMetaData): boolean =>
+  RA.isNotNil(post.crosspost_parent)
 const isTextPost = R.allPass([R.propEq('is_self', true), hasSelfText])
 const isNotTextPost = R.complement(isTextPost)
+const isPinterestDomain = (post: PostWithOptionalTextMetaData): boolean =>
+  R.test(/pinterest\.[\w.]+/u)(post.domain)
 
-const isDirectMediaLink = R.compose(
-  // prettier-ignore
-  R.allPass([
-    R.anyPass([isDirectImageLink, isDirectVideoLink, isDirectFileLink]),
-    isNotARedditPreviewUrl
-  ]),
-  R.path(['post', 'url'])
-)
+const postUrlStartsWithOneOf =
+  (urls: string[]) =>
+  (post: PostWithOptionalTextMetaData): boolean =>
+    urls.some((url: string): boolean => post.url.startsWith(url))
 
-const isSelfPost = R.allPass([
-  R.anyPass([
-    R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
-    R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
-  ]),
-  R.propEq('is_self', true),
-])
+const postHintContains =
+  (searchTerm: string) =>
+  (post: PostWithOptionalTextMetaData): boolean =>
+    typeof post.post_hint === 'string' ? post.post_hint.includes(searchTerm) : false
 
-const isNotSelfPostWithoutText = R.complement(R.allPass([isSelfPost, doesNotHaveSelfText]))
-
-const isRedditUrl = R.anyPass([
-  R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
-  R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
-  R.compose(R.startsWith('/r/'), getPostUrlProp),
-])
-
-const isNotRedditUrl = R.complement(isRedditUrl)
-
-const isCrossPost = R.allPass([
-  R.anyPass([isRedditUrl, crosspostParentPropNotNil]),
-  // A self post with text will have its own url as the url, so check its not just a text post.
-  isNotTextPost,
-  // e.g. https://www.reddit.com/r/AskReddit/comments/ozxi8w/
-  isNotSelfPostWithoutText,
-])
-
-const isTextPostWithNoUrlInPost = R.pathSatisfies(RA.isTrue, ['post', 'isTextPostWithNoUrlsInPost'])
+const domainIsOneOf =
+  (domains: string[]) =>
+  (post: Post): boolean =>
+    domains.some((domain: string): boolean => post.domain === domain || post.domain.endsWith(`.${domain}`))
 
 type MediaObj = {
   oembed?: Oembed
@@ -74,35 +64,79 @@ const isVideoEmbed = ({ media = {} }: { media: MediaObj | string }): boolean => 
   }
 }
 
-const isOneOf = R.curry((domains: string[], domain: string) => domains.includes(domain))
-
-//TODO: this should be expanded
-const videoHostDomains = ['vm.tiktok.com', 'youtube.com', 'youtu.be', 'gfycat.com', 'giphy.com', 'v.redd.it']
-
 /*****
   Sometimes the post_hint property isnt present immediately on a new post, so also check
-  other properties.
+  other properties too.
 *****/
 const isVideoPost = R.anyPass([
-  R.compose(R.includes('video'), getPostHintProp),
-  R.compose(isOneOf(videoHostDomains), getPostDomainProp),
   isVideoEmbed,
+  domainIsOneOf(videoHostDomains),
+  postUrlStartsWithOneOf(videoHostUrls),
+  postHintContains('video'),
 ])
 
 const isNotVideoPost = R.complement(isVideoPost)
 
-const isImgurImage = R.both(isNotVideoPost, R.pathEq(['domain'], 'imgur.com'))
+const isNotImgurImage = R.complement(domainIsOneOf(imgurDomains))
 
-const isImagePost = R.anyPass([
-  R.compose(R.includes('image'), getPostHintProp),
-  R.compose(R.startsWith('https://www.reddit.com/gallery/'), getPostUrlProp),
-  R.compose(R.startsWith('https://preview.redd.it'), getPostUrlProp),
-  isImgurImage,
+const isDirectMediaLink = R.compose(
+  // prettier-ignore
+  R.allPass([
+    R.anyPass([isDirectImageLink, isDirectVideoLink, isDirectFileLink]),
+    isNotARedditPreviewUrl,
+    /*****
+      We want to not download imgur images with direct download as sometimes they can redirect to the imgur web page
+      if they are high traffic. So we leave it for the gallery-dl download to take care of it.
+    *****/
+    isNotImgurImage
+  ]),
+  getPostUrlProp
+)
+
+const isSelfPost = R.allPass([
+  R.anyPass([
+    R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
+    R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
+  ]),
+  R.propEq('is_self', true),
+])
+
+const isNotSelfPostWithoutText = R.complement(R.allPass([isSelfPost, doesNotHaveSelfText]))
+
+const isRedditUrl = R.anyPass([domainIsOneOf(redditDomains), R.compose(R.startsWith('/r/'), getPostUrlProp)])
+
+const isNotRedditUrl = R.complement(isRedditUrl)
+
+const isCrossPost = R.allPass([
+  R.anyPass([isRedditUrl, crosspostParentPropNotNil]),
+  // A self post with text will have its own url as the url, so check its not just a text post.
+  isNotTextPost,
+  // e.g. https://www.reddit.com/r/AskReddit/comments/ozxi8w/
+  isNotSelfPostWithoutText,
+])
+
+const isTextPostWithNoUrlInPost = R.pathSatisfies(RA.isTrue, ['post', 'isTextPostWithNoUrlsInPost'])
+
+/*****
+  Sometimes the post_hint property isnt present immediately on a new post, so also check
+  other properties too.
+*****/
+const isImagePost = R.allPass([
+  R.anyPass([
+    R.compose(R.startsWith('https://www.reddit.com/gallery/'), getPostUrlProp),
+    R.compose(R.startsWith('https://preview.redd.it'), getPostUrlProp),
+    domainIsOneOf(imageHostDomains),
+    isPinterestDomain,
+    postHintContains('image'),
+  ]),
+  isNotVideoPost,
 ])
 
 const isNotDirectMediaLink = R.complement(isDirectMediaLink)
 const isNotImagePost = R.complement(isImagePost)
 const isNotTextPostWithNoUrlInPost = R.complement(isTextPostWithNoUrlInPost)
+const domainIsNotOneOf = (post: PostWithOptionalTextMetaData): boolean =>
+  !domainsToIgnoreForPdfGeneration.includes(getPostDomainProp(post))
 
 const isArticleToSaveAsPdf = R.allPass([
   isNotRedditUrl,
@@ -110,6 +144,7 @@ const isArticleToSaveAsPdf = R.allPass([
   isNotImagePost,
   isNotVideoPost,
   isNotTextPostWithNoUrlInPost,
+  domainIsNotOneOf,
 ])
 
 export {
@@ -125,7 +160,6 @@ export {
   isImagePost,
   isTextPostWithNoUrlInPost,
   isVideoEmbed,
-  isOneOf,
   isNotVideoPost,
   isNotRedditUrl,
   isArticleToSaveAsPdf,
