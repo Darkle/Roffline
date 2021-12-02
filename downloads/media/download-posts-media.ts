@@ -25,6 +25,7 @@ type MediaDownload = {
 }
 
 const postsMediaContainerFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
+
 const maxNumberDownloadTriesAllowed = 3
 
 const tooManyDownloadTries = (post: Post): boolean => post.mediaDownloadTries >= maxNumberDownloadTriesAllowed
@@ -78,6 +79,7 @@ function downloadPostsMedia(
             post.id,
             'Download Skipped: Too many download tries (3).'
           )
+          console.log(adminMediaDownloadsViewerOrganiser)
           return
         }
 
@@ -86,6 +88,7 @@ function downloadPostsMedia(
         debugger
 
         adminMediaDownloadsViewerOrganiser.incrementPostMediaDownloadTry(post.id)
+        console.log(adminMediaDownloadsViewerOrganiser)
 
         debugger
 
@@ -110,6 +113,7 @@ function downloadPostsMedia(
 
           debugger
           adminMediaDownloadsViewerOrganiser.setDownloadSucceeded(post.id)
+          console.log(adminMediaDownloadsViewerOrganiser)
 
           debugger
           await db.setMediaDownloadedTrueForPost(post.id)
@@ -123,6 +127,7 @@ function downloadPostsMedia(
 
           debugger
           adminMediaDownloadsViewerOrganiser.setDownloadFailed(post.id, downloadError)
+          console.log(adminMediaDownloadsViewerOrganiser)
 
           debugger
           await logDownloadErrorIfNotOffline(downloadError, post)

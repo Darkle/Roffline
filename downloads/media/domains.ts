@@ -166,7 +166,7 @@ const videoHostDomains = [
 
 /*****
   Also from https://github.com/yt-dlp/yt-dlp/tree/master/yt_dlp/extractor
-  These are for when the site is not strickly a video site and you cant tell just from the domain if its gonna be a video.
+  These are for when you cant tell just from the domain if its gonna be a video.
   These should be converted to regular expressions at some point. Again, its not all of the sites.
 *****/
 const videoHostUrls = [
