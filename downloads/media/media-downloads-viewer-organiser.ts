@@ -38,7 +38,7 @@ const adminMediaDownloadsViewerOrganiser = {
   },
   initializeWithNewPosts(posts: Post[]): void {
     this.posts.clear()
-    posts.forEach(this.addSinglePost)
+    posts.forEach(this.addSinglePost.bind(this))
     adminMediaDownloadsViewerOrganiserEmitter.emit('new-download-batch-started', this.posts)
   },
   setDownloadStarted(postId: string): void {
