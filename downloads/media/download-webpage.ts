@@ -3,14 +3,9 @@ import path from 'path'
 import { chromium, Browser } from 'playwright'
 import RA from 'ramda-adjunct'
 
-import { AdminSettings } from '../../db/entities/AdminSettings'
 import { Post } from '../../db/entities/Posts/Post'
 
-type MediaDownload = {
-  post: Post & { isTextPostWithNoUrlsInPost?: boolean }
-  adminSettings: AdminSettings
-  postMediaFolder: string
-}
+type PostWithOptionalTextMetaData = Post & { isTextPostWithNoUrlsInPost?: boolean }
 
 const defaultPageWidth = 1280
 const defaultPageHeight = 3000
@@ -22,7 +17,7 @@ const userAgentString =
 let browser: Browser | null
 
 // eslint-disable-next-line max-lines-per-function
-async function savePageAsPdf({ postMediaFolder, post }: MediaDownload): Promise<void> {
+async function savePageAsPdf(post: PostWithOptionalTextMetaData, postMediaFolder: string): Promise<void> {
   debugger
   // eslint-disable-next-line functional/no-try-statement
   try {
