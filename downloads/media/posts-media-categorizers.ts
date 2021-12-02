@@ -24,12 +24,13 @@ const hasSelfText = (post: PostWithOptionalTextMetaData): boolean => RA.isNonEmp
 const doesNotHaveSelfText = R.complement(hasSelfText)
 const getPostUrlProp = (post: PostWithOptionalTextMetaData): string => post.url
 const getPostDomainProp = (post: PostWithOptionalTextMetaData): string => post.domain
-const crosspostParentPropNotNil = (post: PostWithOptionalTextMetaData): boolean =>
-  RA.isNotNil(post.crosspost_parent)
 const isTextPost = R.allPass([R.propEq('is_self', true), hasSelfText])
 const isNotTextPost = R.complement(isTextPost)
 const isPinterestDomain = (post: PostWithOptionalTextMetaData): boolean =>
   R.test(/pinterest\.[\w.]+/u)(post.domain)
+
+const crosspostParentPropNotNil = (post: PostWithOptionalTextMetaData): boolean =>
+  RA.isNotNil(post.crosspost_parent)
 
 const postUrlStartsWithOneOf =
   (urls: string[]) =>
