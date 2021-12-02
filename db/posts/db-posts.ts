@@ -73,7 +73,6 @@ async function incrementPostMediaDownloadTry(sequelize: Sequelize, postId: strin
 
 type PostIds = string[]
 
-// eslint-disable-next-line max-lines-per-function
 async function batchRemovePosts(
   sequelize: Sequelize,
   postsToRemove: PostIds,
