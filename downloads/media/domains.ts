@@ -72,7 +72,7 @@ const imageHostDomains = [
 /*****
   https://github.com/yt-dlp/yt-dlp/tree/master/yt_dlp/extractor
   I havent added all of them, just the big ones. Can be expanded later.
-  These could also be made into an env variable if people want to add/limit themselves.
+  These could also be made into an env variable if people want to add/limit it themselves.
 *****/
 const videoHostDomains = [
   ...imgurDomains,
@@ -167,7 +167,7 @@ const videoHostDomains = [
 /*****
   Also from https://github.com/yt-dlp/yt-dlp/tree/master/yt_dlp/extractor
   These are for when the site is not strickly a video site and you cant tell just from the domain if its gonna be a video.
-  These should be converted to regular expressions at some point.
+  These should be converted to regular expressions at some point. Again, its not all of the sites.
 *****/
 const videoHostUrls = [
   'https://archive.org/embed/',
