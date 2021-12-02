@@ -6,30 +6,20 @@ import RA from 'ramda-adjunct'
 import { db } from '../../db/db'
 import { AdminSettings } from '../../db/entities/AdminSettings'
 import { Post } from '../../db/entities/Posts/Post'
-import { mediaDownloadsLogger } from '../../logging/logging'
 import { getEnvFilePath, pCreateFolder, isNotError } from '../../server/utils'
 import { DownloadsStore } from '../downloads-store'
-import { downloadDirectMediaLink } from './direct-media-download'
-import { savePageAsPdf } from './download-webpage'
+import { downloadIndividualPostMedia } from './download-media-decider'
 import { getUrlFromTextPost } from './get-url-from-text-post'
 import { logDownloadErrorIfNotOffline } from './log-download-errors'
 import { adminMediaDownloadsViewerOrganiser } from './media-downloads-viewer-organiser'
-import {
-  isDirectMediaLink,
-  isCrossPost,
-  isTextPost,
-  // isVideoPost,
-  // isImagePost,
-  isTextPostWithNoUrlInPost,
-  isArticleToSaveAsPdf,
-} from './posts-media-categorizers'
-
-/* eslint-disable functional/no-conditional-statement */
+import { isTextPost } from './posts-media-categorizers'
 
 type PostId = string
 
+type PostWithOptionalTextMetaData = Post & { isTextPostWithNoUrlsInPost?: boolean }
+
 type MediaDownload = {
-  post: Post & { isTextPostWithNoUrlsInPost?: boolean }
+  post: PostWithOptionalTextMetaData
   adminSettings: AdminSettings
   postMediaFolder: string
 }
@@ -45,49 +35,20 @@ const createMediaFolderForPost = (postId: string): Promise<string> => {
   return pCreateFolder(postMediaFolder).then(_ => postMediaFolder)
 }
 
-const skipDownload = (skipReason: string, post: Post): Promise<void> => {
-  adminMediaDownloadsViewerOrganiser.setDownloadCancelled(post.id, skipReason)
-  mediaDownloadsLogger.info(`Didn't download this post: ${skipReason}`, { ...post, skipReason })
-  return Promise.resolve()
-}
-
-// eslint-disable-next-line max-lines-per-function,complexity
-function downloadIndividualPostMedia({ post, adminSettings, postMediaFolder }: MediaDownload): Promise<void> {
-  R.when(isTextPost, getUrlFromTextPost)
-  if (isDirectMediaLink(post)) {
-    return downloadDirectMediaLink(post, postMediaFolder)
+const setPostUrlToArticleInTextIfTextPost = (
+  post: PostWithOptionalTextMetaData
+): PostWithOptionalTextMetaData => {
+  // eslint-disable-next-line functional/no-conditional-statement
+  if (isTextPost(post)) {
+    const urlFromPost = getUrlFromTextPost(post)
+    // eslint-disable-next-line functional/immutable-data,no-param-reassign
+    post.url = urlFromPost ? urlFromPost : post.url
+  } else {
+    // eslint-disable-next-line functional/immutable-data,no-param-reassign
+    post.isTextPostWithNoUrlsInPost = true
   }
 
-  // if (isImagePost(post)) {
-  //   return downloadImage({ post, adminSettings, postMediaFolder })
-  // }
-
-  // if (isVideoPost(post)) {
-  //   return R.ifElse(
-  //     R.pathEq(['settings', 'downloadVideos'], true),
-  //     downloadVideo,
-  //     skipDownload('Video downloads disabled')
-  //   )
-  // }
-
-  if (isArticleToSaveAsPdf(post)) {
-    return savePageAsPdf({ post, adminSettings, postMediaFolder })
-  }
-
-  if (isTextPostWithNoUrlInPost(post)) {
-    return skipDownload('Is a text-post with no url in post', post)
-  }
-
-  /*****
-    Ignore crossposts for now where the url links to another post (eg https://www.reddit.com/r/...)
-    Leave the crossposts check towards the end of the checks as it is sometimes possible to download
-    the video or image of a crosspost if the url is not a https://www.reddit.com/r/ url.
-  *****/
-  if (isCrossPost(post)) {
-    return skipDownload('Is a cross-post with no direct download url', post)
-  }
-
-  return skipDownload('No media match for download.', post)
+  return post
 }
 
 const removeFailedDownloads = (items: (PostId | undefined | Error)[]): PostId[] | [] =>
@@ -100,6 +61,8 @@ function downloadPostsMedia(
 ): Promise<PostId[] | []> {
   const postsArr = [...postsMediaToBeDownloaded.values()]
 
+  console.log(adminMediaDownloadsViewerOrganiser)
+
   adminMediaDownloadsViewerOrganiser.initializeWithNewPosts(postsArr)
 
   debugger
@@ -108,6 +71,7 @@ function downloadPostsMedia(
     .mapAsync(
       // eslint-disable-next-line max-lines-per-function
       async (post: Post) => {
+        // eslint-disable-next-line functional/no-conditional-statement
         if (tooManyDownloadTries(post)) {
           debugger
           adminMediaDownloadsViewerOrganiser.setDownloadCancelled(
@@ -116,6 +80,8 @@ function downloadPostsMedia(
           )
           return
         }
+
+        console.log(`https://www.reddit.com${post.permalink}`)
 
         debugger
 
@@ -134,7 +100,7 @@ function downloadPostsMedia(
           adminMediaDownloadsViewerOrganiser.setDownloadStarted(post.id)
 
           const mediaDownload: MediaDownload = {
-            post,
+            post: setPostUrlToArticleInTextIfTextPost(post),
             adminSettings,
             postMediaFolder,
           }
@@ -166,7 +132,7 @@ function downloadPostsMedia(
         }
       },
       {
-        concurrency: adminSettings.numberMediaDownloadsAtOnce,
+        concurrency: 1,
       }
     )
     .then(removeFailedDownloads)
