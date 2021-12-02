@@ -1,14 +1,7 @@
 import getUrls from 'get-urls'
 import * as R from 'ramda'
 
-import { AdminSettings } from '../../db/entities/AdminSettings'
 import { Post } from '../../db/entities/Posts/Post'
-
-type MediaDownload = {
-  post: Post & { isTextPostWithNoUrlsInPost?: boolean }
-  adminSettings: AdminSettings
-  postMediaFolder: string
-}
 
 /*****
   If the post uses markdown in the selftext, the url will end up something like this:
@@ -18,7 +11,7 @@ type MediaDownload = {
 const fixMarkdownUrls = (url: string): string =>
   /\]\(https?/gu.test(url) ? (url.split('](http')[0] as string) : url
 
-const getLinkUrlFromSelfText = ({ post: { selftext } }: MediaDownload): string[] | [] =>
+const getLinkUrlFromSelfText = ({ selftext }: Post): string[] | [] =>
   Array.from(
     getUrls(selftext, {
       requireSchemeOrWww: true,
@@ -29,6 +22,8 @@ const getLinkUrlFromSelfText = ({ post: { selftext } }: MediaDownload): string[]
         'https://www.reddit.com',
         'http://old.reddit.com',
         'https://old.reddit.com',
+        'http://redd.it',
+        'https://redd.it',
       ],
     })
   ).map(fixMarkdownUrls)
@@ -36,19 +31,12 @@ const getLinkUrlFromSelfText = ({ post: { selftext } }: MediaDownload): string[]
 /*****
   Only getting the first url in the text for the moment.
 *****/
-function getUrlFromTextPost(downloadMediaInfo: MediaDownload): MediaDownload {
-  const urlsInPostText = getLinkUrlFromSelfText(downloadMediaInfo)
+function getUrlFromTextPost(post: Post): null | string {
+  debugger
+  const urlsInPostText = getLinkUrlFromSelfText(post)
 
-  // eslint-disable-next-line functional/no-conditional-statement
-  if (R.isEmpty(urlsInPostText)) {
-    // eslint-disable-next-line functional/immutable-data,no-param-reassign
-    downloadMediaInfo.post.isTextPostWithNoUrlsInPost = true
-  } else {
-    // eslint-disable-next-line functional/immutable-data,no-param-reassign
-    downloadMediaInfo.post.url = R.head(urlsInPostText) as string
-  }
-
-  return downloadMediaInfo
+  debugger
+  return R.isEmpty(urlsInPostText) ? null : (R.head(urlsInPostText) as string)
 }
 
 export { getUrlFromTextPost }
