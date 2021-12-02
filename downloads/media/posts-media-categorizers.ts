@@ -42,7 +42,7 @@ const postHintContains =
   (post: PostWithOptionalTextMetaData): boolean =>
     typeof post.post_hint === 'string' ? post.post_hint.includes(searchTerm) : false
 
-const domainIsOneOf =
+const postDomainIsOneOf =
   (domains: string[]) =>
   (post: Post): boolean =>
     domains.some((domain: string): boolean => post.domain === domain || post.domain.endsWith(`.${domain}`))
@@ -71,14 +71,14 @@ const isVideoEmbed = ({ media = {} }: { media: MediaObj | string }): boolean => 
 *****/
 const isVideoPost = R.anyPass([
   isVideoEmbed,
-  domainIsOneOf(videoHostDomains),
+  postDomainIsOneOf(videoHostDomains),
   postUrlStartsWithOneOf(videoHostUrls),
   postHintContains('video'),
 ])
 
 const isNotVideoPost = R.complement(isVideoPost)
 
-const isNotImgurImage = R.complement(domainIsOneOf(imgurDomains))
+const isNotImgurImage = R.complement(postDomainIsOneOf(imgurDomains))
 
 const isDirectMediaLink = R.compose(
   // prettier-ignore
@@ -104,7 +104,7 @@ const isSelfPost = R.allPass([
 
 const isNotSelfPostWithoutText = R.complement(R.allPass([isSelfPost, doesNotHaveSelfText]))
 
-const isRedditUrl = R.anyPass([domainIsOneOf(redditDomains), R.compose(R.startsWith('/r/'), getPostUrlProp)])
+const isRedditUrl = R.anyPass([postDomainIsOneOf(redditDomains), R.compose(R.startsWith('/r/'), getPostUrlProp)])
 
 const isNotRedditUrl = R.complement(isRedditUrl)
 
@@ -126,7 +126,7 @@ const isImagePost = R.allPass([
   R.anyPass([
     R.compose(R.startsWith('https://www.reddit.com/gallery/'), getPostUrlProp),
     R.compose(R.startsWith('https://preview.redd.it'), getPostUrlProp),
-    domainIsOneOf(imageHostDomains),
+    postDomainIsOneOf(imageHostDomains),
     isPinterestDomain,
     postHintContains('image'),
   ]),
