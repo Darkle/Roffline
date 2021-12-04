@@ -18,12 +18,11 @@ function bailOnFatalError(err: Error): void {
     mainLogger.fatal(err)
   } catch (error) {}
 
-  const twoSecondsInMs = 2000
   /*****
     Delay a little bit before exiting to allow the error to finish being written to log file in
     the mainLogger.fatal() and db.close() calls above to finish.
   *****/
-  setTimeout(_ => process.exit(1), twoSecondsInMs)
+  setImmediate(_ => process.exit(1))
 }
 
 process.on('unhandledRejection', bailOnFatalError)
