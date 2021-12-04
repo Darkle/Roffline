@@ -49,21 +49,9 @@ const postDomainIsOneOf =
 
 type MediaObj = {
   oembed?: Oembed
-}
-/*****
-  We use posts-media-categorizers when initially downloading posts (where media will be JSON as a string).
-  We also use posts-media-categorizers in other places where the posts are already in the db (where media will be a JS object)
-*****/
-const isVideoEmbed = ({ media = {} }: { media: MediaObj | string }): boolean => {
-  // eslint-disable-next-line functional/no-try-statement
-  try {
-    const mediaObj: MediaObj = typeof media === 'string' ? (JSON.parse(media) as PostMediaKey) : media
+} | null
 
-    return mediaObj?.oembed?.type === 'video'
-  } catch (error) {
-    return false
-  }
-}
+const isVideoEmbed = ({ media }: { media: MediaObj }): boolean => media?.oembed?.type === 'video'
 
 /*****
   Sometimes the post_hint property isnt present immediately on a new post, so also check
