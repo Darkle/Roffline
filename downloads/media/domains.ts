@@ -128,7 +128,7 @@ const videoHostDomains = [
   'giphy.com',
   'shows.howstuffworks.com',
   'live.huffingtonpost.com',
-  'instagram.com',
+  'instagram.com', // This is fine here as we already do instagram in image getting, which is checked first
   'itv.com',
   'jwplatform.com',
   'jwplayer.com',
@@ -149,7 +149,7 @@ const videoHostDomains = [
   'techtalks.tv',
   'ted.com',
   'tiktok.com',
-  'tumblr.com',
+  'tumblr.com', // This is fine here as we already do instagram in image getting, which is checked first
   'ustream.tv',
   'vevo.com',
   'video.vice.com',
