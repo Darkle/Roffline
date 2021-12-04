@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events'
+import { EventEmitter } from 'tsee'
 
 import { Post } from '../../db/entities/Posts/Post'
 
@@ -7,15 +7,25 @@ type PostWithMediaDownloadInfo = {
   downloadError: undefined | Error
   downloadCancelled: boolean
   downloadCancellationReason: string
+  downloadSkipped: boolean
+  downloadSkippedReason: string
   downloadStarted: boolean
   downloadSucceeded: boolean
   downloadProgress: number
   downloadFileSize: number
 } & Post
 
-class AdminMediaDownloadsViewerOrganiserEmitter extends EventEmitter {}
-
-const adminMediaDownloadsViewerOrganiserEmitter = new AdminMediaDownloadsViewerOrganiserEmitter()
+/* eslint-disable no-spaced-func,func-call-spacing */
+const adminMediaDownloadsViewerOrganiserEmitter = new EventEmitter<{
+  'new-download-batch-started': (posts: Map<string, PostWithMediaDownloadInfo>) => void
+  'download-started': (postId: string) => void
+  'download-failed': (postId: string, err: Error | undefined) => void
+  'download-succeeded': (postId: string) => void
+  'download-cancelled': (postId: string, reason: string) => void
+  'download-skipped': (postId: string, reason: string) => void
+  'download-progress': (postId: string, downloadProgress: number, downloadFileSize: number) => void
+  'download-media-try-increment': (postId: string) => void
+}>()
 
 /*****
   adminMediaDownloadsViewerOrganiser keeps track of the media downloads for the admin media downloads viewer page.
@@ -30,6 +40,8 @@ const adminMediaDownloadsViewerOrganiser = {
       downloadError: undefined,
       downloadCancelled: false,
       downloadCancellationReason: '',
+      downloadSkipped: false,
+      downloadSkippedReason: '',
       downloadStarted: false,
       downloadSucceeded: false,
       downloadProgress: 0,
@@ -60,7 +72,11 @@ const adminMediaDownloadsViewerOrganiser = {
     const post = this.posts.get(postId) as PostWithMediaDownloadInfo
     this.posts.set(postId, { ...post, downloadCancelled: true, downloadCancellationReason: reason })
     adminMediaDownloadsViewerOrganiserEmitter.emit('download-cancelled', postId, reason)
-    this.setDownloadFailed(postId, new Error(reason))
+  },
+  setDownloadSkipped(postId: string, reason = ''): void {
+    const post = this.posts.get(postId) as PostWithMediaDownloadInfo
+    this.posts.set(postId, { ...post, downloadSkipped: true, downloadSkippedReason: reason })
+    adminMediaDownloadsViewerOrganiserEmitter.emit('download-skipped', postId, reason)
   },
   setDownloadProgress(postId: string, downloadProgress: number, downloadFileSize = 0): void {
     const post = this.posts.get(postId) as PostWithMediaDownloadInfo
