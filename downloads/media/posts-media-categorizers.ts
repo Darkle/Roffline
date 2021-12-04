@@ -1,7 +1,7 @@
 import * as R from 'ramda'
 import * as RA from 'ramda-adjunct'
 
-import { Post, PostMediaKey, Oembed } from '../../db/entities/Posts/Post'
+import { Post } from '../../db/entities/Posts/Post'
 import {
   domainsToIgnoreForPdfGeneration,
   imageHostDomains,
@@ -47,11 +47,7 @@ const postDomainIsOneOf =
   (post: Post): boolean =>
     domains.some((domain: string): boolean => post.domain === domain || post.domain.endsWith(`.${domain}`))
 
-type MediaObj = {
-  oembed?: Oembed
-} | null
-
-const isVideoEmbed = ({ media }: { media: MediaObj }): boolean => media?.oembed?.type === 'video'
+const isVideoEmbed = R.pathEq(['media', 'oembed', 'type'], 'video')
 
 /*****
   Sometimes the post_hint property isnt present immediately on a new post, so also check
