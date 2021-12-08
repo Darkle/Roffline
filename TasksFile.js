@@ -11,7 +11,7 @@ const glob = require('fast-glob')
 const shellOptions = { nopipe: true, async: undefined }
 
 const prepareAndCleanDir = dir => {
-  if (fs.existsSync(dir)) fs.rmdirSync(dir, { recursive: true })
+  if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true })
   fs.mkdirSync(dir)
   fs.writeFileSync(path.join(dir, '.gitkeep'), '')
 }
@@ -136,7 +136,7 @@ const tests = {
   },
   eslint() {
     sh(
-      `eslint './boot.ts' './server/**/*.ts' './logging/**/*.ts' './downloads/**/*.ts' './db/**/*.ts' './server/**/*.njk' './frontend/js/**/*.ts' './tests/**/*.ts' --report-unused-disable-directives --quiet --rule 'no-console: ["error", { allow: ["error", "info"] }]' --rule "no-warning-comments: ['error', { terms: ['todo', 'fixme', 'hack', 'bug', 'xxx'], location: 'anywhere' }]" --rule "no-debugger: 'error'"`,
+      `eslint './boot.ts' './server/**/*.ts' './logging/**/*.ts' './downloads/**/*.ts' './db/**/*.ts' './server/**/*.njk' './frontend/js/**/*.ts' './tests/**/*.ts' --report-unused-disable-directives --quiet --rule 'no-console: ["error", { allow: ["error", "info", "warn"] }]' --rule "no-warning-comments: ['error', { terms: ['todo', 'fixme', 'hack', 'bug', 'xxx'], location: 'anywhere' }]" --rule "no-debugger: 'error'"  --ignore-pattern 'db-dev.ts'`,
       shellOptions
     )
   },
@@ -241,7 +241,7 @@ const tests = {
       .finally(_ =>
         Promise.all([
           pDelay(1000).then(() =>
-            fs.promises.rmdir(path.join(process.cwd(), 'lighthouse-reports'), { recursive: true })
+            fs.promises.rm(path.join(process.cwd(), 'lighthouse-reports'), { recursive: true })
           ),
           // @ts-expect-error
           sh(`fkill :8080 --silent`, shOptions),

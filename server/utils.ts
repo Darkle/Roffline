@@ -4,7 +4,7 @@ import fs from 'fs'
 import * as R from 'ramda'
 import RA from 'ramda-adjunct'
 
-import { TableModels, TableModelTypes } from '../db/entities/entity-types'
+import type { TableModels, TableModelTypes } from '../db/entities/entity-types'
 
 const isDev = process.env['NODE_ENV'] === 'development'
 
@@ -43,7 +43,7 @@ async function folderExists(folderPath: string): Promise<boolean> {
 async function pDeleteFolder(folderPath: string): Promise<void> {
   const exists = await folderExists(folderPath)
 
-  return exists ? fs.promises.rmdir(folderPath, { recursive: true }) : Promise.resolve()
+  return exists ? fs.promises.rm(folderPath, { recursive: true }) : Promise.resolve()
 }
 
 const pCreateFolder = (folder: string): Promise<void> =>
