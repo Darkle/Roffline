@@ -1,6 +1,7 @@
-import { DownloaderHelper, Stats } from 'node-downloader-helper'
+import type { Stats } from 'node-downloader-helper'
+import { DownloaderHelper } from 'node-downloader-helper'
 
-import { Post } from '../../db/entities/Posts/Post'
+import type { Post } from '../../db/entities/Posts/Post'
 import { adminMediaDownloadsViewerOrganiser } from './media-downloads-viewer-organiser'
 
 type PostWithOptionalTextMetaData = Post & { isTextPostWithNoUrlsInPost?: boolean }
@@ -15,7 +16,6 @@ const convertAnyImgurGifvLinks = (url: string): string =>
 function downloadDirectMediaLink(post: PostWithOptionalTextMetaData, postMediaFolder: string): Promise<void> {
   const url = convertAnyImgurGifvLinks(post.url)
 
-  debugger
   return new Promise((resolve, reject) => {
     const download = new DownloaderHelper(url, postMediaFolder)
 
@@ -29,7 +29,7 @@ function downloadDirectMediaLink(post: PostWithOptionalTextMetaData, postMediaFo
 
     download.on('end', () => resolve())
 
-    download.start()
+    download.start().catch(reject)
   })
 }
 
