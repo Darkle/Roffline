@@ -60,6 +60,7 @@ module.exports = {
         project: ['./tsconfig.json'],
       },
       rules: {
+        '@typescript-eslint/consistent-type-imports': 'error',
         '@typescript-eslint/default-param-last': ['error'],
         '@typescript-eslint/explicit-function-return-type': ['error'],
         '@typescript-eslint/no-floating-promises': 'off',
