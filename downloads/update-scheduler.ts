@@ -1,10 +1,10 @@
 import { db } from '../db/db'
-import { AdminSettings } from '../db/entities/AdminSettings'
-import { Post } from '../db/entities/Posts/Post'
-import { SubredditsMasterList } from '../db/entities/SubredditsMasterList'
+import type { AdminSettings } from '../db/entities/AdminSettings'
+import type { Post } from '../db/entities/Posts/Post'
+import type { SubredditsMasterList } from '../db/entities/SubredditsMasterList'
 import { mainLogger } from '../logging/logging'
 import { isOffline } from './check-if-offline'
-import { FeedWithData } from './feeds/generate-feeds'
+import type { FeedWithData } from './feeds/generate-feeds'
 import { updateSubsFeeds } from './feeds/update-subs-feeds'
 import { downloadsStore, removeSuccessfullDownloadsFromDownloadStore } from './downloads-store'
 import { savePosts } from './posts/save-posts'
@@ -88,11 +88,12 @@ async function startSomeDownloads(): Promise<void | FeedWithData[]> {
 
   if (downloadsStore.morePostsMediaToBeDownloaded()) {
     return downloadPostsMedia(adminSettingsCache, downloadsStore.postsMediaToBeDownloaded).then(
-      (postIdsOfMediaDownloadedSuccessfully: PostId[]) =>
+      (postIdsOfMediaDownloadedSuccessfully: PostId[]) => {
         removeSuccessfullDownloadsFromDownloadStore(
           postIdsOfMediaDownloadedSuccessfully,
           'postsMediaToBeDownloaded'
         )
+      }
     )
   }
 
@@ -118,13 +119,6 @@ function scheduleUpdates(): void {
           downloadsAreRunning = true
 
           await db.getThingsThatNeedToBeDownloaded().then(addThingsToBeDownloadedToDownloadsStore)
-
-          console.log('downloadsStore.subsToUpdate', downloadsStore.subsToUpdate)
-          console.log('downloadsStore.commentsToRetrieve.size', downloadsStore.commentsToRetrieve.size)
-          console.log(
-            'downloadsStore.postsMediaToBeDownloaded.size',
-            downloadsStore.postsMediaToBeDownloaded.size
-          )
 
           await startSomeDownloads().then(() => {
             downloadsAreRunning = false
