@@ -73,6 +73,15 @@ async function incrementPostMediaDownloadTry(sequelize: Sequelize, postId: strin
   )
 }
 
+async function decrementPostMediaDownloadTry(sequelize: Sequelize, postId: string): Promise<void> {
+  await sequelize.transaction(transaction =>
+    PostModel.decrement('mediaDownloadTries', {
+      where: { id: postId, mediaDownloadTries: { [Op.gt]: 0 } },
+      transaction,
+    })
+  )
+}
+
 type PostIds = string[]
 
 async function batchRemovePosts(
@@ -177,4 +186,5 @@ export {
   findPostsWhichHaveNoSubOwner,
   batchClearSubredditTables,
   batchSetCommentsDownloadedTrueForPosts,
+  decrementPostMediaDownloadTry,
 }

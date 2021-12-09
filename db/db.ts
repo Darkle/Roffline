@@ -64,6 +64,7 @@ import {
   batchClearSubredditTables,
   findPostsWhichHaveNoSubOwner,
   batchSetCommentsDownloadedTrueForPosts,
+  decrementPostMediaDownloadTry,
 } from './posts/db-posts'
 
 import type { CommentContainer } from './entities/Comments'
@@ -217,6 +218,9 @@ const db = {
   },
   incrementPostMediaDownloadTry(postId: string): Promise<void> {
     return incrementPostMediaDownloadTry(sequelize, postId)
+  },
+  decrementPostMediaDownloadTry(postId: string): Promise<void> {
+    return decrementPostMediaDownloadTry(sequelize, postId)
   },
   batchRemovePosts(postsToRemove: PostIds, transaction: TransactionType = null): Promise<void> {
     return batchRemovePosts(sequelize, postsToRemove, transaction)
