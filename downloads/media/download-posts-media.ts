@@ -93,13 +93,13 @@ function downloadPostsMedia(
 
           const postMediaFolder = await createMediaFolderForPost(post.id)
 
-          adminMediaDownloadsViewerOrganiser.setDownloadStarted(post.id)
-
           const mediaDownload: MediaDownload = {
             post: setPostUrlToArticleInTextIfTextPost(post),
             adminSettings,
             postMediaFolder,
           }
+
+          adminMediaDownloadsViewerOrganiser.setDownloadStarted(post.id)
 
           await downloadIndividualPostMedia(mediaDownload)
 
