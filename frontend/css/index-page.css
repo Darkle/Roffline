@@ -97,25 +97,19 @@
   transform: translateY(-50%) !important;
 }
 
-.index-page main #posts article > .post-content .webpage-scrape-links-container span {
-  margin-right: 0.5rem;
-}
-
-.index-page main #posts article > .post-content .webpage-scrape-links-container .offline-article-link {
+.index-page main #posts article > .post-content .offline-article-link {
   display: flex;
-  margin-bottom: 0.9rem;
+  width: 100%;
+  justify-content: center;
   align-items: center;
 }
 
-.index-page main #posts article > .post-content .webpage-scrape-links-container .html-offline-link {
-  font-size: 1.3rem;
+.index-page main #posts article > .post-content .offline-article-link a {
   display: flex;
 }
 
-.index-page main #posts article > .post-content .webpage-scrape-links-container .screenshot-offline-link {
-  font-size: 1.3rem;
-  width: 22px;
-  display: flex;
+.index-page main #posts article > .post-content .offline-article-link svg {
+  margin-right: 0.5rem;
 }
 
 @media only screen and (max-width: 540px) {
