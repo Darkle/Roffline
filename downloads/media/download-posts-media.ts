@@ -8,11 +8,13 @@ import type { AdminSettings } from '../../db/entities/AdminSettings'
 import type { Post } from '../../db/entities/Posts/Post'
 import { getEnvFilePath, pCreateFolder, isNotError } from '../../server/utils'
 import type { DownloadsStore } from '../downloads-store'
+import { downloadsStore } from '../downloads-store'
 import { downloadIndividualPostMedia } from './download-media-decider'
 import { getUrlFromTextPost } from './get-url-from-text-post'
 import { logDownloadError } from './log-download-errors'
 import { adminMediaDownloadsViewerOrganiser } from './media-downloads-viewer-organiser'
 import { isTextPost } from './posts-media-categorizers'
+import { isOffline } from '../check-if-offline'
 
 type PostId = string
 
@@ -66,7 +68,7 @@ function downloadPostsMedia(
 
   return Prray.from(postsArr)
     .mapAsync(
-      // eslint-disable-next-line max-lines-per-function
+      // eslint-disable-next-line max-lines-per-function, complexity
       async (post: Post) => {
         // eslint-disable-next-line functional/no-conditional-statement
         if (tooManyDownloadTries(post)) {
@@ -74,6 +76,12 @@ function downloadPostsMedia(
             post.id,
             'Download Skipped: Too many download tries (3).'
           )
+          /*****
+            We want to remove them here so we dont keep trying to download them in
+            startSomeDownloads() in update-scheduler.
+          *****/
+          downloadsStore.postsMediaToBeDownloaded.delete(post.id)
+
           return
         }
 
@@ -106,7 +114,18 @@ function downloadPostsMedia(
 
           adminMediaDownloadsViewerOrganiser.setDownloadFailed(post.id, downloadError)
 
-          await logDownloadError(downloadError, post).catch(RA.noop)
+          const weAreOffline = await isOffline().catch(RA.noop)
+
+          // eslint-disable-next-line functional/no-conditional-statement
+          if (weAreOffline) {
+            // Roll this back if it was just an error from being offline
+            await db.decrementPostMediaDownloadTry(post.id)
+          }
+
+          // eslint-disable-next-line functional/no-conditional-statement
+          if (!weAreOffline) {
+            logDownloadError(downloadError, post)
+          }
 
           return downloadError
         }
