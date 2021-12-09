@@ -2,7 +2,7 @@ import type { Post } from '../db/entities/Posts/Post'
 
 type PostId = string
 type Subreddit = string
-
+type DownloadsStoreKey = 'subsToUpdate' | 'commentsToRetrieve' | 'postsMediaToBeDownloaded'
 type DownloadsStore = {
   subsToUpdate: Set<Subreddit>
   moreSubsToUpdate: () => boolean
@@ -11,6 +11,7 @@ type DownloadsStore = {
   postsMediaToBeDownloaded: Map<PostId, Post>
   morePostsMediaToBeDownloaded: () => boolean
   moreToDownload: () => boolean
+  removeSuccessfullDownloads: (items: string[], downloadsStoreKey: DownloadsStoreKey) => void
 }
 
 const downloadsStore: DownloadsStore = {
@@ -29,15 +30,9 @@ const downloadsStore: DownloadsStore = {
   moreToDownload(): boolean {
     return this.moreSubsToUpdate() || this.moreCommentsToRetrieve() || this.morePostsMediaToBeDownloaded()
   },
+  removeSuccessfullDownloads(postIds: string[], downloadsStoreKey: DownloadsStoreKey): void {
+    postIds.forEach((item: string) => this[downloadsStoreKey].delete(item))
+  },
 }
 
-type DownloadsStoreKey = 'subsToUpdate' | 'commentsToRetrieve' | 'postsMediaToBeDownloaded'
-
-function removeSuccessfullDownloadsFromDownloadStore(
-  items: string[],
-  downloadsStoreKey: DownloadsStoreKey
-): void {
-  items.forEach((item: string) => downloadsStore[downloadsStoreKey].delete(item))
-}
-
-export { downloadsStore, removeSuccessfullDownloadsFromDownloadStore, DownloadsStore }
+export { downloadsStore, DownloadsStore }
