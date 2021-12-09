@@ -6,7 +6,7 @@ import { mainLogger } from '../logging/logging'
 import { isOffline } from './check-if-offline'
 import type { FeedWithData } from './feeds/generate-feeds'
 import { updateSubsFeeds } from './feeds/update-subs-feeds'
-import { downloadsStore, removeSuccessfullDownloadsFromDownloadStore } from './downloads-store'
+import { downloadsStore } from './downloads-store'
 import { savePosts } from './posts/save-posts'
 import { removeAnyPostsNoLongerNeeded } from './posts/posts-removal'
 import { getCommentsForPosts } from './comments/get-comments'
@@ -67,7 +67,7 @@ async function startSomeDownloads(): Promise<void | FeedWithData[]> {
     await updateSubsFeeds(adminSettingsCache, downloadsStore.subsToUpdate)
       .then(savePosts)
       .then((subsSuccessfullyUpdated: Subreddit[]) => {
-        removeSuccessfullDownloadsFromDownloadStore(subsSuccessfullyUpdated, 'subsToUpdate')
+        downloadsStore.removeSuccessfullDownloads(subsSuccessfullyUpdated, 'subsToUpdate')
       })
       .then(removeAnyPostsNoLongerNeeded)
 
@@ -78,7 +78,7 @@ async function startSomeDownloads(): Promise<void | FeedWithData[]> {
   if (downloadsStore.moreCommentsToRetrieve() && adminSettingsCache.downloadComments) {
     await getCommentsForPosts(adminSettingsCache, downloadsStore.commentsToRetrieve).then(
       (postIdsOfCommentsRetreived: PostId[]) => {
-        removeSuccessfullDownloadsFromDownloadStore(postIdsOfCommentsRetreived, 'commentsToRetrieve')
+        downloadsStore.removeSuccessfullDownloads(postIdsOfCommentsRetreived, 'commentsToRetrieve')
       }
     )
 
@@ -89,7 +89,7 @@ async function startSomeDownloads(): Promise<void | FeedWithData[]> {
   if (downloadsStore.morePostsMediaToBeDownloaded()) {
     return downloadPostsMedia(adminSettingsCache, downloadsStore.postsMediaToBeDownloaded).then(
       (postIdsOfMediaDownloadedSuccessfully: PostId[]) => {
-        removeSuccessfullDownloadsFromDownloadStore(
+        downloadsStore.removeSuccessfullDownloads(
           postIdsOfMediaDownloadedSuccessfully,
           'postsMediaToBeDownloaded'
         )
