@@ -15,13 +15,12 @@ const crosspostParentPropNotNil = (post: FrontendPost): boolean => RA.isNotNil(p
 const hasSelfText = (post: FrontendPost): boolean => RA.isNonEmptyString(post.selftext)
 const doesNotHaveSelfText = R.complement(hasSelfText)
 const isTextPost = R.allPass([R.propEq('is_self', true), hasSelfText])
+const isNotTextPost = R.complement(isTextPost)
 
 const postDomainIsOneOf =
   (domains: string[]) =>
   (post: FrontendPost): boolean =>
     domains.some((domain: string): boolean => post.domain === domain || post.domain.endsWith(`.${domain}`))
-
-const isNotTextPost = R.complement(isTextPost)
 
 const isSelfPost = R.allPass([
   R.anyPass([

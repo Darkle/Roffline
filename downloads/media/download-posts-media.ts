@@ -77,10 +77,10 @@ function downloadPostsMedia(
           return
         }
 
-        adminMediaDownloadsViewerOrganiser.incrementPostMediaDownloadTry(post.id)
-
         // eslint-disable-next-line functional/no-try-statement
         try {
+          adminMediaDownloadsViewerOrganiser.incrementPostMediaDownloadTry(post.id)
+
           await db.incrementPostMediaDownloadTry(post.id)
 
           const postMediaFolder = await createMediaFolderForPost(post.id)
