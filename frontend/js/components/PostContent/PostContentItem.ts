@@ -1,51 +1,53 @@
 import * as Vue from 'vue'
 import * as R from 'ramda'
 import { unescape } from 'html-escaper'
+import * as RA from 'ramda-adjunct'
 
+import { redditDomains } from '../../../../downloads/media/domains'
 import { PostContentSingleImage } from './PostContentSingleImage'
 import { PostContentImageGallery } from './PostContentImageGallery'
 import { PostContentVideo } from './PostContentVideo'
 import { PostContentOfflineArticleLink } from './PostContentOfflineArticle'
-import { FrontendPost } from '../../frontend-global-types'
-
-const isNotEmpty = R.complement(R.isEmpty)
-
-const isNonEmptyString = R.allPass([isNotEmpty, R.is(String)])
-
-const isNonEmptyArray = R.allPass([isNotEmpty, R.is(Array)])
-
-const isNotNil = R.complement(R.isNil)
+import type { FrontendPost } from '../../frontend-global-types'
 
 const getPostUrlProp = (post: FrontendPost): string => post.url
-
-const hasSelfText = (post: FrontendPost): boolean => isNonEmptyString(post.selftext)
-
+const crosspostParentPropNotNil = (post: FrontendPost): boolean => RA.isNotNil(post.crosspost_parent)
+const hasSelfText = (post: FrontendPost): boolean => RA.isNonEmptyString(post.selftext)
+const doesNotHaveSelfText = R.complement(hasSelfText)
 const isTextPost = R.allPass([R.propEq('is_self', true), hasSelfText])
 
-const isNotTextPost = (post: FrontendPost): boolean => !isTextPost(post)
+const postDomainIsOneOf =
+  (domains: string[]) =>
+  (post: FrontendPost): boolean =>
+    domains.some((domain: string): boolean => post.domain === domain || post.domain.endsWith(`.${domain}`))
 
-const isNotSelfPostWithNoText = R.complement(
-  R.allPass([
-    R.anyPass([
-      R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
-      R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
-    ]),
-    R.propEq('is_self', true),
-    hasSelfText,
-  ])
-)
+const isNotTextPost = R.complement(isTextPost)
 
-const isCrossPost = R.allPass([
+const isSelfPost = R.allPass([
   R.anyPass([
     R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
     R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
-    R.compose(R.startsWith('/r/'), getPostUrlProp),
-    R.compose(isNotNil, R.prop('crosspost_parent')),
   ]),
-  // A self text post will have its own url as the url, so check its not just a text post.
+  R.propEq('is_self', true),
+])
+
+const isNotSelfPostWithoutText = R.complement(R.allPass([isSelfPost, doesNotHaveSelfText]))
+
+const isRedditUrl = R.anyPass([
+  postDomainIsOneOf(redditDomains),
+  // A self post can sometimes have a domain of `self.aww`, so also check url.
+  R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
+  R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
+  R.compose(R.startsWith('https://np.reddit.com/r/'), getPostUrlProp),
+  R.compose(R.startsWith('/r/'), getPostUrlProp),
+])
+
+const isCrossPost = R.allPass([
+  R.anyPass([isRedditUrl, crosspostParentPropNotNil]),
+  // A self post with text will have its own url as the url, so check its not just a text post.
   isNotTextPost,
   // e.g. https://www.reddit.com/r/AskReddit/comments/ozxi8w/
-  isNotSelfPostWithNoText,
+  isNotSelfPostWithoutText,
 ])
 
 /* eslint-disable security/detect-unsafe-regex */
@@ -69,7 +71,7 @@ const isScrapedArticle = R.compose(
 const downloadedFilesAreMediaFiles = R.anyPass([containsImageFile, containsVideoFile])
 
 const isInlineMediaPost = R.compose(
-  R.allPass([downloadedFilesAreMediaFiles, doesNotcontainHTMLFile, isNonEmptyArray]),
+  R.allPass([downloadedFilesAreMediaFiles, doesNotcontainHTMLFile, RA.isNonEmptyArray]),
   getDownloadedFilesProp
 )
 
@@ -85,10 +87,10 @@ const PostContentItem = Vue.defineComponent({
   },
   methods: {
     hasSelfText(): boolean {
-      return isNotNil(this.post?.selftext_html) && isNonEmptyString(this.post?.selftext_html)
+      return RA.isNotNil(this.post?.selftext_html) && RA.isNonEmptyString(this.post?.selftext_html)
     },
     postHasUrl(): boolean {
-      return isNotNil(this.post?.url)
+      return RA.isNotNil(this.post?.url)
     },
     isCrossPost(): boolean {
       return isCrossPost(this.post)
