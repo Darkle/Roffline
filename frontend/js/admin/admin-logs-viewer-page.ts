@@ -103,7 +103,6 @@ const AdminLogsViewerTable = Vue.defineComponent({
     fetch('/admin/api/get-logs')
       .then(checkFetchResponseStatus)
       .then(res => res.json() as Promise<Logs>)
-      // eslint-disable-next-line max-lines-per-function
       .then(logs => {
         // eslint-disable-next-line functional/immutable-data
         window.logs = logs

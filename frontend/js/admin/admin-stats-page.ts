@@ -42,7 +42,6 @@ const AdminStatsPage = Vue.defineComponent({
     Fetcher.getJSON('/admin/api/get-stats')
       .then(convertRawStatsToText)
       .then(formattedStats => {
-        /* eslint-disable functional/immutable-data */
         state.cpuUsage = formattedStats['cpuUsage'] as string
         state.rss = formattedStats['rss'] as string
         state.dbSize = formattedStats['dbSize'] as string
@@ -53,7 +52,6 @@ const AdminStatsPage = Vue.defineComponent({
         state.numSubs = formattedStats['numSubs'] as string
         state.numPosts = formattedStats['numPosts'] as string
         state.numUsers = formattedStats['numUsers'] as string
-        /* eslint-enable functional/immutable-data */
       })
       .catch(err => console.error(err))
   },

@@ -6,6 +6,12 @@ const imgurDomains = ['imgur.com', 'i.imgur.com']
 const domainsToIgnoreForPdfGeneration = ['discord.gg']
 
 /*****
+  Note: Its important to not have any domains that are listed in the imageHostDomains also be listed in the videoHostDomains,
+  as the isImagePost check calls the isNotVideoPost which calls isVideoPost which runs postDomainIsOneOf(videoHostDomains)
+  and checks domains - if image domains are in the video domains, then it will be seen as a video post.
+*****/
+
+/*****
  This is most of the stuff from https://github.com/mikf/gallery-dl/tree/master/gallery_dl/extractor
  but not all.
 *****/
@@ -73,9 +79,10 @@ const imageHostDomains = [
   https://github.com/yt-dlp/yt-dlp/tree/master/yt_dlp/extractor
   I havent added all of them, just the big ones. Can be expanded later.
   These could also be made into an env variable if people want to add/limit it themselves.
+  Remember to be wary to adding domains here that might conflict with saving webpage as pdf (eb bbc.co.uk),
+  instead add them as fuller urls to check in videoHostUrls below.
 *****/
 const videoHostDomains = [
-  ...imgurDomains,
   'v.redd.it',
   'iview.abc.net.au',
   'abcnews.go.com',
@@ -128,7 +135,6 @@ const videoHostDomains = [
   'giphy.com',
   'shows.howstuffworks.com',
   'live.huffingtonpost.com',
-  'instagram.com', // This is fine here as we already do instagram in image getting, which is checked first
   'itv.com',
   'jwplatform.com',
   'jwplayer.com',
@@ -149,7 +155,6 @@ const videoHostDomains = [
   'techtalks.tv',
   'ted.com',
   'tiktok.com',
-  'tumblr.com', // This is fine here as we already do instagram in image getting, which is checked first
   'ustream.tv',
   'vevo.com',
   'video.vice.com',
