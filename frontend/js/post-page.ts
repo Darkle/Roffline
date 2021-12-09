@@ -1,12 +1,12 @@
 import * as Vue from 'vue'
 import VueSplide from '@splidejs/vue-splide'
 
-import { PostPageWindowWithProps } from './frontend-global-types'
+import type { PostPageWindowWithProps } from './frontend-global-types'
 import { ignoreScriptTagCompilationWarnings } from './frontend-utils'
 import { PostContentItem } from './components/PostContent/PostContentItem'
 import { PostContentItemMetaContainer } from './components/PostContentItemMetaContainer'
 import { Comments } from './components/Comments'
-import { PostWithComments } from '../../db/entities/Posts/Post'
+import type { PostWithComments } from '../../db/entities/Posts/Post'
 
 declare const window: PostPageWindowWithProps
 

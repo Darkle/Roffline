@@ -1,6 +1,6 @@
-import { Post } from '../../../../db/entities/Posts/Post'
-import { User } from '../../../../db/entities/Users/User'
-import { CommentsWithMetadata } from '../../../../db/entities/Comments'
+import type { Post } from '../../../../db/entities/Posts/Post'
+import type { User } from '../../../../db/entities/Users/User'
+import type { CommentsWithMetadata } from '../../../../db/entities/Comments'
 
 type AdminSettings = {
   downloadComments: boolean

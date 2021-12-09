@@ -1,4 +1,5 @@
-import { Sequelize, DataTypes, ModelCtor, Model, Transaction } from 'sequelize'
+import type { Sequelize, Transaction, ModelCtor, Model } from 'sequelize'
+import { DataTypes } from 'sequelize'
 
 import { SubredditsMasterListModel } from './SubredditsMasterList'
 

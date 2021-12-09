@@ -1,7 +1,8 @@
-import fetch, { Response } from 'node-fetch-commonjs'
+import type { Response } from 'node-fetch-commonjs'
+import fetch from 'node-fetch-commonjs'
 import Prray from 'prray'
 
-import { AdminSettings } from '../../db/entities/AdminSettings'
+import type { AdminSettings } from '../../db/entities/AdminSettings'
 import { db } from '../../db/db'
 import { isDev, isNotError } from '../../server/utils'
 import { commentsDownloadsLogger } from '../../logging/logging'

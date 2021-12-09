@@ -1,7 +1,7 @@
 import getUrls from 'get-urls'
 import * as R from 'ramda'
 
-import { Post } from '../../db/entities/Posts/Post'
+import type { Post } from '../../db/entities/Posts/Post'
 
 /*****
   If the post uses markdown in the selftext, the url will end up something like this:
@@ -32,10 +32,8 @@ const getLinkUrlFromSelfText = ({ selftext }: Post): string[] | [] =>
   Only getting the first url in the text for the moment.
 *****/
 function getUrlFromTextPost(post: Post): null | string {
-  debugger
   const urlsInPostText = getLinkUrlFromSelfText(post)
 
-  debugger
   return R.isEmpty(urlsInPostText) ? null : (R.head(urlsInPostText) as string)
 }
 

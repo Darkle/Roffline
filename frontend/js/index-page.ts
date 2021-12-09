@@ -3,7 +3,7 @@ import VueSplide from '@splidejs/vue-splide'
 import * as R from 'ramda'
 import * as RA from 'ramda-adjunct'
 
-import { FrontendPost, IndexPageWindowWithProps } from './frontend-global-types'
+import type { FrontendPost, IndexPageWindowWithProps } from './frontend-global-types'
 import { PostItem } from './components/PostItem'
 import { ignoreScriptTagCompilationWarnings } from './frontend-utils'
 

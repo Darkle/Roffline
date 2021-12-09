@@ -2,7 +2,7 @@ import prettyBytes from 'pretty-bytes'
 import prettifyTime from 'prettify-time'
 import cpuStat from 'cpu-stat'
 import R from 'ramda'
-import { FastifyReply, FastifyRequest } from 'fastify'
+import type { FastifyReply, FastifyRequest } from 'fastify'
 
 import { db } from '../../../db/db'
 import { getEnvFilePath, getFolderSize } from '../../utils'

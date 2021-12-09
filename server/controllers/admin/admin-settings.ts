@@ -1,8 +1,8 @@
-import { FastifyReply, FastifyRequest } from 'fastify'
+import type { FastifyReply, FastifyRequest } from 'fastify'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 
 import { db } from '../../../db/db'
-import { AdminSettings } from '../../../db/entities/AdminSettings'
+import type { AdminSettings } from '../../../db/entities/AdminSettings'
 
 type RequestWithSettingsBody = {
   settingName: keyof AdminSettings

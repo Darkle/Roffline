@@ -1,5 +1,5 @@
-import { Post, PostWithComments } from '../../db/entities/Posts/Post'
-import { User } from '../../db/entities/Users/User'
+import type { Post, PostWithComments } from '../../db/entities/Posts/Post'
+import type { User } from '../../db/entities/Users/User'
 
 type PostWithDownloadedFiles = Post & { downloadedFiles: string[] }
 

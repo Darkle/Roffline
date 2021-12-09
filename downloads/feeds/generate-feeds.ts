@@ -1,4 +1,4 @@
-import { Post } from '../../db/entities/Posts/Post'
+import type { Post } from '../../db/entities/Posts/Post'
 
 type FeedData = { children: Post[]; after: null | string; before: null | string }
 

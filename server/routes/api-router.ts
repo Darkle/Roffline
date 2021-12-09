@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify'
+import type { FastifyInstance } from 'fastify'
 
 import { csrfProtection } from '../controllers/csrf'
 import { infiniteScrollGetMorePosts } from '../controllers/posts/posts'

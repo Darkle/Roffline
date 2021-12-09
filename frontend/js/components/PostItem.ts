@@ -1,10 +1,10 @@
 import * as Vue from 'vue'
 import { unescape } from 'html-escaper'
 
-import { FrontendPost } from '../frontend-global-types'
+import type { FrontendPost } from '../frontend-global-types'
 import { PostContentItem } from './PostContent/PostContentItem'
 import { PostContentItemMetaContainer } from './PostContentItemMetaContainer'
-import { User } from '../../../db/entities/Users/User'
+import type { User } from '../../../db/entities/Users/User'
 import { Fetcher } from '../frontend-utils'
 
 const postsPerPage = 30

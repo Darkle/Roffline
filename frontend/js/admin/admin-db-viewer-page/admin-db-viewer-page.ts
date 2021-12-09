@@ -3,7 +3,7 @@ import VueGoodTablePlugin from 'vue-good-table-next'
 import debounce from 'lodash.debounce'
 import JsonViewer from 'vue3-json-viewer'
 
-import {
+import type {
   DbTables,
   TableColumnType,
   DatabaseTypes,
@@ -13,7 +13,7 @@ import {
 } from './admin-db-viewer-page-types'
 import { checkFetchResponseStatus, ignoreScriptTagCompilationWarnings, $, wait } from '../../frontend-utils'
 import { tablesColumns } from './table-columns'
-import { CommentsWithMetadata } from '../../../../db/entities/Comments'
+import type { CommentsWithMetadata } from '../../../../db/entities/Comments'
 
 const defaultNumRowsPerPage = 50
 const commentsNumRowsPerPage = 200

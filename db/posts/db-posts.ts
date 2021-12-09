@@ -1,12 +1,14 @@
 import * as R from 'ramda'
 import { Timer } from 'timer-node'
-import { Op, Sequelize, Transaction } from 'sequelize'
+import type { Sequelize, Transaction } from 'sequelize'
+import { Op } from 'sequelize'
 
-import { SubredditTable, TopPostsRowType, subredditTablesMap } from '../entities/SubredditTable'
-import { Post, PostWithComments } from '../entities/Posts/Post'
+import type { SubredditTable, TopPostsRowType } from '../entities/SubredditTable'
+import { subredditTablesMap } from '../entities/SubredditTable'
+import type { Post, PostWithComments } from '../entities/Posts/Post'
 import { PostModel } from '../entities/Posts/Posts'
 import { dbLogger } from '../../logging/logging'
-import { CommentContainer } from '../entities/Comments'
+import type { CommentContainer } from '../entities/Comments'
 import { SubredditsMasterListModel } from '../entities/SubredditsMasterList'
 
 type SubsPostsIdDataType = {

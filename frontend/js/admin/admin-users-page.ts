@@ -1,7 +1,7 @@
 import * as Vue from 'vue'
 import VueGoodTablePlugin from 'vue-good-table-next'
 
-import { User } from '../../../db/entities/Users/User'
+import type { User } from '../../../db/entities/Users/User'
 import { checkFetchResponseStatus, Fetcher, ignoreScriptTagCompilationWarnings } from '../frontend-utils'
 
 // VueGoodTablePlugin hides bool values if they are false

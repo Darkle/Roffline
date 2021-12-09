@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-restricted-imports
 import querystring from 'querystring'
 
-import { FastifyInstance } from 'fastify'
+import type { FastifyInstance } from 'fastify'
 
 import { basicAuth } from '../controllers/admin/basic-auth'
 import { createCsrfToken } from '../controllers/csrf'

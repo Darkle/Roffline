@@ -1,6 +1,6 @@
 import { EventEmitter } from 'tsee'
 
-import { Post } from '../../db/entities/Posts/Post'
+import type { Post } from '../../db/entities/Posts/Post'
 
 type PostWithMediaDownloadInfo = {
   downloadFailed: boolean

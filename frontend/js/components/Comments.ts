@@ -2,8 +2,8 @@ import { DateTime } from 'luxon'
 import * as Vue from 'vue'
 import { unescape } from 'html-escaper'
 
-import { CommentContainer } from '../../../db/entities/Comments'
-import { PostWithComments } from '../../../db/entities/Posts/Post'
+import type { CommentContainer } from '../../../db/entities/Comments'
+import type { PostWithComments } from '../../../db/entities/Posts/Post'
 import { genPrettyDateCreatedAgoFromUTC } from '../../../server/controllers/posts/pretty-date-created-ago'
 
 type CommentsClosedStatus = Map<string, boolean>

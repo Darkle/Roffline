@@ -1,8 +1,8 @@
 import * as R from 'ramda'
 
 import { db } from '../../db/db'
-import { Post } from '../../db/entities/Posts/Post'
-import { FeedWithData } from '../feeds/generate-feeds'
+import type { Post } from '../../db/entities/Posts/Post'
+import type { FeedWithData } from '../feeds/generate-feeds'
 
 const postDataToKeep = [
   'id',

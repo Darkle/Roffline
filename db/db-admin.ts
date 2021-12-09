@@ -1,9 +1,11 @@
-import lmdb from 'lmdb-store'
-import { QueryTypes, Sequelize } from 'sequelize'
+import type lmdb from 'lmdb-store'
+import type { Sequelize } from 'sequelize'
+import { QueryTypes } from 'sequelize'
 
-import { AdminSettings, AdminSettingsModel } from './entities/AdminSettings'
-import { TableModelTypes } from './entities/entity-types'
-import { User } from './entities/Users/User'
+import type { AdminSettings } from './entities/AdminSettings'
+import { AdminSettingsModel } from './entities/AdminSettings'
+import type { TableModelTypes } from './entities/entity-types'
+import type { User } from './entities/Users/User'
 import { UserModel } from './entities/Users/Users'
 
 /* eslint-disable max-lines-per-function */

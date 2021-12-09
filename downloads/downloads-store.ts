@@ -1,4 +1,4 @@
-import { Post } from '../db/entities/Posts/Post'
+import type { Post } from '../db/entities/Posts/Post'
 
 type PostId = string
 type Subreddit = string

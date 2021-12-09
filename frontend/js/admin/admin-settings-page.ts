@@ -2,7 +2,7 @@ import * as R from 'ramda'
 import * as Vue from 'vue'
 
 import { Fetcher, ignoreScriptTagCompilationWarnings } from '../frontend-utils'
-import { AdminSettingsPageWindowWithProps, AdminSettingsForFrontend } from './admin-frontend-global-types'
+import type { AdminSettingsPageWindowWithProps, AdminSettingsForFrontend } from './admin-frontend-global-types'
 
 declare const window: AdminSettingsPageWindowWithProps
 

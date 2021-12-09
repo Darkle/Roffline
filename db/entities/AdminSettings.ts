@@ -1,4 +1,5 @@
-import { Sequelize, DataTypes, Model } from 'sequelize'
+import type { Sequelize } from 'sequelize'
+import { DataTypes, Model } from 'sequelize'
 
 type AdminSettings = {
   downloadComments: boolean

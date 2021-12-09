@@ -1,7 +1,8 @@
-import { AdminSettings } from '../../db/entities/AdminSettings'
+import type { AdminSettings } from '../../db/entities/AdminSettings'
 import { saveEachSubsFeedDataToDB } from '../subs/save-sub-feed-data'
 import { fetchFeeds } from './fetch-feeds'
-import { createInitialFeedsForEachSubreddit, FeedWithData } from './generate-feeds'
+import type { FeedWithData } from './generate-feeds'
+import { createInitialFeedsForEachSubreddit } from './generate-feeds'
 
 type Subreddit = string
 

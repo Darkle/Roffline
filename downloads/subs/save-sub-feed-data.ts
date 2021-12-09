@@ -1,9 +1,9 @@
 import * as R from 'ramda'
 
 import { db } from '../../db/db'
-import { FeedWithData } from '../feeds/generate-feeds'
+import type { FeedWithData } from '../feeds/generate-feeds'
 import { feedsLogger } from '../../logging/logging'
-import { TopPostsRowType } from '../../db/entities/SubredditTable'
+import type { TopPostsRowType } from '../../db/entities/SubredditTable'
 
 type SubredditsPostIdReferencesFromFeeds = {
   [subreddit: string]: TopPostsRowType[]

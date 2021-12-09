@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply } from 'fastify'
+import type { FastifyRequest, FastifyReply } from 'fastify'
 // eslint-disable-next-line no-restricted-imports
 import querystring from 'querystring'
 

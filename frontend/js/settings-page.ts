@@ -2,7 +2,7 @@ import * as R from 'ramda'
 import * as Vue from 'vue'
 import { ref } from 'vue'
 
-import { SettingsPageWindowWithProps } from './frontend-global-types'
+import type { SettingsPageWindowWithProps } from './frontend-global-types'
 import { Fetcher, ignoreScriptTagCompilationWarnings, $, wait } from './frontend-utils'
 
 declare const window: SettingsPageWindowWithProps

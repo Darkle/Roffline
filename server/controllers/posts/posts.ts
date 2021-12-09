@@ -1,10 +1,11 @@
 import * as R from 'ramda'
-import { FastifyReply, FastifyRequest } from 'fastify'
+import type { FastifyReply, FastifyRequest } from 'fastify'
 import { DateTime } from 'luxon'
 
 import { db } from '../../../db/db'
-import { Post } from '../../../db/entities/Posts/Post'
-import { findAnyMediaFilesForPosts, PostWithDownloadedFiles } from './find-posts-media-files'
+import type { Post } from '../../../db/entities/Posts/Post'
+import { findAnyMediaFilesForPosts } from './find-posts-media-files'
+import type { PostWithDownloadedFiles } from './find-posts-media-files'
 import { genPrettyDateCreatedAgoFromUTC } from './pretty-date-created-ago'
 
 type FastifyReplyWithLocals = {

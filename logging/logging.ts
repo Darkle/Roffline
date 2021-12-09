@@ -1,5 +1,6 @@
-import { FastifyRequest } from 'fastify'
-import Pino, { pino } from 'pino'
+import type { FastifyRequest } from 'fastify'
+import Pino from 'pino'
+import type { pino } from 'pino'
 import { DateTime } from 'luxon'
 import cliColor from 'cli-color'
 

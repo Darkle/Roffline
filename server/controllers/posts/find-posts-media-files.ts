@@ -4,7 +4,7 @@ import fs from 'fs'
 import * as RA from 'ramda-adjunct'
 import Prray from 'prray'
 
-import { Post } from '../../../db/entities/Posts/Post'
+import type { Post } from '../../../db/entities/Posts/Post'
 import { getEnvFilePath } from '../../utils'
 
 const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])

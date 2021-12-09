@@ -1,14 +1,14 @@
 import crypto from 'crypto'
 
-import { FastifyRequest, FastifyReply } from 'fastify'
+import type { FastifyRequest, FastifyReply } from 'fastify'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
-import { Maybe } from 'pratica'
+import type { Maybe } from 'pratica'
 import * as R from 'ramda'
 import * as RA from 'ramda-adjunct'
 import diceware from 'diceware'
 
 import { db } from '../../db/db'
-import { User } from '../../db/entities/Users/User'
+import type { User } from '../../db/entities/Users/User'
 
 type CookieProps = {
   httpOnly: boolean

@@ -1,4 +1,5 @@
-import { Sequelize, QueryTypes } from 'sequelize'
+import type { Sequelize } from 'sequelize'
+import { QueryTypes } from 'sequelize'
 import { UserModel } from '../entities/Users/Users'
 
 const postsPerPage = 30
@@ -41,7 +42,6 @@ function searchPosts({
     transaction =>
       UserModel.findOne({ where: { name: userName }, attributes: ['subreddits'], transaction })
         .then(user => user?.get('subreddits') as string[])
-        // eslint-disable-next-line max-lines-per-function
         .then(subreddits =>
           Promise.all([
             sequelize.query(

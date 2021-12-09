@@ -1,12 +1,14 @@
 import R from 'ramda'
-import fetch, { Response } from 'node-fetch-commonjs'
+import type { Response } from 'node-fetch-commonjs'
+import fetch from 'node-fetch-commonjs'
 import RA from 'ramda-adjunct'
 import Prray from 'prray'
 
-import { AdminSettings } from '../../db/entities/AdminSettings'
+import type { AdminSettings } from '../../db/entities/AdminSettings'
 import { feedsLogger } from '../../logging/logging'
-import { FeedWithData, updatePaginationForEachFeedsUrl } from './generate-feeds'
-import { Post } from '../../db/entities/Posts/Post'
+import type { FeedWithData } from './generate-feeds'
+import { updatePaginationForEachFeedsUrl } from './generate-feeds'
+import type { Post } from '../../db/entities/Posts/Post'
 import { isDev } from '../../server/utils'
 
 type RawSubFeedData = { children: Post[]; after: null | string; before: null | string }
@@ -78,7 +80,6 @@ const summarizeFeedDataForLogging = R.reduceBy(
   (feed: FeedWithData) => feed.subreddit
 )
 
-// eslint-disable-next-line max-lines-per-function
 async function fetchFeeds(
   adminSettings: AdminSettings,
   subsFeedsWithData: FeedWithData[]

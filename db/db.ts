@@ -1,25 +1,29 @@
 import * as R from 'ramda'
-import { Sequelize, Transaction, Op, QueryTypes } from 'sequelize'
+import type { Transaction } from 'sequelize'
+import { Op, QueryTypes, Sequelize } from 'sequelize'
 import { Timer } from 'timer-node'
 import lmdb from 'lmdb-store'
 import { DateTime } from 'luxon'
 import { nullable as MaybeNullable } from 'pratica'
 
-import { SubredditsMasterList, SubredditsMasterListModel } from './entities/SubredditsMasterList'
+import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
+import type { SubredditsMasterList } from './entities/SubredditsMasterList'
 import { firstRun } from './db-first-run'
 import { dbLogger } from '../logging/logging'
 import { UserModel } from './entities/Users/Users'
 import { PostModel } from './entities/Posts/Posts'
-import { Post, PostWithComments } from './entities/Posts/Post'
-import { createAndSyncSubredditTable, loadSubredditTableModels, TopPostsRowType } from './entities/SubredditTable'
+import type { Post, PostWithComments } from './entities/Posts/Post'
+import type { TopPostsRowType } from './entities/SubredditTable'
+import { createAndSyncSubredditTable, loadSubredditTableModels } from './entities/SubredditTable'
 import {
   getPostsPaginatedForAllSubsOfUser,
   getPostsPaginatedForSubreddit,
   getTopPostsPaginatedForAllSubsOfUser,
   getTopPostsPaginatedForSubreddit,
 } from './posts/db-get-posts-paginated'
-import { searchPosts, SearchLimitedPostType } from './posts/db-search-posts'
-import { TableModelTypes } from './entities/entity-types'
+import type { SearchLimitedPostType } from './posts/db-search-posts'
+import { searchPosts } from './posts/db-search-posts'
+import type { TableModelTypes } from './entities/entity-types'
 import {
   getAdminSettings,
   getSingleAdminSetting,
@@ -62,7 +66,7 @@ import {
   batchSetCommentsDownloadedTrueForPosts,
 } from './posts/db-posts'
 
-import { CommentContainer } from './entities/Comments'
+import type { CommentContainer } from './entities/Comments'
 import { getEnvFilePath, getFileSize /*isDev*/ } from '../server/utils'
 
 const sqliteDBPath = process.env['SQLITE_DBPATH'] || './roffline-sqlite.db'

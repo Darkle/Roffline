@@ -1,4 +1,4 @@
-import { CommentContainer } from '../Comments'
+import type { CommentContainer } from '../Comments'
 
 type Oembed = {
   provider_url: string

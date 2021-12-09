@@ -1,7 +1,7 @@
 import * as Vue from 'vue'
 
 import { Fetcher, ignoreScriptTagCompilationWarnings, $, wait } from './frontend-utils'
-import { SubManagementPagePageWindowWithProps } from './frontend-global-types'
+import type { SubManagementPagePageWindowWithProps } from './frontend-global-types'
 
 declare const window: SubManagementPagePageWindowWithProps
 
@@ -63,7 +63,6 @@ const PostPage = Vue.defineComponent({
         })
         .catch(err => console.error(err))
     },
-    // eslint-disable-next-line max-lines-per-function
     removeSubreddit(event: Event): void {
       const clickedDiv = event.currentTarget as HTMLDivElement
       const subDiv = clickedDiv.firstElementChild as HTMLDivElement
