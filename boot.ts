@@ -19,8 +19,7 @@ function bailOnFatalError(err: Error): void {
   } catch (error) {}
 
   /*****
-    Delay a little bit before exiting to allow the error to finish being written to log file in
-    the mainLogger.fatal() and db.close() calls above to finish.
+    Wait for file IO from the mainLogger.fatal() and db.close() calls above to finish.
   *****/
   setImmediate(_ => process.exit(1))
 }
