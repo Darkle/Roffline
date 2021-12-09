@@ -54,23 +54,18 @@ const containsImageFile = R.any(R.test(/\.(png|jpe?g|gif|webp|svg|apng|avif|bmp|
 
 const containsVideoFile = R.any(R.test(/\.(gifv|mpe?g|mp4|m4v|m4p|ogv|ogg|mov|mkv|webm)(\?.*)?$/u))
 
-const containsHTMLFile = R.any(R.test(/.*\.(htm$|html$)/u))
+const containsArticlePdf = R.any(R.test(/^article\.pdf$/u))
 
-const containsWebpageScreenshot = R.any(R.test(/^screenshot\.(jpg|png)$/u))
-
-const doesNotcontainHTMLFile = R.complement(containsHTMLFile)
+const doesNotcontainArticlePdf = R.complement(containsArticlePdf)
 
 const getDownloadedFilesProp = (post: FrontendPost): string[] => post.downloadedFiles
 
-const isScrapedArticle = R.compose(
-  R.anyPass([containsHTMLFile, containsWebpageScreenshot]),
-  getDownloadedFilesProp
-)
+const isScrapedArticle = R.compose(containsArticlePdf, getDownloadedFilesProp)
 
 const downloadedFilesAreMediaFiles = R.anyPass([containsImageFile, containsVideoFile])
 
 const isInlineMediaPost = R.compose(
-  R.allPass([downloadedFilesAreMediaFiles, doesNotcontainHTMLFile, RA.isNonEmptyArray]),
+  R.allPass([downloadedFilesAreMediaFiles, doesNotcontainArticlePdf, RA.isNonEmptyArray]),
   getDownloadedFilesProp
 )
 
