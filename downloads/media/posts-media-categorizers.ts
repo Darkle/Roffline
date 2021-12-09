@@ -1,7 +1,7 @@
 import * as R from 'ramda'
 import * as RA from 'ramda-adjunct'
 
-import { Post } from '../../db/entities/Posts/Post'
+import type { Post } from '../../db/entities/Posts/Post'
 import {
   domainsToIgnoreForPdfGeneration,
   imageHostDomains,
@@ -16,7 +16,7 @@ type PostWithOptionalTextMetaData = Post & { isTextPostWithNoUrlsInPost?: boolea
 /* eslint-disable security/detect-unsafe-regex */
 const isDirectImageLink = R.test(/\.(png|jpe?g|gif|webp|svg|apng|avif|bmp|tiff?|heif|heic)(\?.*)?$/u)
 const isDirectVideoLink = R.test(/\.(gifv|mpe?g|mp4|m4v|m4p|ogv|ogg|mov|mkv|webm)(\?.*)?$/u)
-const isDirectFileLink = R.test(/\.(zip|pdf)(\?.*)?$/u)
+const isDirectFileLink = R.test(/\.(zip|pdf|deb|rpm|tar)(\?.*)?$/u)
 
 // Reddit preview image urls need to be downloaded by gallery-dl
 const isNotARedditPreviewUrl = R.complement(R.test(/^https:\/\/preview.redd.it/u))
@@ -64,19 +64,15 @@ const isNotVideoPost = R.complement(isVideoPost)
 
 const isNotImgurImage = R.complement(postDomainIsOneOf(imgurDomains))
 
-const isDirectMediaLink = R.compose(
-  // prettier-ignore
-  R.allPass([
-    R.anyPass([isDirectImageLink, isDirectVideoLink, isDirectFileLink]),
-    isNotARedditPreviewUrl,
-    /*****
+const isDirectMediaLink = R.allPass([
+  R.compose(R.anyPass([isDirectImageLink, isDirectVideoLink, isDirectFileLink]), getPostUrlProp),
+  R.compose(isNotARedditPreviewUrl, getPostUrlProp),
+  /*****
       We want to not download imgur images with direct download as sometimes they can redirect to the imgur web page
       if they are high traffic. So we leave it for the gallery-dl download to take care of it.
     *****/
-    isNotImgurImage
-  ]),
-  getPostUrlProp
-)
+  isNotImgurImage,
+])
 
 const isSelfPost = R.allPass([
   R.anyPass([
@@ -88,7 +84,14 @@ const isSelfPost = R.allPass([
 
 const isNotSelfPostWithoutText = R.complement(R.allPass([isSelfPost, doesNotHaveSelfText]))
 
-const isRedditUrl = R.anyPass([postDomainIsOneOf(redditDomains), R.compose(R.startsWith('/r/'), getPostUrlProp)])
+const isRedditUrl = R.anyPass([
+  postDomainIsOneOf(redditDomains),
+  // A self post can sometimes have a domain of `self.aww`, so also check url.
+  R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
+  R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
+  R.compose(R.startsWith('https://np.reddit.com/r/'), getPostUrlProp),
+  R.compose(R.startsWith('/r/'), getPostUrlProp),
+])
 
 const isNotRedditUrl = R.complement(isRedditUrl)
 
@@ -119,16 +122,14 @@ const isImagePost = R.allPass([
 
 const isNotDirectMediaLink = R.complement(isDirectMediaLink)
 const isNotImagePost = R.complement(isImagePost)
-const isNotTextPostWithNoUrlInPost = R.complement(isTextPostWithNoUrlInPost)
 const domainIsNotOneOf = (post: PostWithOptionalTextMetaData): boolean =>
   !domainsToIgnoreForPdfGeneration.includes(getPostDomainProp(post))
 
 const isArticleToSaveAsPdf = R.allPass([
-  isNotRedditUrl,
+  isNotRedditUrl, // this would also take care of text posts.
   isNotDirectMediaLink,
   isNotImagePost,
   isNotVideoPost,
-  isNotTextPostWithNoUrlInPost,
   domainIsNotOneOf,
 ])
 
