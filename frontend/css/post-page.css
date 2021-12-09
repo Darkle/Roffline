@@ -61,10 +61,14 @@
 
 .post-page article .post-content .offline-article-link a {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .post-page article .post-content .offline-article-link svg {
   margin-right: 0.5rem;
+  height: 5rem;
 }
 
 .post-page main > article .post-meta-container {

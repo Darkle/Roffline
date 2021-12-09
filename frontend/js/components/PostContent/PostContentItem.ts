@@ -104,19 +104,40 @@ const PostContentItem = Vue.defineComponent({
       return containsImageFile(downloadedFiles) && downloadedFiles.length > 1
     },
   },
-  computed: {
-    postHtml(): string {
-      const postHtml = this.post?.selftext_html as string
-      return unescape(postHtml)
-    },
+  mounted() {
+    /*****
+      We needed to do our own innerHTML setup here for selfText posts
+      as some self text posts have links in them, which will have offline
+      article links, so we cant use v-html if we also need to conditionally
+      render in the offline article link component.
+    *****/
+    // eslint-disable-next-line functional/no-conditional-statement
+    if (!this.hasSelfText()) return
+
+    const postHtml = this.post?.selftext_html as string
+    const rawPostHtml = unescape(postHtml)
+
+    const postContentDiv = this.$refs['postContendDiv'] as HTMLDivElement
+    // afterbegin inserts it before the first child in case the offline article link is there.
+    postContentDiv.insertAdjacentHTML('afterbegin', rawPostHtml)
   },
   template: /* html */ `
-    <div class="post-content" v-if="hasSelfText()" v-html="postHtml"></div>
+    <div class="post-content justify-column" v-if="hasSelfText()" ref="postContendDiv">
+      <template v-if="isScrapedArticle()">
+        <post-content-offline-article-link 
+          v-bind:post="post"
+          v-bind:isFirstUrlOfTextPost="true"
+        ></post-content-offline-article-link>
+      </template>
+    </div>
     <div class="post-content" v-else-if="isCrossPost()">
       <a v-bind:href="post.url">{{post.url}}</a>
     </div>
     <div class="post-content" v-else-if="isScrapedArticle()">
-      <post-content-offline-article-link v-bind:post="post"></post-content-offline-article-link>
+        <post-content-offline-article-link 
+          v-bind:post="post"
+          v-bind:isFirstUrlOfTextPost="false"
+        ></post-content-offline-article-link>
     </div>
     <template v-else-if="isInlineMediaPost()">
       <div class="post-content" v-if="isSingleImage()">

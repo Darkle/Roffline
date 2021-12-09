@@ -106,10 +106,14 @@
 
 .index-page main #posts article > .post-content .offline-article-link a {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .index-page main #posts article > .post-content .offline-article-link svg {
   margin-right: 0.5rem;
+  height: 5rem;
 }
 
 @media only screen and (max-width: 540px) {

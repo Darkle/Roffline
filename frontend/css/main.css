@@ -33,6 +33,10 @@ body {
   display: none !important;
 }
 
+.justify-column {
+  flex-direction: column !important;
+}
+
 code,
 kbd {
   color: var(--text-dark);
