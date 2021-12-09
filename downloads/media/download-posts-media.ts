@@ -4,13 +4,13 @@ import * as R from 'ramda'
 import RA from 'ramda-adjunct'
 
 import { db } from '../../db/db'
-import { AdminSettings } from '../../db/entities/AdminSettings'
-import { Post } from '../../db/entities/Posts/Post'
+import type { AdminSettings } from '../../db/entities/AdminSettings'
+import type { Post } from '../../db/entities/Posts/Post'
 import { getEnvFilePath, pCreateFolder, isNotError } from '../../server/utils'
-import { DownloadsStore } from '../downloads-store'
+import type { DownloadsStore } from '../downloads-store'
 import { downloadIndividualPostMedia } from './download-media-decider'
 import { getUrlFromTextPost } from './get-url-from-text-post'
-import { logDownloadErrorIfNotOffline } from './log-download-errors'
+import { logDownloadError } from './log-download-errors'
 import { adminMediaDownloadsViewerOrganiser } from './media-downloads-viewer-organiser'
 import { isTextPost } from './posts-media-categorizers'
 
@@ -53,7 +53,7 @@ const setPostUrlToArticleInTextIfTextPost = (
 }
 
 const removeFailedDownloads = (items: (PostId | undefined | Error)[]): PostId[] | [] =>
-  items.filter(R.compose(isNotError, RA.isNotNil)) as PostId[] | []
+  items.filter(R.allPass([isNotError, RA.isNotNil])) as PostId[] | []
 
 // eslint-disable-next-line max-lines-per-function
 function downloadPostsMedia(
@@ -62,11 +62,7 @@ function downloadPostsMedia(
 ): Promise<PostId[] | []> {
   const postsArr = [...postsMediaToBeDownloaded.values()]
 
-  console.log(adminMediaDownloadsViewerOrganiser)
-
   adminMediaDownloadsViewerOrganiser.initializeWithNewPosts(postsArr)
-
-  debugger
 
   return Prray.from(postsArr)
     .mapAsync(
@@ -74,32 +70,21 @@ function downloadPostsMedia(
       async (post: Post) => {
         // eslint-disable-next-line functional/no-conditional-statement
         if (tooManyDownloadTries(post)) {
-          debugger
           adminMediaDownloadsViewerOrganiser.setDownloadCancelled(
             post.id,
             'Download Skipped: Too many download tries (3).'
           )
-          console.log(adminMediaDownloadsViewerOrganiser)
           return
         }
 
-        console.log(`https://www.reddit.com${post.permalink}`)
-
-        debugger
-
         adminMediaDownloadsViewerOrganiser.incrementPostMediaDownloadTry(post.id)
-        console.log(adminMediaDownloadsViewerOrganiser)
 
-        debugger
-
-        await db.incrementPostMediaDownloadTry(post.id)
-
-        debugger
-        const postMediaFolder = await createMediaFolderForPost(post.id)
-
-        debugger
         // eslint-disable-next-line functional/no-try-statement
         try {
+          await db.incrementPostMediaDownloadTry(post.id)
+
+          const postMediaFolder = await createMediaFolderForPost(post.id)
+
           adminMediaDownloadsViewerOrganiser.setDownloadStarted(post.id)
 
           const mediaDownload: MediaDownload = {
@@ -108,36 +93,26 @@ function downloadPostsMedia(
             postMediaFolder,
           }
 
-          debugger
           await downloadIndividualPostMedia(mediaDownload)
 
-          debugger
           adminMediaDownloadsViewerOrganiser.setDownloadSucceeded(post.id)
-          console.log(adminMediaDownloadsViewerOrganiser)
 
-          debugger
           await db.setMediaDownloadedTrueForPost(post.id)
 
-          debugger
           return post.id
         } catch (err) {
-          debugger
           //To appease the Typescript gods: https://github.com/microsoft/TypeScript/issues/20024
           const downloadError = err as Error
 
-          debugger
           adminMediaDownloadsViewerOrganiser.setDownloadFailed(post.id, downloadError)
-          console.log(adminMediaDownloadsViewerOrganiser)
 
-          debugger
-          await logDownloadErrorIfNotOffline(downloadError, post)
+          await logDownloadError(downloadError, post).catch(RA.noop)
 
-          debugger
           return downloadError
         }
       },
       {
-        concurrency: 1,
+        concurrency: adminSettings.numberMediaDownloadsAtOnce,
       }
     )
     .then(removeFailedDownloads)
