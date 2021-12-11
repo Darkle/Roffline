@@ -70,9 +70,11 @@ const fetchFeedIfItHasMoreData = R.when(subHasMoreFeedData, fetchFeed)
 // R.any checks all items in an array
 const someFeedsHaveMoreDataToGet = R.any(R.pathSatisfies(RA.isNotNil, ['data', 'after']))
 
-const isNotEmptyFeed = R.both(R.pathSatisfies(RA.isNotEmpty, ['data', 'children']), RA.isNotNil)
+const isNotEmptyFeed = (feedData: FeedWithData | void): boolean =>
+  RA.isNotNil(feedData) && R.pathSatisfies(RA.isNotEmpty, ['data', 'children'])(feedData)
 
-const removeEmptyFeeds = R.filter(isNotEmptyFeed)
+const removeEmptyFeeds = (feedsWithData: (FeedWithData | void)[]): FeedWithData[] =>
+  feedsWithData.filter(isNotEmptyFeed) as FeedWithData[]
 
 const summarizeFeedDataForLogging = R.reduceBy(
   (postCount: number, feed: FeedWithData) => postCount + (feed.data?.children?.length || 0),
@@ -84,9 +86,9 @@ async function fetchFeeds(
   adminSettings: AdminSettings,
   subsFeedsWithData: FeedWithData[]
 ): Promise<FeedWithData[]> {
-  const fetchedFeeds = (await Prray.from(subsFeedsWithData)
+  const fetchedFeeds = await Prray.from(subsFeedsWithData)
     .mapAsync(fetchFeedIfItHasMoreData, { concurrency: adminSettings.numberFeedsOrPostsDownloadsAtOnce })
-    .then(removeEmptyFeeds)) as FeedWithData[]
+    .then(removeEmptyFeeds)
 
   // eslint-disable-next-line functional/no-conditional-statement
   if (someFeedsHaveMoreDataToGet(fetchedFeeds)) {
