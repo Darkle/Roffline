@@ -1,5 +1,6 @@
 import * as R from 'ramda'
 import { unescape } from 'html-escaper'
+import { compress as compressText } from 'compress-tag'
 
 import type { AdminSettings } from '../../db/entities/AdminSettings'
 import type { Post } from '../../db/entities/Posts/Post'
@@ -8,7 +9,8 @@ import { spawnSubProcess } from './spawn-external-download-process'
 type PostReadyForDownload = Post & { isTextPostWithNoUrlsInPost?: boolean }
 
 /*****
-  Some urls have html entities in them for some reason. May as well use decodeURIComponent too just in case.
+  Some urls have html entities in them for some reason.
+  May as well use decodeURIComponent too just in case.
 *****/
 const decodeUrl = (url: string): string => decodeURIComponent(unescape(url))
 
@@ -39,6 +41,7 @@ const createYTDLFormats = (videoDownloadMaxFileSize: string, videoDownloadResolu
     ``
   )
 
+// eslint-disable-next-line max-lines-per-function
 function downloadVideo(
   post: PostReadyForDownload,
   adminSettings: AdminSettings,
@@ -62,7 +65,7 @@ function downloadVideo(
     use --max-filesize as that doesnt let the audio and video files merge when you go over the limit, but putting the
     filesize in the format lets it still be merged.
 
-    We need `/worstaudio+worstvideo` as well as `/worst` as `/worst` only checks for the worst single video file, so
+    We need `/worstaudio+worstvideo` as well as `/worst`, as `/worst` only checks for the worst single video file, so
     if the video is only split into audio and video, /worst wont catch it.
   *****/
 
@@ -71,7 +74,21 @@ function downloadVideo(
     videoDownloadResolution
   )}worstaudio+worstvideo/worst`
 
-  const command = `yt-dlp "${postUrl}" --format '${videoFormats}' --no-playlist --retries 1 --playlist-items 1 --no-cache-dir --no-part --output "${postMediaFolder}/%(title)s-[%(id)s]-[%(channel)s].%(ext)s"`
+  const command = compressText`
+  yt-dlp "${postUrl}" 
+  --format '${videoFormats}' 
+  --output "${postMediaFolder}/%(title)s-[%(id)s]-[%(channel)s].%(ext)s" 
+  --no-playlist 
+  --retries 1 
+  --playlist-items 1 
+  --no-cache-dir 
+  --no-part 
+  --abort-on-error 
+  --compat-options no-youtube-unavailable-videos 
+  --no-colors 
+  --restrict-filenames 
+  --progress-template "download:{postId:${post.id},fileSize:%(progress.total_bytes)s,speed:%(progress.speed)s,eta:%(progress.eta)s,downloadedBytes:%(progress.downloaded_bytes)s}"
+`
 
   return spawnSubProcess(command, post, downloadType)
 }

@@ -33,6 +33,7 @@
     "@splidejs/vue-splide": "^0.5.15",
     "basic-auth": "^2.0.1",
     "cli-color": "^2.0.1",
+    "compress-tag": "^2.0.1",
     "cpu-stat": "^2.0.1",
     "csrf": "^3.1.0",
     "diceware": "^0.0.1",
