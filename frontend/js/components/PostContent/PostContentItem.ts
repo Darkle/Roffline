@@ -87,7 +87,7 @@ const PostContentItem = Vue.defineComponent({
       return RA.isNotNil(this.post?.url)
     },
     isCrossPost(): boolean {
-      return isCrossPost(this.post)
+      return isCrossPost(this.post as FrontendPost)
     },
     isScrapedArticle(): boolean {
       return isScrapedArticle(this.post as FrontendPost)
