@@ -13,7 +13,7 @@ declare module 'diceware' {
   whith this followup: https://github.com/vuejs/vue/issues/5298#issuecomment-761577986.
 *****/
 declare module '*.vue' {
-  import { defineComponent } from 'vue'
+  import type { defineComponent } from 'vue'
   const component: ReturnType<typeof defineComponent>
   export default component
 }
@@ -44,4 +44,10 @@ declare module 'dns-cache' {
 declare module 'fastify-sse' {
   import fastifySSE from 'fastify-sse'
   export default fastifySSE
+}
+
+declare module 'node-recursive-directory' {
+  // prettier-ignore
+  export default function (dir: string, asObject: boolean): Promise<{ fullpath: string; filepath: string; filename: string; dirname: string }[]>; // eslint-disable-line import/export,@typescript-eslint/semi
+  export default function (dir: string): Promise<string[]> // eslint-disable-line import/export
 }
