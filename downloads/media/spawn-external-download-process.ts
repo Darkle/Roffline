@@ -1,4 +1,4 @@
-import { execaCommand } from 'execa'
+import execa from 'execa'
 import * as R from 'ramda'
 import RA from 'ramda-adjunct'
 
@@ -18,7 +18,7 @@ const stdoutHandler = R.curry((post: PostReadyForDownload, data: Buffer | string
 })
 
 function spawnSubProcess(command: string, post: PostReadyForDownload, downloadType: string): Promise<void> {
-  const subprocess = execaCommand(command, {
+  const subprocess = execa.command(command, {
     shell: true,
     cleanup: true,
     timeout: twoHoursInMs, // To kill any stalled downloads.
