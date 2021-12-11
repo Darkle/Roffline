@@ -14,7 +14,8 @@ import { spawnSubProcess } from './spawn-external-download-process'
 type PostReadyForDownload = Post & { isTextPostWithNoUrlsInPost?: boolean }
 
 /*****
-  Some urls have html entities in them for some reason. May as well use decodeURIComponent too just in case.
+  Some urls have html entities in them for some reason.
+  May as well use decodeURIComponent too just in case.
 *****/
 const decodeUrl = (url: string): string => decodeURIComponent(unescape(url))
 

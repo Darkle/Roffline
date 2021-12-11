@@ -8,13 +8,9 @@ type PostReadyForDownload = Post & { isTextPostWithNoUrlsInPost?: boolean }
 
 const twoHoursInMs = 7200000
 
-// const fixYoutubeDLOutput = R.replace(`\r[`, ' [')
-
 const stdoutHandler = R.curry((post: PostReadyForDownload, data: Buffer | string) => {
   console.log('Data for postId:', post.id)
   console.log(data.toString())
-  // const downloadUpdate = data.toString()
-  // const updateMessage = `[${downloadType}] ${downloadUpdate} (downloadUrl: ${post.url}, postUrl: https://www.reddit.com${post.permalink})`
 })
 
 function spawnSubProcess(command: string, post: PostReadyForDownload, downloadType: string): Promise<void> {
@@ -32,7 +28,6 @@ function spawnSubProcess(command: string, post: PostReadyForDownload, downloadTy
   // eslint-disable-next-line functional/no-conditional-statement
   if (downloadType === 'video') {
     subprocess.stdout?.on('data', stdoutHandler(post))
-    // subprocess.stderr?.on('data', stdoutHandler(post))
   }
 
   return subprocess.then(RA.noop)

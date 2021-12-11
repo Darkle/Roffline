@@ -24,6 +24,7 @@ function downloadDirectMediaLink(post: PostWithOptionalTextMetaData, postMediaFo
     download.on('timeout', () => reject(new Error(`Timeout downloading direct media for post: ${post.id}`)))
 
     download.on('progress.throttled', (stats: Stats): void => {
+      //stats.progress will be a percentage like this: 0.33333333 (for %33 done)
       adminMediaDownloadsViewerOrganiser.setDownloadProgress(post.id, stats.progress, stats.total)
     })
 
