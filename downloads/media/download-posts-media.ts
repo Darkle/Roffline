@@ -114,6 +114,7 @@ function downloadPostsMedia(
 
           adminMediaDownloadsViewerOrganiser.setDownloadFailed(post.id, downloadError)
 
+          // Dont need a .catch here as isOffline does a .catch and returns true on error.
           const weAreOffline = await isOffline()
 
           // eslint-disable-next-line functional/no-conditional-statement
