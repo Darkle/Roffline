@@ -65,12 +65,12 @@ function downloadVideo(
       download say a webm video file with a m4a audio file, and since an m4a audio file is incompatible with the webm
       container, yt-dlp would merge then them into a mkv file, which is not supported in browsers.
 
-      `filesize` needs a question mark as some sites like reddit dont seem to show the filesize in the format list. Cant
-      use --max-filesize as that doesnt let the audio and video files merge when you go over the limit, but putting the
-      filesize in the format lets it still be merged.
+      `filesize` needs a question mark as some sites like reddit dont seem to show the filesize in the format list.
 
       We need `/worstaudio+worstvideo` as well as `/worst`, as `/worst` only checks for the worst single video file, so
       if the video is split into audio and video, /worst wont catch it.
+
+      It ends up looking like this: https://pastebin.com/DUf5C7tk
   *****/
 
   const videoFormats = `${createYTDLFormats(
