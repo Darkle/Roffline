@@ -4,6 +4,7 @@ import { db } from '../../db/db'
 import type { FeedWithData } from '../feeds/generate-feeds'
 import { feedsLogger } from '../../logging/logging'
 import type { TopPostsRowType } from '../../db/entities/SubredditTable'
+import type { Post } from '../../db/entities/Posts/Post'
 
 type SubredditsPostIdReferencesFromFeeds = {
   [subreddit: string]: TopPostsRowType[]
@@ -31,10 +32,11 @@ const getEachSubredditsDataReadyForSubTable = R.reduce(
   {}
 )
 
-const getPostsAmountTotal = R.compose(
-  R.sum,
-  R.map((feed: FeedWithData): number => feed.data?.children?.length || 0)
-)
+const getPostsAmountTotal = (feeds: FeedWithData[]): number =>
+  R.uniqBy(
+    R.path(['data', 'id']),
+    feeds.flatMap((feed: FeedWithData): Post[] | [] => (feed.data?.children?.length ? feed.data?.children : []))
+  ).length
 
 async function saveEachSubsFeedDataToDB(subsFeedsData: FeedWithData[]): Promise<void> {
   const subsUpdating = R.uniq(subsFeedsData.map((feedData: FeedWithData): string => feedData.subreddit))
@@ -45,9 +47,7 @@ async function saveEachSubsFeedDataToDB(subsFeedsData: FeedWithData[]): Promise<
 
   await db.batchClearSubredditTables(subsUpdating)
 
-  feedsLogger.debug(
-    `Saving ${postsAmountTotal} post id's (this includes duplicate ids) for the following subs tables: ${subsUpdating.join()}`
-  )
+  feedsLogger.debug(`Saving ${postsAmountTotal} post id's for the following subs tables: ${subsUpdating.join()}`)
 
   await db.batchAddSubredditsPostIdReferences(subredditsPostIdReferencesFromFeeds)
 
