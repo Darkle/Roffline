@@ -12,6 +12,8 @@ type PostWithMediaDownloadInfo = {
   downloadStarted: boolean
   downloadSucceeded: boolean
   downloadProgress: number
+  downloadSpeed: number
+  downloadedBytes: number
   downloadFileSize: number
 } & Post
 
@@ -23,7 +25,13 @@ const adminMediaDownloadsViewerOrganiserEmitter = new EventEmitter<{
   'download-succeeded': (postId: string) => void
   'download-cancelled': (postId: string, reason: string) => void
   'download-skipped': (postId: string, reason: string) => void
-  'download-progress': (postId: string, downloadProgress: number, downloadFileSize: number) => void
+  'download-progress': (
+    postId: string,
+    downloadFileSize: number,
+    downloadedBytes: number,
+    downloadSpeed: number,
+    downloadProgress: number
+  ) => void
   'download-media-try-increment': (postId: string) => void
 }>()
 
@@ -45,6 +53,8 @@ const adminMediaDownloadsViewerOrganiser = {
       downloadStarted: false,
       downloadSucceeded: false,
       downloadProgress: 0,
+      downloadSpeed: 0,
+      downloadedBytes: 0,
       downloadFileSize: 0,
     })
   },
@@ -78,14 +88,20 @@ const adminMediaDownloadsViewerOrganiser = {
     this.posts.set(postId, { ...post, downloadSkipped: true, downloadSkippedReason: reason })
     adminMediaDownloadsViewerOrganiserEmitter.emit('download-skipped', postId, reason)
   },
-  setDownloadProgress(postId: string, downloadProgress: number, downloadFileSize = 0): void {
+  setDownloadProgress(postId: string, downloadFileSize = 0, downloadedBytes = 0, downloadSpeed = 0): void {
     const post = this.posts.get(postId) as PostWithMediaDownloadInfo
-    this.posts.set(postId, { ...post, downloadProgress, downloadFileSize })
+
+    const downloadProgress = 0
+
+    this.posts.set(postId, { ...post, downloadProgress, downloadFileSize, downloadedBytes })
+
     adminMediaDownloadsViewerOrganiserEmitter.emit(
       'download-progress',
       postId,
-      downloadProgress,
-      downloadFileSize
+      downloadFileSize,
+      downloadedBytes,
+      downloadSpeed,
+      downloadProgress
     )
   },
   incrementPostMediaDownloadTry(postId: string): void {
