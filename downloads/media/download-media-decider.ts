@@ -4,6 +4,8 @@ import type { Post } from '../../db/entities/Posts/Post'
 import { mediaDownloadsLogger } from '../../logging/logging'
 import { downloadDirectMediaLink } from './direct-media-download'
 import { savePageAsPdf } from './download-webpage'
+import { downloadImage } from './download-image'
+import { downloadVideo } from './download-video'
 import { adminMediaDownloadsViewerOrganiser } from './media-downloads-viewer-organiser'
 import {
   isArticleToSaveAsPdf,
@@ -14,13 +16,15 @@ import {
   isVideoPost,
 } from './posts-media-categorizers'
 
+type PostReadyForDownload = Post & { isTextPostWithNoUrlsInPost?: boolean }
+
 type MediaDownload = {
-  post: Post & { isTextPostWithNoUrlsInPost?: boolean }
+  post: PostReadyForDownload
   adminSettings: AdminSettings
   postMediaFolder: string
 }
 
-const skipDownload = (skipReason: string, post: Post): Promise<void> => {
+const skipDownload = (skipReason: string, post: PostReadyForDownload): Promise<void> => {
   adminMediaDownloadsViewerOrganiser.setDownloadSkipped(post.id, skipReason)
   mediaDownloadsLogger.trace(`Didn't download this post: ${skipReason}`, { ...post, skipReason })
   return Promise.resolve()
@@ -28,21 +32,19 @@ const skipDownload = (skipReason: string, post: Post): Promise<void> => {
 
 /* eslint-disable functional/no-conditional-statement,max-lines-per-function,complexity */
 
-function downloadIndividualPostMedia({ post, postMediaFolder }: MediaDownload): Promise<void> {
+function downloadIndividualPostMedia({ post, adminSettings, postMediaFolder }: MediaDownload): Promise<void> {
   if (isDirectMediaLink(post)) {
-    return downloadDirectMediaLink(post, postMediaFolder)
+    return downloadDirectMediaLink(post, adminSettings, postMediaFolder)
   }
 
   if (isImagePost(post)) {
-    return Promise.resolve()
-    // return downloadImage({ post, adminSettings, postMediaFolder })
+    return downloadImage(post, adminSettings, postMediaFolder)
   }
 
   if (isVideoPost(post)) {
-    return Promise.resolve()
-    // return adminSettings.downloadVideos
-    //   ? downloadVideo(post, adminSettings, postMediaFolder)
-    //   : skipDownload('Video downloads disabled', post)
+    return adminSettings.downloadVideos
+      ? downloadVideo(post, adminSettings, postMediaFolder)
+      : skipDownload('Video downloads disabled', post)
   }
 
   if (isArticleToSaveAsPdf(post)) {
