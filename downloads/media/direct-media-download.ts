@@ -1,6 +1,8 @@
-import type { Stats } from 'node-downloader-helper'
+import type { Stats, DownloadInfoStats } from 'node-downloader-helper'
 import { DownloaderHelper } from 'node-downloader-helper'
+import prettyBytes from 'pretty-bytes'
 
+import type { AdminSettings } from '../../db/entities/AdminSettings'
 import type { Post } from '../../db/entities/Posts/Post'
 import { adminMediaDownloadsViewerOrganiser } from './media-downloads-viewer-organiser'
 
@@ -13,7 +15,20 @@ const convertGifvLinkToMp4 = (url: string): string => `${url.slice(0, -gifvExten
 const convertAnyImgurGifvLinks = (url: string): string =>
   url.endsWith(`.${gifvExtension}`) ? convertGifvLinkToMp4(url) : url
 
-function downloadDirectMediaLink(post: PostWithOptionalTextMetaData, postMediaFolder: string): Promise<void> {
+const fileTooLarge = (fileSizeInBytes: number, videoDownloadMaxFileSize: string): boolean => {
+  const oneMBInBytes = 1024
+  // videoDownloadMaxFileSize is stored as a string in the db
+  const vidDownMaxSizeInBytes = Number(videoDownloadMaxFileSize) * oneMBInBytes * oneMBInBytes
+
+  return fileSizeInBytes > vidDownMaxSizeInBytes
+}
+
+// eslint-disable-next-line max-lines-per-function
+function downloadDirectMediaLink(
+  post: PostWithOptionalTextMetaData,
+  adminSettings: AdminSettings,
+  postMediaFolder: string
+): Promise<void> {
   const url = convertAnyImgurGifvLinks(post.url)
 
   return new Promise((resolve, reject) => {
@@ -22,6 +37,16 @@ function downloadDirectMediaLink(post: PostWithOptionalTextMetaData, postMediaFo
     download.on('error', reject)
 
     download.on('timeout', () => reject(new Error(`Timeout downloading direct media for post: ${post.id}`)))
+
+    // 'download' event fires once and signifies the download starting
+    download.on('download', (downloadInfo: DownloadInfoStats): void => {
+      const fileSizeInBytes = downloadInfo?.totalSize ?? 0
+
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (fileTooLarge(fileSizeInBytes, adminSettings.videoDownloadMaxFileSize)) {
+        reject(new Error(`Direct download errror: File too large: ${prettyBytes(fileSizeInBytes)}`))
+      }
+    })
 
     download.on('progress.throttled', (stats: Stats): void => {
       adminMediaDownloadsViewerOrganiser.setDownloadProgress(post.id, stats.downloaded, stats.total, stats.speed)
