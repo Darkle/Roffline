@@ -65,6 +65,11 @@ function downloadVideo(
 
     We need `/worstaudio+worstvideo` as well as `/worst`, as `/worst` only checks for the worst single video file, so
     if the video is split into audio and video, /worst wont catch it.
+
+    `--restrict-filenames`: Restrict filenames to only ASCII characters, and avoid "&" and spaces in filenames.
+
+    `--progress-template`: Allows us to format the output in a way that allows us to parse the update info in
+    spawn-external-download-process, which we then send along to adminMediaDownloadsViewerOrganiser.
   *****/
 
   const videoFormats = `${createYTDLFormats(
