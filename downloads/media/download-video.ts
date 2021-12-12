@@ -33,11 +33,9 @@ const videoContainerVideoAudioCodecCombinations = [
 const createYTDLFormats = (videoDownloadMaxFileSize: string, videoDownloadResolution: string): string =>
   videoContainerVideoAudioCodecCombinations.reduce(
     (acc: string, [videoCodec, audioCodec]): string =>
-      `${acc}bestvideo[ext=${
-        videoCodec as string
-      }][height<=${videoDownloadResolution}][filesize<=?${videoDownloadMaxFileSize}M]+bestaudio[ext=${
+      `${acc}(bestvideo[ext=${videoCodec as string}][height<=?${videoDownloadResolution}]+bestaudio[ext=${
         audioCodec as string
-      }]/`,
+      }])[filesize<=?${videoDownloadMaxFileSize}M]/`,
     ``
   )
 
@@ -72,7 +70,7 @@ function downloadVideo(
   const videoFormats = `${createYTDLFormats(
     adminSettings.videoDownloadMaxFileSize,
     videoDownloadResolution
-  )}worstaudio+worstvideo/worst`
+  )}(worstaudio+worstvideo/worst)[filesize<=?${adminSettings.videoDownloadMaxFileSize}M]`
 
   const command = compressText`
   yt-dlp "${postUrl}" 
@@ -91,7 +89,6 @@ function downloadVideo(
   --progress 
   --progress-template "download:%(progress.total_bytes)s--%(progress.downloaded_bytes)s--%(progress.speed)s"
 `
-
   return spawnSubProcess(command, post, downloadType)
 }
 
