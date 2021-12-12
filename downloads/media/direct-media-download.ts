@@ -31,6 +31,7 @@ function downloadDirectMediaLink(
 ): Promise<void> {
   const url = convertAnyImgurGifvLinks(post.url)
 
+  // eslint-disable-next-line max-lines-per-function
   return new Promise((resolve, reject) => {
     const download = new DownloaderHelper(url, postMediaFolder)
 
@@ -44,7 +45,13 @@ function downloadDirectMediaLink(
 
       // eslint-disable-next-line functional/no-conditional-statement
       if (fileTooLarge(fileSizeInBytes, adminSettings.videoDownloadMaxFileSize)) {
-        reject(new Error(`Direct download errror: File too large: ${prettyBytes(fileSizeInBytes)}`))
+        reject(
+          new Error(
+            `Direct download errror: File too large: ${prettyBytes(
+              fileSizeInBytes
+            )}. videoDownloadMaxFileSize is set to ${adminSettings.videoDownloadMaxFileSize}MB`
+          )
+        )
       }
     })
 
