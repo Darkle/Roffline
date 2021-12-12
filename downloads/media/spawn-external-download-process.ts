@@ -14,7 +14,7 @@ const twoHoursInMs = 7200000
 const toNumber = (numAsString: string): number => (numAsString === 'NA' ? 0 : Number(numAsString))
 
 /*****
-  Sometimes we seem to get multiple updates in a single stdoutHandler, so we split on the
+  Sometimes we seem to get multiple updates in a single stdoutHandler call, so we split on the
   carriage return as that seperates them. There is a carriage return at the start even when there is
   only one update, so this should work then too.
 *****/
