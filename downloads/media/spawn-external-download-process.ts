@@ -15,8 +15,8 @@ const toNumber = (numAsString: string): number => (numAsString === 'NA' ? 0 : Nu
 
 /*****
   Sometimes we seem to get multiple updates in a single stdoutHandler call, so we split on the
-  carriage return as that seperates them. There is a carriage return at the start even when there is
-  only one update, so this should work then too.
+  carriage return as that seperates them. (There is a carriage return at the start even when there is
+  only one update, so this should work then too).
 *****/
 const bufferToUpdateData = (buffStr: string): number[][] =>
   buffStr
