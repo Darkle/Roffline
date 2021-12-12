@@ -64,7 +64,7 @@ function downloadVideo(
     filesize in the format lets it still be merged.
 
     We need `/worstaudio+worstvideo` as well as `/worst`, as `/worst` only checks for the worst single video file, so
-    if the video is only split into audio and video, /worst wont catch it.
+    if the video is split into audio and video, /worst wont catch it.
   *****/
 
   const videoFormats = `${createYTDLFormats(
@@ -89,6 +89,7 @@ function downloadVideo(
   --progress 
   --progress-template "download:%(progress.total_bytes)s--%(progress.downloaded_bytes)s--%(progress.speed)s"
 `
+
   return spawnSubProcess(command, post, downloadType)
 }
 
