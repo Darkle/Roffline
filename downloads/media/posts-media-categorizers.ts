@@ -16,7 +16,7 @@ type PostWithOptionalTextMetaData = Post & { isTextPostWithNoUrlsInPost?: boolea
 /* eslint-disable security/detect-unsafe-regex */
 const isDirectImageLink = R.test(/\.(png|jpe?g|gif|webp|svg|apng|avif|bmp|tiff?|heif|heic)(\?.*)?$/u)
 const isDirectVideoLink = R.test(/\.(gifv|mpe?g|mp4|m4v|m4p|ogv|ogg|mov|mkv|webm)(\?.*)?$/u)
-const isDirectFileLink = R.test(/\.(zip|pdf|deb|rpm|tar)(\?.*)?$/u)
+const isDirectFileLink = R.test(/\.(zip|pdf|deb|rpm|tar|gz|7z)(\?.*)?$/u)
 
 // Reddit preview image urls need to be downloaded by gallery-dl
 const isNotARedditPreviewUrl = R.complement(R.test(/^https:\/\/preview.redd.it/u))
