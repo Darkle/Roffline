@@ -87,7 +87,9 @@ function downloadVideo(
   --compat-options no-youtube-unavailable-videos 
   --no-colors 
   --restrict-filenames 
-  --progress-template "download:{postId:${post.id},fileSize:%(progress.total_bytes)s,speed:%(progress.speed)s,eta:%(progress.eta)s,downloadedBytes:%(progress.downloaded_bytes)s}"
+  --quiet 
+  --progress 
+  --progress-template "download:%(progress.total_bytes)s--%(progress.downloaded_bytes)s--%(progress.speed)s"
 `
 
   return spawnSubProcess(command, post, downloadType)
