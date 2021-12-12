@@ -68,9 +68,9 @@ const isDirectMediaLink = R.allPass([
   R.compose(R.anyPass([isDirectImageLink, isDirectVideoLink, isDirectFileLink]), getPostUrlProp),
   R.compose(isNotARedditPreviewUrl, getPostUrlProp),
   /*****
-      We want to not download imgur images with direct download as sometimes they can redirect to the imgur web page
-      if they are high traffic. So we leave it for the gallery-dl download to take care of it.
-    *****/
+    We want to not download imgur images with direct download as sometimes they can redirect to the imgur web page
+    if they are high traffic. So we leave it for the gallery-dl download to take care of it.
+  *****/
   isNotImgurImage,
 ])
 
