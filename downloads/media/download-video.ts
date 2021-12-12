@@ -55,21 +55,22 @@ function downloadVideo(
     `--playlist-items 1`: in case the url is only a playlist url. This will make youtube-dl only download the first
     video from the playlist. Also limits any channel urls to only download a single video from the channel
 
-    We check for many format combos specifically, because if we were to just use bestvideo+bestaudio, youtube-dl could
-    download say a webm video file with a m4a audio file, and since an m4a audio file is incompatible with the webm
-    container, youtube-dl would merge then them into a mkv file, which is not supported in browsers.
-
-    `filesize` needs a question mark as some sites like reddit dont seem to show the filesize in the format list. Cant
-    use --max-filesize as that doesnt let the audio and video files merge when you go over the limit, but putting the
-    filesize in the format lets it still be merged.
-
-    We need `/worstaudio+worstvideo` as well as `/worst`, as `/worst` only checks for the worst single video file, so
-    if the video is split into audio and video, /worst wont catch it.
-
     `--restrict-filenames`: Restrict filenames to only ASCII characters, and avoid "&" and spaces in filenames.
 
     `--progress-template`: Allows us to format the output in a way that allows us to parse the update info in
     spawn-external-download-process, which we then send along to adminMediaDownloadsViewerOrganiser.
+
+    Formats:
+      We check for many format combos specifically, because if we were to just use bestvideo+bestaudio, youtube-dl could
+      download say a webm video file with a m4a audio file, and since an m4a audio file is incompatible with the webm
+      container, youtube-dl would merge then them into a mkv file, which is not supported in browsers.
+
+      `filesize` needs a question mark as some sites like reddit dont seem to show the filesize in the format list. Cant
+      use --max-filesize as that doesnt let the audio and video files merge when you go over the limit, but putting the
+      filesize in the format lets it still be merged.
+
+      We need `/worstaudio+worstvideo` as well as `/worst`, as `/worst` only checks for the worst single video file, so
+      if the video is split into audio and video, /worst wont catch it.
   *****/
 
   const videoFormats = `${createYTDLFormats(
