@@ -16,7 +16,7 @@ const decodeUrl = (url: string): string => decodeURIComponent(unescape(url))
 
 const removeTrailingPFromDownloadResolution = R.slice(0, -1)
 
-const videoAudioCodecContainerCombinations = [
+const validVideoAudioCodecContainerCombinations = [
   ['webm', 'webm'],
   ['webm', 'ogg'],
   ['webm', 'opus'],
@@ -31,7 +31,7 @@ const videoAudioCodecContainerCombinations = [
 ]
 
 const createYTDLFormats = (videoDownloadMaxFileSize: string, videoDownloadResolution: string): string =>
-  videoAudioCodecContainerCombinations.reduce(
+  validVideoAudioCodecContainerCombinations.reduce(
     (acc: string, [videoCodec, audioCodec]): string =>
       `${acc}(bestvideo[ext=${videoCodec as string}][height<=?${videoDownloadResolution}]+bestaudio[ext=${
         audioCodec as string
