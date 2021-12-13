@@ -12,7 +12,6 @@ const postDataToKeep = [
   'selftext',
   'selftext_html',
   'score',
-  'is_reddit_media_domain',
   'is_self',
   'stickied',
   'created_utc',
