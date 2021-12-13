@@ -2,10 +2,8 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 
 import { db } from '../../db/db'
-// import {
-//   adminMediaDownloadsViewerOrganiserEmitter,
-//   PostWithMediaDownloadInfo,
-// } from '../../downloads/media/media-downloads-viewer-organiser'
+import { adminMediaDownloadsViewerOrganiserEmitter } from '../../downloads/media/media-downloads-viewer-organiser'
+import type { PostWithMediaDownloadInfo } from '../../downloads/media/media-downloads-viewer-organiser'
 import { downloadLogs, getLogs } from '../controllers/admin/admin-get-logs'
 import { updateAdminSetting } from '../controllers/admin/admin-settings'
 import { getAdminStats } from '../controllers/admin/admin-stats'
@@ -103,65 +101,94 @@ const adminApiRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Erro
     }
   )
 
-  // fastify.get(
-  //   '/sse-media-downloads-viewer',
-  //   { preHandler: mainPreHandlers },
-  //   // eslint-disable-next-line max-lines-per-function
-  //   (request: FastifyRequest, reply: FastifyReply): void => {
-  //     // Send the first data
-  //     reply.sse('sample data', options)
+  type SSEMethod = {
+    sse: (data: Record<string, unknown>) => void
+  }
 
-  //     const newDownloadBatchStarted = (posts: PostWithMediaDownloadInfo[]) => {
-  //       reply.sse({ event: 'test', data: index })
-  //     }
+  fastify.get(
+    '/sse-media-downloads-viewer',
+    { preHandler: mainPreHandlers },
+    // eslint-disable-next-line max-lines-per-function
+    (request: FastifyRequest, reply: FastifyReply): void => {
+      const r = reply as FastifyReply & SSEMethod
 
-  //     const aDownloadStarted = (postId: string) => {
-  //       reply.sse({ event: 'test', data: index })
-  //     }
+      const newDownloadBatchStarted = (posts: Map<string, PostWithMediaDownloadInfo>): void => {
+        r.sse({ event: 'new-download-batch-started', posts })
+      }
 
-  //     const aDownloadFailed = (postId: string, err: Error) => {
-  //       reply.sse({ event: 'test', data: index })
-  //     }
+      const aDownloadStarted = (postId: string): void => {
+        r.sse({ event: 'download-started', postId })
+      }
 
-  //     const aDownloadSucceeded = (postId: string) => {
-  //       reply.sse({ event: 'test', data: index })
-  //     }
+      const aDownloadFailed = (postId: string, err?: Error): void => {
+        r.sse({ event: 'download-failed', postId, err })
+      }
 
-  //     const aDownloadCancelled = (postId: string, reason: string) => {
-  //       reply.sse({ event: 'test', data: index })
-  //     }
+      const aDownloadSucceeded = (postId: string): void => {
+        r.sse({ event: 'download-succeeded', postId })
+      }
 
-  //     const progressOfADownload = (postId: string, downloadProgress: number, downloadFileSize: number) => {
-  //       reply.sse({ event: 'test', data: index })
-  //     }
+      const aDownloadCancelled = (postId: string, reason: string): void => {
+        r.sse({ event: 'download-cancelled', postId, reason })
+      }
 
-  //     const downloadTryIncrementForDownload = (postId: string) => {
-  //       reply.sse({ event: 'test', data: index })
-  //     }
+      const aDownloadSkipped = (postId: string, reason: string): void => {
+        r.sse({ event: 'download-cancelled', postId, reason })
+      }
 
-  //     adminMediaDownloadsViewerOrganiserEmitter.on('new-download-batch-started', newDownloadBatchStarted)
-  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-started', aDownloadStarted)
-  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-failed', aDownloadFailed)
-  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-succeeded', aDownloadSucceeded)
-  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-cancelled', aDownloadCancelled)
-  //     adminMediaDownloadsViewerOrganiserEmitter.on('download-progress', progressOfADownload)
-  //     adminMediaDownloadsViewerOrganiserEmitter.on(
-  //       'download-media-try-increment',
-  //       downloadTryIncrementForDownload
-  //     )
+      const progressOfADownload = (
+        postId: string,
+        downloadFileSize: number,
+        downloadedBytes: number,
+        downloadSpeed: number,
+        downloadProgress: number
+        // eslint-disable-next-line max-params
+      ): void => {
+        r.sse({
+          event: 'download-progress',
+          postId,
+          downloadFileSize,
+          downloadedBytes,
+          downloadSpeed,
+          downloadProgress,
+        })
+      }
 
-  //     // https://github.com/fastify/fastify/issues/1352#issuecomment-490997485
-  //     request.req.on('close', () => {
-  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', newDownloadBatchStarted)
-  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', aDownloadStarted)
-  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', aDownloadFailed)
-  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', aDownloadSucceeded)
-  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', aDownloadCancelled)
-  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', progressOfADownload)
-  //       adminMediaDownloadsViewerOrganiserEmitter.removeListener('event', downloadTryIncrementForDownload)
-  //     })
-  //   }
-  // )
+      const downloadTryIncrementForDownload = (postId: string): void => {
+        r.sse({ event: 'download-media-try-increment', postId })
+      }
+
+      adminMediaDownloadsViewerOrganiserEmitter.on('new-download-batch-started', newDownloadBatchStarted)
+      adminMediaDownloadsViewerOrganiserEmitter.on('download-started', aDownloadStarted)
+      adminMediaDownloadsViewerOrganiserEmitter.on('download-failed', aDownloadFailed)
+      adminMediaDownloadsViewerOrganiserEmitter.on('download-succeeded', aDownloadSucceeded)
+      adminMediaDownloadsViewerOrganiserEmitter.on('download-cancelled', aDownloadCancelled)
+      adminMediaDownloadsViewerOrganiserEmitter.on('download-skipped', aDownloadSkipped)
+      adminMediaDownloadsViewerOrganiserEmitter.on('download-progress', progressOfADownload)
+      adminMediaDownloadsViewerOrganiserEmitter.on(
+        'download-media-try-increment',
+        downloadTryIncrementForDownload
+      )
+
+      // https://github.com/fastify/fastify/issues/1352#issuecomment-490997485
+      request.req.on('close', () => {
+        adminMediaDownloadsViewerOrganiserEmitter.removeListener(
+          'new-download-batch-started',
+          newDownloadBatchStarted
+        )
+        adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-started', aDownloadStarted)
+        adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-failed', aDownloadFailed)
+        adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-succeeded', aDownloadSucceeded)
+        adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-cancelled', aDownloadCancelled)
+        adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-skipped', aDownloadSkipped)
+        adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-progress', progressOfADownload)
+        adminMediaDownloadsViewerOrganiserEmitter.removeListener(
+          'download-media-try-increment',
+          downloadTryIncrementForDownload
+        )
+      })
+    }
+  )
 
   done()
 }
