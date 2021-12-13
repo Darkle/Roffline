@@ -1,6 +1,8 @@
 import type { Stats, DownloadInfoStats } from 'node-downloader-helper'
 import { DownloaderHelper } from 'node-downloader-helper'
 import prettyBytes from 'pretty-bytes'
+import R from 'ramda'
+import RA from 'ramda-adjunct'
 
 import type { AdminSettings } from '../../db/entities/AdminSettings'
 import type { Post } from '../../db/entities/Posts/Post'
@@ -45,6 +47,8 @@ function downloadDirectMediaLink(
 
       // eslint-disable-next-line functional/no-conditional-statement
       if (fileTooLarge(fileSizeInBytes, adminSettings.videoDownloadMaxFileSize)) {
+        R.tryCatch(download.stop, RA.noop)()
+
         reject(
           new Error(
             `Direct download errror: File too large: ${prettyBytes(
