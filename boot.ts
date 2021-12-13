@@ -12,7 +12,6 @@ function bailOnFatalError(err: Error): void {
   console.error(err)
   R.tryCatch(db.close, RA.noop)()
   R.tryCatch(mainLogger.fatal, RA.noop)(err)
-
   /*****
     Wait for file IO from the mainLogger.fatal() and db.close() calls above to finish.
   *****/
