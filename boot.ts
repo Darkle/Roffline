@@ -10,10 +10,12 @@ import { scheduleUpdates } from './downloads/update-scheduler'
 
 function bailOnFatalError(err: Error): void {
   console.error(err)
+
+  R.tryCatch(mainLogger.fatal, RA.noop)(err)
+
   db.close()
     .catch(RA.noop)
     .finally(() => {
-      R.tryCatch(mainLogger.fatal, RA.noop)(err)
       //  Wait for file IO from the mainLogger.fatal() call above to finish.
       setImmediate(_ => process.exit(1))
     })
