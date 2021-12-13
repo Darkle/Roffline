@@ -91,7 +91,10 @@ const adminMediaDownloadsViewerOrganiser = {
   setDownloadProgress(postId: string, downloadFileSize = 0, downloadedBytes = 0, downloadSpeed = 0): void {
     const post = this.posts.get(postId) as PostWithMediaDownloadInfo
 
-    const downloadProgress = 0
+    const downloadProgress =
+      downloadFileSize === 0 || downloadedBytes === 0
+        ? 0
+        : Number((downloadedBytes / downloadFileSize).toPrecision(1))
 
     this.posts.set(postId, { ...post, downloadProgress, downloadFileSize, downloadedBytes })
 
