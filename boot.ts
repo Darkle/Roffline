@@ -10,9 +10,13 @@ import { scheduleUpdates } from './downloads/update-scheduler'
 
 function bailOnFatalError(err: Error): void {
   console.error(err)
-  R.tryCatch(db.close, RA.noop)()
-  R.tryCatch(mainLogger.fatal, RA.noop)(err)
-  setImmediate(_ => process.exit(1)) //  Wait for file IO from the mainLogger.fatal() and db.close() calls above to finish.
+  db.close()
+    .catch(RA.noop)
+    .finally(() => {
+      R.tryCatch(mainLogger.fatal, RA.noop)(err)
+      //  Wait for file IO from the mainLogger.fatal() call above to finish.
+      setImmediate(_ => process.exit(1))
+    })
 }
 
 process.on('unhandledRejection', bailOnFatalError)
