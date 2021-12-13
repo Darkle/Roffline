@@ -1,4 +1,6 @@
 import dnscache from 'dns-cache'
+import R from 'ramda'
+import RA from 'ramda-adjunct'
 
 import { startServer } from './server/server'
 import { mainLogger } from './logging/logging'
@@ -8,15 +10,10 @@ import { scheduleUpdates } from './downloads/update-scheduler'
 
 function bailOnFatalError(err: Error): void {
   console.error(err)
-  // eslint-disable-next-line functional/no-try-statement
-  try {
-    db.close()
-  } catch (error) {}
 
-  // eslint-disable-next-line functional/no-try-statement
-  try {
-    mainLogger.fatal(err)
-  } catch (error) {}
+  R.tryCatch(db.close, RA.noop)()
+
+  R.tryCatch(mainLogger.fatal, RA.noop)(err)
 
   /*****
     Wait for file IO from the mainLogger.fatal() and db.close() calls above to finish.
