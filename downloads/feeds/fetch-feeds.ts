@@ -1,4 +1,4 @@
-import R from 'ramda'
+import * as R from 'ramda'
 import type { Response } from 'node-fetch-commonjs'
 import fetch from 'node-fetch-commonjs'
 import RA from 'ramda-adjunct'

@@ -1,5 +1,5 @@
 import dnscache from 'dns-cache'
-import R from 'ramda'
+import * as R from 'ramda'
 import RA from 'ramda-adjunct'
 
 import { startServer } from './server/server'

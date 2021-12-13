@@ -1,7 +1,7 @@
 import prettyBytes from 'pretty-bytes'
 import prettifyTime from 'prettify-time'
 import cpuStat from 'cpu-stat'
-import R from 'ramda'
+import * as R from 'ramda'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 import { db } from '../../../db/db'
