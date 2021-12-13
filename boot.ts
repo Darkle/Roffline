@@ -10,9 +10,7 @@ import { scheduleUpdates } from './downloads/update-scheduler'
 
 function bailOnFatalError(err: Error): void {
   console.error(err)
-
   R.tryCatch(db.close, RA.noop)()
-
   R.tryCatch(mainLogger.fatal, RA.noop)(err)
 
   /*****
