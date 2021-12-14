@@ -84,6 +84,11 @@
   flex-direction: column;
 }
 
+.post-page main > article .post-content .single-image {
+  margin: 0 auto;
+  max-width: 100%;
+}
+
 .index-page main #posts article > .post-content video {
   max-width: 100%;
 }

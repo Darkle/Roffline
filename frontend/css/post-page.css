@@ -43,6 +43,11 @@
   transform: translateY(-50%) !important;
 }
 
+.post-page main > article .post-content .single-image {
+  margin: 0 auto;
+  max-width: 100%;
+}
+
 .post-page main > article .post-content video {
   margin: 0 auto;
   max-width: 100%;
