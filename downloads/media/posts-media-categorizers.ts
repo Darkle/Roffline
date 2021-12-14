@@ -95,12 +95,18 @@ const isRedditUrl = R.anyPass([
 
 const isNotRedditUrl = R.complement(isRedditUrl)
 
+const isNotRedditGalleryLink = R.compose(
+  R.complement(R.startsWith('https://www.reddit.com/gallery/')),
+  getPostUrlProp
+)
+
 const isCrossPost = R.allPass([
   R.anyPass([isRedditUrl, crosspostParentPropNotNil]),
   // A self post with text will have its own url as the url, so check its not just a text post.
   isNotTextPost,
   // e.g. https://www.reddit.com/r/AskReddit/comments/ozxi8w/
   isNotSelfPostWithoutText,
+  isNotRedditGalleryLink,
 ])
 
 const isTextPostWithNoUrlInPost = R.pathSatisfies(RA.isTrue, ['post', 'isTextPostWithNoUrlsInPost'])
