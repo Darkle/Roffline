@@ -53,9 +53,13 @@ const adminRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) 
     })
   })
 
-  // router.get('/downloads-viewer', (req, res) =>
-  //   res.render('admin/downloads-viewer', { pageTitle: 'Roffline::Downloads Viewer' })
-  // )
+  fastify.get('/downloads-viewer', { preHandler: mainPreHandlers }, (_: unknown, reply) => {
+    reply.view('admin/admin-downloads-viewer.njk', {
+      pageTitle: 'Roffline::Downloads Viewer',
+      csrfToken: createCsrfToken(),
+      unescapeHTML: querystring.unescape,
+    })
+  })
 
   done()
 }

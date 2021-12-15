@@ -14,6 +14,7 @@ import {
   deleteUserSchema,
   updateAdminSettingsSchema,
 } from './api-router-schema'
+import { downloadsStore } from '../../downloads/downloads-store'
 
 //TODO: add fastify validation to all the routes that need it
 
@@ -111,6 +112,8 @@ const adminApiRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Erro
     // eslint-disable-next-line max-lines-per-function
     (request: FastifyRequest, reply: FastifyReply): void => {
       const r = reply as FastifyReply & SSEMethod
+
+      r.sse({ event: 'page-load', postsMediaToBeDownloaded: downloadsStore.postsMediaToBeDownloaded })
 
       const newDownloadBatchStarted = (posts: Map<string, PostWithMediaDownloadInfo>): void => {
         r.sse({ event: 'new-download-batch-started', posts })
