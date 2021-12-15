@@ -335,6 +335,7 @@ const db = {
   adminVacuumDB(): Promise<void> {
     return adminVacuumDB(sequelize)
   },
+  // eslint-disable-next-line max-lines-per-function
   getThingsThatNeedToBeDownloaded(): Promise<[SubredditsMasterList[], Post[], Post[]]> {
     const twoHoursAgoUnixTime = DateTime.now().minus({ hours: 2 }).toMillis()
 
@@ -343,12 +344,21 @@ const db = {
     const processModels = (models: Models): (SubredditsMasterList | Post)[] =>
       models.length > 0 ? models.map(model => model.get() as SubredditsMasterList | Post) : []
 
+    /*****
+      We order comments and media by `created_utc` as it would be preferable to download the most
+      recent posts first as they will be the ones on the front page.
+    *****/
+
     return Promise.all([
       SubredditsMasterListModel.findAll({ where: { lastUpdate: { [Op.lt]: twoHoursAgoUnixTime } } }),
-      PostModel.findAll({ where: { commentsDownloaded: false } }),
+      PostModel.findAll({ where: { commentsDownloaded: false }, order: [['created_utc', 'DESC']] }),
       PostModel.findAll({
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        where: { media_has_been_downloaded: false, mediaDownloadTries: { [Op.lt]: 3 } },
+        where: {
+          media_has_been_downloaded: false,
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+          mediaDownloadTries: { [Op.lt]: 3 },
+        },
+        order: [['created_utc', 'DESC']],
       }),
     ]).then(([subredditModels, PostModelsWithCommentsToGet, PostModelsWithMediaToDownload]) => [
       processModels(subredditModels) as SubredditsMasterList[],
