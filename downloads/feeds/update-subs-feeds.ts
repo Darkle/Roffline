@@ -13,7 +13,7 @@ async function updateSubsFeeds(adminSettings: AdminSettings, subs: Set<Subreddit
 
   const subsFeedsData = await fetchFeeds(adminSettings, initialSubsFeeds)
 
-  await saveEachSubsFeedDataToDB(subsFeedsData)
+  await saveEachSubsFeedDataToDB(subsFeedsData, subs)
 
   return subsFeedsData
 }

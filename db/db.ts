@@ -149,9 +149,11 @@ const db = {
     )
   },
   async batchUpdateSubredditsLastUpdatedTime(subreddits: string[]): Promise<void> {
+    const now = DateTime.now().toMillis()
+    console.log(now)
     await sequelize.transaction(transaction =>
       SubredditsMasterListModel.update(
-        { lastUpdate: Date.now() },
+        { lastUpdate: DateTime.now().toMillis() },
         { where: { subreddit: { [Op.in]: subreddits } }, transaction }
       )
     )

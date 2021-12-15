@@ -10,6 +10,8 @@ type SubredditsPostIdReferencesFromFeeds = {
   [subreddit: string]: TopPostsRowType[]
 }
 
+type Subreddit = string
+
 const getEachSubredditsDataReadyForSubTable = R.reduce(
   (acc: SubredditsPostIdReferencesFromFeeds, subfeedData: FeedWithData): SubredditsPostIdReferencesFromFeeds => {
     const posts = subfeedData.data?.children || []
@@ -38,8 +40,8 @@ const getPostsAmountTotal = (feeds: FeedWithData[]): number =>
     feeds.flatMap((feed: FeedWithData): Post[] | [] => (feed.data?.children?.length ? feed.data?.children : []))
   ).length
 
-async function saveEachSubsFeedDataToDB(subsFeedsData: FeedWithData[]): Promise<void> {
-  const subsUpdating = R.uniq(subsFeedsData.map((feedData: FeedWithData): string => feedData.subreddit))
+async function saveEachSubsFeedDataToDB(subsFeedsData: FeedWithData[], subs: Set<Subreddit>): Promise<void> {
+  const subsUpdating = [...subs]
   const postsAmountTotal = getPostsAmountTotal(subsFeedsData)
   const subredditsPostIdReferencesFromFeeds = getEachSubredditsDataReadyForSubTable(subsFeedsData)
 
