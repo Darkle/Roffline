@@ -6,7 +6,13 @@ import { createInitialFeedsForEachSubreddit } from './generate-feeds'
 
 type Subreddit = string
 
-async function updateSubsFeeds(adminSettings: AdminSettings, subs: Set<Subreddit>): Promise<FeedWithData[]> {
+async function updateSubsFeeds(
+  adminSettings: AdminSettings,
+  subs: Set<Subreddit>
+): Promise<{
+  subsFeedsData: FeedWithData[]
+  subsUpdated: string[]
+}> {
   const subsToUpdate = [...subs]
 
   const initialSubsFeeds = createInitialFeedsForEachSubreddit(subsToUpdate)
@@ -15,7 +21,7 @@ async function updateSubsFeeds(adminSettings: AdminSettings, subs: Set<Subreddit
 
   await saveEachSubsFeedDataToDB(subsFeedsData, subs)
 
-  return subsFeedsData
+  return { subsFeedsData, subsUpdated: subsToUpdate }
 }
 
 export { updateSubsFeeds }

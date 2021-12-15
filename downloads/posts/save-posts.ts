@@ -37,18 +37,20 @@ const collateAndDedupeAllPostsFromAllFeeds = R.compose(
   getPostsFromFeedItem
 )
 
-function savePosts(allPostsFromTheSubsFeedsWhichIncludesDuplicatePosts: FeedWithData[]): Promise<string[]> {
-  const subsWeUpdated = R.uniq(
-    allPostsFromTheSubsFeedsWhichIncludesDuplicatePosts.map(
-      (feedData: FeedWithData): string => feedData.subreddit
-    )
-  )
+function savePosts({
+  subsFeedsData,
+  subsUpdated,
+}: {
+  subsFeedsData: FeedWithData[]
+  subsUpdated: string[]
+}): Promise<string[]> {
+  const allPostsFromTheSubsFeedsWhichIncludesDuplicatePosts: FeedWithData[] = subsFeedsData
 
   const allPostsFromTheSubsFeedsSansDuplicates = collateAndDedupeAllPostsFromAllFeeds(
     allPostsFromTheSubsFeedsWhichIncludesDuplicatePosts
   ) as Post[]
 
-  return db.batchAddNewPosts(allPostsFromTheSubsFeedsSansDuplicates).then(() => subsWeUpdated)
+  return db.batchAddNewPosts(allPostsFromTheSubsFeedsSansDuplicates).then(() => subsUpdated)
 }
 
 export { savePosts }
