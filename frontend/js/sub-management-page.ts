@@ -33,7 +33,8 @@ const PostPage = Vue.defineComponent({
     // eslint-disable-next-line max-lines-per-function
     addSubreddit({ target }: { target: HTMLFormElement }): void {
       const formData = new FormData(target)
-      const subToAdd = (formData.get('subToAdd') as string).trim()
+      // split(' ')[0] is in case they accidentally add more than one sub
+      const subToAdd = (formData.get('subToAdd') as string).trim().split(' ')[0] as string
       const existingUserSubs = this.userSubreddits.map(subreddit => subreddit.toLowerCase())
       const addSubInputElem = this.$refs['addSubredditInput'] as HTMLInputElement
 
