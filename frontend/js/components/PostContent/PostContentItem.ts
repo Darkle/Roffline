@@ -46,6 +46,10 @@ const isNotRedditGalleryLink = R.compose(
   getPostUrlProp
 )
 
+const isNotRedditImageLink = R.compose(R.complement(R.startsWith('https://i.redd.it/')), getPostUrlProp)
+
+const isNotRedditVideoLink = R.compose(R.complement(R.startsWith('https://v.redd.it/')), getPostUrlProp)
+
 const isCrossPost = R.allPass([
   R.anyPass([isRedditUrl, crosspostParentPropNotNil]),
   // A self post with text will have its own url as the url, so check its not just a text post.
@@ -53,6 +57,8 @@ const isCrossPost = R.allPass([
   // e.g. https://www.reddit.com/r/AskReddit/comments/ozxi8w/
   isNotSelfPostWithoutText,
   isNotRedditGalleryLink,
+  isNotRedditImageLink,
+  isNotRedditVideoLink,
 ])
 
 /* eslint-disable security/detect-unsafe-regex */
