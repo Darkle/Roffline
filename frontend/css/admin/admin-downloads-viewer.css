@@ -1,0 +1,13 @@
+body.admin-downloads-viewer {
+  flex-direction: column;
+  max-width: 90vw;
+}
+
+.admin-downloads-viewer main {
+  margin-top: 3rem;
+  max-width: 90vw;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 8rem;
+}
