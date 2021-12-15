@@ -64,20 +64,36 @@ function logUserOut(_: unknown, reply: FastifyReply): void {
   reply.clearCookie('loggedInUser').redirect('/login')
 }
 
-function checkUserLoggedIn(
+const userNotLoggedInResponse = (reply: FastifyReply, path: string): void => {
+  isApiRoute(path)
+    ? reply.code(HttpStatusCode.UNAUTHORIZED).send()
+    : reply.code(HttpStatusCode.TEMPORARY_REDIRECT).clearCookie('loggedInUser').redirect('/login')
+}
+
+async function checkUserLoggedIn(
   req: FastifyRequest,
   reply: FastifyReply,
   next: (next?: Error) => void
-): FastifyReply | void {
+): Promise<void> {
   const loggedInUser = req.cookies['loggedInUser'] as string | null
   const path = req.urlData().path as string
 
   // eslint-disable-next-line functional/no-conditional-statement
-  if (isValidCookie(loggedInUser) || isLoginLogoutPage(path)) return next()
+  if (isLoginLogoutPage(path)) {
+    return next()
+  }
 
-  return isApiRoute(path)
-    ? reply.code(HttpStatusCode.UNAUTHORIZED).send()
-    : reply.code(HttpStatusCode.TEMPORARY_REDIRECT).redirect('/login')
+  // eslint-disable-next-line functional/no-conditional-statement
+  if (!isValidCookie(loggedInUser)) {
+    return userNotLoggedInResponse(reply, path)
+  }
+
+  await db
+    .findUser(loggedInUser as string)
+    .then(maybeUser => maybeUser.value())
+    .then(userExists => {
+      userExists ? RA.noop() : userNotLoggedInResponse(reply, path)
+    })
 }
 
 function redirectLoginPageToHomeIfAlreadyLoggedIn(
