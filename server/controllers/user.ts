@@ -89,7 +89,7 @@ async function checkUserLoggedIn(
   }
 
   /*****
-    We need to check if the user actually exists cause if a user is deleted
+    We need to check if the user actually exists, cause if a user is deleted
     and a user hasent logged out, they will still have a logged in cookie
     and would need to manually delete it themselves.
   *****/
