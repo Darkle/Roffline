@@ -88,6 +88,11 @@ async function checkUserLoggedIn(
     return userNotLoggedInResponse(reply, path)
   }
 
+  /*****
+    We need to check if the user actually exists cause if a user is deleted
+    and a user hasent logged out, they will still have a logged in cookie
+    and would need to manually delete it themselves.
+  *****/
   await db
     .findUser(loggedInUser as string)
     .then(maybeUser => maybeUser.value())
