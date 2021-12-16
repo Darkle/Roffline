@@ -4,7 +4,7 @@ import type { Post } from '../../db/entities/Posts/Post'
 
 type PostWithMediaDownloadInfo = {
   downloadFailed: boolean
-  downloadError: undefined | Error
+  downloadError: Error | undefined
   downloadCancelled: boolean
   downloadCancellationReason: string
   downloadSkipped: boolean
