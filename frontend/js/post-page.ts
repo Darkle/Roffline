@@ -27,6 +27,9 @@ const PostPage = Vue.defineComponent({
       // unescape to convert &amp; to &. Eg https://api.reddit.com/api/info/?id=t3_qaolx9
       return unescape(this.post?.title)
     },
+    commentsNotYetDownloaded(): boolean {
+      return this.post.comments === null
+    },
     haveComments(): boolean {
       const comments = this.post.comments as PostWithComments['comments']
       return Array.isArray(comments) ? comments.length > 0 : false
@@ -45,7 +48,8 @@ const PostPage = Vue.defineComponent({
     <hr />
     <section class="comments">
       <h5>Comments:</h5>
-      <comments v-if="haveComments"
+      <small v-if="commentsNotYetDownloaded">Comments are currently being downloaded for this post.</small>
+      <comments v-else-if="haveComments"
         v-bind:comments="post.comments"
       ></comments>
     </section> 
