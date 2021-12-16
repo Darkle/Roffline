@@ -309,6 +309,9 @@ const db = {
   //     'sqlite3 -batch roffline-storage.db "UPDATE posts SET media_has_been_downloaded = 1; UPDATE posts SET mediaDownloadTries = 1;"'
   //   )
   // },
+  resetSubsLastUpdate() {
+    sh(`sqlite3 -batch roffline-sqlite.db "UPDATE subreddits_master_list SET lastUpdate = ${Date.now()};"`)
+  },
 }
 
 const dbquickclear1 = () => {
