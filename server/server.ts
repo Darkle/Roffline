@@ -11,7 +11,6 @@ import fastifyUrlData from 'fastify-url-data'
 import templateManager from 'point-of-view'
 import helmet from 'fastify-helmet'
 import fastifyCookie from 'fastify-cookie'
-import fastifySSE from 'fastify-sse'
 import fastifyFormbody from 'fastify-formbody'
 import nunjucks from 'nunjucks'
 import fastifyRequestLogger from '@mgcrea/fastify-request-logger'
@@ -79,7 +78,6 @@ fastify.register(helmet, {
     },
   },
 })
-fastify.register(fastifySSE)
 
 fastify.setSchemaErrorFormatter((errors): Error => {
   mainLogger.error(errors)

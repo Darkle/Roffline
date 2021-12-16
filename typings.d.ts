@@ -41,10 +41,10 @@ declare module 'dns-cache' {
   export default function (ttl: number): void
 }
 
-declare module 'fastify-sse' {
-  import fastifySSE from 'fastify-sse'
-  export default fastifySSE
-}
+// declare module 'fastify-sse' {
+//   import fastifySSE from 'fastify-sse'
+//   export default fastifySSE
+// }
 
 declare module 'node-recursive-directory' {
   // prettier-ignore
