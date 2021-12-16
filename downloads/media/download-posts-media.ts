@@ -38,10 +38,11 @@ const createMediaFolderForPost = (postId: string): Promise<string> => {
   return pCreateFolder(postMediaFolder).then(_ => postMediaFolder)
 }
 
+/* eslint-disable functional/no-conditional-statement */
+
 const setPostUrlToArticleInTextIfTextPost = (
   post: PostWithOptionalTextMetaData
 ): PostWithOptionalTextMetaData => {
-  // eslint-disable-next-line functional/no-conditional-statement
   if (isTextPost(post)) {
     const urlFromPost = getUrlFromTextPost(post)
     // eslint-disable-next-line functional/immutable-data,no-param-reassign
@@ -70,7 +71,6 @@ function downloadPostsMedia(
     .mapAsync(
       // eslint-disable-next-line max-lines-per-function, complexity
       async (post: Post) => {
-        // eslint-disable-next-line functional/no-conditional-statement
         if (tooManyDownloadTries(post)) {
           adminMediaDownloadsViewerOrganiser.setDownloadCancelled(
             post.id,
@@ -82,6 +82,19 @@ function downloadPostsMedia(
           *****/
           downloadsStore.postsMediaToBeDownloaded.delete(post.id)
 
+          return
+        }
+
+        const thereAreSubsThatNeedUpdating = await db.thereAreSubsThatNeedUpdating()
+
+        /*****
+          We want to stop the media downloads here (by returning), if there are more/new subs to download posts for.
+          E.g. what if a big session of media downloads start (like say media of 5000 posts) and a second
+          user adds a subreddit. It would mean that user would have to wait for all of those 5000
+          posts media downloads to complete first before they see any posts for subs they have added.
+        *****/
+        if (thereAreSubsThatNeedUpdating) {
+          adminMediaDownloadsViewerOrganiser.clearAllDownloads()
           return
         }
 
@@ -117,13 +130,11 @@ function downloadPostsMedia(
           // Dont need a .catch here as isOffline does a .catch and returns true on error.
           const weAreOffline = await isOffline()
 
-          // eslint-disable-next-line functional/no-conditional-statement
           if (weAreOffline) {
             // Roll this back if it was just an error from being offline
             await db.decrementPostMediaDownloadTry(post.id)
           }
 
-          // eslint-disable-next-line functional/no-conditional-statement
           if (!weAreOffline) {
             logDownloadError(downloadError, post)
           }

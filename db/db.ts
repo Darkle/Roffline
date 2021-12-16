@@ -335,6 +335,13 @@ const db = {
   adminVacuumDB(): Promise<void> {
     return adminVacuumDB(sequelize)
   },
+  thereAreSubsThatNeedUpdating(): Promise<boolean> {
+    const twoHoursAgoUnixTime = DateTime.now().minus({ hours: 2 }).toMillis()
+
+    return SubredditsMasterListModel.findAll({ where: { lastUpdate: { [Op.lt]: twoHoursAgoUnixTime } } }).then(
+      subs => subs.length > 0
+    )
+  },
   // eslint-disable-next-line max-lines-per-function
   getThingsThatNeedToBeDownloaded(): Promise<[SubredditsMasterList[], Post[], Post[]]> {
     const twoHoursAgoUnixTime = DateTime.now().minus({ hours: 2 }).toMillis()
