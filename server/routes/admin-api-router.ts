@@ -2,8 +2,6 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { StatusCodes as HttpStatusCode } from 'http-status-codes'
 
 import { db } from '../../db/db'
-import { adminMediaDownloadsViewerOrganiserEmitter } from '../../downloads/media/media-downloads-viewer-organiser'
-import type { PostWithMediaDownloadInfo } from '../../downloads/media/media-downloads-viewer-organiser'
 import { downloadLogs, getLogs } from '../controllers/admin/admin-get-logs'
 import { updateAdminSetting } from '../controllers/admin/admin-settings'
 import { getAdminStats } from '../controllers/admin/admin-stats'
@@ -14,7 +12,7 @@ import {
   deleteUserSchema,
   updateAdminSettingsSchema,
 } from './api-router-schema'
-import { downloadsStore } from '../../downloads/downloads-store'
+import { SSEHandler } from '../controllers/admin/server-side-events'
 
 //TODO: add fastify validation to all the routes that need it
 
@@ -102,103 +100,7 @@ const adminApiRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Erro
     }
   )
 
-  type SSEMethod = {
-    sse: (data: Record<string, unknown>) => void
-  }
-
-  fastify.get(
-    '/sse-media-downloads-viewer',
-    { preHandler: mainPreHandlers },
-    // eslint-disable-next-line max-lines-per-function
-    (request: FastifyRequest, reply: FastifyReply): void => {
-      const r = reply as FastifyReply & SSEMethod
-
-      r.sse({ event: 'page-load', postsMediaToBeDownloaded: downloadsStore.postsMediaToBeDownloaded })
-
-      const newDownloadBatchStarted = (posts: Map<string, PostWithMediaDownloadInfo>): void => {
-        r.sse({ event: 'new-download-batch-started', posts })
-      }
-
-      const downloadsCleared = (): void => {
-        r.sse({ event: 'downloads-cleared' })
-      }
-
-      const aDownloadStarted = (postId: string): void => {
-        r.sse({ event: 'download-started', postId })
-      }
-
-      const aDownloadFailed = (postId: string, err?: Error): void => {
-        r.sse({ event: 'download-failed', postId, err })
-      }
-
-      const aDownloadSucceeded = (postId: string): void => {
-        r.sse({ event: 'download-succeeded', postId })
-      }
-
-      const aDownloadCancelled = (postId: string, reason: string): void => {
-        r.sse({ event: 'download-cancelled', postId, reason })
-      }
-
-      const aDownloadSkipped = (postId: string, reason: string): void => {
-        r.sse({ event: 'download-cancelled', postId, reason })
-      }
-
-      const progressOfADownload = (
-        postId: string,
-        downloadFileSize: number,
-        downloadedBytes: number,
-        downloadSpeed: number,
-        downloadProgress: number
-        // eslint-disable-next-line max-params
-      ): void => {
-        r.sse({
-          event: 'download-progress',
-          postId,
-          downloadFileSize,
-          downloadedBytes,
-          downloadSpeed,
-          downloadProgress,
-        })
-      }
-
-      const downloadTryIncrementForDownload = (postId: string): void => {
-        r.sse({ event: 'download-media-try-increment', postId })
-      }
-
-      adminMediaDownloadsViewerOrganiserEmitter.on('new-download-batch-started', newDownloadBatchStarted)
-      adminMediaDownloadsViewerOrganiserEmitter.on('downloads-cleared', downloadsCleared)
-      adminMediaDownloadsViewerOrganiserEmitter.on('download-started', aDownloadStarted)
-      adminMediaDownloadsViewerOrganiserEmitter.on('download-failed', aDownloadFailed)
-      adminMediaDownloadsViewerOrganiserEmitter.on('download-succeeded', aDownloadSucceeded)
-      adminMediaDownloadsViewerOrganiserEmitter.on('download-cancelled', aDownloadCancelled)
-      adminMediaDownloadsViewerOrganiserEmitter.on('download-skipped', aDownloadSkipped)
-      adminMediaDownloadsViewerOrganiserEmitter.on('download-progress', progressOfADownload)
-      adminMediaDownloadsViewerOrganiserEmitter.on(
-        'download-media-try-increment',
-        downloadTryIncrementForDownload
-      )
-
-      // https://github.com/fastify/fastify/issues/1352#issuecomment-490997485
-      request.req.on('close', () => {
-        adminMediaDownloadsViewerOrganiserEmitter.removeListener(
-          'new-download-batch-started',
-          newDownloadBatchStarted
-        )
-
-        adminMediaDownloadsViewerOrganiserEmitter.removeListener('downloads-cleared', downloadsCleared)
-        adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-started', aDownloadStarted)
-        adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-failed', aDownloadFailed)
-        adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-succeeded', aDownloadSucceeded)
-        adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-cancelled', aDownloadCancelled)
-        adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-skipped', aDownloadSkipped)
-        adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-progress', progressOfADownload)
-        adminMediaDownloadsViewerOrganiserEmitter.removeListener(
-          'download-media-try-increment',
-          downloadTryIncrementForDownload
-        )
-      })
-    }
-  )
+  fastify.get('/sse-media-downloads-viewer', { preHandler: mainPreHandlers, compress: false }, SSEHandler)
 
   done()
 }

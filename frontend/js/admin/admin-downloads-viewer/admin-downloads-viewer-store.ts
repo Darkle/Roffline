@@ -1,11 +1,9 @@
 import * as Vue from 'vue'
-import type { Tabulator } from 'tabulator-tables'
 
-import type { Download } from './admin-downloads-viewer'
+import type { FrontendDownload } from './admin-downloads-viewer'
 
 const state = Vue.reactive({
-  table: null as null | Tabulator,
-  downloads: [] as Download[],
+  downloads: [] as FrontendDownload[],
 })
 
 export { state }
