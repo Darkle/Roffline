@@ -119,6 +119,10 @@ const adminApiRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Erro
         r.sse({ event: 'new-download-batch-started', posts })
       }
 
+      const downloadsCleared = (): void => {
+        r.sse({ event: 'downloads-cleared' })
+      }
+
       const aDownloadStarted = (postId: string): void => {
         r.sse({ event: 'download-started', postId })
       }
@@ -162,6 +166,7 @@ const adminApiRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Erro
       }
 
       adminMediaDownloadsViewerOrganiserEmitter.on('new-download-batch-started', newDownloadBatchStarted)
+      adminMediaDownloadsViewerOrganiserEmitter.on('downloads-cleared', downloadsCleared)
       adminMediaDownloadsViewerOrganiserEmitter.on('download-started', aDownloadStarted)
       adminMediaDownloadsViewerOrganiserEmitter.on('download-failed', aDownloadFailed)
       adminMediaDownloadsViewerOrganiserEmitter.on('download-succeeded', aDownloadSucceeded)
@@ -179,6 +184,8 @@ const adminApiRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Erro
           'new-download-batch-started',
           newDownloadBatchStarted
         )
+
+        adminMediaDownloadsViewerOrganiserEmitter.removeListener('downloads-cleared', downloadsCleared)
         adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-started', aDownloadStarted)
         adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-failed', aDownloadFailed)
         adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-succeeded', aDownloadSucceeded)

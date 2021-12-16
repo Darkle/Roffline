@@ -20,6 +20,7 @@ type PostWithMediaDownloadInfo = {
 /* eslint-disable no-spaced-func,func-call-spacing */
 const adminMediaDownloadsViewerOrganiserEmitter = new EventEmitter<{
   'new-download-batch-started': (posts: Map<string, PostWithMediaDownloadInfo>) => void
+  'downloads-cleared': () => void
   'download-started': (postId: string) => void
   'download-failed': (postId: string, err: Error | undefined) => void
   'download-succeeded': (postId: string) => void
@@ -62,6 +63,10 @@ const adminMediaDownloadsViewerOrganiser = {
     this.posts.clear()
     posts.forEach(this.addSinglePost.bind(this))
     adminMediaDownloadsViewerOrganiserEmitter.emit('new-download-batch-started', this.posts)
+  },
+  clearAllDownloads(): void {
+    this.posts.clear()
+    adminMediaDownloadsViewerOrganiserEmitter.emit('downloads-cleared')
   },
   setDownloadStarted(postId: string): void {
     const post = this.posts.get(postId) as PostWithMediaDownloadInfo
