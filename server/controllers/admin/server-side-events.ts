@@ -109,7 +109,6 @@ function SSEHandler(request: FastifyRequest, reply: FastifyReply): void {
   )
 
   const newDownloadBatchStarted = (downloads: DownloadsMap): void => {
-    console.log('newDownloadBatchStarted called')
     reply.raw.write(
       createSSEEvent({
         event: 'new-download-batch-started',

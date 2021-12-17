@@ -120,7 +120,7 @@ evtSource.addEventListener('download-progress', updateDownloadProps)
 evtSource.addEventListener('download-media-try-increment', updateDownloadProps)
 evtSource.addEventListener('error', err => console.error(err))
 
-window.addEventListener('onbeforeunload', () => evtSource.close())
+window.addEventListener('beforeunload', () => evtSource.close())
 
 table = new Tabulator('#downloads-container', {
   columns: tableColumns as Tabulator.ColumnDefinition[],
