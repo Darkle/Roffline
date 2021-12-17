@@ -1,17 +1,19 @@
 import * as Vue from 'vue'
-// import * as RA from 'ramda-adjunct'
 import { Tabulator } from 'tabulator-tables'
-// import { encaseRes } from 'pratica'
+import { encaseRes, nullable as MaybeNullable } from 'pratica'
+import { match } from 'ts-pattern'
+import type { Maybe } from 'pratica'
 
 import { ignoreScriptTagCompilationWarnings } from '../../frontend-utils'
-import { state } from './admin-downloads-viewer-store'
 import { tableColumns } from './table-columns'
 import type { PostWithMediaDownloadInfo } from '../../../../downloads/media/media-downloads-viewer-organiser'
+import type { DownloadUpdateData } from '../../../../server/controllers/admin/server-side-events'
 
 type FrontendDownload = Pick<
   PostWithMediaDownloadInfo,
   | 'id'
   | 'url'
+  | 'mediaDownloadTries'
   | 'downloadFailed'
   | 'downloadCancelled'
   | 'downloadCancellationReason'
@@ -25,59 +27,111 @@ type FrontendDownload = Pick<
   | 'downloadFileSize'
 > & { downloadError: string | undefined }
 
-//TODO: add the other data types it could be
-type SSEEvent = Event & { data: FrontendDownload[]; event: string }
+type SSEEvent = Event & { data: string; event: string }
 
-// dont put the table in state as that would make vue reactive have to track all the changes in its object
-// eslint-disable-next-line  functional/no-let
+/* eslint-disable functional/no-let,max-lines-per-function */
+
+let tableData = [] as FrontendDownload[]
+
 let table = null as null | Tabulator
 
-function setUpSSEListeners(): void {
-  const evtSource = new EventSource('/admin/api/sse-media-downloads-viewer')
-  console.log('here')
-  evtSource.addEventListener('page-load', (ev): void => {
-    console.log('page-load-for-sse called')
-    const { data } = ev as SSEEvent
-    console.log(data)
-    // encaseRes(() => table?.setData(data)).cata({
-    //   Ok: RA.noop,
-    //   Err: console.error,
-    // })
+const getDownload = (postId: string): Maybe<FrontendDownload> =>
+  MaybeNullable(tableData.find(download => download.id === postId))
+
+function replaceTableData(ev: Event): void {
+  const { data } = ev as SSEEvent
+
+  encaseRes(JSON.parse(data)).cata({
+    Ok: (parsedData): void => {
+      console.dir(parsedData)
+
+      tableData = parsedData as FrontendDownload[]
+
+      table?.setData(tableData).catch(err => console.error(err))
+    },
+    Err: msg => console.error(msg),
   })
-
-  evtSource.addEventListener('new-download-batch-started', (ev): void => {
-    const { data } = ev as SSEEvent
-    console.log(data)
-    // encaseRes(() => table?.setData(data)).cata({
-    //   Ok: RA.noop,
-    //   Err: console.error,
-    // })
-  })
-
-  evtSource.addEventListener('error', err => console.error(err))
-
-  window.addEventListener('onbeforeunload', () => evtSource.close())
 }
 
+function updateDownloadProps(ev: Event): void {
+  const { data } = ev as SSEEvent
+
+  encaseRes(JSON.parse(data)).cata({
+    Ok: (parsedData): void => {
+      const eventAndData = parsedData as { event: string; data: DownloadUpdateData }
+
+      console.dir(eventAndData)
+
+      getDownload(eventAndData.data.postId).cata({
+        Just: (download: FrontendDownload): void => {
+          match(eventAndData)
+            .with({ event: 'download-started' }, () => {
+              download.downloadStarted = true
+            })
+            .with({ event: 'download-failed' }, () => {
+              download.downloadFailed = true
+              download.downloadError = eventAndData.data.err
+            })
+            .with({ event: 'download-succeeded' }, () => {
+              download.downloadSucceeded = true
+            })
+            .with({ event: 'download-cancelled' }, () => {
+              download.downloadCancelled = true
+              download.downloadCancellationReason = eventAndData.data.reason as string
+            })
+            .with({ event: 'download-skipped' }, () => {
+              download.downloadSkipped = true
+              download.downloadSkippedReason = eventAndData.data.reason as string
+            })
+            .with({ event: 'download-progress' }, () => {
+              download.downloadFileSize = eventAndData.data.downloadFileSize as number
+              download.downloadedBytes = eventAndData.data.downloadedBytes as number
+              download.downloadSpeed = eventAndData.data.downloadSpeed as number
+              download.downloadProgress = eventAndData.data.downloadProgress as number
+            })
+            .with({ event: 'download-media-try-increment' }, () => {
+              download.mediaDownloadTries = download.mediaDownloadTries + 1
+            })
+            .run()
+        },
+        Nothing: () => console.log(`Couldn't find download in tableData. PostId: ${eventAndData.data.postId}`),
+      })
+    },
+    Err: msg => console.error(msg),
+  })
+}
+
+const evtSource = new EventSource('/admin/api/sse-media-downloads-viewer')
+
+evtSource.addEventListener('page-load', replaceTableData)
+evtSource.addEventListener('new-download-batch-started', replaceTableData)
+
+evtSource.addEventListener('downloads-cleared', (): void => {
+  tableData = []
+  table?.setData(tableData).catch(err => console.error(err))
+})
+
+evtSource.addEventListener('download-started', updateDownloadProps)
+evtSource.addEventListener('download-failed', updateDownloadProps)
+evtSource.addEventListener('download-succeeded', updateDownloadProps)
+evtSource.addEventListener('download-cancelled', updateDownloadProps)
+evtSource.addEventListener('download-skipped', updateDownloadProps)
+evtSource.addEventListener('download-progress', updateDownloadProps)
+evtSource.addEventListener('download-media-try-increment', updateDownloadProps)
+evtSource.addEventListener('error', err => console.error(err))
+
+window.addEventListener('onbeforeunload', () => evtSource.close())
+
+table = new Tabulator('#downloads-container', {
+  columns: tableColumns as Tabulator.ColumnDefinition[],
+  height: '80vh',
+  dataLoader: true,
+  reactiveData: true,
+  data: tableData,
+  responsiveLayout: true,
+})
+
 const AdminDownloadsViewer = Vue.defineComponent({
-  data() {
-    return {
-      state,
-    }
-  },
-  mounted() {
-    // console.info(downloads)
-
-    // state.downloads = downloads as Download[]
-
-    table = new Tabulator('#downloads-container', {
-      columns: tableColumns as Tabulator.ColumnDefinition[],
-    })
-
-    console.log(table)
-
-    setUpSSEListeners()
-  },
   methods: {},
   template: /* html */ `
     <div id="downloads-container"></div>

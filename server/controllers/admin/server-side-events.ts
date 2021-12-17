@@ -14,18 +14,17 @@ type PostId = string
 
 type DownloadsMap = Map<string, PostWithMediaDownloadInfo>
 
-type SSEData =
-  | FrontendDownload[]
-  | {
-      postId: PostId
-      reason?: string
-      err?: string
-      downloadFileSize?: number
-      downloadedBytes?: number
-      downloadSpeed?: number
-      downloadProgress?: number
-    }
-  | null
+type DownloadUpdateData = {
+  postId: PostId
+  reason?: string
+  err?: string
+  downloadFileSize?: number
+  downloadedBytes?: number
+  downloadSpeed?: number
+  downloadProgress?: number
+}
+
+type SSEData = FrontendDownload[] | DownloadUpdateData | null
 
 type SSE = { event: string; data: SSEData }
 
@@ -33,6 +32,7 @@ type TrimmedDownloadProps = Pick<
   PostWithMediaDownloadInfo,
   | 'id'
   | 'url'
+  | 'mediaDownloadTries'
   | 'downloadFailed'
   | 'downloadError'
   | 'downloadCancelled'
@@ -48,23 +48,20 @@ type TrimmedDownloadProps = Pick<
 >
 
 /*****
-  Since we might be sending tens of thousands of downloads data to the frontend, its
+  Since we might be sending data of tens of thousands of downloads to the frontend, its
   prolly a good idea to strip away object keys that have no data in them and reacreate
   them on the frontend.
 *****/
 const removePropsWithNoData = R.pickBy((val: FrontendDownload[keyof FrontendDownload]) =>
   match(val)
-    .with(__.string, () => RA.isNonEmptyString(val))
-    // @ts-expect-error this is fine, we know val will be a number here.
-    .with(__.number, () => val > 0)
-    .with(__.boolean, () => val !== false)
+    .with(__.string, RA.isNonEmptyString)
+    .with(__.number, (v: number) => v > 0)
+    .with(__.boolean, (v: boolean) => v !== false)
     .with(__.nullish, () => false)
     .otherwise(() => true)
 )
 
-const stringifyAnyErrors = (
-  download: TrimmedDownloadProps
-): { downloadError: string | undefined } & FrontendDownload => ({
+const stringifyAnyErrors = (download: TrimmedDownloadProps): FrontendDownload => ({
   ...download,
   downloadError: RA.isError(download)
     ? download.downloadError?.toString()
@@ -77,6 +74,7 @@ const convertDownloadsMapForFrontend = (downloads: DownloadsMap): FrontendDownlo
       R.pick([
         'id',
         'url',
+        'mediaDownloadTries',
         'downloadFailed',
         'downloadError',
         'downloadCancelled',
@@ -231,4 +229,4 @@ function SSEHandler(request: FastifyRequest, reply: FastifyReply): void {
   })
 }
 
-export { SSEHandler }
+export { SSEHandler, DownloadUpdateData }
