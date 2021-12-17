@@ -133,6 +133,7 @@ module.exports = {
               'this\\.mediaDownloadsErrored',
               'this\\.posts',
               'mediaDownloadsInfo\\.posts',
+              'download.\\.*',
             ],
           },
         ],
@@ -188,7 +189,7 @@ module.exports = {
           'error',
           {
             props: true,
-            ignorePropertyModificationsFor: ['store', 'res', 'reply'],
+            ignorePropertyModificationsFor: ['store', 'res', 'reply', 'download'],
           },
         ],
         'no-plusplus': 'error',
