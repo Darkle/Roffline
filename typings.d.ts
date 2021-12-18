@@ -1,6 +1,11 @@
 declare module 'fastify-no-additional-properties'
 declare module 'fastify-error-page'
-declare module 'fastify-disablecache'
+
+declare module 'fastify-disablecache' {
+  import disableCache from 'fastify-disablecache'
+  export default disableCache
+}
+
 declare module 'fastify-api-logger'
 
 declare module 'diceware' {
@@ -40,11 +45,6 @@ declare module 'vue3-json-viewer' {
 declare module 'dns-cache' {
   export default function (ttl: number): void
 }
-
-// declare module 'fastify-sse' {
-//   import fastifySSE from 'fastify-sse'
-//   export default fastifySSE
-// }
 
 declare module 'node-recursive-directory' {
   // prettier-ignore
