@@ -107,7 +107,7 @@
     "check-my-headers": "^0.1.1",
     "concurrently": "^6.5.0",
     "csso-cli": "^3.0.0",
-    "esbuild": "^0.14.3",
+    "esbuild": "0.14.3",
     "eslint": "^8.5.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-xo": "^0.39.0",
