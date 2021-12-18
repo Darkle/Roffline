@@ -41,24 +41,24 @@ const getDownload = (postId: string): Maybe<FrontendDownload> =>
 function replaceTableData(ev: Event): void {
   const { data } = ev as SSEEvent
 
-  encaseRes(JSON.parse(data)).cata({
+  encaseRes(() => JSON.parse(data) as FrontendDownload[]).cata({
     Ok: (parsedData): void => {
       console.dir(parsedData)
 
-      tableData = parsedData as FrontendDownload[]
-
-      table?.setData(tableData).catch(err => console.error(err))
+      table?.setData(parsedData).catch(err => console.error(err))
     },
     Err: msg => console.error(msg),
   })
 }
 
+type UpdateDownloadPropsParsedData = { event: string; data: DownloadUpdateData }
+
 function updateDownloadProps(ev: Event): void {
   const { data } = ev as SSEEvent
 
-  encaseRes(JSON.parse(data)).cata({
+  encaseRes(() => JSON.parse(data) as UpdateDownloadPropsParsedData).cata({
     Ok: (parsedData): void => {
-      const eventAndData = parsedData as { event: string; data: DownloadUpdateData }
+      const eventAndData = parsedData as UpdateDownloadPropsParsedData
 
       console.dir(eventAndData)
 

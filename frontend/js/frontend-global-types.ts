@@ -1,3 +1,4 @@
+import type Vue from 'vue'
 import type { Post, PostWithComments } from '../../db/entities/Posts/Post'
 import type { User } from '../../db/entities/Users/User'
 
@@ -27,10 +28,18 @@ type PostPageWindowWithProps = {
   post: FrontendPost
 } & Window
 
+type VGTable = {
+  install: (app: Vue.App<Element>) => void
+}
+
+type JSONViewer = VGTable
+
 export {
   IndexPageWindowWithProps,
   SettingsPageWindowWithProps,
   FrontendPost,
   PostPageWindowWithProps,
   SubManagementPagePageWindowWithProps,
+  VGTable,
+  JSONViewer,
 }

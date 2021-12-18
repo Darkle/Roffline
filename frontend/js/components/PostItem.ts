@@ -5,7 +5,8 @@ import type { FrontendPost } from '../frontend-global-types'
 import { PostContentItem } from './PostContent/PostContentItem'
 import { PostContentItemMetaContainer } from './PostContentItemMetaContainer'
 import type { User } from '../../../db/entities/Users/User'
-import { Fetcher } from '../frontend-utils'
+import { checkFetchResponseStatus } from '../frontend-utils'
+import type { PostWithDownloadedFilesAndPrettyDate } from '../../../server/controllers/posts/posts'
 
 const postsPerPage = 30
 const page = Vue.ref(1)
@@ -58,9 +59,13 @@ const PostItem = Vue.defineComponent({
 
       console.info(fetchUrl)
 
-      Fetcher.getJSON(fetchUrl)
-        // @ts-expect-error For some reason Typescript cant see the updatePosts method on the $parent. I was unable to figure out the types to type it.
-        .then(this.$parent.updatePosts)
+      fetch(fetchUrl)
+        .then(checkFetchResponseStatus)
+        .then(res => res.json() as Promise<PostWithDownloadedFilesAndPrettyDate[]>)
+        .then((posts): void => {
+          // @ts-expect-error For some reason Typescript cant see the updatePosts method on the $parent. I was unable to figure out the types to type it.
+          this.$parent.updatePosts(posts) // eslint-disable-line @typescript-eslint/no-unsafe-call
+        })
         .catch(err => console.error(err))
     },
     watchForComponentInView() {

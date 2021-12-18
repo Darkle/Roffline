@@ -107,7 +107,7 @@ const SettingsPage = Vue.defineComponent({
       Fetcher.postJSON('/api/bulk-import-user-subs', { subsToImport })
         .then(() => prependNewSubsToSubMenuInPageHeader(existingSubreddits, subsToImport))
         .then(() => showSuccessfulImportNotice(bulkImportTextArea))
-        .catch(err => {
+        .catch((err: Error) => {
           console.error(err)
           showImportErrorNotice(err, bulkSubImportErrorMessageElem)
         })

@@ -138,4 +138,9 @@ async function infiniteScrollGetMorePosts(
         .then(addPrettyDatesForEachPost)
 }
 
-export { getPostsPaginated, getPostsPaginatedForSubreddit, infiniteScrollGetMorePosts }
+export {
+  getPostsPaginated,
+  getPostsPaginatedForSubreddit,
+  infiniteScrollGetMorePosts,
+  PostWithDownloadedFilesAndPrettyDate,
+}

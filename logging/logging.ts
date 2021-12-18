@@ -67,6 +67,10 @@ const browserSyncReminderForDev = (): void => {
   }
 }
 
+/*****
+  Cant do much about it being `any` as it is typed that way: https://github.com/pinojs/pino/blob/ec9b0b528ab888b8e00233cf613f09fc82492244/pino.d.ts#L31
+*****/
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 const mainLogger = Pino(pinoOptions, transports)
 
 const feedsLogger = mainLogger.child({ sublogger: 'feeds' })

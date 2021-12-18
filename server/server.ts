@@ -41,10 +41,13 @@ const fastify = createFastify({
 })
 
 isDev && fastify.register(fastifyRequestLogger, fastifyDevlogIgnore)
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 isDev && fastify.register(disableCache)
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 isDev && fastify.register(fastifyErrorPage)
 fastify.register(fastifyFormbody)
 fastify.register(fastifyFavicon, { path: './frontend/static/images', name: 'favicon.png' })
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 fastify.register(noAdditionalProperties)
 fastify.register(fastifyCompress) // must come before fastifyStatic
 fastify.register(fastifyStatic, {

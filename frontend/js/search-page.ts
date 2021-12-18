@@ -14,8 +14,8 @@ const SearchPage = Vue.defineComponent({
     }
   },
   watch: {
-    fuzzySearchEnabled(newValue) {
-      localStorage.setItem('fuzzySearch', newValue)
+    fuzzySearchEnabled(newValue: boolean) {
+      localStorage.setItem('fuzzySearch', newValue.toString())
     },
   },
 })

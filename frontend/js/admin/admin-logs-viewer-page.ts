@@ -2,6 +2,7 @@ import * as R from 'ramda'
 import * as Vue from 'vue'
 import VueGoodTablePlugin from 'vue-good-table-next'
 import JsonViewer from 'vue3-json-viewer'
+import type { JSONViewer, VGTable } from '../frontend-global-types'
 
 import { checkFetchResponseStatus, ignoreScriptTagCompilationWarnings, $ } from '../frontend-utils'
 
@@ -197,4 +198,7 @@ const app = Vue.createApp(AdminLogsViewerTable)
 // warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
 app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
-app.use(VueGoodTablePlugin).use(JsonViewer).mount('main')
+app
+  .use(VueGoodTablePlugin as VGTable)
+  .use(JsonViewer as JSONViewer)
+  .mount('main')

@@ -14,6 +14,7 @@ import type {
 import { checkFetchResponseStatus, ignoreScriptTagCompilationWarnings, $, wait } from '../../frontend-utils'
 import { tablesColumns } from './table-columns'
 import type { CommentsWithMetadata } from '../../../../db/entities/Comments'
+import type { JSONViewer, VGTable } from '../../frontend-global-types'
 
 const defaultNumRowsPerPage = 50
 const commentsNumRowsPerPage = 200
@@ -270,4 +271,7 @@ const app = Vue.createApp(AdminDBViewerTable)
 // warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
 app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
-app.use(VueGoodTablePlugin).use(JsonViewer).mount('main')
+app
+  .use(VueGoodTablePlugin as VGTable)
+  .use(JsonViewer as JSONViewer)
+  .mount('main')

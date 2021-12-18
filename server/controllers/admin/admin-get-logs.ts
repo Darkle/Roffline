@@ -20,7 +20,7 @@ const isLogFile = R.endsWith('.log')
 const getPathForFileInLogDir = (fileName: string): string => path.join(logDir, fileName)
 
 const tryParseJson = R.tryCatch(
-  logLineAsString => JSON.parse(logLineAsString) as Log,
+  (logLineAsString: string) => JSON.parse(logLineAsString) as Log,
   R.always({} as Record<string, never>)
 )
 
