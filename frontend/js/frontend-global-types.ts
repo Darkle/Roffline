@@ -34,8 +34,6 @@ type VGTable = {
 
 type JSONViewer = VGTable
 
-type VirtualScrollList = VGTable
-
 export {
   IndexPageWindowWithProps,
   SettingsPageWindowWithProps,
@@ -44,5 +42,4 @@ export {
   SubManagementPagePageWindowWithProps,
   VGTable,
   JSONViewer,
-  VirtualScrollList,
 }
