@@ -1,6 +1,4 @@
 import * as R from 'ramda'
-import RA from 'ramda-adjunct'
-import { match, __ } from 'ts-pattern'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 import {
@@ -23,77 +21,22 @@ type DownloadUpdateData = {
   downloadProgress?: number
 }
 
+type DownloadReadyToBeSent = Pick<TrimmedDownloadProps, 'id' | 'url' | 'permalink' | 'mediaDownloadTries'>
+
 type SSEData = DownloadReadyToBeSent[] | DownloadUpdateData | null
 
 type SSE = { event: string; data: SSEData }
 
-type TrimmedDownloadProps = Pick<
-  PostWithMediaDownloadInfo,
-  | 'id'
-  | 'url'
-  | 'permalink'
-  | 'mediaDownloadTries'
-  | 'downloadFailed'
-  | 'downloadError'
-  | 'downloadCancelled'
-  | 'downloadCancellationReason'
-  | 'downloadSkipped'
-  | 'downloadSkippedReason'
-  | 'downloadStarted'
-  | 'downloadSucceeded'
-  | 'downloadProgress'
-  | 'downloadSpeed'
-  | 'downloadedBytes'
-  | 'downloadFileSize'
->
-
-type DownloadReadyToBeSent = Omit<TrimmedDownloadProps, 'downloadError'> & { downloadError: string | undefined }
+type TrimmedDownloadProps = Pick<PostWithMediaDownloadInfo, 'id' | 'url' | 'permalink' | 'mediaDownloadTries'>
 
 /*****
   Since we might be sending data of tens of thousands of downloads to the frontend, its
   prolly a good idea to strip away object keys that have no data in them and reacreate
-  them on the frontend.
+  them on the frontend. Since these are inital loads, only 'id', 'url', 'permalink', 'mediaDownloadTries'
+  keys have data in them.
 *****/
-const removePropsWithNoData = R.pickBy((val: DownloadReadyToBeSent[keyof DownloadReadyToBeSent]) =>
-  match(val)
-    .with(__.string, RA.isNonEmptyString)
-    .with(__.number, (v: number) => v > 0)
-    .with(__.boolean, (v: boolean) => v !== false)
-    .with(__.nullish, () => false)
-    .otherwise(() => true)
-)
-
-const stringifyAnyErrors = (download: TrimmedDownloadProps): DownloadReadyToBeSent => ({
-  ...download,
-  downloadError: RA.isError(download)
-    ? download.downloadError?.toString()
-    : (download.downloadError as string | undefined),
-})
-
 const convertDownloadsMapForFrontend = (downloads: DownloadsMap): DownloadReadyToBeSent[] =>
-  [...downloads.values()]
-    .map(
-      R.pick([
-        'id',
-        'url',
-        'permalink',
-        'mediaDownloadTries',
-        'downloadFailed',
-        'downloadError',
-        'downloadCancelled',
-        'downloadCancellationReason',
-        'downloadSkipped',
-        'downloadSkippedReason',
-        'downloadStarted',
-        'downloadSucceeded',
-        'downloadProgress',
-        'downloadSpeed',
-        'downloadedBytes',
-        'downloadFileSize',
-      ])
-    )
-    .map(stringifyAnyErrors)
-    .map(removePropsWithNoData) as DownloadReadyToBeSent[]
+  [...downloads.values()].map(R.pick(['id', 'url', 'permalink', 'mediaDownloadTries']))
 
 const createSSEEvent = ({ event, data }: SSE): string => `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
 
@@ -186,7 +129,7 @@ function SSEHandler(request: FastifyRequest, reply: FastifyReply): void {
   ): void => {
     reply.raw.write(
       createSSEEvent({
-        event: 'download-skipped',
+        event: 'download-progress',
         data: { postId, downloadFileSize, downloadedBytes, downloadSpeed, downloadProgress },
       })
     )

@@ -96,6 +96,9 @@ const adminMediaDownloadsViewerOrganiser = {
   setDownloadProgress(postId: string, downloadFileSize = 0, downloadedBytes = 0, downloadSpeed = 0): void {
     const post = this.posts.get(postId) as PostWithMediaDownloadInfo
 
+    // yt-dlp has fractional speed, so account for that.
+    const dlSpeed = downloadSpeed === 0 ? downloadSpeed : Number(downloadSpeed.toFixed(0))
+
     const downloadProgress =
       downloadFileSize === 0 || downloadedBytes === 0
         ? 0
@@ -108,7 +111,7 @@ const adminMediaDownloadsViewerOrganiser = {
       postId,
       downloadFileSize,
       downloadedBytes,
-      downloadSpeed,
+      dlSpeed,
       downloadProgress
     )
   },
