@@ -3,11 +3,13 @@ import { Tabulator } from 'tabulator-tables'
 import { encaseRes, nullable as MaybeNullable } from 'pratica'
 import { match } from 'ts-pattern'
 import type { Maybe } from 'pratica'
+import VueVirtualScroller from 'vue-virtual-scroller'
 
 import { ignoreScriptTagCompilationWarnings } from '../../frontend-utils'
 import { tableColumns } from './table-columns'
 import type { PostWithMediaDownloadInfo } from '../../../../downloads/media/media-downloads-viewer-organiser'
 import type { DownloadUpdateData } from '../../../../server/controllers/admin/server-side-events'
+import type { VirtualScrollList } from '../../frontend-global-types'
 
 type FrontendDownload = Pick<
   PostWithMediaDownloadInfo,
@@ -29,23 +31,24 @@ type FrontendDownload = Pick<
 
 type SSEEvent = Event & { data: string; event: string }
 
-/* eslint-disable functional/no-let,max-lines-per-function */
+const state = Vue.reactive({ tableData: [] as FrontendDownload[] })
 
-let tableData = [] as FrontendDownload[]
+/* eslint-disable functional/no-let,max-lines-per-function */
 
 let table = null as null | Tabulator
 
 const getDownload = (postId: string): Maybe<FrontendDownload> =>
-  MaybeNullable(tableData.find(download => download.id === postId))
+  MaybeNullable(state.tableData.find(download => download.id === postId))
 
-function replaceTableData(ev: Event): void {
+function initTableData(ev: Event): void {
   const { data } = ev as SSEEvent
 
   encaseRes(() => JSON.parse(data) as FrontendDownload[]).cata({
     Ok: (parsedData): void => {
-      console.dir(parsedData)
+      state.tableData = parsedData as FrontendDownload[]
+      console.dir(state.tableData)
 
-      table?.setData(parsedData).catch(err => console.error(err))
+      table?.setData(state.tableData).catch(err => console.error(err))
     },
     Err: msg => console.error(msg),
   })
@@ -103,12 +106,12 @@ function updateDownloadProps(ev: Event): void {
 
 const evtSource = new EventSource('/admin/api/sse-media-downloads-viewer')
 
-evtSource.addEventListener('page-load', replaceTableData)
-evtSource.addEventListener('new-download-batch-started', replaceTableData)
+evtSource.addEventListener('page-load', initTableData)
+evtSource.addEventListener('new-download-batch-started', initTableData)
 
 evtSource.addEventListener('downloads-cleared', (): void => {
-  tableData = []
-  table?.setData(tableData).catch(err => console.error(err))
+  state.tableData = []
+  table?.setData(state.tableData).catch(err => console.error(err))
 })
 
 evtSource.addEventListener('download-started', updateDownloadProps)
@@ -127,11 +130,20 @@ table = new Tabulator('#downloads-container', {
   height: '80vh',
   dataLoader: true,
   reactiveData: true,
-  data: tableData,
+  data: state.tableData,
   responsiveLayout: true,
 })
 
+table.on('dataLoadError', (error): void => {
+  console.error(error)
+})
+
 const AdminDownloadsViewer = Vue.defineComponent({
+  data() {
+    return {
+      state,
+    }
+  },
   methods: {},
   template: /* html */ `
     <div id="downloads-container"></div>
@@ -143,6 +155,6 @@ const app = Vue.createApp(AdminDownloadsViewer)
 // warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
 app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
-app.mount('main')
+app.use(VueVirtualScroller as VirtualScrollList).mount('main')
 
 export { FrontendDownload }
