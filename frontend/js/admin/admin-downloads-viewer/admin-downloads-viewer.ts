@@ -1,18 +1,24 @@
 import * as Vue from 'vue'
 import { Tabulator } from 'tabulator-tables'
-import { encaseRes, nullable as MaybeNullable } from 'pratica'
+import { encaseRes } from 'pratica'
 import { match } from 'ts-pattern'
-import type { Maybe } from 'pratica'
+// import type { Maybe } from 'pratica'
 
 import { ignoreScriptTagCompilationWarnings } from '../../frontend-utils'
 import { tableColumns } from './table-columns'
 import type { PostWithMediaDownloadInfo } from '../../../../downloads/media/media-downloads-viewer-organiser'
-import type { DownloadUpdateData } from '../../../../server/controllers/admin/server-side-events'
+import type {
+  DownloadReadyToBeSent,
+  DownloadUpdateData,
+} from '../../../../server/controllers/admin/server-side-events'
+
+type Status = 'queued' | 'failed' | 'success' | 'cancelled' | 'skipped' | 'downloading'
 
 type FrontendDownload = Pick<
   PostWithMediaDownloadInfo,
   | 'id'
   | 'url'
+  | 'permalink'
   | 'mediaDownloadTries'
   | 'downloadFailed'
   | 'downloadCancelled'
@@ -25,27 +31,52 @@ type FrontendDownload = Pick<
   | 'downloadSpeed'
   | 'downloadedBytes'
   | 'downloadFileSize'
-> & { downloadError: string | undefined }
+> & { status: Status; downloadError: string | undefined }
 
 type SSEEvent = Event & { data: string; event: string }
 
-/* eslint-disable functional/no-let,max-lines-per-function */
+type UpdateRow = Promise<Tabulator.RowComponent>
+
+/* eslint-disable functional/no-let,max-lines-per-function, semi-style */
 
 let tableData = [] as FrontendDownload[]
 
-let table = null as null | Tabulator
+const table = new Tabulator('#downloads-container', {
+  columns: tableColumns,
+  height: '80vh',
+  layout: 'fitColumns',
+  data: tableData,
+  responsiveLayout: 'collapse',
+  groupBy: 'status',
+  groupToggleElement: 'header',
+})
 
-const getDownload = (postId: string): Maybe<FrontendDownload> =>
-  MaybeNullable(tableData.find(download => download.id === postId))
+// const getDownload = (postId: string): Maybe<FrontendDownload> =>
+//   MaybeNullable(tableData.find(download => download.id === postId))
+
+/*****
+  We removed empty keys server side to make smaller payload.
+  Now we recreate them if they are missing.
+*****/
+function reconstructMinimizedDownloadsData(downloads: DownloadReadyToBeSent[]): FrontendDownload[] {
+  //dont forget to add status and set it to queued
+  /*****
+        .with(__.string, RA.isNonEmptyString)
+    .with(__.number, (v: number) => v > 0)
+    .with(__.boolean, (v: boolean) => v !== false)
+    .with(__.nullish, () => false)
+  *****/
+}
 
 function replaceTableData(ev: Event): void {
   const { data } = ev as SSEEvent
 
-  encaseRes(() => JSON.parse(data) as FrontendDownload[]).cata({
+  encaseRes(() => JSON.parse(data) as DownloadReadyToBeSent[]).cata({
     Ok: (parsedData): void => {
-      console.dir(parsedData)
+      tableData = parsedData?.map() as FrontendDownload[]
+      console.dir(tableData)
 
-      table?.setData(parsedData).catch(err => console.error(err))
+      table.setData(tableData).catch(err => console.error(err))
     },
     Err: msg => console.error(msg),
   })
@@ -62,40 +93,47 @@ function updateDownloadProps(ev: Event): void {
 
       console.dir(eventAndData)
 
-      getDownload(eventAndData.data.postId).cata({
-        Just: (download: FrontendDownload): void => {
-          match(eventAndData)
-            .with({ event: 'download-started' }, () => {
-              download.downloadStarted = true
-            })
-            .with({ event: 'download-failed' }, () => {
-              download.downloadFailed = true
-              download.downloadError = eventAndData.data.err
-            })
-            .with({ event: 'download-succeeded' }, () => {
-              download.downloadSucceeded = true
-            })
-            .with({ event: 'download-cancelled' }, () => {
-              download.downloadCancelled = true
-              download.downloadCancellationReason = eventAndData.data.reason as string
-            })
-            .with({ event: 'download-skipped' }, () => {
-              download.downloadSkipped = true
-              download.downloadSkippedReason = eventAndData.data.reason as string
-            })
-            .with({ event: 'download-progress' }, () => {
-              download.downloadFileSize = eventAndData.data.downloadFileSize as number
-              download.downloadedBytes = eventAndData.data.downloadedBytes as number
-              download.downloadSpeed = eventAndData.data.downloadSpeed as number
-              download.downloadProgress = eventAndData.data.downloadProgress as number
-            })
-            .with({ event: 'download-media-try-increment' }, () => {
-              download.mediaDownloadTries = download.mediaDownloadTries + 1
-            })
-            .run()
-        },
-        Nothing: () => console.log(`Couldn't find download in tableData. PostId: ${eventAndData.data.postId}`),
-      })
+      const rowPostId = eventAndData.data.postId
+      const rowDownload = table.getRow(rowPostId).getData() as FrontendDownload
+
+      const updatedRowProps = match(eventAndData)
+        .with({ event: 'download-started' }, () => ({ downloadStarted: true, status: 'downloading' }))
+        .with({ event: 'download-failed' }, () => ({
+          downloadFailed: true,
+          downloadError: eventAndData.data.err,
+          status: 'failed',
+        }))
+        .with({ event: 'download-succeeded' }, () => ({
+          downloadSucceeded: true,
+          status: 'success',
+        }))
+        .with({ event: 'download-cancelled' }, () => ({
+          downloadCancelled: true,
+          downloadCancellationReason: eventAndData.data.reason as string,
+          status: 'cancelled',
+        }))
+        .with({ event: 'download-skipped' }, () => ({
+          downloadSkipped: true,
+          downloadSkippedReason: eventAndData.data.reason as string,
+          status: 'skipped',
+        }))
+        .with({ event: 'download-progress' }, () => ({
+          downloadFileSize: eventAndData.data.downloadFileSize as number,
+          downloadedBytes: eventAndData.data.downloadedBytes as number,
+          downloadSpeed: eventAndData.data.downloadSpeed as number,
+          downloadProgress: eventAndData.data.downloadProgress as number,
+        }))
+        .with({ event: 'download-media-try-increment' }, () => ({
+          mediaDownloadTries: rowDownload.mediaDownloadTries + 1,
+        }))
+        .run()
+
+      // @ts-expect-error - The type for this is wrong, it doesn't return a boolean but rather Promise<TabulatorRowComponent>
+      ;(table.updateRow(rowPostId, { ...rowDownload, ...updatedRowProps }) as UpdateRow).catch(
+        (err: Error): void => {
+          console.error(err)
+        }
+      )
     },
     Err: msg => console.error(msg),
   })
@@ -108,7 +146,7 @@ evtSource.addEventListener('new-download-batch-started', replaceTableData)
 
 evtSource.addEventListener('downloads-cleared', (): void => {
   tableData = []
-  table?.setData(tableData).catch(err => console.error(err))
+  table.setData(tableData).catch(err => console.error(err))
 })
 
 evtSource.addEventListener('download-started', updateDownloadProps)
@@ -121,15 +159,6 @@ evtSource.addEventListener('download-media-try-increment', updateDownloadProps)
 evtSource.addEventListener('error', err => console.error(err))
 
 window.addEventListener('beforeunload', () => evtSource.close())
-
-table = new Tabulator('#downloads-container', {
-  columns: tableColumns as Tabulator.ColumnDefinition[],
-  height: '80vh',
-  dataLoader: true,
-  reactiveData: true,
-  data: tableData,
-  responsiveLayout: true,
-})
 
 const AdminDownloadsViewer = Vue.defineComponent({
   methods: {},

@@ -8,7 +8,6 @@ import {
   adminMediaDownloadsViewerOrganiserEmitter,
 } from '../../../downloads/media/media-downloads-viewer-organiser'
 import type { PostWithMediaDownloadInfo } from '../../../downloads/media/media-downloads-viewer-organiser'
-import type { FrontendDownload } from '../../../frontend/js/admin/admin-downloads-viewer/admin-downloads-viewer'
 
 type PostId = string
 
@@ -24,7 +23,7 @@ type DownloadUpdateData = {
   downloadProgress?: number
 }
 
-type SSEData = FrontendDownload[] | DownloadUpdateData | null
+type SSEData = DownloadReadyToBeSent[] | DownloadUpdateData | null
 
 type SSE = { event: string; data: SSEData }
 
@@ -32,6 +31,7 @@ type TrimmedDownloadProps = Pick<
   PostWithMediaDownloadInfo,
   | 'id'
   | 'url'
+  | 'permalink'
   | 'mediaDownloadTries'
   | 'downloadFailed'
   | 'downloadError'
@@ -47,12 +47,14 @@ type TrimmedDownloadProps = Pick<
   | 'downloadFileSize'
 >
 
+type DownloadReadyToBeSent = Omit<TrimmedDownloadProps, 'downloadError'> & { downloadError: string | undefined }
+
 /*****
   Since we might be sending data of tens of thousands of downloads to the frontend, its
   prolly a good idea to strip away object keys that have no data in them and reacreate
   them on the frontend.
 *****/
-const removePropsWithNoData = R.pickBy((val: FrontendDownload[keyof FrontendDownload]) =>
+const removePropsWithNoData = R.pickBy((val: DownloadReadyToBeSent[keyof DownloadReadyToBeSent]) =>
   match(val)
     .with(__.string, RA.isNonEmptyString)
     .with(__.number, (v: number) => v > 0)
@@ -61,19 +63,20 @@ const removePropsWithNoData = R.pickBy((val: FrontendDownload[keyof FrontendDown
     .otherwise(() => true)
 )
 
-const stringifyAnyErrors = (download: TrimmedDownloadProps): FrontendDownload => ({
+const stringifyAnyErrors = (download: TrimmedDownloadProps): DownloadReadyToBeSent => ({
   ...download,
   downloadError: RA.isError(download)
     ? download.downloadError?.toString()
     : (download.downloadError as string | undefined),
 })
 
-const convertDownloadsMapForFrontend = (downloads: DownloadsMap): FrontendDownload[] =>
+const convertDownloadsMapForFrontend = (downloads: DownloadsMap): DownloadReadyToBeSent[] =>
   [...downloads.values()]
     .map(
       R.pick([
         'id',
         'url',
+        'permalink',
         'mediaDownloadTries',
         'downloadFailed',
         'downloadError',
@@ -90,7 +93,7 @@ const convertDownloadsMapForFrontend = (downloads: DownloadsMap): FrontendDownlo
       ])
     )
     .map(stringifyAnyErrors)
-    .map(removePropsWithNoData) as FrontendDownload[]
+    .map(removePropsWithNoData) as DownloadReadyToBeSent[]
 
 const createSSEEvent = ({ event, data }: SSE): string => `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
 
@@ -228,4 +231,4 @@ function SSEHandler(request: FastifyRequest, reply: FastifyReply): void {
   })
 }
 
-export { SSEHandler, DownloadUpdateData }
+export { SSEHandler, DownloadUpdateData, DownloadReadyToBeSent }
