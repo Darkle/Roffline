@@ -65,11 +65,15 @@ let queuedDownloadsListData = [] as FrontendDownload[]
 *****/
 const reconstructMinimizedDownloadData = (download: DownloadReadyToBeSent): FrontendDownload => {
   const downloadStatus = match(download)
-    .with({ downloadStarted: true }, () => 'active')
     .with({ downloadFailed: true }, () => 'history')
     .with({ downloadCancelled: true }, () => 'history')
     .with({ downloadSkipped: true }, () => 'history')
     .with({ downloadSucceeded: true }, () => 'history')
+    /*****
+      make sure this is last pattern as downloadStarted can be true when others above are true
+      also, so wouldnt want to match on it first
+    *****/
+    .with({ downloadStarted: true }, () => 'active')
     .otherwise(() => 'queue') as DownloadStatus
 
   return {
