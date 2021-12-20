@@ -116,7 +116,7 @@ function replaceDownloadListsData(ev: Event): void {
         masterListOfDownloads.set(download.id, download)
       })
     },
-    Err: msg => console.error(msg),
+    Err: console.error,
   })
 }
 
@@ -250,7 +250,7 @@ function updateDownloadProps(ev: Event): void {
         })
         .run()
     },
-    Err: msg => console.error(msg),
+    Err: console.error,
   })
 }
 
