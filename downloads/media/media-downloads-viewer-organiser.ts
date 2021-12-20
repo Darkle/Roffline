@@ -115,11 +115,6 @@ const adminMediaDownloadsViewerOrganiser = {
       downloadProgress
     )
   },
-  incrementPostMediaDownloadTry(postId: string): void {
-    const post = this.posts.get(postId) as PostWithMediaDownloadInfo
-    this.posts.set(postId, { ...post, mediaDownloadTries: post.mediaDownloadTries + 1 })
-    adminMediaDownloadsViewerOrganiserEmitter.emit('download-media-try-increment', postId)
-  },
 }
 
 export {

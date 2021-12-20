@@ -135,15 +135,6 @@ function SSEHandler(request: FastifyRequest, reply: FastifyReply): void {
     )
   }
 
-  const downloadTryIncrementForDownload = (postId: string): void => {
-    reply.raw.write(
-      createSSEEvent({
-        event: 'download-media-try-increment',
-        data: { postId },
-      })
-    )
-  }
-
   adminMediaDownloadsViewerOrganiserEmitter.on('new-download-batch-started', newDownloadBatchStarted)
   adminMediaDownloadsViewerOrganiserEmitter.on('downloads-cleared', downloadsCleared)
   adminMediaDownloadsViewerOrganiserEmitter.on('download-started', aDownloadStarted)
@@ -152,7 +143,6 @@ function SSEHandler(request: FastifyRequest, reply: FastifyReply): void {
   adminMediaDownloadsViewerOrganiserEmitter.on('download-cancelled', aDownloadCancelled)
   adminMediaDownloadsViewerOrganiserEmitter.on('download-skipped', aDownloadSkipped)
   adminMediaDownloadsViewerOrganiserEmitter.on('download-progress', progressOfADownload)
-  adminMediaDownloadsViewerOrganiserEmitter.on('download-media-try-increment', downloadTryIncrementForDownload)
 
   // https://github.com/fastify/fastify/issues/1352#issuecomment-490997485
   request.raw.on('close', () => {
@@ -167,10 +157,6 @@ function SSEHandler(request: FastifyRequest, reply: FastifyReply): void {
     adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-cancelled', aDownloadCancelled)
     adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-skipped', aDownloadSkipped)
     adminMediaDownloadsViewerOrganiserEmitter.removeListener('download-progress', progressOfADownload)
-    adminMediaDownloadsViewerOrganiserEmitter.removeListener(
-      'download-media-try-increment',
-      downloadTryIncrementForDownload
-    )
   })
 }
 

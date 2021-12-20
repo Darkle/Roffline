@@ -72,7 +72,7 @@ function downloadPostsMedia(
       // eslint-disable-next-line max-lines-per-function, complexity
       async (post: Post) => {
         if (tooManyDownloadTries(post)) {
-          adminMediaDownloadsViewerOrganiser.setDownloadCancelled(
+          adminMediaDownloadsViewerOrganiser.setDownloadSkipped(
             post.id,
             'Download Skipped: Too many download tries (3).'
           )
@@ -100,8 +100,6 @@ function downloadPostsMedia(
 
         // eslint-disable-next-line functional/no-try-statement
         try {
-          adminMediaDownloadsViewerOrganiser.incrementPostMediaDownloadTry(post.id)
-
           await db.incrementPostMediaDownloadTry(post.id)
 
           const postMediaFolder = await createMediaFolderForPost(post.id)
