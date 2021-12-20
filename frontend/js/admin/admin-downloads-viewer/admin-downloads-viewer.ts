@@ -183,7 +183,6 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-
           moveDownloadToOtherList(updatedDownload, activeDownloadsListData, downloadHistoryListData)
         })
         .with({ type: 'download-succeeded' }, () => {
@@ -192,7 +191,6 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-
           moveDownloadToOtherList(updatedDownload, activeDownloadsListData, downloadHistoryListData)
         })
         .with({ type: 'download-cancelled' }, () => {
@@ -205,7 +203,6 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-
           moveDownloadToOtherList(updatedDownload, activeDownloadsListData, downloadHistoryListData)
         })
         .with({ type: 'download-skipped' }, () => {
