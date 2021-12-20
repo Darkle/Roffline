@@ -1,4 +1,5 @@
 import { encaseRes } from 'pratica'
+import type { Result } from 'pratica'
 import { match } from 'ts-pattern'
 
 // import { tableColumns } from './table-columns'
@@ -89,12 +90,19 @@ const reconstructMinimizedDownloadData = (download: DownloadReadyToBeSent): Fron
   }
 }
 
+const tryParseSSEData = (
+  data: string
+): Result<DownloadReadyToBeSent[] | UpdateDownloadPropsParsedData, unknown> =>
+  encaseRes(() => JSON.parse(data) as DownloadReadyToBeSent[] | UpdateDownloadPropsParsedData)
+
 function replaceDownloadListsData(ev: Event): void {
   const { data } = ev as SSEEvent
 
-  encaseRes(() => JSON.parse(data) as DownloadReadyToBeSent[]).cata({
+  tryParseSSEData(data).cata({
     Ok: (parsedData): void => {
-      const downloads = parsedData?.map(reconstructMinimizedDownloadData) as FrontendDownload[]
+      const downloads = (parsedData as DownloadReadyToBeSent[]).map(
+        reconstructMinimizedDownloadData
+      ) as FrontendDownload[]
 
       console.info(downloads)
 
@@ -142,7 +150,7 @@ const moveDownloadToOtherList = (
 function updateDownloadProps(ev: Event): void {
   const { data } = ev as SSEEvent
 
-  encaseRes(() => JSON.parse(data) as UpdateDownloadPropsParsedData).cata({
+  tryParseSSEData(data).cata({
     Ok: (parsedData): void => {
       const eventAndData = parsedData as UpdateDownloadPropsParsedData
       console.log(eventAndData.type)
