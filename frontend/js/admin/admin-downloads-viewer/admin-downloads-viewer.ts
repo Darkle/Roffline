@@ -85,7 +85,7 @@ const reconstructMinimizedDownloadData = (download: DownloadReadyToBeSent): Fron
     downloadedBytes: 0,
     downloadFileSize: 0,
     status: downloadStatus,
-    ...download, // we want any existing keys on download to overwite what we set above.
+    ...download, // we want any existing keys on download to overwrite the defaults we set above.
   }
 }
 
