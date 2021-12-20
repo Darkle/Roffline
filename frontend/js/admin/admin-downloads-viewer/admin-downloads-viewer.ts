@@ -116,7 +116,7 @@ function replaceDownloadListsData(ev: Event): void {
         masterListOfDownloads.set(download.id, download)
       })
     },
-    Err: console.error,
+    Err: err => console.error(err),
   })
 }
 
@@ -153,8 +153,8 @@ function updateDownloadProps(ev: Event): void {
   tryParseSSEData(data).cata({
     Ok: (parsedData): void => {
       const eventAndData = parsedData as UpdateDownloadPropsParsedData
-      console.log(eventAndData.type)
-      console.dir(eventAndData)
+      console.info(eventAndData.type)
+      console.info(eventAndData)
 
       const { postId } = eventAndData.data
       const downloadFromMasterList = masterListOfDownloads.get(postId) as FrontendDownload
@@ -246,7 +246,7 @@ function updateDownloadProps(ev: Event): void {
         })
         .run()
     },
-    Err: console.error,
+    Err: err => console.error(err),
   })
 }
 
@@ -256,7 +256,7 @@ evtSource.addEventListener('page-load', replaceDownloadListsData)
 evtSource.addEventListener('new-download-batch-started', replaceDownloadListsData)
 
 evtSource.addEventListener('downloads-cleared', (): void => {
-  console.log('downloads-cleared')
+  console.info('downloads-cleared')
 
   masterListOfDownloads.clear()
   activeDownloadsListData = []
