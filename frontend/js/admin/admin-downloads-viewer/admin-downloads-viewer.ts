@@ -170,7 +170,6 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-
           moveDownloadToOtherList(updatedDownload, queuedDownloadsListData, activeDownloadsListData)
         })
         .with({ type: 'download-failed' }, () => {
