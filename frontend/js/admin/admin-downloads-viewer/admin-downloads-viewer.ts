@@ -70,8 +70,8 @@ const reconstructMinimizedDownloadData = (download: DownloadReadyToBeSent): Fron
     .with({ downloadSkipped: true }, () => 'history')
     .with({ downloadSucceeded: true }, () => 'history')
     /*****
-      make sure this is last pattern as downloadStarted can be true when others above are true
-      also, so wouldnt want to match on it first
+      Make sure this is last pattern as downloadStarted can be true when others above are true
+      also, so wouldnt want to match on it before them.
     *****/
     .with({ downloadStarted: true }, () => 'active')
     .otherwise(() => 'queue') as DownloadStatus
