@@ -62,22 +62,32 @@ let queuedDownloadsListData = [] as FrontendDownload[]
   We removed empty keys server side to make the payload smaller.
   Now we recreate them.
 *****/
-const reconstructMinimizedDownloadData = (download: DownloadReadyToBeSent): FrontendDownload => ({
-  downloadFailed: false,
-  downloadError: null,
-  downloadCancelled: false,
-  downloadCancellationReason: '',
-  downloadSkipped: false,
-  downloadSkippedReason: '',
-  downloadStarted: false,
-  downloadSucceeded: false,
-  downloadProgress: 0,
-  downloadSpeed: 0,
-  downloadedBytes: 0,
-  downloadFileSize: 0,
-  status: 'queued',
-  ...download,
-})
+const reconstructMinimizedDownloadData = (download: DownloadReadyToBeSent): FrontendDownload => {
+  const downloadStatus = match(download)
+    .with({ downloadStarted: true }, () => 'active')
+    .with({ downloadFailed: true }, () => 'history')
+    .with({ downloadCancelled: true }, () => 'history')
+    .with({ downloadSkipped: true }, () => 'history')
+    .with({ downloadSucceeded: true }, () => 'history')
+    .otherwise(() => 'queue') as DownloadStatus
+
+  return {
+    downloadFailed: false,
+    downloadError: null,
+    downloadCancelled: false,
+    downloadCancellationReason: '',
+    downloadSkipped: false,
+    downloadSkippedReason: '',
+    downloadStarted: false,
+    downloadSucceeded: false,
+    downloadProgress: 0,
+    downloadSpeed: 0,
+    downloadedBytes: 0,
+    downloadFileSize: 0,
+    status: downloadStatus,
+    ...download, // we want any existing keys on download to overwite what we set above.
+  }
+}
 
 function replaceDownloadListsData(ev: Event): void {
   const { data } = ev as SSEEvent

@@ -1,4 +1,6 @@
 import * as R from 'ramda'
+import RA from 'ramda-adjunct'
+import { match, __ } from 'ts-pattern'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
 import {
@@ -21,22 +23,105 @@ type DownloadUpdateData = {
   downloadProgress?: number
 }
 
-type DownloadReadyToBeSent = Pick<TrimmedDownloadProps, 'id' | 'url' | 'permalink' | 'mediaDownloadTries'>
+type TrimmedDownloadProps = Pick<
+  PostWithMediaDownloadInfo,
+  | 'id'
+  | 'url'
+  | 'permalink'
+  | 'mediaDownloadTries'
+  | 'downloadFailed'
+  | 'downloadError'
+  | 'downloadCancelled'
+  | 'downloadCancellationReason'
+  | 'downloadSkipped'
+  | 'downloadSkippedReason'
+  | 'downloadStarted'
+  | 'downloadSucceeded'
+  | 'downloadProgress'
+  | 'downloadSpeed'
+  | 'downloadedBytes'
+  | 'downloadFileSize'
+>
 
 type SSEData = DownloadReadyToBeSent[] | DownloadUpdateData | null
 
 type SSE = { event: string; data: SSEData }
 
-type TrimmedDownloadProps = Pick<PostWithMediaDownloadInfo, 'id' | 'url' | 'permalink' | 'mediaDownloadTries'>
+type DownloadReadyToBeSent = Omit<
+  TrimmedDownloadProps,
+  | 'downloadFailed'
+  | 'downloadError'
+  | 'downloadCancelled'
+  | 'downloadCancellationReason'
+  | 'downloadSkipped'
+  | 'downloadSkippedReason'
+  | 'downloadStarted'
+  | 'downloadSucceeded'
+  | 'downloadProgress'
+  | 'downloadSpeed'
+  | 'downloadedBytes'
+  | 'downloadFileSize'
+> & {
+  // setting these specifically as optional as they may be removed by removePropsWithNoData.
+  downloadError?: string | undefined
+  downloadFailed?: boolean
+  downloadCancelled?: boolean
+  downloadCancellationReason?: string
+  downloadSkipped?: boolean
+  downloadSkippedReason?: string
+  downloadStarted?: boolean
+  downloadSucceeded?: boolean
+  downloadProgress?: number
+  downloadSpeed?: number
+  downloadedBytes?: number
+  downloadFileSize?: number
+}
+
+const removePropsWithNoData = R.pickBy((val: DownloadReadyToBeSent[keyof DownloadReadyToBeSent]) =>
+  match(val)
+    .with(__.string, RA.isNonEmptyString)
+    .with(__.number, (v: number) => v > 0)
+    .with(__.boolean, (v: boolean) => v !== false)
+    .with(__.nullish, () => false)
+    .otherwise(() => true)
+)
+
+const stringifyAnyErrors = (download: TrimmedDownloadProps): DownloadReadyToBeSent => ({
+  ...download,
+  downloadError: RA.isError(download)
+    ? download.downloadError?.toString()
+    : (download.downloadError as undefined),
+})
 
 /*****
   Since we might be sending data of tens of thousands of downloads to the frontend, its
   prolly a good idea to strip away object keys that have no data in them and reacreate
-  them on the frontend. Since these are inital loads, only 'id', 'url', 'permalink', 'mediaDownloadTries'
-  keys have data in them.
+  them on the frontend.
 *****/
 const convertDownloadsMapForFrontend = (downloads: DownloadsMap): DownloadReadyToBeSent[] =>
-  [...downloads.values()].map(R.pick(['id', 'url', 'permalink', 'mediaDownloadTries']))
+  [...downloads.values()]
+    .map(
+      R.pick([
+        'id',
+        'url',
+        'permalink',
+        'mediaDownloadTries',
+        'downloadFailed',
+        'downloadError',
+        'downloadCancelled',
+        'downloadCancellationReason',
+        'downloadSkipped',
+        'downloadSkippedReason',
+        'downloadStarted',
+        'downloadSucceeded',
+        'downloadProgress',
+        'downloadSpeed',
+        'downloadedBytes',
+        'downloadFileSize',
+      ])
+    )
+    .map(stringifyAnyErrors)
+    .map(removePropsWithNoData) as DownloadReadyToBeSent[]
 
 const createSSEEvent = ({ event, data }: SSE): string => `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
 
