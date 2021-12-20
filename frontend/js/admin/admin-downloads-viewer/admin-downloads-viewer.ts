@@ -1,15 +1,19 @@
-import { Tabulator } from 'tabulator-tables'
+import * as Vue from 'vue'
 import { encaseRes } from 'pratica'
-// import { match } from 'ts-pattern'
+import { match } from 'ts-pattern'
+import VScrollGrid from 'vue-virtual-scroll-grid'
 
-import { tableColumns } from './table-columns'
+// import { tableColumns } from './table-columns'
 import type { PostWithMediaDownloadInfo } from '../../../../downloads/media/media-downloads-viewer-organiser'
 import type {
   DownloadReadyToBeSent,
-  // DownloadUpdateData,
+  DownloadUpdateData,
 } from '../../../../server/controllers/admin/server-side-events'
+import { ignoreScriptTagCompilationWarnings } from '../../frontend-utils'
 
-type Status = 'queued' | 'failed' | 'success' | 'cancelled' | 'skipped' | 'downloading'
+type PostId = string
+
+type DownloadStatus = 'queued' | 'active' | 'history'
 
 type FrontendDownload = Pick<
   PostWithMediaDownloadInfo,
@@ -28,45 +32,36 @@ type FrontendDownload = Pick<
   | 'downloadSpeed'
   | 'downloadedBytes'
   | 'downloadFileSize'
-> & { status: Status; downloadError: string | null }
+> & { downloadError: string | null; status: DownloadStatus }
 
 type SSEEvent = Event & { data: string; type: string }
 
-// type UpdateRow = Promise<Tabulator.RowComponent>
+type UpdateProps = {
+  status?: DownloadStatus
+  mediaDownloadTries?: number
+  downloadStarted?: boolean
+  downloadFailed?: boolean
+  downloadError?: string
+  downloadSucceeded?: boolean
+  downloadCancelled?: boolean
+  downloadCancellationReason?: string
+  downloadSkipped?: boolean
+  downloadSkippedReason?: string
+  downloadFileSize?: number
+  downloadedBytes?: number
+  downloadSpeed?: number
+  downloadProgress?: number
+}
 
-// eslint-disable-next-line functional/no-let
-let tableData = [] as FrontendDownload[]
+/* eslint-disable max-lines-per-function */
 
-const minColumnWidth = 200
+const masterListOfDownloads = new Map() as Map<PostId, FrontendDownload>
 
-const table = new Tabulator('#downloads-container', {
-  columns: tableColumns,
-  height: '60vh',
-  layout: 'fitColumns',
-  data: tableData,
-  responsiveLayout: 'collapse',
-  groupBy: 'status',
-  groupToggleElement: 'header',
-  // @ts-expect-error types are wrong
-  columnDefaults: {
-    minWidth: minColumnWidth,
-  },
+const state = Vue.reactive({
+  activeDownloadsTableData: [] as FrontendDownload[],
+  downloadHistoryTableData: [] as FrontendDownload[],
+  queuedDownloadsTableData: [] as FrontendDownload[],
 })
-
-// table.on('rowMouseEnter', function (e, row) {
-//   //e - the event object
-//   //row - row component
-// })
-
-// table.on('rowMouseMove', function (e, row) {
-//   //e - the event object
-//   //row - row component
-// })
-
-// table.on('rowMouseLeave', function (e, row) {
-//   //e - the event object
-//   //row - row component
-// })
 
 /*****
   We removed empty keys server side to make the payload smaller.
@@ -94,71 +89,166 @@ function replaceTableData(ev: Event): void {
 
   encaseRes(() => JSON.parse(data) as DownloadReadyToBeSent[]).cata({
     Ok: (parsedData): void => {
-      tableData = parsedData?.map(reconstructMinimizedDownloadData) as FrontendDownload[]
-      console.info(tableData)
+      const downloads = parsedData?.map(reconstructMinimizedDownloadData) as FrontendDownload[]
+      state.activeDownloadsTableData = []
+      state.downloadHistoryTableData = []
+      state.queuedDownloadsTableData = downloads
+      //TODO: add the data to the masterListOfDownloads here
 
-      table.setData(tableData).catch(err => console.error(err))
+      console.info(downloads)
     },
     Err: msg => console.error(msg),
   })
 }
 
-// type UpdateDownloadPropsParsedData = { type: string; data: DownloadUpdateData }
+type UpdateDownloadPropsParsedData = { type: string; data: DownloadUpdateData }
 
-// function updateDownloadProps(ev: Event): void {
-//   const { data } = ev as SSEEvent
+const createUpdatedDownload = (postId: PostId, updatedDownloadProps: UpdateProps): FrontendDownload => {
+  const currentDownload = masterListOfDownloads.get(postId) as FrontendDownload
+  return { ...currentDownload, ...updatedDownloadProps }
+}
 
-//   encaseRes(() => JSON.parse(data) as UpdateDownloadPropsParsedData).cata({
-//     Ok: (parsedData): void => {
-//       const eventAndData = parsedData as UpdateDownloadPropsParsedData
-//       console.log(eventAndData.type)
-//       console.dir(eventAndData)
+function updateDownloadProps(ev: Event): void {
+  const { data } = ev as SSEEvent
 
-//       const rowPostId = eventAndData.data.postId
-//       const rowDownload = table.getRow(rowPostId).getData() as FrontendDownload
+  encaseRes(() => JSON.parse(data) as UpdateDownloadPropsParsedData).cata({
+    Ok: (parsedData): void => {
+      const eventAndData = parsedData as UpdateDownloadPropsParsedData
+      console.log(eventAndData.type)
+      console.dir(eventAndData)
 
-//       const updatedRowProps = match(eventAndData)
-//         .with({ type: 'download-started' }, () => ({ downloadStarted: true, status: 'downloading' }))
-//         .with({ type: 'download-failed' }, () => ({
-//           downloadFailed: true,
-//           downloadError: eventAndData.data.err,
-//           status: 'failed',
-//         }))
-//         .with({ type: 'download-succeeded' }, () => ({
-//           downloadSucceeded: true,
-//           status: 'success',
-//         }))
-//         .with({ type: 'download-cancelled' }, () => ({
-//           downloadCancelled: true,
-//           downloadCancellationReason: eventAndData.data.reason as string,
-//           status: 'cancelled',
-//         }))
-//         .with({ type: 'download-skipped' }, () => ({
-//           downloadSkipped: true,
-//           downloadSkippedReason: eventAndData.data.reason as string,
-//           status: 'skipped',
-//         }))
-//         .with({ type: 'download-progress' }, () => ({
-//           downloadFileSize: eventAndData.data.downloadFileSize as number,
-//           downloadedBytes: eventAndData.data.downloadedBytes as number,
-//           downloadSpeed: eventAndData.data.downloadSpeed as number,
-//           downloadProgress: eventAndData.data.downloadProgress as number,
-//         }))
-//         .with({ type: 'download-media-try-increment' }, () => ({
-//           mediaDownloadTries: rowDownload.mediaDownloadTries + 1,
-//         }))
-//         .run()
+      const { postId } = eventAndData.data
+      const downloadFromMasterList = masterListOfDownloads.get(postId) as FrontendDownload
 
-//       // @ts-expect-error - The type for this is wrong, it doesn't return a boolean but rather Promise<TabulatorRowComponent>
-//       ;(table.updateRow(rowPostId, { ...rowDownload, ...updatedRowProps }) as UpdateRow).catch(
-//         (err: Error): void => {
-//           console.error(err)
-//         }
-//       )
-//     },
-//     Err: msg => console.error(msg),
-//   })
-// }
+      match(eventAndData)
+        .with({ type: 'download-started' }, () => {
+          const updatedDownloadProps = {
+            status: 'active' as DownloadStatus,
+            mediaDownloadTries: downloadFromMasterList.mediaDownloadTries + 1,
+            downloadStarted: true,
+          }
+
+          const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
+
+          masterListOfDownloads.set(postId, updatedDownload)
+
+          //Remove from queuedDownloadsTableData https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice#remove_1_element_at_index_3
+          state.queuedDownloadsTableData.splice(
+            state.queuedDownloadsTableData.findIndex(download => download.id === postId),
+            1
+          )
+
+          state.activeDownloadsTableData.unshift(updatedDownload)
+        })
+        .with({ type: 'download-failed' }, () => {
+          const updatedDownloadProps = {
+            status: 'history' as DownloadStatus,
+            downloadFailed: true,
+            downloadError: eventAndData.data.err as string,
+          }
+
+          const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
+
+          masterListOfDownloads.set(postId, updatedDownload)
+
+          state.activeDownloadsTableData.splice(
+            state.activeDownloadsTableData.findIndex(download => download.id === postId),
+            1
+          )
+
+          state.downloadHistoryTableData.unshift(updatedDownload)
+        })
+        .with({ type: 'download-succeeded' }, () => {
+          const updatedDownloadProps = { status: 'history' as DownloadStatus, downloadSucceeded: true }
+
+          const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
+
+          masterListOfDownloads.set(postId, updatedDownload)
+
+          state.activeDownloadsTableData.splice(
+            state.activeDownloadsTableData.findIndex(download => download.id === postId),
+            1
+          )
+
+          state.downloadHistoryTableData.unshift(updatedDownload)
+        })
+        .with({ type: 'download-cancelled' }, () => {
+          const updatedDownloadProps = {
+            status: 'history' as DownloadStatus,
+            downloadCancelled: true,
+            downloadCancellationReason: eventAndData.data.reason as string,
+          }
+
+          const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
+
+          masterListOfDownloads.set(postId, updatedDownload)
+
+          state.activeDownloadsTableData.splice(
+            state.activeDownloadsTableData.findIndex(download => download.id === postId),
+            1
+          )
+
+          state.downloadHistoryTableData.unshift(updatedDownload)
+        })
+        .with({ type: 'download-skipped' }, () => {
+          const updatedDownloadProps = {
+            status: 'history' as DownloadStatus,
+            downloadSkipped: true,
+            downloadSkippedReason: eventAndData.data.reason as string,
+          }
+
+          const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
+
+          masterListOfDownloads.set(postId, updatedDownload)
+
+          const postFromActiveDownloads = state.activeDownloadsTableData.find(download => download.id === postId)
+
+          // eslint-disable-next-line functional/no-conditional-statement
+          if (postFromActiveDownloads) {
+            state.activeDownloadsTableData.splice(
+              state.activeDownloadsTableData.findIndex(dload => dload.id === postId),
+              1
+            )
+          }
+
+          const postFromQueuedDownloads = state.queuedDownloadsTableData.find(download => download.id === postId)
+
+          // eslint-disable-next-line functional/no-conditional-statement
+          if (postFromQueuedDownloads) {
+            state.queuedDownloadsTableData.splice(
+              state.queuedDownloadsTableData.findIndex(dload => dload.id === postId),
+              1
+            )
+          }
+
+          state.downloadHistoryTableData.unshift(updatedDownload)
+        })
+        .with({ type: 'download-progress' }, () => {
+          const updatedDownloadProps = {
+            downloadFileSize: eventAndData.data.downloadFileSize as number,
+            downloadedBytes: eventAndData.data.downloadedBytes as number,
+            downloadSpeed: eventAndData.data.downloadSpeed as number,
+            downloadProgress: eventAndData.data.downloadProgress as number,
+          }
+
+          const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
+
+          masterListOfDownloads.set(postId, updatedDownload)
+
+          const downloadInTableData = state.activeDownloadsTableData.find(
+            download => download.id === postId
+          ) as FrontendDownload
+
+          downloadInTableData.downloadFileSize = updatedDownloadProps.downloadFileSize
+          downloadInTableData.downloadedBytes = updatedDownloadProps.downloadedBytes
+          downloadInTableData.downloadSpeed = updatedDownloadProps.downloadSpeed
+          downloadInTableData.downloadProgress = updatedDownloadProps.downloadProgress
+        })
+        .run()
+    },
+    Err: msg => console.error(msg),
+  })
+}
 
 const evtSource = new EventSource('/admin/api/sse-media-downloads-viewer')
 
@@ -167,55 +257,42 @@ evtSource.addEventListener('new-download-batch-started', replaceTableData)
 
 evtSource.addEventListener('downloads-cleared', (): void => {
   console.log('downloads-cleared')
-  tableData = []
-  table.setData(tableData).catch(err => console.error(err))
+
+  masterListOfDownloads.clear()
+  state.activeDownloadsTableData = []
+  state.downloadHistoryTableData = []
+  state.queuedDownloadsTableData = []
 })
 
-// evtSource.addEventListener('download-started', thing => {
-//   console.log('=====download-started 1=============')
-//   console.log(thing)
-//   console.log('=====download-started 2=============')
-// })
-// evtSource.addEventListener('download-failed', thing => {
-//   console.log('=====download-failed 1=============')
-//   console.log(thing)
-//   console.log('=====download-failed 2=============')
-// })
-// evtSource.addEventListener('download-succeeded', thing => {
-//   console.log('=====download-succeeded 1=============')
-//   console.log(thing)
-//   console.log('=====download-succeeded 2=============')
-// })
-// evtSource.addEventListener('download-cancelled', thing => {
-//   console.log('=====download-cancelled 1=============')
-//   console.log(thing)
-//   console.log('=====download-cancelled 2=============')
-// })
-// evtSource.addEventListener('download-skipped', thing => {
-//   console.log('=====download-skipped 1=============')
-//   console.log(thing)
-//   console.log('=====download-skipped 2=============')
-// })
-// evtSource.addEventListener('download-progress', thing => {
-//   console.log('=====download-progress 1=============')
-//   console.log(thing)
-//   console.log('=====download-progress 2=============')
-// })
-// evtSource.addEventListener('download-media-try-increment', thing => {
-//   console.log('=====download-media-try-increment 1=============')
-//   console.log(thing)
-//   console.log('=====download-media-try-increment 2=============')
-// })
-
-// evtSource.addEventListener('download-started', updateDownloadProps)
-// evtSource.addEventListener('download-failed', updateDownloadProps)
-// evtSource.addEventListener('download-succeeded', updateDownloadProps)
-// evtSource.addEventListener('download-cancelled', updateDownloadProps)
-// evtSource.addEventListener('download-skipped', updateDownloadProps)
-// evtSource.addEventListener('download-progress', updateDownloadProps)
-// evtSource.addEventListener('download-media-try-increment', updateDownloadProps)
-// evtSource.addEventListener('error', err => console.error(err))
+evtSource.addEventListener('download-started', updateDownloadProps)
+evtSource.addEventListener('download-failed', updateDownloadProps)
+evtSource.addEventListener('download-succeeded', updateDownloadProps)
+evtSource.addEventListener('download-cancelled', updateDownloadProps)
+evtSource.addEventListener('download-skipped', updateDownloadProps)
+evtSource.addEventListener('download-progress', updateDownloadProps)
+evtSource.addEventListener('error', err => console.error(err))
 
 window.addEventListener('beforeunload', () => evtSource.close())
+
+const AdminDownloadsViewer = Vue.defineComponent({
+  data() {
+    return {
+      state,
+    }
+  },
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  components: { VScrollGrid },
+  methods: {},
+  template: /* html */ `
+    <v-scroll-grid></v-scroll-grid>
+  `,
+})
+
+const app = Vue.createApp(AdminDownloadsViewer)
+
+// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
+app.config.warnHandler = ignoreScriptTagCompilationWarnings
+
+app.mount('main')
 
 export { FrontendDownload }
