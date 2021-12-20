@@ -88,9 +88,7 @@ const removePropsWithNoData = R.pickBy((val: DownloadReadyToBeSent[keyof Downloa
 
 const stringifyAnyErrors = (download: TrimmedDownloadProps): DownloadReadyToBeSent => ({
   ...download,
-  downloadError: RA.isError(download)
-    ? download.downloadError?.toString()
-    : (download.downloadError as undefined),
+  downloadError: R.when(RA.isError, R.toString, download.downloadError) as DownloadReadyToBeSent['downloadError'],
 })
 
 /*****
