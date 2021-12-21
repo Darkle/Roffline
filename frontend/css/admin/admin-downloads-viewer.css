@@ -11,3 +11,37 @@ body.admin-downloads-viewer {
   flex-direction: column;
   margin-bottom: 8rem;
 }
+
+#active-downloads-container {
+  height: 20vh;
+  width: 70vw;
+  border: 1px solid var(--color-primary);
+}
+
+#downloads-history-container {
+  height: 20vh;
+  width: 70vw;
+  border: 1px solid var(--color-primary);
+}
+
+#download-queue-container {
+  height: 20vh;
+  width: 70vw;
+  border: 1px solid var(--color-primary);
+}
+
+.scroller {
+  height: 100%;
+}
+
+.download-item {
+  height: 32%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.download-item .postId {
+  text-decoration: underline;
+}

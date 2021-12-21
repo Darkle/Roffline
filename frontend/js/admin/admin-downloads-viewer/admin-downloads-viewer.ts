@@ -1,13 +1,17 @@
+import * as Vue from 'vue'
 import { encaseRes } from 'pratica'
 import type { Result } from 'pratica'
 import { match } from 'ts-pattern'
+import VueVirtualScroller from 'vue-virtual-scroller'
+import prettyBytes from 'pretty-bytes'
 
-// import { tableColumns } from './table-columns'
 import type { PostWithMediaDownloadInfo } from '../../../../downloads/media/media-downloads-viewer-organiser'
 import type {
   DownloadReadyToBeSent,
   DownloadUpdateData,
 } from '../../../../server/controllers/admin/server-side-events'
+import { ignoreScriptTagCompilationWarnings } from '../../frontend-utils'
+import type { VirtualScrollList } from '../../frontend-global-types'
 
 type PostId = string
 
@@ -51,13 +55,17 @@ type UpdateProps = {
   downloadProgress?: number
 }
 
-/* eslint-disable max-lines-per-function,functional/no-let */
+type UpdateDownloadPropsParsedData = { type: string; data: DownloadUpdateData }
+
+/* eslint-disable max-lines-per-function */
 
 const masterListOfDownloads = new Map() as Map<PostId, FrontendDownload>
 
-let activeDownloadsListData = [] as FrontendDownload[]
-let downloadHistoryListData = [] as FrontendDownload[]
-let queuedDownloadsListData = [] as FrontendDownload[]
+const state = Vue.reactive({
+  activeDownloadsListData: [] as FrontendDownload[],
+  downloadHistoryListData: [] as FrontendDownload[],
+  queuedDownloadsListData: [] as FrontendDownload[],
+})
 
 /*****
   We removed empty keys server side to make the payload smaller.
@@ -74,7 +82,7 @@ const reconstructMinimizedDownloadData = (download: DownloadReadyToBeSent): Fron
       also, so wouldnt want to match on it before them.
     *****/
     .with({ downloadStarted: true }, () => 'active')
-    .otherwise(() => 'queue') as DownloadStatus
+    .otherwise(() => 'queued') as DownloadStatus
 
   return {
     downloadFailed: false,
@@ -94,10 +102,8 @@ const reconstructMinimizedDownloadData = (download: DownloadReadyToBeSent): Fron
   }
 }
 
-const tryParseSSEData = (
-  data: string
-): Result<DownloadReadyToBeSent[] | UpdateDownloadPropsParsedData, unknown> =>
-  encaseRes(() => JSON.parse(data) as DownloadReadyToBeSent[] | UpdateDownloadPropsParsedData)
+const tryParseSSEData = (data: string): Result<DownloadReadyToBeSent[] | DownloadUpdateData, unknown> =>
+  encaseRes(() => JSON.parse(data) as DownloadReadyToBeSent[] | DownloadUpdateData)
 
 function replaceDownloadListsData(ev: Event): void {
   const { data } = ev as SSEEvent
@@ -110,9 +116,9 @@ function replaceDownloadListsData(ev: Event): void {
 
       console.info(downloads)
 
-      activeDownloadsListData = []
-      downloadHistoryListData = []
-      queuedDownloadsListData = downloads
+      state.activeDownloadsListData = downloads.filter(download => download.status === 'active')
+      state.downloadHistoryListData = downloads.filter(download => download.status === 'history')
+      state.queuedDownloadsListData = downloads.filter(download => download.status === 'queued')
 
       masterListOfDownloads.clear()
 
@@ -123,8 +129,6 @@ function replaceDownloadListsData(ev: Event): void {
     Err: err => console.error(err),
   })
 }
-
-type UpdateDownloadPropsParsedData = { type: string; data: DownloadUpdateData }
 
 const createUpdatedDownload = (postId: PostId, updatedDownloadProps: UpdateProps): FrontendDownload => {
   const currentDownload = masterListOfDownloads.get(postId) as FrontendDownload
@@ -156,8 +160,8 @@ function updateDownloadProps(ev: Event): void {
 
   tryParseSSEData(data).cata({
     Ok: (parsedData): void => {
-      const eventAndData = parsedData as UpdateDownloadPropsParsedData
-      console.info(eventAndData.type)
+      const eventAndData = { data: parsedData, type: ev.type } as UpdateDownloadPropsParsedData
+
       console.info(eventAndData)
 
       const { postId } = eventAndData.data
@@ -174,7 +178,7 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-          moveDownloadToOtherList(updatedDownload, queuedDownloadsListData, activeDownloadsListData)
+          moveDownloadToOtherList(updatedDownload, state.queuedDownloadsListData, state.activeDownloadsListData)
         })
         .with({ type: 'download-failed' }, () => {
           const updatedDownloadProps = {
@@ -186,7 +190,7 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-          moveDownloadToOtherList(updatedDownload, activeDownloadsListData, downloadHistoryListData)
+          moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
         })
         .with({ type: 'download-succeeded' }, () => {
           const updatedDownloadProps = { status: 'history' as DownloadStatus, downloadSucceeded: true }
@@ -194,7 +198,7 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-          moveDownloadToOtherList(updatedDownload, activeDownloadsListData, downloadHistoryListData)
+          moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
         })
         .with({ type: 'download-cancelled' }, () => {
           const updatedDownloadProps = {
@@ -206,7 +210,7 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-          moveDownloadToOtherList(updatedDownload, activeDownloadsListData, downloadHistoryListData)
+          moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
         })
         .with({ type: 'download-skipped' }, () => {
           const oldDownloadStatus = masterListOfDownloads.get(postId)?.status as DownloadStatus
@@ -223,10 +227,11 @@ function updateDownloadProps(ev: Event): void {
 
           moveDownloadToOtherList(
             updatedDownload,
-            oldDownloadStatus === 'active' ? activeDownloadsListData : queuedDownloadsListData,
-            downloadHistoryListData
+            oldDownloadStatus === 'active' ? state.activeDownloadsListData : state.queuedDownloadsListData,
+            state.downloadHistoryListData
           )
         })
+        // eslint-disable-next-line complexity
         .with({ type: 'download-progress' }, () => {
           const updatedDownloadProps = {
             downloadFileSize: eventAndData.data.downloadFileSize as number,
@@ -239,14 +244,14 @@ function updateDownloadProps(ev: Event): void {
 
           updateDownloadInMasterList(postId, updatedDownload)
 
-          const downloadInList = activeDownloadsListData.find(
+          const downloadInList = state.activeDownloadsListData.find(
             download => download.id === postId
           ) as FrontendDownload
 
-          downloadInList.downloadFileSize = updatedDownloadProps.downloadFileSize
-          downloadInList.downloadedBytes = updatedDownloadProps.downloadedBytes
-          downloadInList.downloadSpeed = updatedDownloadProps.downloadSpeed
-          downloadInList.downloadProgress = updatedDownloadProps.downloadProgress
+          downloadInList.downloadFileSize = updatedDownloadProps.downloadFileSize ?? 0
+          downloadInList.downloadedBytes = updatedDownloadProps.downloadedBytes ?? 0
+          downloadInList.downloadSpeed = updatedDownloadProps.downloadSpeed ?? 0
+          downloadInList.downloadProgress = updatedDownloadProps.downloadProgress ?? 0
         })
         .run()
     },
@@ -263,9 +268,9 @@ evtSource.addEventListener('downloads-cleared', (): void => {
   console.info('downloads-cleared')
 
   masterListOfDownloads.clear()
-  activeDownloadsListData = []
-  downloadHistoryListData = []
-  queuedDownloadsListData = []
+  state.activeDownloadsListData = []
+  state.downloadHistoryListData = []
+  state.queuedDownloadsListData = []
 })
 
 evtSource.addEventListener('download-started', updateDownloadProps)
@@ -277,3 +282,79 @@ evtSource.addEventListener('download-progress', updateDownloadProps)
 evtSource.addEventListener('error', err => console.error(err))
 
 window.addEventListener('beforeunload', () => evtSource.close())
+
+const AdminDownloadsViewer = Vue.defineComponent({
+  data() {
+    return {
+      state,
+    }
+  },
+  methods: {
+    prettifyBytes(bytes: number | null): string {
+      return prettyBytes(typeof bytes === 'number' ? bytes : 0)
+    },
+    createPostLink(permalink: string): string {
+      return `https://www.reddit.com${permalink}`
+    },
+  },
+  template: /* html */ `
+    <div id="active-downloads-container">
+      <DynamicScroller
+        class="scroller"
+        :items="state.activeDownloadsListData"
+        :item-size="32"
+        :min-item-size="32"
+        key-field="id"
+        v-slot="{ item }"
+        >
+        <div class="download-item">
+          <div class="postId"><a :href="createPostLink(item.permalink)" target="_blank" rel="noopener noreferrer" title="Click To Open Reddit Post Link For Download">Post id: {{ item.id }}</a></div>
+          <div class="url">{{ item.url }}</div>
+          <div class="downloadProgress">Progress: {{ item.downloadProgress }}</div>
+          <div class="size">Size: {{ prettifyBytes(item.downloadedBytes) }} of {{ prettifyBytes(item.downloadFileSize) }}</div>
+          <div class="downloadSpeed">Speed: {{ prettifyBytes(item.downloadSpeed) }}</div>
+        </div>
+      </DynamicScroller>         
+    </div>
+    <div id="downloads-history-container">
+      <DynamicScroller
+        class="scroller"
+        :items="state.downloadHistoryListData"
+        :item-size="32"
+        :min-item-size="32"
+        key-field="id"
+        v-slot="{ item }"
+        >
+        <div class="download-item">
+          <div class="postId"><a :href="createPostLink(item.permalink)" target="_blank" rel="noopener noreferrer" title="Click To Open Reddit Post Link For Download">Post id: {{ item.id }}</a></div>
+          <div class="url">{{ item.url }}</div>
+          <div class="size">Size: {{ prettifyBytes(item.downloadFileSize) }}</div>
+        </div>
+      </DynamicScroller>      
+    </div>
+    <div id="download-queue-container">
+      <DynamicScroller
+        class="scroller"
+        :items="state.queuedDownloadsListData"
+        :item-size="32"
+        :min-item-size="32"
+        key-field="id"
+        v-slot="{ item }"
+        >
+        <div class="download-item">
+          <div class="postId"><a :href="createPostLink(item.permalink)" target="_blank" rel="noopener noreferrer" title="Click To Open Reddit Post Link For Download">Post id: {{ item.id }}</a></div>
+          <div class="url">{{ item.url }}</div>
+        </div>
+      </DynamicScroller>
+    </div>
+  `,
+})
+
+const app = Vue.createApp(AdminDownloadsViewer)
+
+// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
+app.config.warnHandler = ignoreScriptTagCompilationWarnings
+
+app.use(VueVirtualScroller as VirtualScrollList).mount('#downloadTablesContainer')
+
+export { FrontendDownload }
