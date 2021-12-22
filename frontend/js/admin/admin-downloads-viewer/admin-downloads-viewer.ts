@@ -59,6 +59,8 @@ type UpdateProps = {
 
 type UpdateDownloadPropsParsedData = { type: string; data: DownloadUpdateData }
 
+type DownloadsFromBackend = DownloadReadyToBeSent
+
 /* eslint-disable max-lines-per-function,@typescript-eslint/no-magic-numbers,functional/no-conditional-statement */
 
 const masterListOfDownloads = new Map() as Map<PostId, FrontendDownload>
@@ -89,7 +91,7 @@ Vue.watch(
   We removed empty keys server side to make the payload smaller.
   Now we recreate them.
 *****/
-const reconstructMinimizedDownloadData = (download: DownloadReadyToBeSent): FrontendDownload => {
+const reconstructMinimizedDownloadData = (download: DownloadsFromBackend): FrontendDownload => {
   const downloadStatus = match(download)
     .with({ downloadFailed: true }, () => 'history')
     .with({ downloadCancelled: true }, () => 'history')
@@ -121,15 +123,15 @@ const reconstructMinimizedDownloadData = (download: DownloadReadyToBeSent): Fron
   }
 }
 
-const tryParseSSEData = (data: string): Result<DownloadReadyToBeSent[] | DownloadUpdateData, unknown> =>
-  encaseRes(() => JSON.parse(data) as DownloadReadyToBeSent[] | DownloadUpdateData)
+const tryParseSSEData = (data: string): Result<DownloadsFromBackend[] | DownloadUpdateData, unknown> =>
+  encaseRes(() => JSON.parse(data) as DownloadsFromBackend[] | DownloadUpdateData)
 
 function replaceDownloadListsData(ev: Event): void {
   const { data } = ev as SSEEvent
 
   tryParseSSEData(data).cata({
     Ok: (parsedData): void => {
-      const downloads = (parsedData as DownloadReadyToBeSent[]).map(
+      const downloads = (parsedData as DownloadsFromBackend[]).map(
         reconstructMinimizedDownloadData
       ) as FrontendDownload[]
 
@@ -334,7 +336,7 @@ const AdminDownloadsViewer = Vue.defineComponent({
   },
   computed: {
     pauseButtonText() {
-      return state.updatesPaused ? 'Resume Updates' : 'Pause Updates'
+      return state.updatesPaused ? 'Resume Updates' : 'Pause Updated'
     },
   },
   template: /* html */ `
