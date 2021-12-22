@@ -131,9 +131,7 @@ function replaceDownloadListsData(ev: Event): void {
 
   tryParseSSEData(data).cata({
     Ok: (parsedData): void => {
-      const downloads = (parsedData as DownloadsFromBackend[]).map(
-        reconstructMinimizedDownloadData
-      ) as FrontendDownload[]
+      const downloads = (parsedData as DownloadsFromBackend[]).map(reconstructMinimizedDownloadData)
 
       console.info(downloads)
 
