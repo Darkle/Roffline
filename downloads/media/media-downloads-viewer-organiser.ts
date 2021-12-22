@@ -33,7 +33,6 @@ const adminMediaDownloadsViewerOrganiserEmitter = new EventEmitter<{
     downloadSpeed: number,
     downloadProgress: number
   ) => void
-  'download-media-try-increment': (postId: string) => void
 }>()
 
 /*****
