@@ -1,5 +1,7 @@
+import * as R from 'ramda'
+import * as RA from 'ramda-adjunct'
 import * as Vue from 'vue'
-import { encaseRes } from 'pratica'
+import { encaseRes, nullable as MaybeNullable } from 'pratica'
 import type { Result } from 'pratica'
 import { match } from 'ts-pattern'
 import VueVirtualScroller from 'vue-virtual-scroller'
@@ -57,7 +59,7 @@ type UpdateProps = {
 
 type UpdateDownloadPropsParsedData = { type: string; data: DownloadUpdateData }
 
-/* eslint-disable max-lines-per-function */
+/* eslint-disable max-lines-per-function,@typescript-eslint/no-magic-numbers */
 
 const masterListOfDownloads = new Map() as Map<PostId, FrontendDownload>
 
@@ -231,7 +233,6 @@ function updateDownloadProps(ev: Event): void {
             state.downloadHistoryListData
           )
         })
-        // eslint-disable-next-line complexity
         .with({ type: 'download-progress' }, () => {
           const updatedDownloadProps = {
             downloadFileSize: eventAndData.data.downloadFileSize as number,
@@ -244,14 +245,18 @@ function updateDownloadProps(ev: Event): void {
 
           updateDownloadInMasterList(postId, updatedDownload)
 
-          const downloadInList = state.activeDownloadsListData.find(
-            download => download.id === postId
-          ) as FrontendDownload
+          const downloadInList = state.activeDownloadsListData.find(R.propEq('id', postId)) as FrontendDownload
 
-          downloadInList.downloadFileSize = updatedDownloadProps.downloadFileSize ?? 0
-          downloadInList.downloadedBytes = updatedDownloadProps.downloadedBytes ?? 0
-          downloadInList.downloadSpeed = updatedDownloadProps.downloadSpeed ?? 0
-          downloadInList.downloadProgress = updatedDownloadProps.downloadProgress ?? 0
+          MaybeNullable(downloadInList).cata({
+            // eslint-disable-next-line complexity
+            Just: () => {
+              downloadInList.downloadFileSize = updatedDownloadProps.downloadFileSize ?? 0
+              downloadInList.downloadedBytes = updatedDownloadProps.downloadedBytes ?? 0
+              downloadInList.downloadSpeed = updatedDownloadProps.downloadSpeed ?? 0
+              downloadInList.downloadProgress = updatedDownloadProps.downloadProgress ?? 0
+            },
+            Nothing: RA.noop,
+          })
         })
         .run()
     },
@@ -296,9 +301,26 @@ const AdminDownloadsViewer = Vue.defineComponent({
     createPostLink(permalink: string): string {
       return `https://www.reddit.com${permalink}`
     },
+    formatProgress(progress: number) {
+      /*****
+       Sometimes we get really low fractions of progress like 0.000006.
+       Also, sometimes it is a whole number, so cant call .toFixed on that.
+       *****/
+      return Number.isInteger(progress)
+        ? `${progress * 100}%`
+        : `${(Number(progress.toFixed(3)) * 100).toFixed(0)}%`
+    },
   },
   template: /* html */ `
     <div id="active-downloads-container">
+      <h1>Active Downloads</h1>
+      <div class="table-columns">
+        <div class="table-column-postId"><span>Post Id</span></div>
+        <div class="table-column-url"><span>Url</span></div>
+        <div class="table-column-progress"><span>Progress</span></div>
+        <div class="table-column-size"><span>Size</span></div>
+        <div class="table-column-speed"><span>Speed</span></div>
+      </div>
       <DynamicScroller
         class="scroller"
         :items="state.activeDownloadsListData"
@@ -308,15 +330,21 @@ const AdminDownloadsViewer = Vue.defineComponent({
         v-slot="{ item }"
         >
         <div class="download-item">
-          <div class="postId"><a :href="createPostLink(item.permalink)" target="_blank" rel="noopener noreferrer" title="Click To Open Reddit Post Link For Download">Post id: {{ item.id }}</a></div>
-          <div class="url">{{ item.url }}</div>
-          <div class="downloadProgress">Progress: {{ item.downloadProgress }}</div>
-          <div class="size">Size: {{ prettifyBytes(item.downloadedBytes) }} of {{ prettifyBytes(item.downloadFileSize) }}</div>
-          <div class="downloadSpeed">Speed: {{ prettifyBytes(item.downloadSpeed) }}</div>
+          <div class="postId"><a :href="createPostLink(item.permalink)" target="_blank" rel="noopener noreferrer" title="Click To Open Reddit Post Link For Download">{{ item.id }}</a></div>
+          <div class="url"><a :href="item.url" target="_blank" rel="noopener noreferrer" title="Click To Open Download Url">{{ item.url }}</a></div>
+          <div class="downloadProgress"><span>{{ formatProgress(item.downloadProgress) }}</span></div>
+          <div class="size"><span>{{ prettifyBytes(item.downloadedBytes) }} of {{ prettifyBytes(item.downloadFileSize) }}</span></div>
+          <div class="downloadSpeed"><span>{{ prettifyBytes(item.downloadSpeed) }}</span></div>
         </div>
       </DynamicScroller>         
     </div>
     <div id="downloads-history-container">
+      <h1>Download History</h1>
+      <div class="table-columns">
+        <div class="table-column-postId"><span>Post Id</span></div>
+        <div class="table-column-url"><span>Url</span></div>
+        <div class="table-column-size"><span>Size</span></div>
+      </div>
       <DynamicScroller
         class="scroller"
         :items="state.downloadHistoryListData"
@@ -326,13 +354,19 @@ const AdminDownloadsViewer = Vue.defineComponent({
         v-slot="{ item }"
         >
         <div class="download-item">
-          <div class="postId"><a :href="createPostLink(item.permalink)" target="_blank" rel="noopener noreferrer" title="Click To Open Reddit Post Link For Download">Post id: {{ item.id }}</a></div>
-          <div class="url">{{ item.url }}</div>
-          <div class="size">Size: {{ prettifyBytes(item.downloadFileSize) }}</div>
+          <div class="postId"><a :href="createPostLink(item.permalink)" target="_blank" rel="noopener noreferrer" title="Click To Open Reddit Post Link For Download">{{ item.id }}</a></div>
+          <div class="url"><a :href="item.url" target="_blank" rel="noopener noreferrer" title="Click To Open Download Url">{{ item.url }}</a></div>
+          <div class="size"><span>{{ prettifyBytes(item.downloadFileSize) }}</span></div>
         </div>
       </DynamicScroller>      
     </div>
     <div id="download-queue-container">
+      <h1>Download Queue</h1>
+      <div class="table-columns">
+        <div class="table-column-postId"><span>Post Id</span></div>
+        <div class="table-column-url"><span>Url</span></div>
+        <div class="table-column-downloadTries"><span>Download Tries</span></div>
+      </div>
       <DynamicScroller
         class="scroller"
         :items="state.queuedDownloadsListData"
@@ -342,8 +376,9 @@ const AdminDownloadsViewer = Vue.defineComponent({
         v-slot="{ item }"
         >
         <div class="download-item">
-          <div class="postId"><a :href="createPostLink(item.permalink)" target="_blank" rel="noopener noreferrer" title="Click To Open Reddit Post Link For Download">Post id: {{ item.id }}</a></div>
-          <div class="url">{{ item.url }}</div>
+          <div class="postId"><a :href="createPostLink(item.permalink)" target="_blank" rel="noopener noreferrer" title="Click To Open Reddit Post Link For Download">{{ item.id }}</a></div>
+          <div class="url"><a :href="item.url" target="_blank" rel="noopener noreferrer" title="Click To Open Download Url">{{ item.url }}</a></div>
+          <div class="downloadTries"><span>{{ item.mediaDownloadTries }}</span></div>
         </div>
       </DynamicScroller>
     </div>
@@ -355,6 +390,6 @@ const app = Vue.createApp(AdminDownloadsViewer)
 // warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
 app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
-app.use(VueVirtualScroller as VirtualScrollList).mount('#downloadTablesContainer')
+app.use(VueVirtualScroller as VirtualScrollList).mount('#downloadListsContainer')
 
 export { FrontendDownload }
