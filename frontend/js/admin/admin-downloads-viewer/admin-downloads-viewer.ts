@@ -334,11 +334,11 @@ const AdminDownloadsViewer = Vue.defineComponent({
   },
   computed: {
     pauseButtonText() {
-      return state.updatesPaused ? 'Resume Updates' : 'Pause Updated'
+      return state.updatesPaused ? 'Resume Updates' : 'Pause All Updates'
     },
   },
   template: /* html */ `
-  <button @click="state.updatesPaused = !state.updatesPaused">{{ pauseButtonText }}</button>
+    <a id="pause-button" class="button outline" @click.prevent="state.updatesPaused = !state.updatesPaused">{{ pauseButtonText }}</a>
     <div id="active-downloads-container">
       <h1>Active Downloads</h1>
       <div class="table-columns">
