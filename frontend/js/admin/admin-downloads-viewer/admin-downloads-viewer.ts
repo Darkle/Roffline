@@ -59,7 +59,7 @@ type UpdateProps = {
 
 type UpdateDownloadPropsParsedData = { type: string; data: DownloadUpdateData }
 
-/* eslint-disable max-lines-per-function,@typescript-eslint/no-magic-numbers */
+/* eslint-disable max-lines-per-function,@typescript-eslint/no-magic-numbers,functional/no-conditional-statement */
 
 const masterListOfDownloads = new Map() as Map<PostId, FrontendDownload>
 
@@ -68,12 +68,13 @@ const state = Vue.reactive({
   downloadHistoryListData: [] as FrontendDownload[],
   queuedDownloadsListData: [] as FrontendDownload[],
   updatesPaused: false,
+  isSearchingHistory: false,
+  isSearchingQueue: false,
 })
 
 Vue.watch(
   () => state.updatesPaused,
   updatesPaused => {
-    // eslint-disable-next-line functional/no-conditional-statement
     if (!updatesPaused) {
       const downloads = [...masterListOfDownloads.values()]
 
@@ -162,12 +163,15 @@ const moveDownloadToOtherList = (
   listDataPostCurrentlyResidesIn: FrontendDownload[],
   listDataToMovePostTo: FrontendDownload[]
 ): void => {
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/splice#remove_1_element_at_index_3
-  // eslint-disable-next-line functional/immutable-data
-  listDataPostCurrentlyResidesIn.splice(
-    listDataPostCurrentlyResidesIn.findIndex(download => download.id === updatedDownload.id),
-    1
-  )
+  if (state.updatesPaused) return
+
+  const downloadIndexInListData = listDataPostCurrentlyResidesIn.findIndex(R.propEq('id', updatedDownload.id))
+
+  if (downloadIndexInListData !== -1) {
+    // https://mzl.la/3mp0RLT
+    // eslint-disable-next-line functional/immutable-data
+    listDataPostCurrentlyResidesIn.splice(downloadIndexInListData, 1)
+  }
 
   // eslint-disable-next-line functional/immutable-data
   listDataToMovePostTo.unshift(updatedDownload)
@@ -196,8 +200,7 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-          !state.updatesPaused &&
-            moveDownloadToOtherList(updatedDownload, state.queuedDownloadsListData, state.activeDownloadsListData)
+          moveDownloadToOtherList(updatedDownload, state.queuedDownloadsListData, state.activeDownloadsListData)
         })
         .with({ type: 'download-failed' }, () => {
           const updatedDownloadProps = {
@@ -209,8 +212,7 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-          !state.updatesPaused &&
-            moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
+          moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
         })
         .with({ type: 'download-succeeded' }, () => {
           const updatedDownloadProps = { status: 'history' as DownloadStatus, downloadSucceeded: true }
@@ -218,8 +220,7 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-          !state.updatesPaused &&
-            moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
+          moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
         })
         .with({ type: 'download-cancelled' }, () => {
           const updatedDownloadProps = {
@@ -231,8 +232,7 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-          !state.updatesPaused &&
-            moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
+          moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
         })
         .with({ type: 'download-skipped' }, () => {
           const oldDownloadStatus = masterListOfDownloads.get(postId)?.status as DownloadStatus
@@ -247,12 +247,11 @@ function updateDownloadProps(ev: Event): void {
 
           updateDownloadInMasterList(postId, updatedDownload)
 
-          !state.updatesPaused &&
-            moveDownloadToOtherList(
-              updatedDownload,
-              oldDownloadStatus === 'active' ? state.activeDownloadsListData : state.queuedDownloadsListData,
-              state.downloadHistoryListData
-            )
+          moveDownloadToOtherList(
+            updatedDownload,
+            oldDownloadStatus === 'active' ? state.activeDownloadsListData : state.queuedDownloadsListData,
+            state.downloadHistoryListData
+          )
         })
         .with({ type: 'download-progress' }, () => {
           const updatedDownloadProps = {
@@ -333,7 +332,13 @@ const AdminDownloadsViewer = Vue.defineComponent({
         : `${(Number(progress.toFixed(3)) * 100).toFixed(0)}%`
     },
   },
+  computed: {
+    pauseButtonText() {
+      return state.updatesPaused ? 'Resume Updates' : 'Pause Updates'
+    },
+  },
   template: /* html */ `
+  <button @click="state.updatesPaused = !state.updatesPaused">{{ pauseButtonText }}</button>
     <div id="active-downloads-container">
       <h1>Active Downloads</h1>
       <div class="table-columns">
