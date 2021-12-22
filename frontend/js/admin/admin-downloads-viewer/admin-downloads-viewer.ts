@@ -160,21 +160,21 @@ const updateDownloadInMasterList = (postId: PostId, updatedDownload: FrontendDow
 
 const moveDownloadToOtherList = (
   updatedDownload: FrontendDownload,
-  listDataPostCurrentlyResidesIn: FrontendDownload[],
-  listDataToMovePostTo: FrontendDownload[]
+  listDataDownloadCurrentlyResidesIn: FrontendDownload[],
+  listDataToMoveDownloadTo: FrontendDownload[]
 ): void => {
   if (state.updatesPaused) return
 
-  const downloadIndexInListData = listDataPostCurrentlyResidesIn.findIndex(R.propEq('id', updatedDownload.id))
+  const downloadIndexInListData = listDataDownloadCurrentlyResidesIn.findIndex(R.propEq('id', updatedDownload.id))
 
   if (downloadIndexInListData !== -1) {
     // https://mzl.la/3mp0RLT
     // eslint-disable-next-line functional/immutable-data
-    listDataPostCurrentlyResidesIn.splice(downloadIndexInListData, 1)
+    listDataDownloadCurrentlyResidesIn.splice(downloadIndexInListData, 1)
   }
 
   // eslint-disable-next-line functional/immutable-data
-  listDataToMovePostTo.unshift(updatedDownload)
+  listDataToMoveDownloadTo.unshift(updatedDownload)
 }
 
 function updateDownloadProps(ev: Event): void {
