@@ -67,7 +67,22 @@ const state = Vue.reactive({
   activeDownloadsListData: [] as FrontendDownload[],
   downloadHistoryListData: [] as FrontendDownload[],
   queuedDownloadsListData: [] as FrontendDownload[],
+  updatesPaused: false,
 })
+
+Vue.watch(
+  () => state.updatesPaused,
+  updatesPaused => {
+    // eslint-disable-next-line functional/no-conditional-statement
+    if (!updatesPaused) {
+      const downloads = [...masterListOfDownloads.values()]
+
+      state.activeDownloadsListData = downloads.filter(R.propEq('status', 'active'))
+      state.downloadHistoryListData = downloads.filter(R.propEq('status', 'history'))
+      state.queuedDownloadsListData = downloads.filter(R.propEq('status', 'queued'))
+    }
+  }
+)
 
 /*****
   We removed empty keys server side to make the payload smaller.
@@ -99,6 +114,7 @@ const reconstructMinimizedDownloadData = (download: DownloadReadyToBeSent): Fron
     downloadSpeed: 0,
     downloadedBytes: 0,
     downloadFileSize: 0,
+    mediaDownloadTries: 0,
     status: downloadStatus,
     ...download, // we want any existing keys on download to overwrite the defaults we set above.
   }
@@ -118,9 +134,9 @@ function replaceDownloadListsData(ev: Event): void {
 
       console.info(downloads)
 
-      state.activeDownloadsListData = downloads.filter(download => download.status === 'active')
-      state.downloadHistoryListData = downloads.filter(download => download.status === 'history')
-      state.queuedDownloadsListData = downloads.filter(download => download.status === 'queued')
+      state.activeDownloadsListData = downloads.filter(R.propEq('status', 'active'))
+      state.downloadHistoryListData = downloads.filter(R.propEq('status', 'history'))
+      state.queuedDownloadsListData = downloads.filter(R.propEq('status', 'queued'))
 
       masterListOfDownloads.clear()
 
@@ -180,7 +196,8 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-          moveDownloadToOtherList(updatedDownload, state.queuedDownloadsListData, state.activeDownloadsListData)
+          !state.updatesPaused &&
+            moveDownloadToOtherList(updatedDownload, state.queuedDownloadsListData, state.activeDownloadsListData)
         })
         .with({ type: 'download-failed' }, () => {
           const updatedDownloadProps = {
@@ -192,7 +209,8 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-          moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
+          !state.updatesPaused &&
+            moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
         })
         .with({ type: 'download-succeeded' }, () => {
           const updatedDownloadProps = { status: 'history' as DownloadStatus, downloadSucceeded: true }
@@ -200,7 +218,8 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-          moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
+          !state.updatesPaused &&
+            moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
         })
         .with({ type: 'download-cancelled' }, () => {
           const updatedDownloadProps = {
@@ -212,7 +231,8 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
-          moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
+          !state.updatesPaused &&
+            moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
         })
         .with({ type: 'download-skipped' }, () => {
           const oldDownloadStatus = masterListOfDownloads.get(postId)?.status as DownloadStatus
@@ -227,11 +247,12 @@ function updateDownloadProps(ev: Event): void {
 
           updateDownloadInMasterList(postId, updatedDownload)
 
-          moveDownloadToOtherList(
-            updatedDownload,
-            oldDownloadStatus === 'active' ? state.activeDownloadsListData : state.queuedDownloadsListData,
-            state.downloadHistoryListData
-          )
+          !state.updatesPaused &&
+            moveDownloadToOtherList(
+              updatedDownload,
+              oldDownloadStatus === 'active' ? state.activeDownloadsListData : state.queuedDownloadsListData,
+              state.downloadHistoryListData
+            )
         })
         .with({ type: 'download-progress' }, () => {
           const updatedDownloadProps = {
@@ -247,16 +268,17 @@ function updateDownloadProps(ev: Event): void {
 
           const downloadInList = state.activeDownloadsListData.find(R.propEq('id', postId)) as FrontendDownload
 
-          MaybeNullable(downloadInList).cata({
-            // eslint-disable-next-line complexity
-            Just: () => {
-              downloadInList.downloadFileSize = updatedDownloadProps.downloadFileSize ?? 0
-              downloadInList.downloadedBytes = updatedDownloadProps.downloadedBytes ?? 0
-              downloadInList.downloadSpeed = updatedDownloadProps.downloadSpeed ?? 0
-              downloadInList.downloadProgress = updatedDownloadProps.downloadProgress ?? 0
-            },
-            Nothing: RA.noop,
-          })
+          !state.updatesPaused &&
+            MaybeNullable(downloadInList).cata({
+              // eslint-disable-next-line complexity
+              Just: () => {
+                downloadInList.downloadFileSize = updatedDownloadProps.downloadFileSize ?? 0
+                downloadInList.downloadedBytes = updatedDownloadProps.downloadedBytes ?? 0
+                downloadInList.downloadSpeed = updatedDownloadProps.downloadSpeed ?? 0
+                downloadInList.downloadProgress = updatedDownloadProps.downloadProgress ?? 0
+              },
+              Nothing: RA.noop,
+            })
         })
         .run()
     },

@@ -49,6 +49,7 @@ type SSE = { event: string; data: SSEData }
 
 type DownloadReadyToBeSent = Omit<
   TrimmedDownloadProps,
+  | 'mediaDownloadTries'
   | 'downloadFailed'
   | 'downloadError'
   | 'downloadCancelled'
@@ -63,6 +64,7 @@ type DownloadReadyToBeSent = Omit<
   | 'downloadFileSize'
 > & {
   // setting these specifically as optional as they may be removed by removePropsWithNoData.
+  mediaDownloadTries?: number
   downloadError?: string | undefined
   downloadFailed?: boolean
   downloadCancelled?: boolean
