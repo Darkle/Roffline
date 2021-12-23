@@ -30,7 +30,7 @@ body.admin-downloads-viewer {
   flex-direction: column;
   height: 20vh;
   width: 70vw;
-  margin-bottom: 2rem;
+  margin-bottom: 6rem;
 }
 
 #downloads-history-container {
@@ -38,7 +38,7 @@ body.admin-downloads-viewer {
   flex-direction: column;
   height: 40vh;
   width: 70vw;
-  margin-bottom: 2rem;
+  margin-bottom: 6rem;
 }
 
 #download-queue-container {
@@ -49,8 +49,9 @@ body.admin-downloads-viewer {
 }
 
 h1 {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   text-align: center;
+  margin-bottom: 1.4rem;
 }
 
 .vue-recycle-scroller {
@@ -65,16 +66,15 @@ h1 {
   width: 100%;
   display: flex;
   align-items: stretch;
-  justify-content: space-between;
 }
 
 .table-columns > * {
   padding-left: 1rem;
   padding-right: 1rem;
+  font-size: 1rem;
 }
 
 .table-columns span {
-  margin-left: 1rem;
   display: flex;
 }
 
@@ -84,6 +84,7 @@ h1 {
 
 .table-columns > .table-column-url {
   width: 19rem;
+  margin-right: 2rem;
 }
 
 .table-columns > .table-column-progress {
@@ -98,7 +99,11 @@ h1 {
   width: 100%;
   display: flex;
   align-items: stretch;
-  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.download-item:hover {
+  background-color: #e3e6ea;
 }
 
 .download-item > * > * {
@@ -117,6 +122,7 @@ h1 {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  margin-right: 2rem;
 }
 
 .download-item .downloadProgress {
@@ -125,4 +131,59 @@ h1 {
 
 .download-item .size {
   width: 16rem;
+}
+
+.download-item .download-history-status {
+  cursor: pointer;
+  padding: 0;
+}
+
+.download-item .download-history-status span {
+  font-size: 1rem;
+}
+
+.download-item .downloadTries {
+  margin-left: 4rem;
+}
+
+.admin-downloads-viewer .json-object-view-wrapper {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: absolute;
+  background-color: white;
+  padding-top: 1rem;
+  padding-bottom: 3rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  box-shadow: 5px 10px var(--color-darkGrey);
+  outline: 1px solid var(--color-darkGrey);
+  width: 90vw;
+  max-height: 60vh;
+  overflow: scroll;
+}
+
+.admin-downloads-viewer .json-object-view-wrapper .close-button {
+  font-size: 3rem;
+  margin-right: 1rem;
+  margin-bottom: 2rem;
+  align-self: flex-end;
+  position: sticky;
+  top: 0;
+}
+
+.admin-downloads-viewer .json-object-view-wrapper .close-button:hover {
+  cursor: pointer;
+  color: var(--color-grey);
+}
+
+.admin-downloads-viewer .jv-container {
+  max-height: 50vh;
+}
+
+.admin-downloads-viewer .jv-container * {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }

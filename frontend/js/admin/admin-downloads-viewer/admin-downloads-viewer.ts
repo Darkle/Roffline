@@ -6,6 +6,7 @@ import type { Result } from 'pratica'
 import { match } from 'ts-pattern'
 import VueVirtualScroller from 'vue-virtual-scroller'
 import prettyBytes from 'pretty-bytes'
+import JsonViewer from 'vue3-json-viewer'
 
 import type { PostWithMediaDownloadInfo } from '../../../../downloads/media/media-downloads-viewer-organiser'
 import type {
@@ -13,7 +14,7 @@ import type {
   DownloadUpdateData,
 } from '../../../../server/controllers/admin/server-side-events'
 import { ignoreScriptTagCompilationWarnings } from '../../frontend-utils'
-import type { VirtualScrollList } from '../../frontend-global-types'
+import type { JSONViewer, VirtualScrollList } from '../../frontend-global-types'
 
 type PostId = string
 
@@ -72,6 +73,8 @@ const state = Vue.reactive({
   updatesPaused: false,
   isSearchingHistory: false,
   isSearchingQueue: false,
+  showJSONViewer: false,
+  jsonViewerData: null as null | FrontendDownload,
 })
 
 Vue.watch(
@@ -331,10 +334,33 @@ const AdminDownloadsViewer = Vue.defineComponent({
         ? `${progress * 100}%`
         : `${(Number(progress.toFixed(3)) * 100).toFixed(0)}%`
     },
+    generateDownloadHistoryStatusIcon(download: FrontendDownload): string {
+      return match(download)
+        .with({ downloadSucceeded: true }, () => `✔️`)
+        .with({ downloadSkipped: true }, () => `⚠️`)
+        .with({ downloadCancelled: true }, () => `⛔`)
+        .with({ downloadFailed: true }, () => `❌`)
+        .otherwise(R.always(''))
+    },
+    generateDownloadHistoryStatusTitle(download: FrontendDownload): string {
+      return match(download)
+        .with({ downloadSucceeded: true }, () => `Download Successful (click for more info)`)
+        .with({ downloadSkipped: true }, () => `Download Skipped (click for more info)`)
+        .with({ downloadCancelled: true }, () => `Download Cancelled (click for more info)`)
+        .with({ downloadFailed: true }, () => `Download Failed (click for more info)`)
+        .otherwise(R.always(''))
+    },
+    showDownloadHistoryModal(event: Event): void {
+      const postId = (event.target as HTMLDivElement).dataset['postId'] as string
+      const download = masterListOfDownloads.get(postId) as FrontendDownload
+
+      state.jsonViewerData = download
+      state.showJSONViewer = true
+    },
   },
   computed: {
     pauseButtonText() {
-      return state.updatesPaused ? 'Resume Updates' : 'Pause All Updates'
+      return state.updatesPaused ? 'Resume Page Updates' : 'Pause Page Updates'
     },
   },
   template: /* html */ `
@@ -371,6 +397,7 @@ const AdminDownloadsViewer = Vue.defineComponent({
         <div class="table-column-postId"><span>Post Id</span></div>
         <div class="table-column-url"><span>Url</span></div>
         <div class="table-column-size"><span>Size</span></div>
+        <div class="table-column-status"><span>Status</span></div>
       </div>
       <DynamicScroller
         class="scroller"
@@ -384,6 +411,14 @@ const AdminDownloadsViewer = Vue.defineComponent({
           <div class="postId"><a :href="createPostLink(item.permalink)" target="_blank" rel="noopener noreferrer" title="Click To Open Reddit Post Link For Download">{{ item.id }}</a></div>
           <div class="url"><a :href="item.url" target="_blank" rel="noopener noreferrer" title="Click To Open Download Url">{{ item.url }}</a></div>
           <div class="size"><span>{{ prettifyBytes(item.downloadFileSize) }}</span></div>
+          <button class="download-history-status button outline" 
+              :data-post-id="item.id" 
+              @click="showDownloadHistoryModal">
+            <span
+              :data-post-id="item.id"
+              :title="generateDownloadHistoryStatusTitle(item)">{{ generateDownloadHistoryStatusIcon(item) }}
+            </span>
+          </button>
         </div>
       </DynamicScroller>      
     </div>
@@ -409,6 +444,10 @@ const AdminDownloadsViewer = Vue.defineComponent({
         </div>
       </DynamicScroller>
     </div>
+    <div class="json-object-view-wrapper" v-if="state.showJSONViewer">
+      <div class="close-button" @click="state.showJSONViewer = false">✕</div>
+      <json-viewer :value="state.jsonViewerData" />
+    </div>    
   `,
 })
 
@@ -417,6 +456,9 @@ const app = Vue.createApp(AdminDownloadsViewer)
 // warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
 app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
-app.use(VueVirtualScroller as VirtualScrollList).mount('#downloadListsContainer')
+app
+  .use(VueVirtualScroller as VirtualScrollList)
+  .use(JsonViewer as JSONViewer)
+  .mount('#downloadListsContainer')
 
 export { FrontendDownload }
