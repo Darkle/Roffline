@@ -109,7 +109,19 @@ const AdminDownloadsViewer = Vue.defineComponent({
           state.isFilteringHistory = false
         })
         .with('succeeded', () => {
-          state.downloadHistoryListData = downloadsHistory.filter(R.propEq('downloadSucceeded', true))
+          state.downloadHistoryListData = downloadsHistory.filter(download =>
+            match(download)
+              .with(
+                {
+                  downloadSucceeded: true,
+                  downloadSkipped: false,
+                  downloadCancelled: false,
+                  downloadFailed: false,
+                },
+                () => true
+              )
+              .otherwise(R.F)
+          )
           state.isFilteringHistory = true
         })
         .with('skipped', () => {
