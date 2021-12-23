@@ -37,10 +37,14 @@ const tsFilesFrontend = glob.sync(['frontend/**/*.ts'], { ignore: ['**/*.d.ts'] 
   Esbuild seems to automatically add process.env.NODE_ENV on its own
 *****/
 // prettier-ignore
-const esBuildFrontend = `esbuild ${tsFilesFrontend.join(' ')} --bundle --sourcemap --target=firefox78,chrome90,safari14,ios14 --loader:.ts=ts --loader:.svg=text --format=esm --platform=browser --outdir=frontend/js --outbase=frontend/js --tree-shaking=true --define:__VUE_OPTIONS_API__=\\"true\\" --define:__VUE_PROD_DEVTOOLS__=\\"false\\"`
+const esBuildFrontend = `esbuild ${tsFilesFrontend.join(
+  ' '
+)} --external:*.css --bundle --sourcemap --target=firefox78,chrome90,safari14,ios14 --loader:.ts=ts --loader:.svg=text --format=esm --platform=browser --outdir=frontend/js --outbase=frontend/js --tree-shaking=true --define:__VUE_OPTIONS_API__=\\"true\\" --define:__VUE_PROD_DEVTOOLS__=\\"false\\"`
 
 // prettier-ignore
-const esBuildBackend = `esbuild ${tsFilesBackend.join(' ')} --sourcemap --loader:.ts=ts --loader:.svg=text --format=cjs --platform=node --target=node14.18 --outdir=./`
+const esBuildBackend = `esbuild ${tsFilesBackend.join(
+  ' '
+)}  --external:*.css --sourcemap --loader:.ts=ts --loader:.svg=text --format=cjs --platform=node --target=node14.18 --outdir=./`
 
 /*****
   You can run any of these tasks manually like this: npx task tests:npmaudit
@@ -99,6 +103,7 @@ const build = {
       platform: 'browser',
       treeShaking: true,
       sourcemap: false,
+      external: ['*.css '],
       outdir: path.join(process.cwd(), 'frontend-build', 'js'),
       target: ['firefox78', 'chrome90', 'safari14', 'ios14'],
     })
@@ -117,6 +122,7 @@ const build = {
       format: 'cjs',
       platform: 'node',
       target: ['node14.18'],
+      external: ['*.css '],
       treeShaking: true,
       sourcemap: false,
       outdir: path.join(process.cwd()),
