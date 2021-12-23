@@ -107,6 +107,7 @@ body.admin-database-viewer-page {
   align-self: flex-end;
   position: sticky;
   top: 0;
+  z-index: 99;
 }
 
 .admin-database-viewer-page .json-object-view-wrapper .close-button:hover {

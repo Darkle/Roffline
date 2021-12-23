@@ -171,6 +171,7 @@ h1 {
   align-self: flex-end;
   position: sticky;
   top: 0;
+  z-index: 99;
 }
 
 .admin-downloads-viewer .json-object-view-wrapper .close-button:hover {
