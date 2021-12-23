@@ -12,111 +12,114 @@ body.admin-downloads-viewer {
   margin-bottom: 8rem;
 }
 
-#pause-button {
+.admin-downloads-viewer #pause-button {
   font-size: 0.8rem;
   align-self: flex-end;
   margin-bottom: 2rem;
   padding: 1rem;
 }
 
-#downloadListsContainer {
+.admin-downloads-viewer #downloadListsContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-#active-downloads-container {
+.admin-downloads-viewer #active-downloads-container {
   display: flex;
   flex-direction: column;
   height: 20vh;
+  min-height: 200px;
   width: 70vw;
   margin-bottom: 6rem;
 }
 
-#downloads-history-container {
+.admin-downloads-viewer #downloads-history-container {
   display: flex;
   flex-direction: column;
   height: 40vh;
+  min-height: 200px;
   width: 70vw;
   margin-bottom: 6rem;
 }
 
-#download-queue-container {
+.admin-downloads-viewer #download-queue-container {
   display: flex;
   flex-direction: column;
   height: 40vh;
+  min-height: 200px;
   width: 70vw;
 }
 
-h1 {
+.admin-downloads-viewer h1 {
   font-size: 1.3rem;
   text-align: center;
   margin-bottom: 1.4rem;
 }
 
-.vue-recycle-scroller {
+.admin-downloads-viewer .vue-recycle-scroller {
   border: 1px solid var(--color-primary);
 }
 
-.scroller {
+.admin-downloads-viewer .scroller {
   height: 100%;
 }
 
-.table-columns {
+.admin-downloads-viewer .table-columns {
   width: 100%;
   display: flex;
   align-items: stretch;
 }
 
-.table-columns > * {
+.admin-downloads-viewer .table-columns > * {
   padding-left: 1rem;
   padding-right: 1rem;
   font-size: 1rem;
 }
 
-.table-columns span {
+.admin-downloads-viewer .table-columns span {
   display: flex;
 }
 
-.table-columns > .table-column-postId {
+.admin-downloads-viewer .table-columns > .table-column-postId {
   width: 8rem;
 }
 
-.table-columns > .table-column-url {
+.admin-downloads-viewer .table-columns > .table-column-url {
   width: 19rem;
   margin-right: 2rem;
 }
 
-.table-columns > .table-column-progress {
+.admin-downloads-viewer .table-columns > .table-column-progress {
   width: 10rem;
 }
 
-.table-columns > .table-column-size {
+.admin-downloads-viewer .table-columns > .table-column-size {
   width: 16rem;
 }
 
-.download-item {
+.admin-downloads-viewer .download-item {
   width: 100%;
   display: flex;
   align-items: stretch;
   font-size: 0.9rem;
 }
 
-.download-item:hover {
+.admin-downloads-viewer .download-item:hover {
   background-color: #e3e6ea;
 }
 
-.download-item > * > * {
+.admin-downloads-viewer .download-item > * > * {
   padding-left: 1rem;
   padding-right: 1rem;
 }
 
-.download-item .postId {
+.admin-downloads-viewer .download-item .postId {
   text-decoration: underline;
   width: 8rem;
 }
 
-.download-item .url {
+.admin-downloads-viewer .download-item .url {
   text-decoration: underline;
   width: 19rem;
   text-overflow: ellipsis;
@@ -125,25 +128,44 @@ h1 {
   margin-right: 2rem;
 }
 
-.download-item .downloadProgress {
+.admin-downloads-viewer .download-item .downloadProgress {
   width: 10rem;
 }
 
-.download-item .size {
+.admin-downloads-viewer .download-item .size {
   width: 16rem;
 }
 
-.download-item .download-history-status {
+.admin-downloads-viewer .download-item .download-history-status {
   cursor: pointer;
   padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.download-item .download-history-status span {
+.admin-downloads-viewer .download-item .download-history-status span {
   font-size: 1rem;
 }
 
-.download-item .downloadTries {
+.admin-downloads-viewer .download-item .downloadTries {
   margin-left: 4rem;
+}
+
+.admin-downloads-viewer .download-history-filter-and-search {
+  display: flex;
+  font-size: 0.9rem;
+  width: 100%;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.admin-downloads-viewer .download-history-filter-and-search .search-container #download-history-search {
+  padding: 0.4rem;
+}
+
+.admin-downloads-viewer .download-history-filter-and-search .filter-container select {
+  padding: 0.4rem;
 }
 
 .admin-downloads-viewer .json-object-view-wrapper {

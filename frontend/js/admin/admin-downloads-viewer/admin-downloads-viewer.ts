@@ -1,316 +1,19 @@
 import * as R from 'ramda'
-import * as RA from 'ramda-adjunct'
 import * as Vue from 'vue'
-import { encaseRes, nullable as MaybeNullable } from 'pratica'
-import type { Result } from 'pratica'
 import { match } from 'ts-pattern'
 import VueVirtualScroller from 'vue-virtual-scroller'
 import prettyBytes from 'pretty-bytes'
 import JsonViewer from 'vue3-json-viewer'
 
-import type { PostWithMediaDownloadInfo } from '../../../../downloads/media/media-downloads-viewer-organiser'
-import type {
-  DownloadReadyToBeSent,
-  DownloadUpdateData,
-} from '../../../../server/controllers/admin/server-side-events'
 import { ignoreScriptTagCompilationWarnings } from '../../frontend-utils'
 import type { JSONViewer, VirtualScrollList } from '../../frontend-global-types'
+import type { FrontendDownload, Filter } from './admin-downloads-viewer.d'
+import { state } from './admin-downloads-viewer-state'
+import { initSSEListeners } from './admin-downloads-viewer-sse-handlers'
 
-type PostId = string
+/* eslint-disable @typescript-eslint/no-magic-numbers,max-lines-per-function */
 
-type DownloadStatus = 'queued' | 'active' | 'history'
-
-type FrontendDownload = Pick<
-  PostWithMediaDownloadInfo,
-  | 'id'
-  | 'url'
-  | 'permalink'
-  | 'mediaDownloadTries'
-  | 'downloadFailed'
-  | 'downloadCancelled'
-  | 'downloadCancellationReason'
-  | 'downloadSkipped'
-  | 'downloadSkippedReason'
-  | 'downloadStarted'
-  | 'downloadSucceeded'
-  | 'downloadProgress'
-  | 'downloadSpeed'
-  | 'downloadedBytes'
-  | 'downloadFileSize'
-> & { downloadError: string | null; status: DownloadStatus }
-
-type SSEEvent = Event & { data: string; type: string }
-
-type UpdateProps = {
-  status?: DownloadStatus
-  mediaDownloadTries?: number
-  downloadStarted?: boolean
-  downloadFailed?: boolean
-  downloadError?: string
-  downloadSucceeded?: boolean
-  downloadCancelled?: boolean
-  downloadCancellationReason?: string
-  downloadSkipped?: boolean
-  downloadSkippedReason?: string
-  downloadFileSize?: number
-  downloadedBytes?: number
-  downloadSpeed?: number
-  downloadProgress?: number
-}
-
-type UpdateDownloadPropsParsedData = { type: string; data: DownloadUpdateData }
-
-type DownloadsFromBackend = DownloadReadyToBeSent
-
-/* eslint-disable max-lines-per-function,@typescript-eslint/no-magic-numbers,functional/no-conditional-statement */
-
-const masterListOfDownloads = new Map() as Map<PostId, FrontendDownload>
-
-const state = Vue.reactive({
-  activeDownloadsListData: [] as FrontendDownload[],
-  downloadHistoryListData: [] as FrontendDownload[],
-  queuedDownloadsListData: [] as FrontendDownload[],
-  updatesPaused: false,
-  isSearchingHistory: false,
-  isSearchingQueue: false,
-  showJSONViewer: false,
-  jsonViewerData: null as null | FrontendDownload,
-})
-
-Vue.watch(
-  () => state.updatesPaused,
-  updatesPaused => {
-    if (!updatesPaused) {
-      const downloads = [...masterListOfDownloads.values()]
-
-      state.activeDownloadsListData = downloads.filter(R.propEq('status', 'active'))
-      state.downloadHistoryListData = downloads.filter(R.propEq('status', 'history'))
-      state.queuedDownloadsListData = downloads.filter(R.propEq('status', 'queued'))
-    }
-  }
-)
-
-/*****
-  We removed empty keys server side to make the payload smaller.
-  Now we recreate them.
-*****/
-const reconstructMinimizedDownloadData = (download: DownloadsFromBackend): FrontendDownload => {
-  const downloadStatus = match(download)
-    .with({ downloadFailed: true }, () => 'history')
-    .with({ downloadCancelled: true }, () => 'history')
-    .with({ downloadSkipped: true }, () => 'history')
-    .with({ downloadSucceeded: true }, () => 'history')
-    /*****
-      Make sure this is last pattern as downloadStarted can be true when others above are true
-      also, so wouldnt want to match on it before them.
-    *****/
-    .with({ downloadStarted: true }, () => 'active')
-    .otherwise(() => 'queued') as DownloadStatus
-
-  return {
-    downloadFailed: false,
-    downloadError: null,
-    downloadCancelled: false,
-    downloadCancellationReason: '',
-    downloadSkipped: false,
-    downloadSkippedReason: '',
-    downloadStarted: false,
-    downloadSucceeded: false,
-    downloadProgress: 0,
-    downloadSpeed: 0,
-    downloadedBytes: 0,
-    downloadFileSize: 0,
-    mediaDownloadTries: 0,
-    status: downloadStatus,
-    ...download, // we want any existing keys on download to overwrite the defaults we set above.
-  }
-}
-
-const tryParseSSEData = (data: string): Result<DownloadsFromBackend[] | DownloadUpdateData, unknown> =>
-  encaseRes(() => JSON.parse(data) as DownloadsFromBackend[] | DownloadUpdateData)
-
-function replaceDownloadListsData(ev: Event): void {
-  const { data } = ev as SSEEvent
-
-  tryParseSSEData(data).cata({
-    Ok: (parsedData): void => {
-      const downloads = (parsedData as DownloadsFromBackend[]).map(reconstructMinimizedDownloadData)
-
-      console.info(downloads)
-
-      state.activeDownloadsListData = downloads.filter(R.propEq('status', 'active'))
-      state.downloadHistoryListData = downloads.filter(R.propEq('status', 'history'))
-      state.queuedDownloadsListData = downloads.filter(R.propEq('status', 'queued'))
-
-      masterListOfDownloads.clear()
-
-      downloads.forEach(download => {
-        masterListOfDownloads.set(download.id, download)
-      })
-    },
-    Err: err => console.error(err),
-  })
-}
-
-const createUpdatedDownload = (postId: PostId, updatedDownloadProps: UpdateProps): FrontendDownload => {
-  const currentDownload = masterListOfDownloads.get(postId) as FrontendDownload
-  return { ...currentDownload, ...updatedDownloadProps }
-}
-
-const updateDownloadInMasterList = (postId: PostId, updatedDownload: FrontendDownload): void => {
-  masterListOfDownloads.set(postId, updatedDownload)
-}
-
-const moveDownloadToOtherList = (
-  updatedDownload: FrontendDownload,
-  listDataDownloadCurrentlyResidesIn: FrontendDownload[],
-  listDataToMoveDownloadTo: FrontendDownload[]
-): void => {
-  if (state.updatesPaused) return
-
-  const downloadIndexInListData = listDataDownloadCurrentlyResidesIn.findIndex(R.propEq('id', updatedDownload.id))
-
-  if (downloadIndexInListData !== -1) {
-    // https://mzl.la/3mp0RLT
-    // eslint-disable-next-line functional/immutable-data
-    listDataDownloadCurrentlyResidesIn.splice(downloadIndexInListData, 1)
-  }
-
-  // eslint-disable-next-line functional/immutable-data
-  listDataToMoveDownloadTo.unshift(updatedDownload)
-}
-
-function updateDownloadProps(ev: Event): void {
-  const { data } = ev as SSEEvent
-
-  tryParseSSEData(data).cata({
-    Ok: (parsedData): void => {
-      const eventAndData = { data: parsedData, type: ev.type } as UpdateDownloadPropsParsedData
-
-      console.info(eventAndData)
-
-      const { postId } = eventAndData.data
-      const downloadFromMasterList = masterListOfDownloads.get(postId) as FrontendDownload
-
-      match(eventAndData)
-        .with({ type: 'download-started' }, () => {
-          const updatedDownloadProps = {
-            status: 'active' as DownloadStatus,
-            mediaDownloadTries: downloadFromMasterList.mediaDownloadTries + 1,
-            downloadStarted: true,
-          }
-
-          const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
-
-          updateDownloadInMasterList(postId, updatedDownload)
-          moveDownloadToOtherList(updatedDownload, state.queuedDownloadsListData, state.activeDownloadsListData)
-        })
-        .with({ type: 'download-failed' }, () => {
-          const updatedDownloadProps = {
-            status: 'history' as DownloadStatus,
-            downloadFailed: true,
-            downloadError: eventAndData.data.err as string,
-          }
-
-          const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
-
-          updateDownloadInMasterList(postId, updatedDownload)
-          moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
-        })
-        .with({ type: 'download-succeeded' }, () => {
-          const updatedDownloadProps = { status: 'history' as DownloadStatus, downloadSucceeded: true }
-
-          const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
-
-          updateDownloadInMasterList(postId, updatedDownload)
-          moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
-        })
-        .with({ type: 'download-cancelled' }, () => {
-          const updatedDownloadProps = {
-            status: 'history' as DownloadStatus,
-            downloadCancelled: true,
-            downloadCancellationReason: eventAndData.data.reason as string,
-          }
-
-          const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
-
-          updateDownloadInMasterList(postId, updatedDownload)
-          moveDownloadToOtherList(updatedDownload, state.activeDownloadsListData, state.downloadHistoryListData)
-        })
-        .with({ type: 'download-skipped' }, () => {
-          const oldDownloadStatus = masterListOfDownloads.get(postId)?.status as DownloadStatus
-
-          const updatedDownloadProps = {
-            status: 'history' as DownloadStatus,
-            downloadSkipped: true,
-            downloadSkippedReason: eventAndData.data.reason as string,
-          }
-
-          const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
-
-          updateDownloadInMasterList(postId, updatedDownload)
-
-          moveDownloadToOtherList(
-            updatedDownload,
-            oldDownloadStatus === 'active' ? state.activeDownloadsListData : state.queuedDownloadsListData,
-            state.downloadHistoryListData
-          )
-        })
-        .with({ type: 'download-progress' }, () => {
-          const updatedDownloadProps = {
-            downloadFileSize: eventAndData.data.downloadFileSize as number,
-            downloadedBytes: eventAndData.data.downloadedBytes as number,
-            downloadSpeed: eventAndData.data.downloadSpeed as number,
-            downloadProgress: eventAndData.data.downloadProgress as number,
-          }
-
-          const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
-
-          updateDownloadInMasterList(postId, updatedDownload)
-
-          const downloadInList = state.activeDownloadsListData.find(R.propEq('id', postId)) as FrontendDownload
-
-          !state.updatesPaused &&
-            MaybeNullable(downloadInList).cata({
-              // eslint-disable-next-line complexity
-              Just: () => {
-                downloadInList.downloadFileSize = updatedDownloadProps.downloadFileSize ?? 0
-                downloadInList.downloadedBytes = updatedDownloadProps.downloadedBytes ?? 0
-                downloadInList.downloadSpeed = updatedDownloadProps.downloadSpeed ?? 0
-                downloadInList.downloadProgress = updatedDownloadProps.downloadProgress ?? 0
-              },
-              Nothing: RA.noop,
-            })
-        })
-        .run()
-    },
-    Err: err => console.error(err),
-  })
-}
-
-const evtSource = new EventSource('/admin/api/sse-media-downloads-viewer')
-
-evtSource.addEventListener('page-load', replaceDownloadListsData)
-evtSource.addEventListener('new-download-batch-started', replaceDownloadListsData)
-
-evtSource.addEventListener('downloads-cleared', (): void => {
-  console.info('downloads-cleared')
-
-  masterListOfDownloads.clear()
-  state.activeDownloadsListData = []
-  state.downloadHistoryListData = []
-  state.queuedDownloadsListData = []
-})
-
-evtSource.addEventListener('download-started', updateDownloadProps)
-evtSource.addEventListener('download-failed', updateDownloadProps)
-evtSource.addEventListener('download-succeeded', updateDownloadProps)
-evtSource.addEventListener('download-cancelled', updateDownloadProps)
-evtSource.addEventListener('download-skipped', updateDownloadProps)
-evtSource.addEventListener('download-progress', updateDownloadProps)
-evtSource.addEventListener('error', err => console.error(err))
-
-window.addEventListener('beforeunload', () => evtSource.close())
+initSSEListeners()
 
 const AdminDownloadsViewer = Vue.defineComponent({
   data() {
@@ -335,27 +38,63 @@ const AdminDownloadsViewer = Vue.defineComponent({
         : `${(Number(progress.toFixed(3)) * 100).toFixed(0)}%`
     },
     generateDownloadHistoryStatusIcon(download: FrontendDownload): string {
-      return match(download)
-        .with({ downloadSucceeded: true }, () => `✔️`)
-        .with({ downloadSkipped: true }, () => `⚠️`)
-        .with({ downloadCancelled: true }, () => `⛔`)
-        .with({ downloadFailed: true }, () => `❌`)
-        .otherwise(R.always(''))
+      return (
+        match(download)
+          .with({ downloadSkipped: true }, () => `⚠️`)
+          .with({ downloadCancelled: true }, () => `⛔`)
+          .with({ downloadFailed: true }, () => `❌`)
+          // this needs to be at the end as its possible to be true with others above also being true
+          .with({ downloadSucceeded: true }, () => `✔️`)
+          .otherwise(R.always(''))
+      )
     },
     generateDownloadHistoryStatusTitle(download: FrontendDownload): string {
-      return match(download)
-        .with({ downloadSucceeded: true }, () => `Download Successful (click for more info)`)
-        .with({ downloadSkipped: true }, () => `Download Skipped (click for more info)`)
-        .with({ downloadCancelled: true }, () => `Download Cancelled (click for more info)`)
-        .with({ downloadFailed: true }, () => `Download Failed (click for more info)`)
-        .otherwise(R.always(''))
+      return (
+        match(download)
+          .with({ downloadSkipped: true }, () => `Download Skipped (click for more info)`)
+          .with({ downloadCancelled: true }, () => `Download Cancelled (click for more info)`)
+          .with({ downloadFailed: true }, () => `Download Failed (click for more info)`)
+          // this needs to be at the end as its possible to be true with others above also being true
+          .with({ downloadSucceeded: true }, () => `Download Successful (click for more info)`)
+          .otherwise(R.always(''))
+      )
     },
     showDownloadHistoryModal(event: Event): void {
       const postId = (event.target as HTMLDivElement).dataset['postId'] as string
-      const download = masterListOfDownloads.get(postId) as FrontendDownload
+      const download = state.masterListOfDownloads.get(postId) as FrontendDownload
 
       state.jsonViewerData = download
       state.showJSONViewer = true
+    },
+    historyFilterSelectHandle(event: Event): void {
+      const selectElem = event.target as HTMLSelectElement
+      const filter = selectElem.value as Filter
+      const downloadsHistory = [...state.masterListOfDownloads.values()].filter(R.propEq('status', 'history'))
+
+      state.currentHistoryFilter = filter
+
+      match(state.currentHistoryFilter)
+        .with('all', () => {
+          state.downloadHistoryListData = downloadsHistory
+          state.isFilteringHistory = false
+        })
+        .with('succeeded', () => {
+          state.downloadHistoryListData = downloadsHistory.filter(R.propEq('downloadSucceeded', true))
+          state.isFilteringHistory = true
+        })
+        .with('skipped', () => {
+          state.downloadHistoryListData = downloadsHistory.filter(R.propEq('downloadSkipped', true))
+          state.isFilteringHistory = true
+        })
+        .with('cancelled', () => {
+          state.downloadHistoryListData = downloadsHistory.filter(R.propEq('downloadCancelled', true))
+          state.isFilteringHistory = true
+        })
+        .with('failed', () => {
+          state.downloadHistoryListData = downloadsHistory.filter(R.propEq('downloadFailed', true))
+          state.isFilteringHistory = true
+        })
+        .exhaustive()
     },
   },
   computed: {
@@ -393,6 +132,26 @@ const AdminDownloadsViewer = Vue.defineComponent({
     </div>
     <div id="downloads-history-container">
       <h1>Download History</h1>
+      <div class="download-history-filter-and-search">
+        <div class="search-container">
+          <label for="download-history-search">Search Download History</label>
+          <input type="search" id="download-history-search" aria-label="Search through download history">
+        </div>
+        <div class="filter-container">
+          <label for="download-history-filterSelect">Filter Download History:</label>
+          <select 
+            name="download-history-filterSelect" 
+            id="download-history-filterSelect" 
+            @change="historyFilterSelectHandle"
+          >
+            <option value="all">Show All</option>
+            <option value="succeeded">Succeeded ✔️</option>
+            <option value="skipped">Skipped ⚠️</option>
+            <option value="cancelled">Cancelled ⛔</option>
+            <option value="failed">Failed ❌</option>
+          </select>     
+        </div>
+      </div>  
       <div class="table-columns">
         <div class="table-column-postId"><span>Post Id</span></div>
         <div class="table-column-url"><span>Url</span></div>
