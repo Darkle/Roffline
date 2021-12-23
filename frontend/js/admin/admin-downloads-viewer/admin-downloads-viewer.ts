@@ -102,14 +102,12 @@ const AdminDownloadsViewer = Vue.defineComponent({
       const downloadsHistory = [...state.masterListOfDownloads.values()].filter(R.propEq('status', 'history'))
 
       state.currentHistoryFilter = filter
+      state.isFilteringHistory = state.currentHistoryFilter !== 'all'
 
-      match(state.currentHistoryFilter)
-        .with('all', () => {
-          state.downloadHistoryListData = downloadsHistory
-          state.isFilteringHistory = false
-        })
-        .with('succeeded', () => {
-          state.downloadHistoryListData = downloadsHistory.filter(download =>
+      state.downloadHistoryListData = match(state.currentHistoryFilter)
+        .with('all', () => downloadsHistory)
+        .with('succeeded', () =>
+          downloadsHistory.filter(download =>
             match(download)
               .with(
                 {
@@ -122,20 +120,10 @@ const AdminDownloadsViewer = Vue.defineComponent({
               )
               .otherwise(R.F)
           )
-          state.isFilteringHistory = true
-        })
-        .with('skipped', () => {
-          state.downloadHistoryListData = downloadsHistory.filter(R.propEq('downloadSkipped', true))
-          state.isFilteringHistory = true
-        })
-        .with('cancelled', () => {
-          state.downloadHistoryListData = downloadsHistory.filter(R.propEq('downloadCancelled', true))
-          state.isFilteringHistory = true
-        })
-        .with('failed', () => {
-          state.downloadHistoryListData = downloadsHistory.filter(R.propEq('downloadFailed', true))
-          state.isFilteringHistory = true
-        })
+        )
+        .with('skipped', () => downloadsHistory.filter(R.propEq('downloadSkipped', true)))
+        .with('cancelled', () => downloadsHistory.filter(R.propEq('downloadCancelled', true)))
+        .with('failed', () => downloadsHistory.filter(R.propEq('downloadFailed', true)))
         .exhaustive()
     },
   },
