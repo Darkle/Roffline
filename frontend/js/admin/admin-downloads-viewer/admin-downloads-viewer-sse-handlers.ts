@@ -89,12 +89,12 @@ const moveDownloadToOtherList = (
 
   removeDownloadFromCurrentList(updatedDownload, listDataDownloadCurrentlyResidesIn)
 
-  const isDownloadHistoryList = listDataToMoveDownloadTo === state.downloadHistoryListData
+  const movingDownloadToDownloadHistoryList = listDataToMoveDownloadTo === state.downloadHistoryListData
 
   if (state.isSearching) {
     if (
       state.isFilteringHistory &&
-      isDownloadHistoryList &&
+      movingDownloadToDownloadHistoryList &&
       downloadMatchesSearch(updatedDownload) &&
       downloadMatchesFilter(updatedDownload)
     ) {
@@ -110,7 +110,7 @@ const moveDownloadToOtherList = (
     return
   }
 
-  if (state.isFilteringHistory && isDownloadHistoryList) {
+  if (state.isFilteringHistory && movingDownloadToDownloadHistoryList) {
     if (downloadMatchesFilter(updatedDownload)) {
       listDataToMoveDownloadTo.unshift(updatedDownload)
       return
