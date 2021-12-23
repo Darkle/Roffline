@@ -15,7 +15,8 @@
     "start": "npm run build && NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r ./env-checker.cjs ./boot.js"
   },
   "browser": {
-    "vue": "vue/dist/vue.esm-bundler.js"
+    "vue": "vue/dist/vue.esm-bundler.js",
+    "vue3-json-viewer": "vue3-json-viewer/dist/bundle.cjs.js"
   },
   "engines": {
     "node": ">=16.13.0"
