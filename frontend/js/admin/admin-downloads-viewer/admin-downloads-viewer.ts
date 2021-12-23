@@ -59,6 +59,14 @@ const AdminDownloadsViewer = Vue.defineComponent({
         ? `${progress * 100}%`
         : `${(Number(progress.toFixed(3)) * 100).toFixed(0)}%`
     },
+    functionFormatSize(download: FrontendDownload): string {
+      const smallScreen = window.matchMedia('(max-width: 970px)').matches
+      const middlePart = smallScreen ? `/` : ` of `
+
+      return `${this.prettifyBytes(download.downloadedBytes)}${middlePart}${this.prettifyBytes(
+        download.downloadFileSize
+      )}`
+    },
     generateDownloadHistoryStatusIcon(download: FrontendDownload): string {
       return (
         match(download)
@@ -125,12 +133,10 @@ const AdminDownloadsViewer = Vue.defineComponent({
     },
   },
   template: /* html */ `
-    <div class="search-and-pause-container">
-      <div class="search-container">
-        <label for="download-history-search">Search Downloads</label>
-        <input type="search" id="download-history-search" aria-label="Search through download history">
-      </div>
-      <a id="pause-button" class="button outline" @click.prevent="state.updatesPaused = !state.updatesPaused">{{ pauseButtonText }}</a>
+    <a id="pause-button" class="button outline" @click.prevent="state.updatesPaused = !state.updatesPaused">{{ pauseButtonText }}</a>
+    <div class="search-container">
+      <label for="download-history-search">Search All Downloads</label>
+      <input type="search" id="download-history-search" aria-label="Search through download history">
     </div>
     <div id="active-downloads-container">
       <h1>Active Downloads</h1>
@@ -152,9 +158,9 @@ const AdminDownloadsViewer = Vue.defineComponent({
         <div class="download-item">
           <div class="postId"><a :href="createPostLink(item.permalink)" target="_blank" rel="noopener noreferrer" title="Click To Open Reddit Post Link For Download">{{ item.id }}</a></div>
           <div class="url"><a :href="item.url" target="_blank" rel="noopener noreferrer" title="Click To Open Download Url">{{ item.url }}</a></div>
-          <div class="downloadProgress"><span>{{ formatProgress(item.downloadProgress) }}</span></div>
-          <div class="size"><span>{{ prettifyBytes(item.downloadedBytes) }} of {{ prettifyBytes(item.downloadFileSize) }}</span></div>
-          <div class="downloadSpeed"><span>{{ prettifyBytes(item.downloadSpeed) }}</span></div>
+          <div class="downloadProgress"><span>{{formatProgress(item.downloadProgress)}}</span></div>
+          <div class="size"><span>{{functionFormatSize(item)}}</span></div>
+          <div class="downloadSpeed"><span>{{prettifyBytes(item.downloadSpeed)}}</span></div>
         </div>
       </DynamicScroller>         
     </div>
