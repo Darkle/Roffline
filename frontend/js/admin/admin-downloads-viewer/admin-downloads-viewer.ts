@@ -9,11 +9,33 @@ import { ignoreScriptTagCompilationWarnings } from '../../frontend-utils'
 import type { JSONViewer, VirtualScrollList } from '../../frontend-global-types'
 import type { FrontendDownload, Filter } from './admin-downloads-viewer.d'
 import { state } from './admin-downloads-viewer-state'
-import { initSSEListeners } from './admin-downloads-viewer-sse-handlers'
+import { replaceDownloadListsData, updateDownloadProps } from './admin-downloads-viewer-update-download'
 
 /* eslint-disable @typescript-eslint/no-magic-numbers,max-lines-per-function */
 
-initSSEListeners()
+const evtSource = new EventSource('/admin/api/sse-media-downloads-viewer')
+
+evtSource.addEventListener('page-load', replaceDownloadListsData)
+evtSource.addEventListener('new-download-batch-started', replaceDownloadListsData)
+
+evtSource.addEventListener('downloads-cleared', (): void => {
+  console.info('downloads-cleared')
+
+  state.masterListOfDownloads.clear()
+  state.activeDownloadsListData = []
+  state.downloadHistoryListData = []
+  state.queuedDownloadsListData = []
+})
+
+evtSource.addEventListener('download-started', updateDownloadProps)
+evtSource.addEventListener('download-failed', updateDownloadProps)
+evtSource.addEventListener('download-succeeded', updateDownloadProps)
+evtSource.addEventListener('download-cancelled', updateDownloadProps)
+evtSource.addEventListener('download-skipped', updateDownloadProps)
+evtSource.addEventListener('download-progress', updateDownloadProps)
+evtSource.addEventListener('error', err => console.error(err))
+
+window.addEventListener('beforeunload', () => evtSource.close())
 
 const AdminDownloadsViewer = Vue.defineComponent({
   data() {
@@ -103,7 +125,13 @@ const AdminDownloadsViewer = Vue.defineComponent({
     },
   },
   template: /* html */ `
-    <a id="pause-button" class="button outline" @click.prevent="state.updatesPaused = !state.updatesPaused">{{ pauseButtonText }}</a>
+    <div class="search-and-pause-container">
+      <div class="search-container">
+        <label for="download-history-search">Search Downloads</label>
+        <input type="search" id="download-history-search" aria-label="Search through download history">
+      </div>
+      <a id="pause-button" class="button outline" @click.prevent="state.updatesPaused = !state.updatesPaused">{{ pauseButtonText }}</a>
+    </div>
     <div id="active-downloads-container">
       <h1>Active Downloads</h1>
       <div class="table-columns">
@@ -132,26 +160,20 @@ const AdminDownloadsViewer = Vue.defineComponent({
     </div>
     <div id="downloads-history-container">
       <h1>Download History</h1>
-      <div class="download-history-filter-and-search">
-        <div class="search-container">
-          <label for="download-history-search">Search Download History</label>
-          <input type="search" id="download-history-search" aria-label="Search through download history">
-        </div>
-        <div class="filter-container">
-          <label for="download-history-filterSelect">Filter Download History:</label>
-          <select 
-            name="download-history-filterSelect" 
-            id="download-history-filterSelect" 
-            @change="historyFilterSelectHandle"
-          >
-            <option value="all">Show All</option>
-            <option value="succeeded">Succeeded ✔️</option>
-            <option value="skipped">Skipped ⚠️</option>
-            <option value="cancelled">Cancelled ⛔</option>
-            <option value="failed">Failed ❌</option>
-          </select>     
-        </div>
-      </div>  
+      <div class="download-history-filter">
+        <label for="download-history-filterSelect">Filter Download History</label>
+        <select 
+          name="download-history-filterSelect" 
+          id="download-history-filterSelect" 
+          @change="historyFilterSelectHandle"
+        >
+          <option value="all">Show All</option>
+          <option value="succeeded">Succeeded ✔️</option>
+          <option value="skipped">Skipped ⚠️</option>
+          <option value="cancelled">Cancelled ⛔</option>
+          <option value="failed">Failed ❌</option>
+        </select>     
+      </div>
       <div class="table-columns">
         <div class="table-column-postId"><span>Post Id</span></div>
         <div class="table-column-url"><span>Url</span></div>

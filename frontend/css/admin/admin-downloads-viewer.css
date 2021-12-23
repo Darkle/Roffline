@@ -12,6 +12,26 @@ body.admin-downloads-viewer {
   margin-bottom: 8rem;
 }
 
+.admin-downloads-viewer .search-and-pause-container {
+  display: flex;
+  font-size: 0.9rem;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  justify-content: space-between;
+}
+
+.admin-downloads-viewer .search-container {
+  display: flex;
+  font-size: 0.9rem;
+  flex-direction: column;
+  align-items: center;
+}
+
+.admin-downloads-viewer .search-container #download-history-search {
+  font-size: 0.9rem;
+  width: 200px;
+}
+
 .admin-downloads-viewer #pause-button {
   font-size: 0.8rem;
   align-self: flex-end;
@@ -152,20 +172,19 @@ body.admin-downloads-viewer {
   margin-left: 4rem;
 }
 
-.admin-downloads-viewer .download-history-filter-and-search {
+.admin-downloads-viewer .download-history-filter {
   display: flex;
   font-size: 0.9rem;
   width: 100%;
-  justify-content: space-between;
   margin-bottom: 1.5rem;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
-.admin-downloads-viewer .download-history-filter-and-search .search-container #download-history-search {
+.admin-downloads-viewer .download-history-filter select {
   padding: 0.4rem;
-}
-
-.admin-downloads-viewer .download-history-filter-and-search .filter-container select {
-  padding: 0.4rem;
+  font-size: 0.9rem;
+  width: 9rem;
 }
 
 .admin-downloads-viewer .json-object-view-wrapper {
