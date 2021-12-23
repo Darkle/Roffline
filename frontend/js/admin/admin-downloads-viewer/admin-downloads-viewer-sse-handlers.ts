@@ -67,6 +67,18 @@ const downloadMatchesFilter = (download: FrontendDownload): boolean =>
     .with({ downloadFailed: true }, () => state.currentHistoryFilter === 'failed', R.T)
     .otherwise(R.F)
 
+const removeDownloadFromCurrentList = (
+  updatedDownload: FrontendDownload,
+  listDataDownloadCurrentlyResidesIn: FrontendDownload[]
+): void => {
+  const downloadIndexInListData = listDataDownloadCurrentlyResidesIn.findIndex(R.propEq('id', updatedDownload.id))
+
+  if (downloadIndexInListData !== -1) {
+    // https://mzl.la/3mp0RLT
+    listDataDownloadCurrentlyResidesIn.splice(downloadIndexInListData, 1)
+  }
+}
+
 // eslint-disable-next-line complexity
 const moveDownloadToOtherList = (
   updatedDownload: FrontendDownload,
@@ -75,12 +87,7 @@ const moveDownloadToOtherList = (
 ): void => {
   if (state.updatesPaused) return
 
-  const downloadIndexInListData = listDataDownloadCurrentlyResidesIn.findIndex(R.propEq('id', updatedDownload.id))
-
-  if (downloadIndexInListData !== -1) {
-    // https://mzl.la/3mp0RLT
-    listDataDownloadCurrentlyResidesIn.splice(downloadIndexInListData, 1)
-  }
+  removeDownloadFromCurrentList(updatedDownload, listDataDownloadCurrentlyResidesIn)
 
   const isDownloadHistoryList = listDataToMoveDownloadTo === state.downloadHistoryListData
 
