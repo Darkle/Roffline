@@ -1,11 +1,11 @@
 import { match } from 'ts-pattern'
+
+import type { DownloadsFromBackend, DownloadStatus, FrontendDownload } from './admin-downloads-viewer.d'
+
 /*****
   We removed empty keys server side to make the payload smaller.
   Now we recreate them.
 *****/
-
-import type { DownloadsFromBackend, DownloadStatus, FrontendDownload } from './admin-downloads-viewer.d'
-
 // eslint-disable-next-line max-lines-per-function
 const reconstructMinimizedDownloadData = (download: DownloadsFromBackend): FrontendDownload => {
   const downloadStatus = match(download)
