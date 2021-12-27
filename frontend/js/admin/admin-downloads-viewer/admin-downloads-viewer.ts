@@ -4,12 +4,17 @@ import { match } from 'ts-pattern'
 import VueVirtualScroller from 'vue-virtual-scroller'
 import prettyBytes from 'pretty-bytes'
 import JsonViewer from 'vue3-json-viewer'
+import debounce from 'lodash.debounce'
 
 import { ignoreScriptTagCompilationWarnings } from '../../frontend-utils'
 import type { JSONViewer, VirtualScrollList } from '../../frontend-global-types'
 import type { FrontendDownload, Filter } from './admin-downloads-viewer.d'
 import { state } from './admin-downloads-viewer-state'
-import { replaceDownloadListsData, updateDownloadProps } from './admin-downloads-viewer-update-download'
+import {
+  replaceDownloadListsData,
+  updateDownloadProps,
+  downloadMatchesSearch,
+} from './admin-downloads-viewer-update-download'
 
 /* eslint-disable @typescript-eslint/no-magic-numbers,max-lines-per-function */
 
@@ -43,6 +48,22 @@ const AdminDownloadsViewer = Vue.defineComponent({
       state,
     }
   },
+  created() {
+    const delay = 500
+    // eslint-disable-next-line functional/immutable-data
+    this['onSearch'] = debounce((ev: Event) => {
+      const inputElem = ev.target as HTMLInputElement
+      state.searchTerm = inputElem.value.trim().toLowerCase()
+
+      const downloads = [...state.masterListOfDownloads.values()]
+
+      state.activeDownloadsListData = downloads.filter(R.propEq('status', 'active')).filter(downloadMatchesSearch)
+      state.downloadHistoryListData = downloads
+        .filter(R.propEq('status', 'history'))
+        .filter(downloadMatchesSearch)
+      state.queuedDownloadsListData = downloads.filter(R.propEq('status', 'queued')).filter(downloadMatchesSearch)
+    }, delay)
+  },
   methods: {
     prettifyBytes(bytes: number | null): string {
       return prettyBytes(typeof bytes === 'number' ? bytes : 0)
@@ -73,8 +94,16 @@ const AdminDownloadsViewer = Vue.defineComponent({
           .with({ downloadSkipped: true }, () => `⚠️`)
           .with({ downloadCancelled: true }, () => `⛔`)
           .with({ downloadFailed: true }, () => `❌`)
-          // this needs to be at the end as its possible to be true with others above also being true
-          .with({ downloadSucceeded: true }, () => `✔️`)
+          // It's possible for downloadSucceeded to be true when others are true as well, so check others arent true too.
+          .with(
+            {
+              downloadSucceeded: true,
+              downloadSkipped: false,
+              downloadCancelled: false,
+              downloadFailed: false,
+            },
+            () => `✔️`
+          )
           .otherwise(R.always(''))
       )
     },
@@ -84,8 +113,16 @@ const AdminDownloadsViewer = Vue.defineComponent({
           .with({ downloadSkipped: true }, () => `Download Skipped (click for more info)`)
           .with({ downloadCancelled: true }, () => `Download Cancelled (click for more info)`)
           .with({ downloadFailed: true }, () => `Download Failed (click for more info)`)
-          // this needs to be at the end as its possible to be true with others above also being true
-          .with({ downloadSucceeded: true }, () => `Download Successful (click for more info)`)
+          // It's possible for downloadSucceeded to be true when others are true as well, so check others arent true too.
+          .with(
+            {
+              downloadSucceeded: true,
+              downloadSkipped: false,
+              downloadCancelled: false,
+              downloadFailed: false,
+            },
+            () => `Download Successful (click for more info)`
+          )
           .otherwise(R.always(''))
       )
     },
@@ -136,7 +173,7 @@ const AdminDownloadsViewer = Vue.defineComponent({
     <a id="pause-button" class="button outline" @click.prevent="state.updatesPaused = !state.updatesPaused">{{ pauseButtonText }}</a>
     <div class="search-container">
       <label for="download-history-search">Search All Downloads</label>
-      <input type="search" id="download-history-search" aria-label="Search through download history">
+      <input type="search" id="download-history-search" @input="onSearch" aria-label="Search all downloads">
     </div>
     <div id="active-downloads-container">
       <h1>Active Downloads</h1>
@@ -172,6 +209,7 @@ const AdminDownloadsViewer = Vue.defineComponent({
           name="download-history-filterSelect" 
           id="download-history-filterSelect" 
           @change="historyFilterSelectHandle"
+          v-model="state.currentHistoryFilter"
         >
           <option value="all">Show All</option>
           <option value="succeeded">Succeeded ✔️</option>

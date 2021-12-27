@@ -13,11 +13,16 @@ const reconstructMinimizedDownloadData = (download: DownloadsFromBackend): Front
     .with({ downloadCancelled: true }, () => 'history')
     .with({ downloadSkipped: true }, () => 'history')
     .with({ downloadSucceeded: true }, () => 'history')
-    /*****
-      Make sure this is last pattern as downloadStarted can be true when others above are true
-      also, so wouldnt want to match on it before them.
-    *****/
-    .with({ downloadStarted: true }, () => 'active')
+    // It's possible for downloadSucceeded to be true when others are true as well, so check others arent true too.
+    .with(
+      {
+        downloadSucceeded: true,
+        downloadSkipped: false,
+        downloadCancelled: false,
+        downloadFailed: false,
+      },
+      () => 'active'
+    )
     .otherwise(() => 'queued') as DownloadStatus
 
   return {

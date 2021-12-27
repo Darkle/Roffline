@@ -92,16 +92,6 @@ const moveDownloadToOtherList = (
   const movingDownloadToHistoryList = listDataToMoveDownloadTo === state.downloadHistoryListData
 
   if (state.isSearching) {
-    if (
-      state.isFilteringHistory &&
-      movingDownloadToHistoryList &&
-      downloadMatchesSearch(updatedDownload) &&
-      downloadMatchesFilter(updatedDownload)
-    ) {
-      listDataToMoveDownloadTo.unshift(updatedDownload)
-      return
-    }
-
     if (downloadMatchesSearch(updatedDownload)) {
       listDataToMoveDownloadTo.unshift(updatedDownload)
       return
@@ -230,4 +220,4 @@ function updateDownloadProps(ev: Event): void {
   })
 }
 
-export { replaceDownloadListsData, updateDownloadProps }
+export { replaceDownloadListsData, updateDownloadProps, downloadMatchesSearch }
