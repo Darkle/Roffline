@@ -14,6 +14,7 @@ import {
   replaceDownloadListsData,
   updateDownloadProps,
   downloadMatchesSearch,
+  downloadHasNo404Error,
 } from './admin-downloads-viewer-update-download'
 
 /* eslint-disable @typescript-eslint/no-magic-numbers,max-lines-per-function */
@@ -149,12 +150,15 @@ const AdminDownloadsViewer = Vue.defineComponent({
       state.currentHistoryFilter = filter
       state.isFilteringHistory = state.currentHistoryFilter !== 'all'
 
+      const remove404Failures = downloadHasNo404Error
+
       state.downloadHistoryListData = match(state.currentHistoryFilter)
         .with('all', () => downloadsHistory)
         .with('succeeded', () =>
           downloadsHistory.filter(download =>
             match(download)
               .with(
+                // It's possible for downloadSucceeded to be true when others are true as well, so check others arent true too.
                 {
                   downloadSucceeded: true,
                   downloadSkipped: false,
@@ -169,6 +173,9 @@ const AdminDownloadsViewer = Vue.defineComponent({
         .with('skipped', () => downloadsHistory.filter(R.propEq('downloadSkipped', true)))
         .with('cancelled', () => downloadsHistory.filter(R.propEq('downloadCancelled', true)))
         .with('failed', () => downloadsHistory.filter(R.propEq('downloadFailed', true)))
+        .with('failed-no-404', () =>
+          downloadsHistory.filter(R.propEq('downloadFailed', true)).filter(remove404Failures)
+        )
         .exhaustive()
     },
   },
@@ -224,6 +231,7 @@ const AdminDownloadsViewer = Vue.defineComponent({
           <option value="skipped">Skipped ⚠️</option>
           <option value="cancelled">Cancelled ⛔</option>
           <option value="failed">Failed ❌</option>
+          <option value="failed-no-404">Failed ❌ (sans 404s)</option>
         </select>     
       </div>
       <div class="table-columns">

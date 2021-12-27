@@ -59,11 +59,26 @@ const downloadMatchesSearch = (download: FrontendDownload): boolean =>
     .filter(R.is(String))
     .find(val => val.includes(state.searchTerm))
 
+const downloadHasNo404Error = (download: FrontendDownload): boolean =>
+  !Object.values(download)
+    .filter(R.is(String))
+    .find(
+      val =>
+        val.includes('404 Not Found') ||
+        val.includes('Error: Response status was 404') ||
+        val.includes('HTTP Error 404: Not Found')
+    )
+
 const downloadMatchesFilter = (download: FrontendDownload): boolean =>
   match(download)
     .with({ downloadSucceeded: true }, () => state.currentHistoryFilter === 'succeeded', R.T)
     .with({ downloadSkipped: true }, () => state.currentHistoryFilter === 'skipped', R.T)
     .with({ downloadCancelled: true }, () => state.currentHistoryFilter === 'cancelled', R.T)
+    .with(
+      { downloadFailed: true },
+      () => state.currentHistoryFilter === 'failed' && downloadHasNo404Error(download),
+      R.T
+    )
     .with({ downloadFailed: true }, () => state.currentHistoryFilter === 'failed', R.T)
     .otherwise(R.F)
 
@@ -220,4 +235,4 @@ function updateDownloadProps(ev: Event): void {
   })
 }
 
-export { replaceDownloadListsData, updateDownloadProps, downloadMatchesSearch }
+export { replaceDownloadListsData, updateDownloadProps, downloadMatchesSearch, downloadHasNo404Error }

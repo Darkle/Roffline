@@ -50,7 +50,7 @@ type UpdateDownloadPropsParsedData = { type: string; data: DownloadUpdateData }
 
 type DownloadsFromBackend = DownloadReadyToBeSent
 
-type Filter = 'all' | 'succeeded' | 'skipped' | 'cancelled' | 'failed'
+type Filter = 'all' | 'succeeded' | 'skipped' | 'cancelled' | 'failed' | 'failed-no-404'
 
 export {
   FrontendDownload,
