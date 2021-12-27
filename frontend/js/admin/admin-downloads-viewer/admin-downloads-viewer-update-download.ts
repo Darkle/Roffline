@@ -76,7 +76,7 @@ const downloadMatchesFilter = (download: FrontendDownload): boolean =>
     .with({ downloadCancelled: true }, () => state.currentHistoryFilter === 'cancelled', R.T)
     .with(
       { downloadFailed: true },
-      () => state.currentHistoryFilter === 'failed' && downloadHasNo404Error(download),
+      () => state.currentHistoryFilter === 'failed-no-404' && downloadHasNo404Error(download),
       R.T
     )
     .with({ downloadFailed: true }, () => state.currentHistoryFilter === 'failed', R.T)
