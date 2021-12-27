@@ -6,7 +6,7 @@ import prettyBytes from 'pretty-bytes'
 import JsonViewer from 'vue3-json-viewer'
 import debounce from 'lodash.debounce'
 
-import { ignoreScriptTagCompilationWarnings } from '../../frontend-utils'
+import { ignoreScriptTagCompilationWarnings, $ } from '../../frontend-utils'
 import type { JSONViewer, VirtualScrollList } from '../../frontend-global-types'
 import type { FrontendDownload, Filter } from './admin-downloads-viewer.d'
 import { state } from './admin-downloads-viewer-state'
@@ -132,6 +132,14 @@ const AdminDownloadsViewer = Vue.defineComponent({
 
       state.jsonViewerData = download
       state.showJSONViewer = true
+
+      this.$nextTick(() => {
+        const historyListElem = $('#downloads-history-container') as HTMLDivElement
+        const jsonObjectViewerElem = $('.json-object-view-wrapper') as HTMLDivElement
+
+        // eslint-disable-next-line functional/immutable-data
+        jsonObjectViewerElem.style.top = `${historyListElem.offsetTop}px`
+      })
     },
     historyFilterSelectHandle(event: Event): void {
       const selectElem = event.target as HTMLSelectElement
