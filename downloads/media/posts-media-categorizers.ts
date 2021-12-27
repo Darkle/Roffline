@@ -49,11 +49,26 @@ const postDomainIsOneOf =
 
 const isVideoEmbed = R.pathEq(['media', 'oembed', 'type'], 'video')
 
+const urlContainsVideoHostDomain = (post: Post): boolean => {
+  const url = post.url.startsWith('/r/') ? `https://www.reddit.com${post.url}` : post.url
+  const postUrl = new URL(url)
+
+  return videoHostDomains.some(
+    (domain: string): boolean => domain === postUrl.hostname || postUrl.hostname.endsWith(`.${domain}`)
+  )
+}
+
 /*****
   Sometimes the post_hint property isnt present immediately on a new post, so also check
   other properties too.
 *****/
 const isVideoPost = R.anyPass([
+  /*****
+    For some reason some posts with external urls have reddit.com as their domain.
+    E.g. https://www.reddit.com/r/aww/comments/rggttj/found_on_instagram_from_hukumari296/.
+    So we also check if the post.url domain is a video domain.
+  *****/
+  urlContainsVideoHostDomain,
   isVideoEmbed,
   postDomainIsOneOf(videoHostDomains),
   postUrlStartsWithOneOf(videoHostUrls),
@@ -117,12 +132,27 @@ const isCrossPost = R.allPass([
 
 const isTextPostWithNoUrlInPost = R.pathSatisfies(RA.isTrue, ['post', 'isTextPostWithNoUrlsInPost'])
 
+const urlContainsImageHostDomain = (post: Post): boolean => {
+  const url = post.url.startsWith('/r/') ? `https://www.reddit.com${post.url}` : post.url
+  const postUrl = new URL(url)
+
+  return imageHostDomains.some(
+    (domain: string): boolean => domain === postUrl.hostname || postUrl.hostname.endsWith(`.${domain}`)
+  )
+}
+
 /*****
   Sometimes the post_hint property isnt present immediately on a new post, so also check
   other properties too.
 *****/
 const isImagePost = R.allPass([
   R.anyPass([
+    /*****
+      For some reason some posts with external urls have reddit.com as their domain.
+      E.g. https://www.reddit.com/r/aww/comments/rggttj/found_on_instagram_from_hukumari296/.
+      So we also check if the post.url domain is an image domain.
+    *****/
+    urlContainsImageHostDomain,
     R.compose(R.startsWith('https://www.reddit.com/gallery/'), getPostUrlProp),
     R.compose(R.startsWith('https://preview.redd.it'), getPostUrlProp),
     postDomainIsOneOf(imageHostDomains),

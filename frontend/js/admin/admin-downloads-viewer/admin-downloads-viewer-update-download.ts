@@ -119,7 +119,7 @@ function updateDownloadProps(ev: Event): void {
     Ok: (parsedData): void => {
       const eventAndData = { data: parsedData, type: ev.type } as UpdateDownloadPropsParsedData
 
-      // console.info(eventAndData)
+      console.info(eventAndData)
 
       const { postId } = eventAndData.data
       const downloadFromMasterList = state.masterListOfDownloads.get(postId) as FrontendDownload
