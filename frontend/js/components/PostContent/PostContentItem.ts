@@ -3,7 +3,6 @@ import * as R from 'ramda'
 import { unescape } from 'html-escaper'
 import * as RA from 'ramda-adjunct'
 
-import { redditDomains } from '../../../../downloads/media/domains'
 import { PostContentSingleImage } from './PostContentSingleImage'
 import { PostContentImageGallery } from './PostContentImageGallery'
 import { PostContentVideo } from './PostContentVideo'
@@ -17,11 +16,6 @@ const doesNotHaveSelfText = R.complement(hasSelfText)
 const isTextPost = R.allPass([R.propEq('is_self', true), hasSelfText])
 const isNotTextPost = R.complement(isTextPost)
 
-const postDomainIsOneOf =
-  (domains: string[]) =>
-  (post: FrontendPost): boolean =>
-    domains.some((domain: string): boolean => post.domain === domain || post.domain.endsWith(`.${domain}`))
-
 const isSelfPost = R.allPass([
   R.anyPass([
     R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
@@ -32,9 +26,11 @@ const isSelfPost = R.allPass([
 
 const isNotSelfPostWithoutText = R.complement(R.allPass([isSelfPost, doesNotHaveSelfText]))
 
+/*****
+  Dont check for domains in isRedditUrl as some posts can have an external url with a reddit domain
+  (for some reason). E.g. https://www.reddit.com/r/aww/comments/rftkyf/found_on_instagram_from_nyankichi5656/
+*****/
 const isRedditUrl = R.anyPass([
-  postDomainIsOneOf(redditDomains),
-  // A self post can sometimes have a domain of `self.aww`, so also check url.
   R.compose(R.startsWith('https://www.reddit.com/r/'), getPostUrlProp),
   R.compose(R.startsWith('https://old.reddit.com/r/'), getPostUrlProp),
   R.compose(R.startsWith('https://np.reddit.com/r/'), getPostUrlProp),
