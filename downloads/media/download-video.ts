@@ -60,6 +60,8 @@ function downloadVideo(
     `--progress-template`: Allows us to format the output in a way that allows us to parse the update info in
     spawn-external-download-process, which we then send along to adminMediaDownloadsViewerOrganiser.
 
+    `%(title).150s` in the --output helps trim titles that would make file name too large: https://github.com/yt-dlp/yt-dlp/issues/1136#issuecomment-932077195
+
     Formats:
       We check for many format combos specifically, because if we were to just use bestvideo+bestaudio, yt-dlp could
       download say a webm video file with a m4a audio file, and since an m4a audio file is incompatible with the webm
@@ -81,7 +83,7 @@ function downloadVideo(
   const command = compressText`
   yt-dlp "${postUrl}" 
   --format '${videoFormats}' 
-  --output "${postMediaFolder}/%(title)s-[%(id)s]-[%(channel)s].%(ext)s" 
+  --output "${postMediaFolder}/%(title).150s-[%(id)s]-[%(channel)s].%(ext)s" 
   --no-playlist 
   --retries 1 
   --playlist-items 1 
