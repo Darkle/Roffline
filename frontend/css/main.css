@@ -45,3 +45,7 @@ kbd {
 .splide__arrows > button {
   top: 95%;
 }
+
+#roffline-logo .colored-path {
+  fill: #d2d6dd;
+}

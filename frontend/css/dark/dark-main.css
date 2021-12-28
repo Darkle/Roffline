@@ -7,3 +7,7 @@ body.dark-theme {
   --color-primary: #20d47d;
   --color-error: #f97d7d;
 }
+
+body.dark-theme #roffline-logo .colored-path {
+  fill: #888;
+}
