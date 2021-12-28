@@ -16,8 +16,6 @@ import {
 import { SSEHandler } from '../controllers/admin/server-side-events'
 import { cancelDownload } from '../controllers/admin/cancel-download'
 
-//TODO: add fastify validation to all the routes that need it
-
 const mainPreHandlers = [basicAuth]
 
 // eslint-disable-next-line max-lines-per-function
