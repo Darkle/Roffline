@@ -145,7 +145,7 @@ const AdminDBViewerTable = Vue.defineComponent({
     },
     dbSelectHandler(event: Event) {
       const selectElem = event?.target as HTMLSelectElement
-      const tableName = selectElem.value as string
+      const tableName = selectElem.value
       const newTable = true
 
       state.isLoading = true

@@ -200,7 +200,7 @@ async function deleteUser(
       thereAreSubsAndPostsNoLongerInUse
         ? Promise.all([
             Prray.from(subsOfUserToDeleteThatNoOtherUserHas).forEachAsync(sub => {
-              const subreddit = sub as string
+              const subreddit = sub
               return removeSubredditTable(subreddit)
             }),
             batchRemoveComments(postIdsFromSubsWeAreRemoving),

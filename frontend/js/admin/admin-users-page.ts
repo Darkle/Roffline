@@ -61,7 +61,7 @@ const AdminUsersTable = Vue.defineComponent({
       .then(res => res.json() as Promise<User[]>)
       .then(users => {
         console.info(users)
-        state.rows = users as User[]
+        state.rows = users
       })
       .catch(err => console.error(err))
   },

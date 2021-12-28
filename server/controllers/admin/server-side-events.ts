@@ -65,7 +65,7 @@ type DownloadReadyToBeSent = Omit<
 > & {
   // setting these specifically as optional as they may be removed by removePropsWithNoData.
   mediaDownloadTries?: number
-  downloadError?: string | undefined
+  downloadError?: string
   downloadFailed?: boolean
   downloadCancelled?: boolean
   downloadCancellationReason?: string
