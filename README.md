@@ -6,23 +6,22 @@
 
 Roffline is a self-hosted offline Reddit server. It allows you to browse reddit posts (including any media in the post) while offline. It is targeted at people that have intermittent internet.
 
-#### Non-Docker Install
+#### Setting Up With Docker
 
-Requirements:
+#### Setting Up Without Docker
 
-- NodeJS LTS
-- Python 3
-- The [gallery-dl](https://github.com/mikf/gallery-dl) python module installed and available in PATH
-- The [yt-dlp](https://github.com/yt-dlp/yt-dlp) python module installed and available in PATH
-- ffmpeg installed and available in PATH (needed for yt-dlp to merge audio and video)
-
-Installation:
-
-1. Run `git clone https://github.com/Darkle/Roffline.git`
-2. Create a `.env` file. You can see an example one here: [.testing.env](.testing.env)
-3. Run `npm install`
-4. Run `npm build`
-5. Run `npm start`
+- Requirements:
+  - NodeJS LTS
+  - Python 3
+  - The [gallery-dl](https://github.com/mikf/gallery-dl) python module installed and available in PATH
+  - The [yt-dlp](https://github.com/yt-dlp/yt-dlp) python module installed and available in PATH
+  - ffmpeg installed and available in PATH (needed for yt-dlp to merge audio and video)
+- Installation:
+  1. Run `git clone https://github.com/Darkle/Roffline.git`
+  2. Create a `.env` file. You can see an example one here: [.example.env](.example.env)
+  3. Run `npm install`
+  4. Run `npm build`
+  5. Run `npm start`
 
 #### Features:
 
