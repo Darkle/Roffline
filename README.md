@@ -6,9 +6,9 @@
 
 Roffline is a self-hosted offline Reddit server. It allows you to browse reddit posts (including any media in the post) while offline. It is targeted at people that have intermittent internet.
 
-#### Setting Up With Docker
+#### Setting Up With Docker:
 
-#### Setting Up Without Docker
+#### Setting Up Without Docker:
 
 - Requirements:
   - NodeJS LTS
@@ -32,6 +32,8 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse reddit 
 - Search article titles
 - Dark mode
 
+#### Screenshots: [screenshots](screenshots/screenshots.md)
+
 #### Limitations:
 
 - We dont get all the comments
@@ -45,7 +47,7 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse reddit 
   - username: `admin`
   - password: `foo`
 
-#### TODO
+#### TODO:
 
 - Finish writing unit & integration tests. Also write some e2e tests.
 
@@ -72,16 +74,16 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse reddit 
 
 #### Things could possibly add later:
 
-- Compress downloaded images with mozjpeg, optipng et.al.
+- Compress downloaded images and videowith mozjpeg, optipng et.al.
   - https://web.dev/introducing-libsquoosh/
-  - Or convert downloaded images and gifs to avif
+  - Convert downloaded images and gifs to avif
   - Or prehaps use https://imgproxy.net/
 - Convert downloaded videos to AV-1
 - HTTPS via https://caddyserver.com/ - caddy is supposed to be very easy to set up
 - Add exif metadata to images and videos that adds the original reddit url this media came from so you can always find the source
   - (yt-dlp has some metadata writing capabilities built in)
 - Image deduping with https://github.com/idealo/imagededup and/or hashing
-- Use image classification for alt info for images/videos
+- Use image classification for alt info for images/videos to help blind users
   - Serverside:
   - Clientside:
     - https://medium.com/agara-labs/image-classification-with-the-client-side-neural-network-using-tensorflow-js-8f94d3dc7c5c
@@ -89,4 +91,3 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse reddit 
     - https://medium.com/the-web-tub/object-detection-with-javascript-the-easy-way-74fbe98741cf
     - https://github.com/yong-asial/ml5-object-detection
     - Do this as an option you can enable
-    - I think i should really do this as it will help blind users
