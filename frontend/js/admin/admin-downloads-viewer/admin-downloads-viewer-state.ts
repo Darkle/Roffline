@@ -1,5 +1,6 @@
 import * as R from 'ramda'
 import * as Vue from 'vue'
+import { $ } from '../../frontend-utils'
 import type { FrontendDownload, Filter, PostId } from './admin-downloads-viewer.d'
 
 /* eslint-disable functional/no-conditional-statement */
@@ -15,7 +16,7 @@ const state = Vue.reactive({
   currentHistoryFilter: 'all' as Filter,
   showJSONViewer: false,
   jsonViewerData: null as null | FrontendDownload,
-  masterListOfDownloads: new Map() as Map<PostId, FrontendDownload>,
+  masterListOfDownloads: new Map<PostId, FrontendDownload>(),
 })
 
 Vue.watch(
@@ -27,6 +28,15 @@ Vue.watch(
       state.activeDownloadsListData = downloads.filter(R.propEq('status', 'active'))
       state.downloadHistoryListData = downloads.filter(R.propEq('status', 'history'))
       state.queuedDownloadsListData = downloads.filter(R.propEq('status', 'queued'))
+
+      state.isFilteringHistory = false
+      state.currentHistoryFilter = 'all'
+      state.isSearching = false
+      state.searchTerm = ''
+
+      const searchInput = $('#download-history-search') as HTMLInputElement
+      // eslint-disable-next-line functional/immutable-data
+      searchInput.value = ''
     }
   }
 )

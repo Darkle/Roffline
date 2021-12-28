@@ -61,7 +61,7 @@ body.admin-downloads-viewer {
   display: flex;
   flex-direction: column;
   height: 40vh;
-  min-height: 200px;
+  min-height: 300px;
   width: 70vw;
   margin-bottom: 6rem;
 }
@@ -72,6 +72,16 @@ body.admin-downloads-viewer {
   height: 40vh;
   min-height: 200px;
   width: 70vw;
+}
+
+aside {
+  font-size: 1rem;
+}
+
+@media only screen and (max-width: 970px) {
+  aside {
+    font-size: calc(0.6em + 0.5vw);
+  }
 }
 
 .admin-downloads-viewer h1 {

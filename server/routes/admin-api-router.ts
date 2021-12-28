@@ -8,11 +8,13 @@ import { getAdminStats } from '../controllers/admin/admin-stats'
 import { basicAuth } from '../controllers/admin/basic-auth'
 import { csrfProtection } from '../controllers/csrf'
 import {
+  adminCancelDownloadSchema,
   adminGetPaginatedTableDataSchema,
   deleteUserSchema,
   updateAdminSettingsSchema,
 } from './api-router-schema'
 import { SSEHandler } from '../controllers/admin/server-side-events'
+import { cancelDownload } from '../controllers/admin/cancel-download'
 
 //TODO: add fastify validation to all the routes that need it
 
@@ -86,6 +88,12 @@ const adminApiRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Erro
     '/update-admin-setting',
     { preHandler: [...mainPreHandlers, csrfProtection], schema: updateAdminSettingsSchema },
     updateAdminSetting
+  )
+
+  fastify.put(
+    '/cancel-download',
+    { preHandler: [...mainPreHandlers, csrfProtection], schema: adminCancelDownloadSchema },
+    cancelDownload
   )
 
   fastify.delete(

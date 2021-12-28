@@ -8,7 +8,12 @@ import { adminMediaDownloadsViewerOrganiser } from './media-downloads-viewer-org
 
 type PostReadyForDownload = Post & { isTextPostWithNoUrlsInPost?: boolean }
 
+type SpawnedProcessPid = number
+
 const twoHoursInMs = 7200000
+
+// We keep a reference so we can allow admin to cancel a stalled download on the admin downloads page.
+const spawnedDownloadProcessReferences = new Map<Post['id'], SpawnedProcessPid>()
 
 // NA is what yt-dlp will add if the data is not available in the template.
 const toNumber = (numAsString: string): number => (numAsString === 'NA' ? 0 : Number(numAsString))
@@ -47,10 +52,15 @@ const stdoutHandler = R.curry((post: PostReadyForDownload, data: Buffer | string
 
 function spawnSubProcess(command: string, post: PostReadyForDownload, downloadType: string): Promise<void> {
   const subprocess = execa.command(command, {
-    shell: true,
     cleanup: true,
+    shell: true,
     timeout: twoHoursInMs, // To kill any stalled downloads.
   })
+
+  // eslint-disable-next-line functional/no-conditional-statement
+  if (subprocess.pid) {
+    spawnedDownloadProcessReferences.set(post.id, subprocess.pid)
+  }
 
   /*****
     There's really no need to do progress updates for image downloads as they only take about a second.
@@ -65,4 +75,4 @@ function spawnSubProcess(command: string, post: PostReadyForDownload, downloadTy
   return subprocess.then(RA.noop)
 }
 
-export { spawnSubProcess }
+export { spawnSubProcess, spawnedDownloadProcessReferences }

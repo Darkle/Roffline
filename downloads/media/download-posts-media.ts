@@ -15,6 +15,8 @@ import { logDownloadError } from './log-download-errors'
 import { adminMediaDownloadsViewerOrganiser } from './media-downloads-viewer-organiser'
 import { isTextPost } from './posts-media-categorizers'
 import { isOffline } from '../check-if-offline'
+import { spawnedDownloadProcessReferences } from './spawn-external-download-process'
+import { directDownloadReferences } from './direct-media-download'
 
 type PostId = string
 
@@ -138,6 +140,10 @@ function downloadPostsMedia(
           }
 
           return downloadError
+        } finally {
+          // Map doesnt error if the item isnt there when you try to delete it
+          spawnedDownloadProcessReferences.delete(post.id)
+          directDownloadReferences.delete(post.id)
         }
       },
       {

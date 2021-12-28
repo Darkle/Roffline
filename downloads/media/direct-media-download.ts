@@ -11,6 +11,9 @@ type PostWithOptionalTextMetaData = Post & { isTextPostWithNoUrlsInPost?: boolea
 
 const gifvExtension = 'gifv'
 
+// We keep a reference so we can allow admin to cancel a stalled download on the admin downloads page.
+const directDownloadReferences = new Map<Post['id'], DownloaderHelper>()
+
 const convertGifvLinkToMp4 = (url: string): string => `${url.slice(0, -gifvExtension.length)}mp4`
 
 const convertAnyImgurGifvLinks = (url: string): string =>
@@ -35,6 +38,8 @@ function downloadDirectMediaLink(
   // eslint-disable-next-line max-lines-per-function
   return new Promise((resolve, reject) => {
     const download = new DownloaderHelper(url, postMediaFolder)
+
+    directDownloadReferences.set(post.id, download)
 
     download.on('error', reject)
 
@@ -62,10 +67,12 @@ function downloadDirectMediaLink(
       adminMediaDownloadsViewerOrganiser.setDownloadProgress(post.id, stats.downloaded, stats.total, stats.speed)
     })
 
-    download.on('end', () => resolve())
+    download.on('end', ({ incomplete }) =>
+      incomplete ? reject(new Error(`Direct Download for post: ${post.id} ended without completing.`)) : resolve()
+    )
 
     download.start().catch(reject)
   })
 }
 
-export { downloadDirectMediaLink }
+export { downloadDirectMediaLink, directDownloadReferences }

@@ -84,7 +84,12 @@ const adminMediaDownloadsViewerOrganiser = {
   },
   setDownloadCancelled(postId: string, reason = ''): void {
     const post = this.posts.get(postId) as PostWithMediaDownloadInfo
-    this.posts.set(postId, { ...post, downloadCancelled: true, downloadCancellationReason: reason })
+    this.posts.set(postId, {
+      ...post,
+      downloadCancelled: true,
+      downloadCancellationReason: reason,
+      downloadFailed: true,
+    })
     adminMediaDownloadsViewerOrganiserEmitter.emit('download-cancelled', postId, reason)
   },
   setDownloadSkipped(postId: string, reason = ''): void {

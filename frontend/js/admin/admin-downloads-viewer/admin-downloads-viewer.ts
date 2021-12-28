@@ -5,8 +5,9 @@ import VueVirtualScroller from 'vue-virtual-scroller'
 import prettyBytes from 'pretty-bytes'
 import JsonViewer from 'vue3-json-viewer'
 import debounce from 'lodash.debounce'
+import ContextMenu from '@imengyu/vue3-context-menu'
 
-import { ignoreScriptTagCompilationWarnings, $ } from '../../frontend-utils'
+import { ignoreScriptTagCompilationWarnings, $, Fetcher } from '../../frontend-utils'
 import type { JSONViewer, VirtualScrollList } from '../../frontend-global-types'
 import type { FrontendDownload, Filter } from './admin-downloads-viewer.d'
 import { state } from './admin-downloads-viewer-state'
@@ -178,6 +179,23 @@ const AdminDownloadsViewer = Vue.defineComponent({
         )
         .exhaustive()
     },
+    onContextMenu(event: MouseEvent, postId: string) {
+      this.$contextmenu({
+        x: event.x,
+        y: event.y,
+        items: [
+          {
+            label: `Cancel Download: ${postId}`,
+            onClick: (): void => {
+              console.log('Cancelling download:', postId)
+              Fetcher.putJSON(`/admin/api/cancel-download`, { downloadToCancel: postId }).catch(err =>
+                console.error(err)
+              )
+            },
+          },
+        ],
+      })
+    },
   },
   computed: {
     pauseButtonText() {
@@ -207,14 +225,17 @@ const AdminDownloadsViewer = Vue.defineComponent({
         key-field="id"
         v-slot="{ item }"
         >
-        <div class="download-item">
+        <div class="download-item" @contextmenu.prevent="onContextMenu($event, item.id)">
           <div class="postId"><a :href="createPostLink(item.permalink)" target="_blank" rel="noopener noreferrer" title="Click To Open Reddit Post Link For Download">{{ item.id }}</a></div>
           <div class="url"><a :href="item.url" target="_blank" rel="noopener noreferrer" title="Click To Open Download Url">{{ item.url }}</a></div>
           <div class="downloadProgress"><span>{{formatProgress(item.downloadProgress)}}</span></div>
           <div class="size"><span>{{functionFormatSize(item)}}</span></div>
           <div class="downloadSpeed"><span>{{prettifyBytes(item.downloadSpeed)}}</span></div>
         </div>
-      </DynamicScroller>         
+      </DynamicScroller>    
+      <aside>
+        <small>Note: If a download stalls, you can right-click and cancel the download.</small>
+      </aside>     
     </div>
     <div id="downloads-history-container">
       <h1>Download History</h1>
@@ -261,7 +282,10 @@ const AdminDownloadsViewer = Vue.defineComponent({
             </span>
           </button>
         </div>
-      </DynamicScroller>      
+      </DynamicScroller>    
+      <aside>
+        <small>Note: You can click on the status to see why a download failed/skipped/etc.</small>
+      </aside>     
     </div>
     <div id="download-queue-container">
       <h1>Download Queue</h1>
@@ -300,6 +324,7 @@ app.config.warnHandler = ignoreScriptTagCompilationWarnings
 app
   .use(VueVirtualScroller as VirtualScrollList)
   .use(JsonViewer as JSONViewer)
+  .use(ContextMenu)
   .mount('#downloadListsContainer')
 
 export { FrontendDownload }

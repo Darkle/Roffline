@@ -159,6 +159,12 @@ function updateDownloadProps(ev: Event): void {
             downloadError: eventAndData.data.err as string,
           }
 
+          /*****
+            We check here in case the user cancelled the download, in which case it has already failed.
+            (shouldnt move/add it if its already been moved/added)
+          *****/
+          if (state.masterListOfDownloads.get(postId)?.downloadFailed) return
+
           const updatedDownload = createUpdatedDownload(postId, updatedDownloadProps)
 
           updateDownloadInMasterList(postId, updatedDownload)
@@ -176,6 +182,7 @@ function updateDownloadProps(ev: Event): void {
           const updatedDownloadProps = {
             status: 'history' as DownloadStatus,
             downloadCancelled: true,
+            downloadFailed: true,
             downloadCancellationReason: eventAndData.data.reason as string,
           }
 

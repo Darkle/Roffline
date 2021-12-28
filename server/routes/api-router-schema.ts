@@ -1,7 +1,7 @@
 const updateUserSettingsSchema = {
   body: {
     type: 'object',
-    // Sometimes the csrf token is send via request headers in the fetch, and sometimes its sent as the body of a form.
+    // Sometimes the csrf token is sent via request headers in the fetch, and sometimes its sent as the body of a form.
     required: ['settingName', 'settingValue'],
     properties: {
       settingName: { enum: ['hideStickiedPosts', 'onlyShowTitlesInFeed', 'infiniteScroll', 'darkModeTheme'] },
@@ -84,7 +84,7 @@ const createUserInSchema = {
 const updateAdminSettingsSchema = {
   body: {
     type: 'object',
-    // Sometimes the csrf token is send via request headers in the fetch, and sometimes its sent as the body of a form.
+    // Sometimes the csrf token is sent via request headers in the fetch, and sometimes its sent as the body of a form.
     required: ['settingName', 'settingValue'],
     properties: {
       settingName: {
@@ -102,6 +102,16 @@ const updateAdminSettingsSchema = {
       },
       settingValue: { type: ['boolean', 'number', 'string'] },
       csrfToken: { type: 'string' },
+    },
+  },
+}
+
+const adminCancelDownloadSchema = {
+  body: {
+    type: 'object',
+    required: ['downloadToCancel'],
+    properties: {
+      downloadToCancel: { type: 'string' },
     },
   },
 }
@@ -139,4 +149,5 @@ export {
   updateAdminSettingsSchema,
   adminGetPaginatedTableDataSchema,
   deleteUserSchema,
+  adminCancelDownloadSchema,
 }
