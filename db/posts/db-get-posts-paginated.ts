@@ -64,7 +64,7 @@ function getTopPostsPaginatedForAllSubsOfUser(
     },
     offset,
     limit: postsPerPage,
-    order: [['created_utc', 'DESC']],
+    order: [['score', 'DESC']],
   }).then(formatFindAllAndCountResponse)
 }
 
@@ -99,7 +99,7 @@ function getTopPostsPaginatedForSubreddit(
     },
     offset,
     limit: postsPerPage,
-    order: [['created_utc', 'DESC']],
+    order: [['score', 'DESC']],
   }).then(formatFindAllAndCountResponse)
 }
 
