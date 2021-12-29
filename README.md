@@ -4,7 +4,7 @@
 
 <h1 align="center">Roffline (Reddit; Offline)</h1>
 
-Roffline is a self-hosted offline Reddit server. It allows you to browse reddit posts (including any media in the post) while offline. It is targeted at people that have intermittent internet.
+Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit posts (including any media in the post) while offline. It is targeted at people that have intermittent internet.
 
 #### Setting Up With Docker:
 
@@ -25,8 +25,10 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse reddit 
 
 #### Features:
 
-- Downloads media from posts (video, images or pdf of article)
-  - Most of the heavy lifting for downloading videos and images is done by [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [gallery-dl](https://github.com/mikf/gallery-dl)
+- Downloads media from posts
+  - Videos are downloaded via [yt-dlp](https://github.com/yt-dlp/yt-dlp)
+  - Images are downloaded via [gallery-dl](https://github.com/mikf/gallery-dl)
+  - Articles are saved as a pdf via [Playwright](https://playwright.dev/)
 - Responsive website - can be accessed via mobile browser as well as desktop browser
 - You can easily import your subreddits from your reddit account
 - Search article titles
@@ -44,12 +46,12 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse reddit 
 
 - Roffline is not supposed to be exposed to the internet, it is intended to be hosted locally.
 - The default login for the admin page is:
-  - username: `admin`
-  - password: `foo`
+  - Username: `admin`
+  - Password: `foo`
 
 #### TODO:
 
-- Finish writing unit & integration tests. Also write some e2e tests.
+- Finish writing unit & integration & e2e tests.
 
 #### Tech Stack:
 
@@ -70,18 +72,18 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse reddit 
 
 - https://github.com/p-ranav/saveddit
 - https://github.com/aliparlakci/bulk-downloader-for-reddit
-- https://www.reddit.com/r/DataHoarder/comments/njmz23/
+- https://github.com/MonkeyMaster64/Reddit-User-Media-Downloader-Public
 
 #### Things could possibly add later:
 
-- Compress downloaded images and videowith mozjpeg, optipng et.al.
+- Compress downloaded images with mozjpeg, optipng et.al.
   - https://web.dev/introducing-libsquoosh/
   - Convert downloaded images and gifs to avif
   - Or prehaps use https://imgproxy.net/
 - Convert downloaded videos to AV-1
 - HTTPS via https://caddyserver.com/ - caddy is supposed to be very easy to set up
 - Add exif metadata to images and videos that adds the original reddit url this media came from so you can always find the source
-  - (yt-dlp has some metadata writing capabilities built in)
+  - (both gallery-dl and yt-dlp have some metadata writing capabilities built in)
 - Image deduping with https://github.com/idealo/imagededup and/or hashing
 - Use image classification for alt info for images/videos to help blind users
   - Serverside:
