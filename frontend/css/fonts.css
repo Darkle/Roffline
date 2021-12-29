@@ -5,13 +5,13 @@
 }
 
 @font-face {
-  font-family: 'Poppins';
+  font-family: Poppins;
   src: url('../../static/vendor/fonts/Poppins-Regular.ttf');
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Hack';
+  font-family: Hack;
   src: url('../../static/vendor/fonts/Hack-Regular.ttf');
   font-display: swap;
 }

@@ -3,6 +3,7 @@
   "rules": {
     "no-descending-specificity": null,
     "string-quotes": null,
+    "custom-property-pattern": null,
     "selector-id-pattern": null,
     "selector-class-pattern": null,
     "alpha-value-notation": null,
