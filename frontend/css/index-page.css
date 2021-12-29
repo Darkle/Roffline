@@ -99,6 +99,7 @@
 
 .index-page main #posts article > .post-content video {
   max-width: 100%;
+  min-width: 15vw;
 }
 
 .index-page main #posts article > .post-content video:hover {

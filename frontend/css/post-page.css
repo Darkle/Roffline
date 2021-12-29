@@ -59,6 +59,7 @@
 .post-page main > article .post-content video {
   margin: 0 auto;
   max-width: 100%;
+  min-width: 15vw;
 }
 
 .post-page main > article .post-content video:hover {
