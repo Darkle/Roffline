@@ -74,6 +74,10 @@
   margin-right: 1rem;
 }
 
+.search-page main > form .search-input-container > button {
+  background-color: var(--color-primary);
+}
+
 @media only screen and (max-width: 711px) {
   .search-page main > form .search-input-container {
     flex-wrap: wrap;
