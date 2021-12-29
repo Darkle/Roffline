@@ -50,7 +50,7 @@ fastify.register(fastifyFavicon, { path: './frontend/static/images', name: 'favi
 fastify.register(noAdditionalProperties)
 fastify.register(fastifyCompress) // must come before fastifyStatic
 fastify.register(fastifyStatic, {
-  root: path.join(process.cwd(), 'frontend'),
+  root: path.join(process.cwd(), isDev ? 'frontend' : 'frontend-build'),
 })
 fastify.register(fastifyStatic, {
   root: postsMediaFolder,
