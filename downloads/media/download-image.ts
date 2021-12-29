@@ -58,6 +58,7 @@ function downloadImage(
      just a regular gallery, and that gallery has more than 15 images, we only get the first 15.
   *****/
   const command = `gallery-dl "${postUrl}" --filesize-max ${adminSettings.videoDownloadMaxFileSize}M --no-part --range 1-15 --dest ${postMediaFolder}`
+
   const downloadType = 'image'
 
   return spawnSubProcess(command, post, downloadType)
