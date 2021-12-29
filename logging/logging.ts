@@ -2,9 +2,8 @@ import type { FastifyRequest } from 'fastify'
 import Pino from 'pino'
 import type { pino } from 'pino'
 import { DateTime } from 'luxon'
-import cliColor from 'cli-color'
 
-import { getEnvFilePath, isDev } from '../server/utils'
+import { getEnvFilePath } from '../server/utils'
 
 const pinoOptions = {
   name: 'roffline',
@@ -60,13 +59,6 @@ const fastifyDevlogIgnore = {
   },
 }
 
-const browserSyncReminderForDev = (): void => {
-  // eslint-disable-next-line functional/no-conditional-statement
-  if (isDev) {
-    console.info(cliColor.white.bold(`Browsersync Url: ${cliColor.white.underline('http://0.0.0.0:8081')}`))
-  }
-}
-
 /*****
   Cant do much about it being `any` as it is typed that way: https://github.com/pinojs/pino/blob/ec9b0b528ab888b8e00233cf613f09fc82492244/pino.d.ts#L31
 *****/
@@ -81,12 +73,4 @@ const mediaDownloadsLogger = mainLogger.child({ sublogger: 'media-downloads' })
 
 const dbLogger = mainLogger.child({ sublogger: 'db' })
 
-export {
-  mainLogger,
-  feedsLogger,
-  mediaDownloadsLogger,
-  dbLogger,
-  fastifyDevlogIgnore,
-  browserSyncReminderForDev,
-  commentsDownloadsLogger,
-}
+export { mainLogger, feedsLogger, mediaDownloadsLogger, dbLogger, fastifyDevlogIgnore, commentsDownloadsLogger }

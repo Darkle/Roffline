@@ -15,17 +15,16 @@ import fastifyFormbody from 'fastify-formbody'
 import nunjucks from 'nunjucks'
 import fastifyRequestLogger from '@mgcrea/fastify-request-logger'
 import prettifier from '@mgcrea/pino-pretty-compact'
+import cliColor from 'cli-color'
 
 import { isDev, getEnvFilePath } from './utils'
-import { browserSyncReminderForDev, fastifyDevlogIgnore, mainLogger } from '../logging/logging'
+import { fastifyDevlogIgnore, mainLogger } from '../logging/logging'
 import { pageRoutes } from './routes/page-router'
 import { apiRoutes } from './routes/api-router'
 import { notFoundHandler } from './not-found-handler'
 import { adminRoutes } from './routes/admin-router'
 import { fastifyErrorHandler } from './error-handler'
 import { adminApiRoutes } from './routes/admin-api-router'
-
-const port = 3000
 
 const postsMediaFolder = getEnvFilePath(process.env['POSTS_MEDIA_DOWNLOAD_DIR'])
 
@@ -95,6 +94,13 @@ fastify.register(apiRoutes, { prefix: '/api' })
 fastify.register(adminRoutes, { prefix: '/admin' })
 fastify.register(adminApiRoutes, { prefix: '/admin/api' })
 
-const startServer = (): Promise<string | void> => fastify.listen(port, '0.0.0.0').then(browserSyncReminderForDev)
+const startServer = (): Promise<string | void> =>
+  fastify.listen(process.env['PORT'] as string, '0.0.0.0').then(() => {
+    console.info(
+      cliColor.white.bold(
+        `Server Listening On: ${cliColor.white.underline(`http://0.0.0.0:${process.env['PORT'] as string}`)}`
+      )
+    )
+  })
 
 export { startServer }
