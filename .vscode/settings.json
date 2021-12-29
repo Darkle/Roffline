@@ -4,13 +4,11 @@
     "tsconfig.tsbuildinfo": true,
     "lighthouse-report.html": true,
     "roffline-logs": true,
-    "roffline-storage.db": true,
     ".scannerwork": true,
     "posts-media": true,
     "frontend-build": true,
     "*.report.html": true,
     "*report[0-9].html": true,
-    "test-roffline-storage.db": true,
     "user-subs-export.txt": true,
     "boot.js": true,
     "*.js.map": true,
@@ -32,7 +30,9 @@
     "frontend/js/admin/admin-db-viewer-page/admin-db-viewer-page.css": true,
     "frontend/js/admin/admin-db-viewer-page/admin-db-viewer-page.css.map": true,
     "frontend/js/admin/admin-logs-viewer-page.css": true,
-    "frontend/js/admin/admin-logs-viewer-page.css.map": true
+    "frontend/js/admin/admin-logs-viewer-page.css.map": true,
+    "esbuild-meta.json": true,
+    "esbuild-stats.html": true
   },
   "search.exclude": {
     "tsconfig.tsbuildinfo": true,
@@ -45,6 +45,8 @@
     "*.report.html": true,
     "*report[0-9].html": true,
     "frontend/static": true,
-    "tests/seed-data": true
+    "esbuild-meta.json": true,
+    "tests/seed-data": true,
+    "esbuild-stats.html": true
   }
 }
