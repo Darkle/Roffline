@@ -71,8 +71,9 @@ const build = {
   prepareBuildDir() {
     prepareAndCleanDir('./frontend-build')
   },
-  copyStaticDirToBuild() {
+  copyFilesToFrontendBuild() {
     sh(`ncp ./frontend/static "./frontend-build/static"`, shellOptions)
+    sh(`ncp ./frontend/css "./frontend-build/css"`, shellOptions)
   },
   minifyCSSToBuildDir() {
     sh(`foreach --glob "frontend-build/**/*.css" --execute "csso --input #{path} --output #{path}"`, shellOptions)
