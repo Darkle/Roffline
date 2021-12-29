@@ -136,6 +136,12 @@ function downloadPostsMedia(
           }
 
           if (!weAreOffline) {
+            /*****
+              We need to remove them from downloadsStore when they error, otherwise it will loop forever
+              as they are never removed from downloadsStore.
+            *****/
+            downloadsStore.postsMediaToBeDownloaded.delete(post.id)
+
             logDownloadError(downloadError, post)
           }
 
