@@ -96,16 +96,16 @@ const build = {
         '.ts': 'ts',
         '.svg': 'text',
       },
-      // metafile: true,
       platform: 'browser',
       treeShaking: true,
       sourcemap: false,
       outdir: path.join(process.cwd(), 'frontend-build', 'js'),
       target: ['firefox78', 'chrome90', 'safari14', 'ios14'],
+      metafile: true,
     })
     // https://esbuild.github.io/api/#metafile
     // https://bundle-buddy.com/
-    // require('fs').writeFileSync('meta.json', JSON.stringify(result.metafile))
+    require('fs').writeFileSync('esbuild-meta.json', JSON.stringify(result.metafile))
   },
   backendJS() {
     esbuild.buildSync({
@@ -137,76 +137,68 @@ const tests = {
   },
   eslint() {
     sh(
-      `eslint './boot.ts' './server/**/*.ts' './logging/**/*.ts' './downloads/**/*.ts' './db/**/*.ts' './server/**/*.njk' './frontend/js/**/*.ts' './tests/**/*.ts' --report-unused-disable-directives --quiet --rule 'no-console: ["error", { allow: ["error", "info", "warn"] }]' --rule "no-warning-comments: ['error', { terms: ['todo', 'fixme', 'hack', 'bug', 'xxx'], location: 'anywhere' }]" --rule "no-debugger: 'error'"  --ignore-pattern 'db-dev.ts'`,
+      `eslint './boot.ts' './server/**/*.ts' './logging/**/*.ts' './downloads/**/*.ts' './db/**/*.ts' './frontend/js/**/*.ts' --report-unused-disable-directives --quiet --rule 'no-console: ["error", { allow: ["error", "info", "warn"] }]' --rule "no-warning-comments: ['error', { terms: ['todo', 'fixme', 'hack', 'bug', 'xxx'], location: 'anywhere' }]" --rule "no-debugger: 'error'"  --ignore-pattern 'db-dev.ts'`,
       shellOptions
     )
   },
   tslint() {
     sh(`tsc --noEmit`, shellOptions)
   },
-  checkmyheaders() {
-    const prodEnvs = `NODE_ENV=production PUBLIC_FOLDER=frontend-build POSTS_MEDIA_DOWNLOAD_DIR='./posts-media' LOGDIR='./roffline-logs'`
-    sh(
-      `${prodEnvs} concurrently "node ./boot.js" "sleep 3 && check-my-headers http://0.0.0.0:8080 && exit 0" --kill-others`,
-      shellOptions
-    )
-  },
   sonarqube() {
-    // You need a SONAR_TOKEN env varible set for this to work. You can get one from https://sonarcloud.io/
+    // You need a SONAR_TOKEN .env varible set for this to work. You can get one from https://sonarcloud.io/
     sh(
       `sonar-scanner -Dsonar.organization=darkle -Dsonar.projectKey=Roffline -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.exclusions=frontend/static/**/*`,
       shellOptions
     )
-    /*****
-      Locally hosted sonarqube.
-    *****/
-    // sh(
-    //   `sonar-scanner -Dsonar.organization=coopcoding -Dsonar.projectKey=Roffline -Dsonar.sources=. -Dsonar.host.url=http://192.168.1.8:3212 -Dsonar.exclusions=frontend/static/**/* -Dsonar.login=dbfabd25caf1bb3bd0871912679e1531922679ff`,
-    //   shellOptions
-    // )
   },
   bundlesize() {
-    console.log(clc.blue.bold('Vendor Libs Size Check:'))
-    sh(`bundlesize -f 'frontend-build/static/vendor/js/**/*.js' -s 35kB`, shellOptions)
-    sh(`ncat 'frontend-build/**/*.js' -o ./total-bundle.js > /dev/null`, shellOptions) // Concatenate all frontend js to a single file
-    console.log(clc.blue.bold('Total JS Size Check:'))
-    sh(`bundlesize -f ./total-bundle.js -s 70kB`, shellOptions)
-    fs.unlinkSync('./total-bundle.js')
+    sh(`esbuild-visualizer --metadata ./esbuild-meta.json --filename esbuild-stats.html`, shellOptions)
+    sh(`firefox esbuild-stats.html &`, { ...shellOptions, silent: true })
   },
   webhint() {
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
-    const prodEnvs = `NODE_ENV=production PUBLIC_FOLDER=frontend-build POSTS_MEDIA_DOWNLOAD_DIR='./posts-media' LOGDIR='./roffline-logs'`
     const chromePathEnv = `PUPPETEER_EXECUTABLE_PATH="$(command -v google-chrome || command -v chrome || command -v chromium || command -v chromium-browser)"`
+
     const randomPostId = sh(
-      'sqlite3 -batch roffline-storage.db "SELECT id FROM posts ORDER BY RANDOM() LIMIT 1;"',
-      { ...shellOptions, silent: true }
+      'sqlite3 -batch roffline-sqlite.db "SELECT id FROM posts ORDER BY RANDOM() LIMIT 1;"',
+      { nopipe: false, async: undefined }
     )?.trim()
 
-    sh(`${prodEnvs} node ./boot.js &`, shellOptions)
     sh(
-      `sleep 3 && ${chromePathEnv} multiview [ hint http://0.0.0.0:8080 ] [ hint http://0.0.0.0:8080/search ] [ hint http://0.0.0.0:8080/settings ] [ hint http://0.0.0.0:8080/help ] [ hint http://0.0.0.0:8080/post/${randomPostId} ] --print --autoexit 1000`,
-      {
-        ...shellOptions,
-        async: true,
-      }
+      `NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r ./env-checker.cjs ./boot.js &`,
+      shellOptions
     )
+
+    sh(`sleep 3 && ${chromePathEnv} hint http://0.0.0.0:8080`, {
+      ...shellOptions,
+      async: true,
+    })
+      // sh(
+      //   `sleep 3 && ${chromePathEnv} multiview [ hint http://0.0.0.0:8080 ] [ hint http://0.0.0.0:8080/search ] [ hint http://0.0.0.0:8080/settings ] [ hint http://0.0.0.0:8080/help ] [ hint http://0.0.0.0:8080/sub-management ] [ hint http://0.0.0.0:8080/?topFilter=week ] [ hint http://0.0.0.0:8080/post/${randomPostId} ] --print --autoexit 1000`,
+      //   {
+      //     ...shellOptions,
+      //     async: true,
+      //   }
+      // )
       .catch(noop)
       .finally(_ => sh(`fkill :8080 --silent`, shellOptions))
   },
   lighthouse() {
     // TODO: rework this test, add all the new pages
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
-    const prodEnvs = `NODE_ENV=production PUBLIC_FOLDER=frontend-build POSTS_MEDIA_DOWNLOAD_DIR='./posts-media' LOGDIR='./roffline-logs'`
 
     const shOptions = { nopipe: true, async: true }
     const randomPostId = sh(
-      'sqlite3 -batch roffline-storage.db "SELECT id FROM posts ORDER BY RANDOM() LIMIT 1;"',
+      'sqlite3 -batch roffline-sqlite.db "SELECT id FROM posts ORDER BY RANDOM() LIMIT 1;"',
       { ...shellOptions, silent: true }
     )?.trim()
 
     fs.mkdirSync(path.join(process.cwd(), 'lighthouse-reports'))
 
-    sh(`${prodEnvs} node ./boot.js &`, shellOptions)
+    sh(
+      `NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r ./env-checker.cjs ./boot.js &`,
+      shellOptions
+    )
     // @ts-expect-error
     sh(`sleep 3`, shOptions)
       .then(_ =>
@@ -278,48 +270,6 @@ const tests = {
   },
 }
 
-const db = {
-  // createDBTables() {
-  //   const dbPath = process.env.DBPATH || './roffline-storage.db'
-  //   const dbFileDoesNotExist = !fs.statSync(dbPath, { throwIfNoEntry: false })
-  //   dbFileDoesNotExist && sh(`sqlite3 ${dbPath} < ./db/init.sql`)
-  // },
-  // clearsubstables() {
-  //   const queryForAllSubsTruncate = sh(
-  //     `sqlite3 -batch roffline-storage.db "SELECT name FROM sqlite_master WHERE type ='table' AND name != 'posts' AND name != 'subreddits' AND name != 'updates_tracker' AND name != 'http429s' ;"`,
-  //     {
-  //       transform: str => `DELETE FROM ${str};`,
-  //       silent: true,
-  //     }
-  //   ).trim()
-  //   sh(`sqlite3 -batch roffline-storage.db "BEGIN;${queryForAllSubsTruncate}COMMIT;"`)
-  // },
-  clearpoststable() {
-    sh('sqlite3 -batch roffline-storage.db "DELETE FROM posts;"')
-  },
-  // removeComments() {
-  //   sh('sqlite3 -batch roffline-storage.db "UPDATE posts SET comments = NULL;"')
-  // },
-  // clearDownloadMetaData() {
-  //   sh(
-  //     'sqlite3 -batch roffline-storage.db "UPDATE posts SET media_has_been_downloaded = 0; UPDATE posts SET mediaDownloadTries = 0;"'
-  //   )
-  // },
-  // setDownloadedFilesMetaData() {
-  //   sh(
-  //     'sqlite3 -batch roffline-storage.db "UPDATE posts SET media_has_been_downloaded = 1; UPDATE posts SET mediaDownloadTries = 1;"'
-  //   )
-  // },
-  resetSubsLastUpdate() {
-    sh(`sqlite3 -batch roffline-sqlite.db "UPDATE subreddits_master_list SET lastUpdate = ${Date.now()};"`)
-  },
-}
-
-const dbquickclear1 = () => {
-  db.clearsubstables()
-  db.clearpoststable()
-}
-
 const buildProd = () => Object.keys(build).forEach(key => build[key]())
 
 const testAll = () => {
@@ -330,8 +280,6 @@ const testAll = () => {
 cli({
   dev,
   tests,
-  db,
-  dbquickclear1,
   testAll,
   build,
   buildProd,
