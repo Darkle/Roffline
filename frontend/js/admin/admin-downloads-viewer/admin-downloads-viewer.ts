@@ -187,7 +187,7 @@ const AdminDownloadsViewer = Vue.defineComponent({
           {
             label: `Cancel Download: ${postId}`,
             onClick: (): void => {
-              console.log('Cancelling download:', postId)
+              console.info('Cancelling download:', postId)
               Fetcher.putJSON(`/admin/api/cancel-download`, { downloadToCancel: postId }).catch(err =>
                 console.error(err)
               )
