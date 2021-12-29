@@ -6,6 +6,7 @@ import * as R from 'ramda'
 import RA from 'ramda-adjunct'
 import { unescape } from 'html-escaper'
 import getFilesRecurseDir from 'node-recursive-directory'
+import { compress as compressText } from 'compress-tag'
 
 import type { AdminSettings } from '../../db/entities/AdminSettings'
 import type { Post } from '../../db/entities/Posts/Post'
@@ -44,6 +45,8 @@ async function flattenDir(postMediaFolder: string): Promise<void> {
   }
 }
 
+const galleryDLConfigFile = path.join(process.cwd(), 'gallery-dl.conf')
+
 function downloadImage(
   post: PostReadyForDownload,
   adminSettings: AdminSettings,
@@ -57,7 +60,15 @@ function downloadImage(
      --range 1-15 prevents us from accidentally downloading a whole user account on instagram et.al.. However this does mean that if it is
      just a regular gallery, and that gallery has more than 15 images, we only get the first 15.
   *****/
-  const command = `gallery-dl "${postUrl}" --filesize-max ${adminSettings.videoDownloadMaxFileSize}M --no-part --range 1-15 --dest ${postMediaFolder}`
+  const command = compressText`
+  gallery-dl 
+  "${postUrl}" 
+  --filesize-max ${adminSettings.videoDownloadMaxFileSize}M 
+  --no-part 
+  --config ${galleryDLConfigFile} 
+  --range 1-15 
+  --dest ${postMediaFolder}
+  `
 
   const downloadType = 'image'
 
