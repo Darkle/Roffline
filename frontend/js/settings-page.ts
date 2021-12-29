@@ -3,7 +3,7 @@ import * as Vue from 'vue'
 import { ref } from 'vue'
 
 import type { SettingsPageWindowWithProps } from './frontend-global-types'
-import { Fetcher, ignoreScriptTagCompilationWarnings, $, wait } from './frontend-utils'
+import { Fetcher, $, wait } from './frontend-utils'
 
 declare const window: SettingsPageWindowWithProps
 
@@ -118,7 +118,4 @@ const SettingsPage = Vue.defineComponent({
 
 const app = Vue.createApp(SettingsPage)
 
-// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
-app.config.warnHandler = ignoreScriptTagCompilationWarnings
-
-app.mount('body')
+app.mount('main')

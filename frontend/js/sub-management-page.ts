@@ -1,6 +1,6 @@
 import * as Vue from 'vue'
 
-import { Fetcher, ignoreScriptTagCompilationWarnings, $, wait } from './frontend-utils'
+import { Fetcher, $, wait } from './frontend-utils'
 import type { SubManagementPagePageWindowWithProps } from './frontend-global-types'
 
 declare const window: SubManagementPagePageWindowWithProps
@@ -94,8 +94,5 @@ const PostPage = Vue.defineComponent({
 })
 
 const app = Vue.createApp(PostPage)
-
-// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
-app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
 app.mount('main')

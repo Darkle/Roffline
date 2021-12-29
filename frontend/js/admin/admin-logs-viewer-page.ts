@@ -4,7 +4,7 @@ import VueGoodTablePlugin from 'vue-good-table-next'
 import JsonViewer from 'vue3-json-viewer'
 import type { JSONViewer, VGTable } from '../frontend-global-types'
 
-import { checkFetchResponseStatus, ignoreScriptTagCompilationWarnings, $ } from '../frontend-utils'
+import { checkFetchResponseStatus, $ } from '../frontend-utils'
 
 type Log = { level: number; time: string; name: string; msg?: string } & Record<string, unknown>
 
@@ -194,9 +194,6 @@ const AdminLogsViewerTable = Vue.defineComponent({
 })
 
 const app = Vue.createApp(AdminLogsViewerTable)
-
-// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
-app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
 app
   .use(VueGoodTablePlugin as VGTable)

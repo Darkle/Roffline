@@ -5,7 +5,6 @@ import * as RA from 'ramda-adjunct'
 
 import type { FrontendPost, IndexPageWindowWithProps } from './frontend-global-types'
 import { PostItem } from './components/PostItem'
-import { ignoreScriptTagCompilationWarnings } from './frontend-utils'
 
 declare const window: IndexPageWindowWithProps
 
@@ -31,7 +30,4 @@ const IndexPage = Vue.defineComponent({
 
 const app = Vue.createApp(IndexPage)
 
-// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
-app.config.warnHandler = ignoreScriptTagCompilationWarnings
-
-app.use(VueSplide).mount('body')
+app.use(VueSplide).mount('main')

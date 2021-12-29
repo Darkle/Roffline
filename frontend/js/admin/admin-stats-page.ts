@@ -1,7 +1,7 @@
 import * as R from 'ramda'
 import * as Vue from 'vue'
 
-import { Fetcher, ignoreScriptTagCompilationWarnings } from '../frontend-utils'
+import { Fetcher } from '../frontend-utils'
 
 const prependString = R.curry((str: string, val: string) => `${str}${val}`)
 
@@ -59,8 +59,5 @@ const AdminStatsPage = Vue.defineComponent({
 })
 
 const app = Vue.createApp(AdminStatsPage)
-
-// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
-app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
 app.mount('main')

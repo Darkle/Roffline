@@ -11,7 +11,7 @@ import type {
   JsonViewerData,
   CommentsFromCommentsDB,
 } from './admin-db-viewer-page-types'
-import { checkFetchResponseStatus, ignoreScriptTagCompilationWarnings, $, wait } from '../../frontend-utils'
+import { checkFetchResponseStatus, $, wait } from '../../frontend-utils'
 import { tablesColumns } from './table-columns'
 import type { CommentsWithMetadata } from '../../../../db/entities/Comments'
 import type { JSONViewer, VGTable } from '../../frontend-global-types'
@@ -267,9 +267,6 @@ const AdminDBViewerTable = Vue.defineComponent({
 })
 
 const app = Vue.createApp(AdminDBViewerTable)
-
-// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
-app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
 app
   .use(VueGoodTablePlugin as VGTable)

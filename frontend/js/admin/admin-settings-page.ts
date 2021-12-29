@@ -1,7 +1,7 @@
 import * as R from 'ramda'
 import * as Vue from 'vue'
 
-import { Fetcher, ignoreScriptTagCompilationWarnings } from '../frontend-utils'
+import { Fetcher } from '../frontend-utils'
 import type { AdminSettingsPageWindowWithProps, AdminSettingsForFrontend } from './admin-frontend-global-types'
 
 declare const window: AdminSettingsPageWindowWithProps
@@ -47,8 +47,5 @@ const AdminSettingsPage = Vue.defineComponent({
 })
 
 const app = Vue.createApp(AdminSettingsPage)
-
-// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
-app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
 app.mount('main')

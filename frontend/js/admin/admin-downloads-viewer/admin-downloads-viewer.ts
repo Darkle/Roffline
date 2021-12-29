@@ -7,7 +7,7 @@ import JsonViewer from 'vue3-json-viewer'
 import debounce from 'lodash.debounce'
 import ContextMenu from '@imengyu/vue3-context-menu'
 
-import { ignoreScriptTagCompilationWarnings, $, Fetcher } from '../../frontend-utils'
+import { $, Fetcher } from '../../frontend-utils'
 import type { JSONViewer, VirtualScrollList } from '../../frontend-global-types'
 import type { FrontendDownload, Filter } from './admin-downloads-viewer.d'
 import { state } from './admin-downloads-viewer-state'
@@ -317,9 +317,6 @@ const AdminDownloadsViewer = Vue.defineComponent({
 })
 
 const app = Vue.createApp(AdminDownloadsViewer)
-
-// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
-app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
 app
   .use(VueVirtualScroller as VirtualScrollList)

@@ -2,7 +2,6 @@ import * as Vue from 'vue'
 import VueSplide from '@splidejs/vue-splide'
 
 import type { PostPageWindowWithProps } from './frontend-global-types'
-import { ignoreScriptTagCompilationWarnings } from './frontend-utils'
 import { PostContentItem } from './components/PostContent/PostContentItem'
 import { PostContentItemMetaContainer } from './components/PostContentItemMetaContainer'
 import { Comments } from './components/Comments'
@@ -57,8 +56,5 @@ const PostPage = Vue.defineComponent({
 })
 
 const app = Vue.createApp(PostPage)
-
-// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
-app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
 app.use(VueSplide).mount('main')

@@ -3,7 +3,7 @@ import VueGoodTablePlugin from 'vue-good-table-next'
 
 import type { User } from '../../../db/entities/Users/User'
 import type { VGTable } from '../frontend-global-types'
-import { checkFetchResponseStatus, Fetcher, ignoreScriptTagCompilationWarnings } from '../frontend-utils'
+import { checkFetchResponseStatus, Fetcher } from '../frontend-utils'
 
 // VueGoodTablePlugin hides bool values if they are false
 const boolToString = (bool: boolean): string => `${bool.toString()}`
@@ -117,8 +117,5 @@ const AdminUsersTable = Vue.defineComponent({
 })
 
 const app = Vue.createApp(AdminUsersTable)
-
-// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
-app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
 app.use(VueGoodTablePlugin as VGTable).mount('main')

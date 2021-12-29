@@ -1,7 +1,5 @@
 import * as Vue from 'vue'
 
-import { ignoreScriptTagCompilationWarnings } from './frontend-utils'
-
 const LoginPage = Vue.defineComponent({
   data() {
     return {
@@ -40,8 +38,5 @@ const LoginPage = Vue.defineComponent({
 })
 
 const app = Vue.createApp(LoginPage)
-
-// warnHandler is ignored in production https://v3.vuejs.org/api/application-config.html#warnhandler
-app.config.warnHandler = ignoreScriptTagCompilationWarnings
 
 app.mount('body')
