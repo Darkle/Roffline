@@ -3,6 +3,6 @@ body.dark-theme.search-page main > form .input-container > input {
   color: var(--font-color);
 }
 
-.search-input-container button {
+body.dark-theme.search-page .search-input-container button {
   background-color: #22ac6a !important;
 }
