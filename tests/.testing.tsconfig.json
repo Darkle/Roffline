@@ -8,8 +8,8 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["ES2021", "DOM"],
-    "module": "ES2020",
+    "lib": ["ES2021"],
+    "module": "commonjs",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
@@ -26,6 +26,6 @@
     "strictPropertyInitialization": false,
     "target": "ES2020"
   },
-  "exclude": ["node_modules", "logging/file-logging-transport.cjs", "env-checker.cjs", "tests"],
-  "include": ["frontend/**/*.ts", "server/**/*", "./boot.ts", "typings.d.ts", "logging", "downloads", "db"]
+  "exclude": ["node_modules"],
+  "include": ["*.ts"]
 }

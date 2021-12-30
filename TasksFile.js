@@ -1,5 +1,4 @@
-/* eslint-plugin-disable functional */
-/* eslint-disable import/no-extraneous-dependencies, eslint-comments/disable-enable-pair */
+/* eslint-disable import/no-extraneous-dependencies */
 const fs = require('fs')
 const path = require('path')
 
@@ -15,11 +14,6 @@ const prepareAndCleanDir = dir => {
   fs.mkdirSync(dir)
   fs.writeFileSync(path.join(dir, '.gitkeep'), '')
 }
-
-const pDelay = ms =>
-  new Promise(resolve => {
-    setTimeout(resolve, ms)
-  })
 
 const noop = _ => {}
 
@@ -160,13 +154,14 @@ const tests = {
   },
   mocha(options, skipVideoTests = false) {
     const shOptions = { ...shellOptions, async: true }
+    const ignoreVideoTests = skipVideoTests ? '--ignore tests/unit/server/updates/download-video.test.js' : ''
 
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
+    sh(`TESTING=true node -r ./env-checker.cjs ./boot.js &`, { ...shellOptions, silent: true })
+
     sh(
-      `TESTING=true mocha --recursive tests --ignore tests/__mocks --ignore tests/seed-data ${
-        skipVideoTests ? '--ignore tests/unit/server/updates/download-video.test.js' : ''
-      } --recursive --bail --extension .test.js --require tests/hooks.js --exit --diff=off`,
+      `sleep 3 && TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true mocha tests ${ignoreVideoTests} --fail-zero`,
       // @ts-expect-error
       shOptions
     )

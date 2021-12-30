@@ -1,15 +1,9 @@
-/* eslint-disable functional/immutable-data */
+const path = require('path')
+
 module.exports = {
   root: true,
-  parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2020,
-    sourceType: 'module',
-    ecmaFeatures: {
-      globalReturn: true,
-      impliedStrict: true,
-      modules: true,
-    },
   },
   processor: 'disable/disable',
   globals: {},
@@ -17,7 +11,6 @@ module.exports = {
     browser: true,
     node: true,
     es2020: true,
-    mocha: true,
   },
   extends: ['eslint:recommended', 'airbnb-base', 'xo', 'plugin:import/errors'],
   settings: {
@@ -26,6 +19,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'functional', 'extra-rules', 'no-secrets', 'disable', 'html', 'ramda', 'mocha'],
   overrides: [
     {
+      parser: '@typescript-eslint/parser',
       extends: [
         'eslint:recommended',
         'airbnb-base',
@@ -53,6 +47,12 @@ module.exports = {
       parserOptions: {
         tsconfigRootDir: __dirname,
         project: ['./tsconfig.json'],
+        sourceType: 'module',
+        ecmaFeatures: {
+          globalReturn: true,
+          impliedStrict: true,
+          modules: true,
+        },
       },
       rules: {
         '@typescript-eslint/consistent-type-imports': 'error',
@@ -219,82 +219,6 @@ module.exports = {
         'space-infix-ops': 'off',
       },
     },
-    {
-      env: {
-        commonjs: true,
-      },
-      extends: [
-        'eslint:recommended',
-        'plugin:@typescript-eslint/recommended',
-        'plugin:@typescript-eslint/recommended-requiring-type-checking',
-        'plugin:import/errors',
-        'plugin:import/typescript',
-        'plugin:mocha/recommended',
-      ],
-      files: ['tests/**/*.ts'],
-      parserOptions: {
-        tsconfigRootDir: __dirname,
-        project: ['./tsconfig.json'],
-        sourceType: 'script',
-      },
-      rules: {
-        '@typescript-eslint/no-floating-promises': 'off',
-        '@typescript-eslint/unbound-method': 'off',
-        '@typescript-eslint/no-unnecessary-type-assertion': 'off',
-        '@typescript-eslint/no-unsafe-member-access': 'off',
-        '@typescript-eslint/prefer-readonly-parameter-types': 'off',
-        '@typescript-eslint/semi': [
-          'error',
-          'never',
-          {
-            beforeStatementContinuationChars: 'always',
-          },
-        ],
-        'import/extensions': 'off',
-        'import/newline-after-import': 'off',
-        'import/prefer-default-export': 'off',
-        'import/no-unresolved': 'off',
-        'eslint-comments/disable-enable-pair': 'off',
-        'ramda/no-redundant-and': 'off',
-        'ramda/prefer-ramda-boolean': 'off',
-        'mocha/no-hooks-for-single-case': 'off',
-        'security/detect-non-literal-fs-filename': 'off',
-        'security/detect-object-injection': 'off',
-        camelcase: 'off',
-        'consistent-return': 'off',
-        'comma-dangle': 'off',
-        'dot-notation': 'off',
-        'no-underscore-dangle': 'off',
-        'eol-last': 'off',
-        'function-paren-newline': 'off',
-        'generator-star-spacing': 'off',
-        'global-require': 'off',
-        'implicit-arrow-linebreak': 'off',
-        indent: 'off',
-        'max-len': 'off',
-        'new-cap': 'off',
-        'newline-per-chained-call': 'off',
-        'no-console': 'off',
-        'no-confusing-arrow': 'off',
-        'no-duplicate-imports': 'off',
-        'no-extra-semi': 'off',
-        'no-magic-numbers': 'off',
-        'no-nested-ternary': 'off',
-        'no-negated-condition': 'off',
-        'no-shadow': 'off',
-        'no-unused-vars': 'off',
-        'no-use-before-define': 'off',
-        'no-useless-constructor': 'off',
-        'no-unused-expressions': 'off',
-        'object-curly-spacing': 'off',
-        'object-curly-newline': 'off',
-        'operator-linebreak': 'off',
-        'require-await': 'off',
-        semi: 'off',
-        'spaced-comment': 'off',
-        'space-infix-ops': 'off',
-      },
-    },
   ],
   rules: {
     'array-callback-return': 'error',
@@ -367,4 +291,3 @@ module.exports = {
     'space-infix-ops': 'off',
   },
 }
-/* eslint-enable functional/immutable-data */
