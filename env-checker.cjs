@@ -1,4 +1,11 @@
-require('dotenv').config()
+const path = require('path')
+
+const dontEnvPath = process.env.TESTING
+  ? path.join(process.cwd(), 'tests', '.testing.env')
+  : path.join(process.cwd(), '.env')
+
+require('dotenv').config({ path: dontEnvPath })
+
 const { cleanEnv: envVarChecker, str, port, url } = require('envalid')
 
 const checkendEnvVars = envVarChecker(process.env, {
