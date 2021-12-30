@@ -137,6 +137,7 @@ const tests = {
       `eslint './boot.ts' './server/**/*.ts' './logging/**/*.ts' './downloads/**/*.ts' './db/**/*.ts' './frontend/js/**/*.ts' --report-unused-disable-directives --quiet --rule 'no-console: ["error", { allow: ["error", "info", "warn"] }]' --rule "no-warning-comments: ['error', { terms: ['todo', 'fixme', 'hack', 'bug', 'xxx'], location: 'anywhere' }]" --rule "no-debugger: 'error'"  --ignore-pattern 'db-dev.ts'`,
       shellOptions
     )
+    sh(`eslint './tests/*.ts' './tests/**/*.ts' --quiet --config ./tests/.eslintrc.cjs`, shellOptions)
   },
   tslint() {
     sh(`tsc --noEmit`, shellOptions)
