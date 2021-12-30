@@ -32,7 +32,12 @@
     "frontend/js/admin/admin-logs-viewer-page.css": true,
     "frontend/js/admin/admin-logs-viewer-page.css.map": true,
     "esbuild-meta.json": true,
-    "esbuild-stats.html": true
+    "esbuild-stats.html": true,
+    "testing-roffline-logs": true,
+    "testing-roffline-sqlite.db": true,
+    "testing-roffline-comments-lmdb.db": true,
+    "testing-roffline-comments-lmdb.db-lock": true,
+    "testing-posts-media": true
   },
   "search.exclude": {
     "tsconfig.tsbuildinfo": true,
@@ -47,6 +52,11 @@
     "frontend/static": true,
     "esbuild-meta.json": true,
     "tests/seed-data": true,
-    "esbuild-stats.html": true
+    "esbuild-stats.html": true,
+    "testing-roffline-logs": true,
+    "testing-roffline-sqlite.db": true,
+    "testing-roffline-comments-lmdb.db": true,
+    "testing-roffline-comments-lmdb.db-lock": true,
+    "testing-posts-media": true
   }
 }
