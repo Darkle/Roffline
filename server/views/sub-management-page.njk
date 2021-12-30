@@ -76,7 +76,9 @@
         </div>
         <div class="sub-removal-container">
           <div 
+            tabindex="0"
             v-on:click="removeSubreddit" 
+            @keyup.enter="removeSubreddit" 
             class="sub-container button outline" 
             v-for="subreddit in userSubreddits"
             :key="subreddit"
