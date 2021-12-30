@@ -20,8 +20,7 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
   1. Run `git clone https://github.com/Darkle/Roffline.git`
   2. Create a `.env` file. You can see an example one here: [.example.env](.example.env)
   3. Run `npm install`
-  4. Run `npm build`
-  5. Run `npm start`
+  4. Run `npm start`
 
 #### Features:
 

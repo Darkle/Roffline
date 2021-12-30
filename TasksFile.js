@@ -1,5 +1,5 @@
 /* eslint-plugin-disable functional */
-/* eslint-disable import/no-extraneous-dependencies, eslint-comments/disable-enable-pair, max-lines-per-function */
+/* eslint-disable import/no-extraneous-dependencies, eslint-comments/disable-enable-pair */
 const fs = require('fs')
 const path = require('path')
 
@@ -72,11 +72,14 @@ const build = {
     prepareAndCleanDir('./frontend-build')
   },
   copyFilesToFrontendBuild() {
-    sh(`ncp ./frontend/static "./frontend-build/static"`, shellOptions)
-    sh(`ncp ./frontend/css "./frontend-build/css"`, shellOptions)
+    sh(`ncp ./frontend/static "./frontend-build/static"`, { ...shellOptions, silent: true })
+    sh(`ncp ./frontend/css "./frontend-build/css"`, { ...shellOptions, silent: true })
   },
   minifyCSSToBuildDir() {
-    sh(`foreach --glob "frontend-build/**/*.css" --execute "csso --input #{path} --output #{path}"`, shellOptions)
+    sh(`foreach --glob "frontend-build/**/*.css" --execute "csso --input #{path} --output #{path}"`, {
+      ...shellOptions,
+      silent: true,
+    })
   },
   frontendJS() {
     const result = esbuild.buildSync({
@@ -155,101 +158,13 @@ const tests = {
     sh(`esbuild-visualizer --metadata ./esbuild-meta.json --filename esbuild-stats.html`, shellOptions)
     sh(`firefox esbuild-stats.html &`, { ...shellOptions, silent: true })
   },
-  webhint() {
-    Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
-    const chromePathEnv = `PUPPETEER_EXECUTABLE_PATH="$(command -v google-chrome || command -v chrome || command -v chromium || command -v chromium-browser)"`
-
-    const randomPostId = sh(
-      'sqlite3 -batch roffline-sqlite.db "SELECT id FROM posts ORDER BY RANDOM() LIMIT 1;"',
-      { nopipe: false, async: undefined }
-    )?.trim()
-
-    sh(
-      `NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r ./env-checker.cjs ./boot.js &`,
-      shellOptions
-    )
-
-    sh(`sleep 3 && ${chromePathEnv} hint http://0.0.0.0:8080`, {
-      ...shellOptions,
-      async: true,
-    })
-      // sh(
-      //   `sleep 3 && ${chromePathEnv} multiview [ hint http://0.0.0.0:8080 ] [ hint http://0.0.0.0:8080/search ] [ hint http://0.0.0.0:8080/settings ] [ hint http://0.0.0.0:8080/help ] [ hint http://0.0.0.0:8080/sub-management ] [ hint http://0.0.0.0:8080/?topFilter=week ] [ hint http://0.0.0.0:8080/post/${randomPostId} ] --print --autoexit 1000`,
-      //   {
-      //     ...shellOptions,
-      //     async: true,
-      //   }
-      // )
-      .catch(noop)
-      .finally(_ => sh(`fkill :8080 --silent`, shellOptions))
-  },
-  lighthouse() {
-    // TODO: rework this test, add all the new pages
-    Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
-
-    const shOptions = { nopipe: true, async: true }
-    const randomPostId = sh(
-      'sqlite3 -batch roffline-sqlite.db "SELECT id FROM posts ORDER BY RANDOM() LIMIT 1;"',
-      { ...shellOptions, silent: true }
-    )?.trim()
-
-    fs.mkdirSync(path.join(process.cwd(), 'lighthouse-reports'))
-
-    sh(
-      `NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r ./env-checker.cjs ./boot.js &`,
-      shellOptions
-    )
-    // @ts-expect-error
-    sh(`sleep 3`, shOptions)
-      .then(_ =>
-        Promise.all([
-          sh(
-            `lighthouse http://0.0.0.0:8080 --chrome-flags="--headless" --output-path ./lighthouse-reports/lighthouse-report1.html --view`,
-            // @ts-expect-error
-            shOptions
-          ),
-          sh(
-            `lighthouse http://0.0.0.0:8080/search --chrome-flags="--headless" --output-path ./lighthouse-reports/lighthouse-report2.html --view`,
-            // @ts-expect-error
-            shOptions
-          ),
-          sh(
-            `lighthouse http://0.0.0.0:8080/settings --chrome-flags="--headless" --output-path ./lighthouse-reports/lighthouse-report3.html --view`,
-            // @ts-expect-error
-            shOptions
-          ),
-          sh(
-            `lighthouse http://0.0.0.0:8080/help --chrome-flags="--headless" --output-path ./lighthouse-reports/lighthouse-report4.html --view`,
-            // @ts-expect-error
-            shOptions
-          ),
-          sh(
-            `lighthouse http://0.0.0.0:8080/post/${randomPostId} --chrome-flags="--headless" --output-path ./lighthouse-reports/lighthouse-report5.html --view`,
-            // @ts-expect-error
-            shOptions
-          ),
-        ])
-      )
-      .catch(noop)
-      .finally(_ =>
-        Promise.all([
-          pDelay(1000).then(() =>
-            fs.promises.rm(path.join(process.cwd(), 'lighthouse-reports'), { recursive: true })
-          ),
-          // @ts-expect-error
-          sh(`fkill :8080 --silent`, shOptions),
-        ]).catch(err => console.error(err))
-      )
-  },
   mocha(options, skipVideoTests = false) {
-    //INFO: if using a test.env file, remember that in package.json we are pre-requireing dotenv, so double check package.json <<<<<<<<<<
-    const testEnvs = `NODE_ENV=production PUBLIC_FOLDER=frontend-build POSTS_MEDIA_DOWNLOAD_DIR='./test-posts-media' LOGDIR='./roffline-logs' SQLITE_DBPATH='./roffline-sqlite.db' COMMENTS_DBPATH='./roffline-comments-lmdb.db'`
     const shOptions = { ...shellOptions, async: true }
 
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
     sh(
-      `${testEnvs} mocha --recursive tests --ignore tests/__mocks --ignore tests/seed-data ${
+      `TESTING=true mocha --recursive tests --ignore tests/__mocks --ignore tests/seed-data ${
         skipVideoTests ? '--ignore tests/unit/server/updates/download-video.test.js' : ''
       } --recursive --bail --extension .test.js --require tests/hooks.js --exit --diff=off`,
       // @ts-expect-error
@@ -283,5 +198,4 @@ cli({
   testAll,
   build,
   buildProd,
-  // fixNodeModulesForESModuleSupport,
 })
