@@ -162,7 +162,7 @@ const tests = {
     sh(`TESTING=true node -r ./env-checker.cjs ./boot.js &`, { ...shellOptions, silent: true })
 
     sh(
-      `sleep 3 && TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true mocha tests ${ignoreVideoTests} --fail-zero`,
+      `sleep 3 && TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true mocha tests ${ignoreVideoTests}`,
       // @ts-expect-error
       shOptions
     )

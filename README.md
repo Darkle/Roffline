@@ -48,10 +48,6 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
   - Username: `admin`
   - Password: `foo`
 
-#### TODO:
-
-- Finish writing unit & integration & e2e tests.
-
 #### Tech Stack:
 
 - [Fastify](https://www.fastify.io/)

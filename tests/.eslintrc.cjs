@@ -2,7 +2,6 @@ module.exports = {
   root: true,
   parserOptions: {
     project: ['tests/.testing.tsconfig.json'],
-    sourceType: 'script',
     ecmaVersion: 2020,
     ecmaFeatures: {
       globalReturn: true,

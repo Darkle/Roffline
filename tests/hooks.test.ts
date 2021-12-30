@@ -6,7 +6,8 @@
 
 export const mochaHooks = {
   beforeAll(): void {
-    // this.timeout(60000)
+    const self = this as Mocha.Suite
+    self.timeout(60000)
     console.log('beforeAll called')
   },
   afterAll(): void {
