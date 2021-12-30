@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "nwhatt.chai-snippets",
+    "ravasthi.rpa-mocha-snippets",
+    "bierner.comment-tagged-templates",
+    "stylelint.vscode-stylelint",
+    "mikestead.dotenv",
+    "dbaeumer.vscode-eslint",
+    "eseom.nunjucks-template",
+    "esbenp.prettier-vscode"
+  ]
+}
