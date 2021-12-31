@@ -8,7 +8,7 @@
   ],
   "exclude": [
     "node_modules",
-    "db/db-admin.ts",
+    "db/db-dev.ts",
     "tests/**/*.ts",
     "**/*.d.ts"
   ],
