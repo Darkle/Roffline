@@ -1,3 +1,4 @@
+import { unpack } from 'msgpackr'
 import * as R from 'ramda'
 import type { Transaction } from 'sequelize'
 import { Op, QueryTypes, Sequelize } from 'sequelize'
@@ -99,7 +100,7 @@ const sequelize = new Sequelize({
   // logging: true,
 })
 
-const commentsDB = lmdb.open({ path: commentsDBPath, compression: true, encoding: 'string' })
+const commentsDB = lmdb.open({ path: commentsDBPath, compression: true, encoding: 'msgpack' })
 
 const db = {
   sequelize,
@@ -237,7 +238,7 @@ const db = {
     return batchClearSubredditTables(sequelize, subs)
   },
   // eslint-disable-next-line max-lines-per-function
-  async batchSaveComments(postsComments: { id: string; comments: string }[]): Promise<void> {
+  async batchSaveComments(postsComments: { id: string; comments: Buffer }[]): Promise<void> {
     const timer = new Timer()
     timer.start()
 
@@ -283,18 +284,22 @@ const db = {
     timer.clear()
   },
   getPostComments(postId: string): Promise<CommentContainer[] | [] | null> {
-    const maybePostCommentsAsString = MaybeNullable(commentsDB.get(postId))
+    const maybePostCommentsAsBuffer = MaybeNullable(commentsDB.get(postId))
 
-    const uJSONParse = R.unary(JSON.parse)
+    const tryMessagePackUnpack = R.tryCatch(unpack, R.always([]))
 
-    const tryParseJson = R.tryCatch(uJSONParse, R.always({}))
+    const getCommentsData = (dbCommentsData: Buffer): CommentContainer[] | [] | null => {
+      const parsedDBCommentsData = tryMessagePackUnpack(dbCommentsData) as CommentContainer[] | [] | null
+      console.log(parsedDBCommentsData)
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (!parsedDBCommentsData) return []
 
-    // There's a alot of metadata cruft we need to skip to get to the comments data
-    const getCommentsData = R.compose(R.pathOr([], [1, 'data', 'children']), tryParseJson)
+      return parsedDBCommentsData
+    }
 
     // Make it promise based. Confusing if one db is promise based and other is sync.
     return Promise.resolve(
-      maybePostCommentsAsString.cata({
+      maybePostCommentsAsBuffer.cata({
         Just: getCommentsData,
         Nothing: () => null,
       })
