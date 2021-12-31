@@ -6,13 +6,13 @@
   "scripts": {
     "update": "ncu --interactive --target minor",
     "task": "node -r ./env-checker.cjs ./TasksFile.js",
-    "dev": "NODE_ENV=development LOGGING_LEVEL=debug node -r ./env-checker.cjs ./TasksFile.js dev:start",
-    "inspect": "NODE_ENV=development LOGGING_LEVEL=debug node -r ./env-checker.cjs ./TasksFile.js dev:inspect",
-    "test": "node ./TasksFile.js testAll",
+    "dev": "NODE_ENV=development node -r ./env-checker.cjs ./TasksFile.js dev:start",
+    "inspect": "NODE_ENV=development node -r ./env-checker.cjs ./TasksFile.js dev:inspect",
+    "test": "NODE_ENV=production node ./TasksFile.js testAll",
     "test-skip-video": "SKIP_VIDEO_TESTS=true node ./TasksFile.js testAll",
-    "build": "node ./TasksFile.js buildProd",
+    "build": "NODE_ENV=production node ./TasksFile.js buildProd",
     "eslint": "node ./TasksFile.js tests:eslint",
-    "start": "npm run build && NODE_ENV=production LOGGING_LEVEL=error PUBLIC_FOLDER=frontend-build node -r ./env-checker.cjs ./boot.js"
+    "start": "npm run build && NODE_ENV=production node -r ./env-checker.cjs ./boot.js"
   },
   "browser": {
     "vue": "vue/dist/vue.esm-bundler.js",
@@ -141,6 +141,7 @@
     "npm-check-updates": "^12.0.5",
     "nyc": "^15.1.0",
     "prettier": "^2.5.1",
+    "snyk": "^1.813.0",
     "source-map-support": "^0.5.21",
     "stylelint": "^14.1.0",
     "stylelint-config-standard": "^24.0.0",

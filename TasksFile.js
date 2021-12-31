@@ -3,7 +3,6 @@ const fs = require('fs')
 const path = require('path')
 
 const { cli, sh } = require('tasksfile')
-const clc = require('cli-color')
 const esbuild = require('esbuild')
 const glob = require('fast-glob')
 
@@ -124,7 +123,7 @@ const build = {
 
 const tests = {
   npmaudit() {
-    sh('npm audit --production', shellOptions)
+    sh('snyk test --production  --severity-threshold=high', shellOptions)
   },
   csslint() {
     sh(`stylelint "frontend/css/**/*.css"`, shellOptions)
