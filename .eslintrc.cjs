@@ -1,5 +1,3 @@
-const path = require('path')
-
 module.exports = {
   root: true,
   parserOptions: {
@@ -16,6 +14,7 @@ module.exports = {
   settings: {
     'html/html-extensions': ['.html', '.eta', '.njk', 'marko'],
   },
+  ignorePatterns: ['.eslintrc.cjs'],
   plugins: ['@typescript-eslint', 'functional', 'extra-rules', 'no-secrets', 'disable', 'html', 'ramda', 'mocha'],
   overrides: [
     {
