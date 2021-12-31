@@ -30,6 +30,7 @@ module.exports = {
   settings: {
     'html/html-extensions': ['.html', '.njk'],
   },
+  ignorePatterns: ['.eslintrc.cjs'],
   plugins: ['@typescript-eslint', 'extra-rules', 'no-secrets', 'disable', 'html', 'mocha'],
   rules: {
     '@typescript-eslint/consistent-type-imports': 'error',

@@ -5,6 +5,7 @@ module.exports = {
   'no-exit': true,
   'fail-zero': true,
   recursive: true,
+  reporter: ['list'],
   loader: 'ts-node/esm',
   require: ['./env-checker.cjs', 'tests/hooks.test.ts'],
   ignore: ['tests/__mocks', 'tests/seed-data'],

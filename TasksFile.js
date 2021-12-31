@@ -126,9 +126,6 @@ const tests = {
   npmaudit() {
     sh('npm audit --production', shellOptions)
   },
-  snyk() {
-    sh('snyk test --production', shellOptions)
-  },
   csslint() {
     sh(`stylelint "frontend/css/**/*.css"`, shellOptions)
   },
@@ -141,21 +138,31 @@ const tests = {
   },
   tslint() {
     sh(`tsc --noEmit`, shellOptions)
+    sh(`tsc --noEmit --project ./tests/.testing.tsconfig.json`, shellOptions)
   },
   sonarqube() {
+    /*****
+      When we call this via `npm run test` we dont preload the .env data (cause mocha needs to do that on its own),
+      so we manually load it here.
+    *****/
+    const sonarToken = fs.readFileSync('./.env').toString().split('SONAR_TOKEN=')[1].split('\n')[0].trim()
     // You need a SONAR_TOKEN .env varible set for this to work. You can get one from https://sonarcloud.io/
     sh(
-      `sonar-scanner -Dsonar.organization=darkle -Dsonar.projectKey=Roffline -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.exclusions=frontend/static/**/*`,
+      `SONAR_TOKEN=${sonarToken} sonar-scanner -Dsonar.organization=darkle -Dsonar.projectKey=Roffline -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.exclusions=frontend/static/**/*`,
       shellOptions
     )
+    sh(`xdg-open https://sonarcloud.io/dashboard?id=Roffline &`, { ...shellOptions, silent: true })
   },
   bundlesize() {
     sh(`esbuild-visualizer --metadata ./esbuild-meta.json --filename esbuild-stats.html`, shellOptions)
-    sh(`firefox esbuild-stats.html &`, { ...shellOptions, silent: true })
+    sh(`xdg-open esbuild-stats.html &`, { ...shellOptions, silent: true })
   },
   mocha(options, skipVideoTests = false) {
     const shOptions = { ...shellOptions, async: true }
-    const ignoreVideoTests = skipVideoTests ? '--ignore tests/unit/server/updates/download-video.test.js' : ''
+    // download video tests can take 5-10 mins, so can skip them if want
+    const ignoreVideoTests = process.env.SKIP_VIDEO_TESTS
+      ? '--ignore tests/unit/server/updates/download-video.test.js'
+      : ''
 
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
@@ -173,11 +180,6 @@ const tests = {
           .catch(noop)
           .finally(() => process.exit(0))
       )
-  },
-  // skip downloadVideo tests as they can take 5-10 mins
-  mochaSansVideoTests(options) {
-    const skipVideoTests = true
-    tests.mocha(options, skipVideoTests)
   },
 }
 
