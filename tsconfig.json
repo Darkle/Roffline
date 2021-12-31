@@ -21,7 +21,7 @@
     "removeComments": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "strict": true,
     "strictPropertyInitialization": false,
     "target": "ES2020"

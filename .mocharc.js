@@ -7,6 +7,6 @@ module.exports = {
   recursive: true,
   reporter: ['list'],
   loader: 'ts-node/esm',
-  require: ['./env-checker.cjs', 'tests/hooks.test.ts'],
+  require: ['source-map-support', './env-checker.cjs', 'tests/hooks.test.ts'],
   ignore: ['tests/__mocks', 'tests/seed-data'],
 }

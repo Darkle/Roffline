@@ -157,6 +157,9 @@ const tests = {
     sh(`esbuild-visualizer --metadata ./esbuild-meta.json --filename esbuild-stats.html`, shellOptions)
     sh(`xdg-open esbuild-stats.html &`, { ...shellOptions, silent: true })
   },
+  codecoverage() {
+    sh(`TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true nyc mocha tests`, shellOptions)
+  },
   mocha(options, skipVideoTests = false) {
     const shOptions = { ...shellOptions, async: true }
     // download video tests can take 5-10 mins, so can skip them if want
@@ -183,6 +186,12 @@ const tests = {
   },
 }
 
+const db = {
+  resetSubsLastUpdate() {
+    sh(`sqlite3 -batch roffline-sqlite.db "UPDATE subreddits_master_list SET lastUpdate = ${Date.now()};"`)
+  },
+}
+
 const buildProd = () => Object.keys(build).forEach(key => build[key]())
 
 const testAll = () => {
@@ -196,4 +205,5 @@ cli({
   testAll,
   build,
   buildProd,
+  db,
 })

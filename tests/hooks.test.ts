@@ -11,6 +11,7 @@ export const mochaHooks = {
     console.log('beforeAll called')
   },
   afterAll(): void {
+    //TODO: make sure to remove the testing comments db and testing posts folder and testing logs.
     console.log('afterAll called')
   },
 }

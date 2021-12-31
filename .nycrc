@@ -1,0 +1,19 @@
+{
+  "extends": "@istanbuljs/nyc-config-typescript",
+  "check-coverage": true,
+  "all": true,
+  "include": [
+    "**/*.ts",
+    "logging/file-logging-transport.cjs"
+  ],
+  "exclude": [
+    "node_modules",
+    "db/db-admin.ts",
+    "tests/**/*.ts",
+    "**/*.d.ts"
+  ],
+  "reporter": [
+    "text",
+    "text-summary"
+  ]
+}

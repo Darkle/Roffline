@@ -70,7 +70,9 @@ import {
 import type { CommentContainer } from './entities/Comments'
 import { getEnvFilePath, getFileSize /*isDev*/ } from '../server/utils'
 
-const sqliteDBPath = process.env['SQLITE_DBPATH'] || './roffline-sqlite.db'
+const sqliteDBPath = process.env['TESTING']
+  ? 'sqlite::memory:'
+  : process.env['SQLITE_DBPATH'] || './roffline-sqlite.db'
 const commentsDBPath = process.env['COMMENTS_DBPATH'] || './roffline-comments-lmdb.db'
 
 type TransactionType = Transaction | null | undefined
