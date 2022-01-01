@@ -1,6 +1,6 @@
 import * as R from 'ramda'
 import * as RA from 'ramda-adjunct'
-import { encaseRes, nullable as MaybeNullable } from 'pratica'
+import { encaseRes as TryRes, nullable as MaybeNullable } from 'pratica'
 import type { Result } from 'pratica'
 import { match } from 'ts-pattern'
 
@@ -20,7 +20,7 @@ import type {
 /* eslint-disable max-lines-per-function,functional/no-conditional-statement,functional/immutable-data */
 
 const tryParseSSEData = (data: string): Result<DownloadsFromBackend[] | DownloadUpdateData, unknown> =>
-  encaseRes(() => JSON.parse(data) as DownloadsFromBackend[] | DownloadUpdateData)
+  TryRes(() => JSON.parse(data) as DownloadsFromBackend[] | DownloadUpdateData)
 
 function replaceDownloadListsData(ev: Event): void {
   const { data } = ev as SSEEvent
