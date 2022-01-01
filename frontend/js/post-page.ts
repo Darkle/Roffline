@@ -51,6 +51,7 @@ const PostPage = Vue.defineComponent({
       <comments v-else-if="haveComments"
         v-bind:comments="post.comments"
       ></comments>
+      <small v-else>No comments for this post.</small>
     </section> 
     `,
 })
