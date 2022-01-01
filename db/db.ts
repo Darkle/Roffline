@@ -296,11 +296,11 @@ const db = {
 
     timer.clear()
   },
-  // Make it promise based. Confusing if one db is promise based and other is sync.
   getPostComments(postId: string): Promise<Comments | null> {
     // `undefined` result means have not yet fetched any comments for this post.
     const postComments = commentsDB.get(postId) as Buffer | undefined
 
+    // Make it promise based. Confusing if one db is promise based and other is sync.
     return Promise.resolve(
       MaybeNullable(postComments).cata({
         Just: (postCommentsDBData: Buffer): Comments =>
