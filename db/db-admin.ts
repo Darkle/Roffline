@@ -1,14 +1,13 @@
 import type lmdb from 'lmdb'
 import type { Sequelize } from 'sequelize'
 import { QueryTypes } from 'sequelize'
-import { unpack } from 'msgpackr'
 
 import type { AdminSettings } from './entities/AdminSettings'
 import { AdminSettingsModel } from './entities/AdminSettings'
 import type { TableModelTypes } from './entities/entity-types'
 import type { User } from './entities/Users/User'
 import { UserModel } from './entities/Users/Users'
-import type { TrimmedComment, Comments } from './entities/Comments'
+import type { Comments } from './entities/Comments'
 import type { CommentsDBRow } from './db'
 
 /* eslint-disable max-lines-per-function */
@@ -74,11 +73,6 @@ function adminGetAnyTableDataPaginated(
   )
 }
 
-const unpackComments = ({ key, value }: { key: lmdb.Key; value: Buffer }): CommentsDBRow => ({
-  key,
-  value: unpack(value) as Comments,
-})
-
 function adminGetCommentsDBDataPaginated(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   commentsDB: lmdb.RootDatabase<any, lmdb.Key>,
@@ -92,7 +86,7 @@ function adminGetCommentsDBDataPaginated(
 
   // Make it promise based. Confusing if one db is promise based and other is sync.
   return Promise.resolve({
-    rows: Array.from(commentsDB.getRange({ limit, offset })).map(unpackComments),
+    rows: Array.from(commentsDB.getRange({ limit, offset })),
     // Loading the values might take up GB of memory, so just grab the keys to get the number of rows.
     count: Array.from(commentsDB.getKeys({ limit: Infinity })).length,
   })
@@ -113,12 +107,12 @@ function adminSearchCommentsDBDataPaginated(
   const limit = 200
 
   const results = Array.from(
-    commentsDB.getRange({ limit }).filter(({ key, value }: { key: lmdb.Key; value: Buffer }) => {
-      const unpackedComments = JSON.stringify(unpack(value) as TrimmedComment)
+    commentsDB.getRange({ limit }).filter(({ key, value }: { key: lmdb.Key; value: Comments }) => {
+      const unpackedComments = JSON.stringify(value)
 
       return (key as string).includes(searchTerm) || unpackedComments.includes(searchTerm)
     })
-  ).map(unpackComments)
+  )
 
   // Make it promise based. Confusing if one db is promise based and other is sync.
   return Promise.resolve({

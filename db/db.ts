@@ -1,11 +1,9 @@
-import * as R from 'ramda'
 import type { Transaction } from 'sequelize'
 import { Op, QueryTypes, Sequelize } from 'sequelize'
 import { Timer } from 'timer-node'
 import lmdb from 'lmdb'
 import { DateTime } from 'luxon'
 import { nullable as MaybeNullable } from 'pratica'
-import { unpack } from 'msgpackr'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import type { SubredditsMasterList } from './entities/SubredditsMasterList'
@@ -243,7 +241,7 @@ const db = {
     return batchClearSubredditTables(sequelize, subs)
   },
   // eslint-disable-next-line max-lines-per-function
-  async batchSaveComments(postsComments: { id: string; comments: Buffer }[]): Promise<void> {
+  async batchSaveComments(postsComments: { id: string; comments: Comments }[]): Promise<void> {
     const timer = new Timer()
     timer.start()
 
@@ -289,23 +287,13 @@ const db = {
     timer.clear()
   },
   getPostComments(postId: string): Promise<Comments | null> {
-    const maybePostCommentsAsBuffer = MaybeNullable(commentsDB.get(postId))
-
-    const tryMessagePackUnpack = R.tryCatch(unpack, R.always([]))
-
-    const getCommentsData = (dbCommentsData: Buffer): Comments | null => {
-      const parsedDBCommentsData = tryMessagePackUnpack(dbCommentsData) as Comments | null
-      // eslint-disable-next-line functional/no-conditional-statement
-      if (!parsedDBCommentsData) return []
-
-      return parsedDBCommentsData
-    }
+    const maybePostComments = MaybeNullable(commentsDB.get(postId))
 
     // Make it promise based. Confusing if one db is promise based and other is sync.
     return Promise.resolve(
-      maybePostCommentsAsBuffer.cata({
-        Just: getCommentsData,
-        Nothing: () => null,
+      maybePostComments.cata({
+        Just: (comments: Comments): Comments => comments,
+        Nothing: () => [],
       })
     )
   },

@@ -143,6 +143,7 @@ export {
   TrimmedComment,
   FetchedCommentsOuterContainer,
   FetchedRawCommentData,
+  FetchedCommentContainer,
   TrimmedCommentData,
   Comments,
   UnformattedCommentsData,
