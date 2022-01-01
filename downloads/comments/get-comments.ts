@@ -1,5 +1,6 @@
 import fetch from 'node-fetch-commonjs'
 import Prray from 'prray'
+import { Packr } from 'msgpackr'
 import type { Response } from 'node-fetch-commonjs'
 import recursiveObjFilter from 'deep-filter-object'
 
@@ -8,10 +9,12 @@ import { db } from '../../db/db'
 import { isDev, isNotError } from '../../server/utils'
 import { commentsDownloadsLogger } from '../../logging/logging'
 import { logGetCommentsProgress } from './log-get-comments-progress'
-import type { UnformattedCommentsData, Comments, FetchedCommentContainer } from '../../db/entities/Comments'
+import type { UnformattedCommentsData, FetchedCommentContainer } from '../../db/entities/Comments'
 
 type PostId = string
-type CommentsWithPostId = { id: PostId; comments: Comments }
+type CommentsWithPostId = { id: PostId; comments: Buffer }
+
+const msgpackPacker = new Packr()
 
 const createFetchError = (resp: Response): Error =>
   new Error(resp.statusText?.length ? resp.statusText : resp.status.toString())
@@ -31,8 +34,13 @@ const commentsObjKeysToKeep = [
   'body_html',
 ]
 
-const formatCommentsForDB = (comments: FetchedCommentContainer[]): Comments =>
-  comments.map(comment => recursiveObjFilter(comment, commentsObjKeysToKeep)) as Comments
+/*****
+  Even though lmdb can automatically convert to messagepack, we want to manually
+  convert here as when we do it all at once when saving all the comments to the db
+  it takes a long time. Doing it here manually one at a time breaks this up.
+*****/
+const formatCommentsForDB = (comments: FetchedCommentContainer[]): Buffer =>
+  msgpackPacker.pack(comments.map(comment => recursiveObjFilter(comment, commentsObjKeysToKeep)))
 
 const assocCommentsWithPostId = (postId: PostId, comments: UnformattedCommentsData): CommentsWithPostId => ({
   id: postId,

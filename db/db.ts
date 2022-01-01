@@ -1,9 +1,11 @@
+import * as R from 'ramda'
 import type { Transaction } from 'sequelize'
 import { Op, QueryTypes, Sequelize } from 'sequelize'
 import { Timer } from 'timer-node'
 import lmdb from 'lmdb'
 import { DateTime } from 'luxon'
-import { nullable as MaybeNullable } from 'pratica'
+import { nullable as MaybeNullable, encase as Try } from 'pratica'
+import { unpack } from 'msgpackr'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import type { SubredditsMasterList } from './entities/SubredditsMasterList'
@@ -103,7 +105,15 @@ const sequelize = new Sequelize({
   // logging: true,
 })
 
-const commentsDB = lmdb.open({ path: commentsDBPath, compression: true, encoding: 'msgpack' })
+/*****
+  Setting comments DB to binary because even though lmdb can automatically convert to/from
+  messagepack, we want to do the messagepack packing/unpacking manually so can do it
+  in small chunks when fetching the comments as opposed to doing the packing all at once
+  for all comments when saving all the comments as that would take multiple seconds to
+  do it all at once. We do however miss out on using compression if db encoding is set to
+  binary.
+*****/
+const commentsDB = lmdb.open({ path: commentsDBPath, encoding: 'binary' })
 
 const db = {
   sequelize,
@@ -241,7 +251,7 @@ const db = {
     return batchClearSubredditTables(sequelize, subs)
   },
   // eslint-disable-next-line max-lines-per-function
-  async batchSaveComments(postsComments: { id: string; comments: Comments }[]): Promise<void> {
+  async batchSaveComments(postsComments: { id: string; comments: Buffer }[]): Promise<void> {
     const timer = new Timer()
     timer.start()
 
@@ -286,14 +296,19 @@ const db = {
 
     timer.clear()
   },
+  // Make it promise based. Confusing if one db is promise based and other is sync.
   getPostComments(postId: string): Promise<Comments | null> {
-    const maybePostComments = MaybeNullable(commentsDB.get(postId))
+    // null means have not yet fetched any comments for this post.
+    const postComments = commentsDB.get(postId) as Buffer | undefined
 
-    // Make it promise based. Confusing if one db is promise based and other is sync.
     return Promise.resolve(
-      maybePostComments.cata({
-        Just: (comments: Comments): Comments => comments,
-        Nothing: () => [],
+      MaybeNullable(postComments).cata({
+        Just: (postCommentsDBData: Buffer): Comments =>
+          Try(() => unpack(postCommentsDBData) as Comments).cata({
+            Just: R.identity,
+            Nothing: () => [],
+          }),
+        Nothing: () => null,
       })
     )
   },
