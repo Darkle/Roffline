@@ -1,4 +1,4 @@
-import type lmdb from 'lmdb-store'
+import type lmdb from 'lmdb'
 import type { Sequelize } from 'sequelize'
 import { QueryTypes } from 'sequelize'
 import { unpack } from 'msgpackr'
@@ -107,7 +107,7 @@ function adminSearchCommentsDBDataPaginated(
   count: number
 }> {
   /*****
-    Since there is no way to get a count of all results with lmdb-store without loading them all into memory,
+    Since there is no way to get a count of all results with lmdb without loading them all into memory,
     we are just going to limit the search results to 200 results and show them all on one page.
   *****/
   const limit = 200

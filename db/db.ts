@@ -2,7 +2,7 @@ import * as R from 'ramda'
 import type { Transaction } from 'sequelize'
 import { Op, QueryTypes, Sequelize } from 'sequelize'
 import { Timer } from 'timer-node'
-import lmdb from 'lmdb-store'
+import lmdb from 'lmdb'
 import { DateTime } from 'luxon'
 import { nullable as MaybeNullable } from 'pratica'
 import { unpack } from 'msgpackr'
@@ -255,7 +255,7 @@ const db = {
       )
       .then(() =>
         // Only run this if the previous transaction completed successfully
-        commentsDB.transactionAsync(() => {
+        commentsDB.transaction(() => {
           postsComments.forEach(({ id, comments }) => {
             commentsDB.put(id, comments)
           })
@@ -274,7 +274,7 @@ const db = {
     const timer = new Timer()
     timer.start()
 
-    await commentsDB.transactionAsync(() => {
+    await commentsDB.transaction(() => {
       postIdsToRemove.forEach(postId => {
         commentsDB.remove(postId)
       })
