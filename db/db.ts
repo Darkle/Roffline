@@ -295,7 +295,6 @@ const db = {
 
     const getCommentsData = (dbCommentsData: Buffer): Comments | null => {
       const parsedDBCommentsData = tryMessagePackUnpack(dbCommentsData) as Comments | null
-      console.log(parsedDBCommentsData)
       // eslint-disable-next-line functional/no-conditional-statement
       if (!parsedDBCommentsData) return []
 
