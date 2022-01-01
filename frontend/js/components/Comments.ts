@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import * as Vue from 'vue'
 import { unescape } from 'html-escaper'
 
-import type { CommentContainer } from '../../../db/entities/Comments'
+import type { TrimmedComment } from '../../../db/entities/Comments'
 import type { PostWithComments } from '../../../db/entities/Posts/Post'
 import { genPrettyDateCreatedAgoFromUTC } from '../../../server/controllers/posts/pretty-date-created-ago'
 
@@ -29,30 +29,30 @@ const Comments = Vue.defineComponent({
   methods: {
     genPrettyDateCreatedAgoFromUTC,
     unescapeHTML: unescape,
-    hasChildComments(comment: CommentContainer) {
+    hasChildComments(comment: TrimmedComment) {
       return comment.data.replies?.data?.children?.length > 0
     },
-    formatDateCreated(comment: CommentContainer) {
+    formatDateCreated(comment: TrimmedComment) {
       return DateTime.fromSeconds(comment?.data?.created_utc || 0).toISO()
     },
-    authorLink(comment: CommentContainer) {
+    authorLink(comment: TrimmedComment) {
       // encodeURI is in case its https://www.reddit.com/u/[deleted]
       return `https://www.reddit.com/u/${encodeURI(comment?.data?.author)}`
     },
     pluralisePostScore(score: number): string {
       return `${score} ${score === 1 ? 'point' : 'points'}`
     },
-    commentPermalink(comment: CommentContainer) {
+    commentPermalink(comment: TrimmedComment) {
       return `https://www.reddit.com${comment?.data?.permalink}`
     },
-    commentIsOpen(comment: CommentContainer): boolean {
+    commentIsOpen(comment: TrimmedComment): boolean {
       return !this.commentsClosedStatus.get(comment.data.id)
     },
-    toggleHideShowComment(comment: CommentContainer): void {
+    toggleHideShowComment(comment: TrimmedComment): void {
       const commentClosedStatus = this.commentsClosedStatus.get(comment.data.id)
       this.commentsClosedStatus.set(comment.data.id, !commentClosedStatus)
     },
-    commentHasBody(comment: CommentContainer): boolean {
+    commentHasBody(comment: TrimmedComment): boolean {
       return !!comment?.data?.body_html
     },
   },

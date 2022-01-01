@@ -1,158 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-type Media = {
-  type: string
-  oembed: {
-    provider_url: string
-    version: string
-    title: string
-    type: string
-    thumbnail_width: number
-    height: number
-    width: number
-    html: string
-    author_name: string
-    provider_name: string
-    thumbnail_url: string
-    thumbnail_height: number
-    author_url: string
-  }
-}
+import type { Post } from './Posts/Post'
 
-type ActualPostData = {
-  approved_at_utc: null | boolean
-  subreddit: string
-  selftext: string
-  user_reports: any[]
-  saved: boolean
-  mod_reason_title: any
-  gilded: number
-  clicked: boolean
-  title: string
-  link_flair_richtext: any[]
-  subreddit_name_prefixed: string
-  hidden: boolean
-  pwls: number
-  link_flair_css_class: string
-  downs: number
-  thumbnail_height: number
-  top_awarded_type: any
-  parent_whitelist_status: string
-  hide_score: boolean
-  name: string
-  quarantine: boolean
-  link_flair_text_color: string
-  upvote_ratio: number
-  author_flair_background_color: null
-  ups: number
-  domain: string
-  media_embed: any
-  thumbnail_width: number
-  author_flair_template_id: string
-  is_original_content: boolean
-  author_fullname: string
-  secure_media: any
-  is_reddit_media_domain: boolean
-  is_meta: boolean
-  category: null
-  secure_media_embed: any
-  link_flair_text: string
-  can_mod_post: boolean
-  score: number
-  approved_by: null
-  is_created_from_ads_ui: boolean
-  author_premium: boolean
-  thumbnail: string
-  edited: boolean
-  author_flair_css_class: string
-  author_flair_richtext: any
-  gildings: any
-  post_hint: string
-  content_categories: string[]
-  is_self: boolean
-  subreddit_type: string
-  created: number
-  link_flair_type: string
-  wls: number
-  removed_by_category: any
-  banned_by: any
-  author_flair_type: string
-  total_awards_received: number
-  allow_live_comments: boolean
-  selftext_html: null | string
-  likes: any
-  suggested_sort: string
-  banned_at_utc: any
-  url_overridden_by_dest: string
-  view_count: any
-  archived: boolean
-  no_follow: boolean
-  is_crosspostable: boolean
-  pinned: boolean
-  over_18: boolean
-  preview: any
-  all_awardings: any[]
-  awarders: any[]
-  media_only: boolean
-  link_flair_template_id: string
-  can_gild: boolean
-  spoiler: boolean
-  locked: boolean
-  author_flair_text: string
-  treatment_tags: any[]
-  visited: boolean
-  removed_by: any
-  mod_note: any
-  distinguished: any
-  subreddit_id: string
-  author_is_blocked: boolean
-  mod_reason_by: any
-  num_reports: any
-  removal_reason: any
-  link_flair_background_color: string
-  id: string
-  is_robot_indexable: boolean
-  num_duplicates: number
-  report_reasons: any
-  author: string
-  discussion_type: any
-  num_comments: number
-  send_replies: boolean
-  media: null | Media
-  contest_mode: boolean
-  author_patreon_flair: boolean
-  author_flair_text_color: string
-  permalink: string
-  whitelist_status: string
-  stickied: boolean
-  url: string
-  subreddit_subscribers: number
-  created_utc: number
-  num_crossposts: number
-  mod_reports: any[]
-  is_video: boolean
-}
-
-type ChildrenPostData = {
+type FetchedChildrenPostData = {
   kind: string
-  data: ActualPostData
+  data: Post
 }
 
-type PostData = {
+type FetchedPostData = {
   after: string | null
   dist: number
   modhash: any
   geo_filter: any
   before: string | null
-  children: ChildrenPostData[]
+  children: FetchedChildrenPostData[]
 }
 
-type PostContainer = {
+type FetchedPostContainer = {
   kind: string
-  data: PostData
+  data: FetchedPostData
 }
 
-type ActualCommentData = {
+type FetchedRawCommentData = {
   subreddit_id: string
   approved_at_utc: any
   author_is_blocked: boolean
@@ -165,7 +34,7 @@ type ActualCommentData = {
   subreddit: string
   author_flair_template_id: any
   likes: any
-  replies: CommentsOuterContainer
+  replies: FetchedCommentsOuterContainer
   user_reports: any[]
   saved: boolean
   id: string
@@ -225,25 +94,56 @@ type ActualCommentData = {
   ups: number
 }
 
-type CommentContainer = {
+type FetchedCommentContainer = {
   kind: string
-  data: ActualCommentData
+  data: FetchedRawCommentData
 }
 
-type CommentsData = {
+type FetchedCommentsData = {
   after: string | null
   dist: number
   modhash: any
   geo_filter: any
   before: string | null
-  children: CommentContainer[]
+  children: FetchedCommentContainer[]
 }
 
-type CommentsOuterContainer = {
+type FetchedCommentsOuterContainer = {
   kind: string
-  data: CommentsData
+  data: FetchedCommentsData
 }
 
-type CommentsWithMetadata = [PostContainer, CommentsOuterContainer]
+type UnformattedCommentsData = [FetchedPostContainer, FetchedCommentsOuterContainer]
 
-export { CommentsWithMetadata, CommentContainer, CommentsOuterContainer, ActualCommentData }
+type TrimmedCommentReplies = {
+  children: TrimmedComment[]
+}
+
+type TrimmedCommentRepliesContainer = {
+  data: TrimmedCommentReplies
+}
+
+type TrimmedCommentData = {
+  id: string
+  replies: TrimmedCommentRepliesContainer
+  created_utc: number
+  author: string
+  score: number
+  permalink: string
+  body_html: string
+}
+
+type TrimmedComment = {
+  data: TrimmedCommentData
+}
+
+type Comments = TrimmedComment[] | []
+
+export {
+  TrimmedComment,
+  FetchedCommentsOuterContainer,
+  FetchedRawCommentData,
+  TrimmedCommentData,
+  Comments,
+  UnformattedCommentsData,
+}

@@ -46,6 +46,11 @@ declare module 'dns-cache' {
   export default function (ttl: number): void
 }
 
+declare module 'deep-filter-object' {
+  function recursiveObjFilter(obj: Record<string, unknown>, arr: string[]): Record<string, unknown>
+  export default recursiveObjFilter
+}
+
 declare module 'node-recursive-directory' {
   // prettier-ignore
   export default function (dir: string, asObject: boolean): Promise<{ fullpath: string; filepath: string; filename: string; dirname: string }[]>; // eslint-disable-line import/export,@typescript-eslint/semi

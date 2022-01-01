@@ -2,17 +2,15 @@ import fetch from 'node-fetch-commonjs'
 import Prray from 'prray'
 import { Packr } from 'msgpackr'
 import type { Response } from 'node-fetch-commonjs'
-// @ts-expect-error asd
-import deepFilter from 'deep-filter-object'
+import recursiveObjFilter from 'deep-filter-object'
 
 import type { AdminSettings } from '../../db/entities/AdminSettings'
 import { db } from '../../db/db'
 import { isDev, isNotError } from '../../server/utils'
 import { commentsDownloadsLogger } from '../../logging/logging'
 import { logGetCommentsProgress } from './log-get-comments-progress'
-import type { CommentContainer, CommentsOuterContainer } from '../../db/entities/Comments'
+import type { UnformattedCommentsData, TrimmedCommentData } from '../../db/entities/Comments'
 
-type CommentsFetchResponse = [Record<string, unknown>, CommentsOuterContainer]
 type PostId = string
 type CommentsWithPostId = { id: PostId; comments: Buffer }
 
@@ -21,28 +19,27 @@ const msgpackPacker = new Packr()
 const createFetchError = (resp: Response): Error =>
   new Error(resp.statusText?.length ? resp.statusText : resp.status.toString())
 
-const handleCommentFetchResponse = (resp: Response): Promise<CommentsFetchResponse> =>
-  resp.ok ? (resp.json() as Promise<CommentsFetchResponse>) : Promise.reject(createFetchError(resp))
+const handleCommentFetchResponse = (resp: Response): Promise<UnformattedCommentsData> =>
+  resp.ok ? (resp.json() as Promise<UnformattedCommentsData>) : Promise.reject(createFetchError(resp))
 
-const formatCommentsForDB = (comments: CommentContainer[]): Buffer =>
+const commentsObjKeysToKeep = [
+  'data',
+  'children',
+  'id',
+  'replies',
+  'created_utc',
+  'author',
+  'score',
+  'permalink',
+  'body_html',
+]
+
+const formatCommentsForDB = (comments: Record<string, unknown>[]): Buffer =>
   msgpackPacker.pack(
-    comments.map(comment =>
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return
-      deepFilter(comment, [
-        'data',
-        'children',
-        'id',
-        'replies',
-        'created_utc',
-        'author',
-        'score',
-        'permalink',
-        'body_html',
-      ])
-    )
+    comments.map(comment => recursiveObjFilter(comment, commentsObjKeysToKeep) as TrimmedCommentData)
   )
 
-const assocCommentsWithPostId = (postId: PostId, comments: CommentsFetchResponse): CommentsWithPostId => ({
+const assocCommentsWithPostId = (postId: PostId, comments: UnformattedCommentsData): CommentsWithPostId => ({
   id: postId,
   comments: formatCommentsForDB(comments[1].data.children),
 })

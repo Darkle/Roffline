@@ -9,12 +9,11 @@ import type {
   DatabaseTypes,
   TablesColumnsType,
   JsonViewerData,
-  CommentsFromCommentsDB,
 } from './admin-db-viewer-page-types'
 import { checkFetchResponseStatus, $, wait } from '../../frontend-utils'
 import { tablesColumns } from './table-columns'
-import type { CommentsWithMetadata } from '../../../../db/entities/Comments'
 import type { JSONViewer, VGTable } from '../../frontend-global-types'
+import type { CommentsDBRow } from '../../../../db/db'
 
 const defaultNumRowsPerPage = 50
 const commentsNumRowsPerPage = 200
@@ -111,6 +110,7 @@ const AdminDBViewerTable = Vue.defineComponent({
           this.resetStateRowData()
           this.$nextTick(() => {
             state.columns = columns
+            // @ts-expect-error - Get an error of "Type instantiation is excessively deep and possibly infinite". Not sure why.
             state.rows = paginatedTableData.rows
             state.totalRows = paginatedTableData.count
           })
@@ -163,11 +163,11 @@ const AdminDBViewerTable = Vue.defineComponent({
 
       // eslint-disable-next-line functional/no-conditional-statement
       if (state.currentTable === 'comments') {
-        const commentRowData = localRowsStore[rowIndex] as CommentsFromCommentsDB
-        const comments = JSON.parse(commentRowData.value) as CommentsWithMetadata
+        const commentRowData = localRowsStore[rowIndex] as CommentsDBRow
+        const comments = commentRowData.value
 
         state.jsonViewerData = {
-          postId: commentRowData.key,
+          postId: commentRowData.key as string,
           comments,
         }
         state.showJSONViewer = true

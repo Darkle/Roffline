@@ -8,7 +8,7 @@ import { subredditTablesMap } from '../entities/SubredditTable'
 import type { Post, PostWithComments } from '../entities/Posts/Post'
 import { PostModel } from '../entities/Posts/Posts'
 import { dbLogger } from '../../logging/logging'
-import type { CommentContainer } from '../entities/Comments'
+import type { Comments } from '../entities/Comments'
 import { SubredditsMasterListModel } from '../entities/SubredditsMasterList'
 
 type SubsPostsIdDataType = {
@@ -18,7 +18,7 @@ type SubsPostsIdDataType = {
 type TransactionType = Transaction | null | undefined
 
 function getSinglePostData(
-  getPostComments: (postId: string) => Promise<CommentContainer[] | [] | null>,
+  getPostComments: (postId: string) => Promise<Comments | null>,
   postId: string
 ): Promise<PostWithComments> {
   return Promise.all([

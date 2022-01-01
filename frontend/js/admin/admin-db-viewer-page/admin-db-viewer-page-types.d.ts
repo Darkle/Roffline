@@ -1,6 +1,7 @@
 import type { Post } from '../../../../db/entities/Posts/Post'
 import type { User } from '../../../../db/entities/Users/User'
-import type { CommentsWithMetadata } from '../../../../db/entities/Comments'
+import type { Comments } from '../../../../db/entities/Comments'
+import type { CommentsDBRow } from '../../../../db/db'
 
 type AdminSettings = {
   downloadComments: boolean
@@ -18,8 +19,6 @@ type SubredditsMasterListRow = {
   subreddit: string
 }
 
-type CommentsFromCommentsDB = { key: string; value: string }
-
 type TopPostsTypeKeys =
   | 'posts_Default'
   | 'topPosts_Day'
@@ -36,7 +35,7 @@ type DatabaseTypes =
   | User[]
   | Post[]
   | [AdminSettings]
-  | CommentsFromCommentsDB[]
+  | CommentsDBRow[]
   | SubredditsMasterListRow[]
   | SubredditTableRow[]
 
@@ -44,7 +43,7 @@ type JsonViewerData =
   | User
   | Post
   | AdminSettings
-  | { postId: string; comments: CommentsWithMetadata }
+  | { postId: string; comments: Comments }
   | SubredditsMasterListRow
   | SubredditTableRow
 
@@ -63,4 +62,4 @@ type TablesColumnsType = {
   [key: string]: TableColumnType[]
 }
 
-export { DbTables, TableColumnType, DatabaseTypes, TablesColumnsType, JsonViewerData, CommentsFromCommentsDB }
+export { DbTables, TableColumnType, DatabaseTypes, TablesColumnsType, JsonViewerData }

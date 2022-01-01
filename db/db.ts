@@ -1,4 +1,3 @@
-import { unpack } from 'msgpackr'
 import * as R from 'ramda'
 import type { Transaction } from 'sequelize'
 import { Op, QueryTypes, Sequelize } from 'sequelize'
@@ -6,6 +5,7 @@ import { Timer } from 'timer-node'
 import lmdb from 'lmdb-store'
 import { DateTime } from 'luxon'
 import { nullable as MaybeNullable } from 'pratica'
+import { unpack } from 'msgpackr'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
 import type { SubredditsMasterList } from './entities/SubredditsMasterList'
@@ -68,7 +68,7 @@ import {
   decrementPostMediaDownloadTry,
 } from './posts/db-posts'
 
-import type { CommentContainer } from './entities/Comments'
+import type { Comments } from './entities/Comments'
 import { getEnvFilePath, getFileSize /*isDev*/ } from '../server/utils'
 
 const sqliteDBPath = process.env['TESTING']
@@ -81,6 +81,11 @@ type TopFilterType = 'day' | 'week' | 'month' | 'year' | 'all'
 
 type SubsPostsIdDataType = {
   [subreddit: string]: TopPostsRowType[]
+}
+
+type CommentsDBRow = {
+  key: lmdb.Key
+  value: Comments
 }
 
 type PostIds = string[]
@@ -283,13 +288,13 @@ const db = {
 
     timer.clear()
   },
-  getPostComments(postId: string): Promise<CommentContainer[] | [] | null> {
+  getPostComments(postId: string): Promise<Comments | null> {
     const maybePostCommentsAsBuffer = MaybeNullable(commentsDB.get(postId))
 
     const tryMessagePackUnpack = R.tryCatch(unpack, R.always([]))
 
-    const getCommentsData = (dbCommentsData: Buffer): CommentContainer[] | [] | null => {
-      const parsedDBCommentsData = tryMessagePackUnpack(dbCommentsData) as CommentContainer[] | [] | null
+    const getCommentsData = (dbCommentsData: Buffer): Comments | null => {
+      const parsedDBCommentsData = tryMessagePackUnpack(dbCommentsData) as Comments | null
       console.log(parsedDBCommentsData)
       // eslint-disable-next-line functional/no-conditional-statement
       if (!parsedDBCommentsData) return []
@@ -322,19 +327,13 @@ const db = {
     return adminSearchAnyDBTablePaginated(sequelize, tableName, searchTerm, page)
   },
   adminGetCommentsDBDataPaginated(page: number | undefined): Promise<{
-    rows: {
-      key: lmdb.Key
-      value: string
-    }[]
+    rows: CommentsDBRow[]
     count: number
   }> {
     return adminGetCommentsDBDataPaginated(commentsDB, page)
   },
   adminSearchCommentsDBDataPaginated(searchTerm: string): Promise<{
-    rows: {
-      key: lmdb.Key
-      value: string
-    }[]
+    rows: CommentsDBRow[]
     count: number
   }> {
     return adminSearchCommentsDBDataPaginated(commentsDB, searchTerm)
@@ -423,4 +422,4 @@ const db = {
 // import { dev } from './db-dev'
 // isDev && dev.init(db)
 
-export { db }
+export { db, CommentsDBRow }
