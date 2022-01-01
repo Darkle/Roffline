@@ -298,7 +298,7 @@ const db = {
   },
   // Make it promise based. Confusing if one db is promise based and other is sync.
   getPostComments(postId: string): Promise<Comments | null> {
-    // `undefined` means have not yet fetched any comments for this post.
+    // `undefined` result means have not yet fetched any comments for this post.
     const postComments = commentsDB.get(postId) as Buffer | undefined
 
     return Promise.resolve(
