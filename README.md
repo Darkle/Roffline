@@ -32,6 +32,11 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
 - You can easily import your subreddits from your reddit account
 - Search article titles
 - Dark mode
+- Optional infinite scroll
+- Can specify whether to download videos and the max video resolution and file size
+- Can specify to only show titles in feed page
+- Can specify the times at which Roffline updates
+- Can specify the max simultaneous media downloads at once
 
 #### Screenshots: [screenshots](screenshots/screenshots.md)
 
