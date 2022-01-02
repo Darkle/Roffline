@@ -71,7 +71,16 @@ const downloadHasNo404Error = (download: FrontendDownload): boolean =>
 
 const downloadMatchesFilter = (download: FrontendDownload): boolean =>
   match(download)
-    .with({ downloadSucceeded: true }, () => state.currentHistoryFilter === 'succeeded', R.T)
+    .with(
+      {
+        downloadSucceeded: true,
+        downloadSkipped: false,
+        downloadCancelled: false,
+        downloadFailed: false,
+      },
+      () => state.currentHistoryFilter === 'succeeded',
+      R.T
+    )
     .with({ downloadSkipped: true }, () => state.currentHistoryFilter === 'skipped', R.T)
     .with({ downloadCancelled: true }, () => state.currentHistoryFilter === 'cancelled', R.T)
     .with(
