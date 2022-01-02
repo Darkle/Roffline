@@ -94,7 +94,12 @@ const adminMediaDownloadsViewerOrganiser = {
   },
   setDownloadSkipped(postId: string, reason = ''): void {
     const post = this.posts.get(postId) as PostWithMediaDownloadInfo
-    this.posts.set(postId, { ...post, downloadSkipped: true, downloadSkippedReason: reason })
+    this.posts.set(postId, {
+      ...post,
+      downloadSkipped: true,
+      downloadSkippedReason: reason,
+      downloadFailed: true,
+    })
     adminMediaDownloadsViewerOrganiserEmitter.emit('download-skipped', postId, reason)
   },
   setDownloadProgress(postId: string, downloadFileSize = 0, downloadedBytes = 0, downloadSpeed = 0): void {

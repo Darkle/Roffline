@@ -126,14 +126,35 @@ const moveDownloadToOtherList = (
 
   if (state.isFilteringHistory && movingDownloadToHistoryList) {
     if (downloadMatchesFilter(updatedDownload)) {
-      listDataToMoveDownloadTo.unshift(updatedDownload)
+      const downloadIsInListToMoveTo = listDataToMoveDownloadTo.find(dl => dl.id === updatedDownload.id)
+
+      if (downloadIsInListToMoveTo) {
+        const index = listDataToMoveDownloadTo.findIndex(dl => dl.id === updatedDownload.id)
+        // eslint-disable-next-line no-param-reassign
+        listDataToMoveDownloadTo[index] = updatedDownload
+      } else {
+        listDataToMoveDownloadTo.unshift(updatedDownload)
+      }
+
       return
     }
 
     return
   }
 
-  listDataToMoveDownloadTo.unshift(updatedDownload)
+  /*****
+    `skipped` can be called before `failed`, so we need to check if its already in the
+    list and update the existing download, otherwise insert it into the list.
+  *****/
+  const downloadIsInListToMoveTo = listDataToMoveDownloadTo.find(dl => dl.id === updatedDownload.id)
+
+  if (downloadIsInListToMoveTo) {
+    const index = listDataToMoveDownloadTo.findIndex(dl => dl.id === updatedDownload.id)
+    // eslint-disable-next-line no-param-reassign
+    listDataToMoveDownloadTo[index] = updatedDownload
+  } else {
+    listDataToMoveDownloadTo.unshift(updatedDownload)
+  }
 }
 
 function updateDownloadProps(ev: Event): void {
@@ -143,7 +164,7 @@ function updateDownloadProps(ev: Event): void {
     Ok: (parsedData): void => {
       const eventAndData = { data: parsedData, type: ev.type } as UpdateDownloadPropsParsedData
 
-      console.info(eventAndData)
+      // console.info(eventAndData)
 
       const { postId } = eventAndData.data
       const downloadFromMasterList = state.masterListOfDownloads.get(postId) as FrontendDownload
