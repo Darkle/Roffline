@@ -113,13 +113,11 @@ const moveDownloadToOtherList = (
 
   removeDownloadFromCurrentList(updatedDownload, listDataDownloadCurrentlyResidesIn)
 
-  const movingDownloadToHistoryList = listDataToMoveDownloadTo === state.downloadHistoryListData
-
   const moveOrUpdate = (): void => {
     /*****
-      `skipped` can be called before `failed`, so we need to check if its already in the
-      list and update the existing download, otherwise insert it into the list.
-    *****/
+     `skipped` can be called before `failed`, so we need to check if its already in the
+     list and update the existing download, otherwise insert it into the list.
+     *****/
     const downloadIsInListToMoveTo = listDataToMoveDownloadTo.find(dl => dl.id === updatedDownload.id)
 
     if (downloadIsInListToMoveTo) {
@@ -134,6 +132,8 @@ const moveDownloadToOtherList = (
   if (state.isSearching) {
     return downloadMatchesSearch(updatedDownload) ? moveOrUpdate() : RA.noop()
   }
+
+  const movingDownloadToHistoryList = listDataToMoveDownloadTo === state.downloadHistoryListData
 
   if (state.isFilteringHistory && movingDownloadToHistoryList) {
     return downloadMatchesFilter(updatedDownload) ? moveOrUpdate() : RA.noop()
