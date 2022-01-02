@@ -126,6 +126,10 @@ const moveDownloadToOtherList = (
 
   if (state.isFilteringHistory && movingDownloadToHistoryList) {
     if (downloadMatchesFilter(updatedDownload)) {
+      /*****
+        `skipped` can be called before `failed`, so we need to check if its already in the
+        list and update the existing download, otherwise insert it into the list.
+      *****/
       const downloadIsInListToMoveTo = listDataToMoveDownloadTo.find(dl => dl.id === updatedDownload.id)
 
       if (downloadIsInListToMoveTo) {
