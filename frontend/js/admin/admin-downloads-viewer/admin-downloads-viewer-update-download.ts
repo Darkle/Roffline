@@ -115,50 +115,31 @@ const moveDownloadToOtherList = (
 
   const movingDownloadToHistoryList = listDataToMoveDownloadTo === state.downloadHistoryListData
 
-  if (state.isSearching) {
-    if (downloadMatchesSearch(updatedDownload)) {
-      listDataToMoveDownloadTo.unshift(updatedDownload)
-      return
-    }
+  const moveOrUpdate = (): void => {
+    /*****
+      `skipped` can be called before `failed`, so we need to check if its already in the
+      list and update the existing download, otherwise insert it into the list.
+    *****/
+    const downloadIsInListToMoveTo = listDataToMoveDownloadTo.find(dl => dl.id === updatedDownload.id)
 
-    return
+    if (downloadIsInListToMoveTo) {
+      const index = listDataToMoveDownloadTo.findIndex(dl => dl.id === updatedDownload.id)
+      // eslint-disable-next-line no-param-reassign
+      listDataToMoveDownloadTo[index] = updatedDownload
+    } else {
+      listDataToMoveDownloadTo.unshift(updatedDownload)
+    }
+  }
+
+  if (state.isSearching) {
+    return downloadMatchesSearch(updatedDownload) ? moveOrUpdate() : RA.noop()
   }
 
   if (state.isFilteringHistory && movingDownloadToHistoryList) {
-    if (downloadMatchesFilter(updatedDownload)) {
-      /*****
-        `skipped` can be called before `failed`, so we need to check if its already in the
-        list and update the existing download, otherwise insert it into the list.
-      *****/
-      const downloadIsInListToMoveTo = listDataToMoveDownloadTo.find(dl => dl.id === updatedDownload.id)
-
-      if (downloadIsInListToMoveTo) {
-        const index = listDataToMoveDownloadTo.findIndex(dl => dl.id === updatedDownload.id)
-        // eslint-disable-next-line no-param-reassign
-        listDataToMoveDownloadTo[index] = updatedDownload
-      } else {
-        listDataToMoveDownloadTo.unshift(updatedDownload)
-      }
-
-      return
-    }
-
-    return
+    return downloadMatchesFilter(updatedDownload) ? moveOrUpdate() : RA.noop()
   }
 
-  /*****
-    `skipped` can be called before `failed`, so we need to check if its already in the
-    list and update the existing download, otherwise insert it into the list.
-  *****/
-  const downloadIsInListToMoveTo = listDataToMoveDownloadTo.find(dl => dl.id === updatedDownload.id)
-
-  if (downloadIsInListToMoveTo) {
-    const index = listDataToMoveDownloadTo.findIndex(dl => dl.id === updatedDownload.id)
-    // eslint-disable-next-line no-param-reassign
-    listDataToMoveDownloadTo[index] = updatedDownload
-  } else {
-    listDataToMoveDownloadTo.unshift(updatedDownload)
-  }
+  moveOrUpdate()
 }
 
 function updateDownloadProps(ev: Event): void {
