@@ -14,7 +14,7 @@ module.exports = {
   settings: {
     'html/html-extensions': ['.html', '.eta', '.njk', 'marko'],
   },
-  ignorePatterns: ['.eslintrc.cjs'],
+  ignorePatterns: ['.eslintrc.cjs', 'tests/**/*'],
   plugins: ['@typescript-eslint', 'functional', 'extra-rules', 'no-secrets', 'disable', 'html', 'ramda', 'mocha'],
   overrides: [
     {

@@ -18,6 +18,7 @@ module.exports = {
     node: true,
     es2020: true,
     mocha: true,
+    'cypress/globals': true,
   },
   extends: [
     'eslint:recommended',
@@ -26,11 +27,12 @@ module.exports = {
     'plugin:import/errors',
     'plugin:import/typescript',
     'plugin:mocha/recommended',
+    'plugin:cypress/recommended',
   ],
   settings: {
     'html/html-extensions': ['.html', '.njk'],
   },
-  ignorePatterns: ['.eslintrc.cjs'],
+  ignorePatterns: ['.eslintrc.cjs', 'cypress/plugins/index.ts'],
   plugins: ['@typescript-eslint', 'extra-rules', 'no-secrets', 'disable', 'html', 'mocha'],
   rules: {
     '@typescript-eslint/consistent-type-imports': 'error',
@@ -111,7 +113,7 @@ module.exports = {
     eqeqeq: 'error',
     'guard-for-in': 'error',
     'max-depth': ['error', 3],
-    'max-lines-per-function': ['error', { max: 24, skipComments: true }],
+    'max-lines-per-function': 'off',
     'max-params': ['error', 4],
     'max-statements-per-line': ['error', { max: 1 }],
     'no-await-in-loop': 'error',

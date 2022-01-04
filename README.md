@@ -24,7 +24,7 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
 
 #### Features:
 
-- Downloads media from posts
+- Downloads media from posts for viewing offline
   - Videos are downloaded via [yt-dlp](https://github.com/yt-dlp/yt-dlp)
   - Images are downloaded via [gallery-dl](https://github.com/mikf/gallery-dl)
   - Articles are saved as a pdf via [Playwright](https://playwright.dev/)
@@ -73,6 +73,8 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
 - https://github.com/p-ranav/saveddit
 - https://github.com/aliparlakci/bulk-downloader-for-reddit
 - https://github.com/MonkeyMaster64/Reddit-User-Media-Downloader-Public
+- https://github.com/shadowmoose/RedditDownloader
+- https://github.com/j9108c/eternity
 
 #### Things could possibly add later:
 

@@ -100,7 +100,6 @@ const build = {
       metafile: true,
     })
     // https://esbuild.github.io/api/#metafile
-    // https://bundle-buddy.com/
     require('fs').writeFileSync('esbuild-meta.json', JSON.stringify(result.metafile))
   },
   backendJS() {
@@ -159,7 +158,7 @@ const tests = {
   codecoverage() {
     sh(`TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true nyc mocha tests`, shellOptions)
   },
-  mocha(options, skipVideoTests = false) {
+  mocha() {
     const shOptions = { ...shellOptions, async: true }
     // download video tests can take 5-10 mins, so can skip them if want
     const ignoreVideoTests = process.env.SKIP_VIDEO_TESTS
@@ -168,20 +167,24 @@ const tests = {
 
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
-    sh(`TESTING=true node -r ./env-checker.cjs ./boot.js &`, { ...shellOptions, silent: true })
+    sh(`TESTING=true node -r ./env-checker.cjs ./boot.js`, { ...shellOptions })
 
-    sh(
-      `sleep 3 && TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true mocha tests ${ignoreVideoTests}`,
-      // @ts-expect-error
-      shOptions
-    )
-      .catch(noop)
-      .finally(_ =>
-        // @ts-expect-error
-        sh(`fkill :8080 --silent`, { silent: true, ...shOptions })
-          .catch(noop)
-          .finally(() => process.exit(0))
-      )
+    // // @ts-expect-error
+    // sh(`sleep 2 && TESTING=true cypress run`, shOptions)
+    //   .then(() =>
+    //     sh(
+    //       `TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true mocha tests ${ignoreVideoTests}`,
+    //       // @ts-expect-error
+    //       shOptions
+    //     )
+    //   )
+    //   .catch(noop)
+    //   .finally(_ =>
+    //     // @ts-expect-error
+    //     sh(`fkill :8080 --silent`, { silent: true, ...shOptions })
+    //       .catch(noop)
+    //       .finally(() => process.exit(0))
+    //   )
   },
 }
 
