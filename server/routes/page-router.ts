@@ -34,6 +34,7 @@ const pageRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) =
       uniqueUsername: generateRandomUniqueUsername(),
       csrfToken: createCsrfToken(),
       userNotFound,
+      isLoginPage: true,
     })
   })
 

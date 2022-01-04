@@ -27,4 +27,13 @@
   {% else %}
   <link rel="stylesheet" href="/css/index.css<# cacheBustString #>" />
   {% endif %}
+  {# We need to load login page js here instead of at bottom of body tag becaue there is a nav element that vue needs
+    on the login page that is outside the main element, which means we need to mount the vue app on the body element,
+    and when you mount a vue 3 app to the body that includes a script tag in it, you get a blank page (in dev you get a
+    warning of "Template compilation error: Tags with side effect (script and style) are ignored in client component
+    templates.")
+    #}
+  {% if isLoginPage %}
+  <script src="/js/login-page.js<# cacheBustString #>" type="module" defer></script>
+  {% endif %}
 </head>
