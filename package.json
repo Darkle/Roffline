@@ -113,6 +113,7 @@
     "concurrently": "^6.5.1",
     "csso-cli": "^3.0.0",
     "cypress": "^9.2.0",
+    "envfile": "^6.17.0",
     "esbuild": "0.14.3",
     "esbuild-visualizer": "^0.3.1",
     "eslint": "^8.5.0",

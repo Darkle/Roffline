@@ -5,6 +5,7 @@ const path = require('path')
 const { cli, sh } = require('tasksfile')
 const esbuild = require('esbuild')
 const glob = require('fast-glob')
+const { parse } = require('envfile')
 
 const shellOptions = { nopipe: true, async: undefined }
 
@@ -13,6 +14,23 @@ const prepareAndCleanDir = dir => {
   fs.mkdirSync(dir)
   fs.writeFileSync(path.join(dir, '.gitkeep'), '')
 }
+
+async function pDeleteFileOrFolder(folderPath, isFolder) {
+  const exists = await fs.promises.stat(folderPath).catch(noop)
+  if (!exists) return Promise.resolve()
+
+  return isFolder ? fs.promises.rm(folderPath, { recursive: true }) : fs.promises.rm(folderPath)
+}
+
+const testingEnvVars = parse(fs.readFileSync('./tests/.testing.env', { encoding: 'utf8' }))
+
+const removeTempTestFiles = () =>
+  Promise.all([
+    pDeleteFileOrFolder(testingEnvVars.LOGDIR, true),
+    pDeleteFileOrFolder(testingEnvVars.POSTS_MEDIA_DOWNLOAD_DIR, true),
+    pDeleteFileOrFolder(testingEnvVars.SQLITE_DBPATH),
+    pDeleteFileOrFolder(testingEnvVars.COMMENTS_DBPATH),
+  ])
 
 const noop = _ => {}
 
@@ -168,31 +186,24 @@ const tests = {
 
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
-    sh(`TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`, {
-      ...shellOptions,
-      silent: true,
-    })
+    const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
+    const e2eTests_Chromium = `TESTING=true cypress run --browser chromium`
+    const e2eTests_Firefox = `TESTING=true cypress run --browser firefox`
+    const integrationAndUnitTests = `TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true mocha tests ${ignoreVideoTests}`
+
+    sh(startServer, { ...shellOptions, silent: true })
 
     // @ts-expect-error
-    sh(`sleep 1 && TESTING=true cypress run --browser chromium`, shOptions)
-      .then(() =>
-        sh(
-          `TESTING=true cypress run --browser firefox`,
-          // @ts-expect-error
-          shOptions
-        )
-      )
-      // .then(() =>
-      //   sh(
-      //     `TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true mocha tests ${ignoreVideoTests}`,
-      //     // @ts-expect-error
-      //     shOptions
-      //   )
-      // )
+    sh(e2eTests_Chromium, shOptions)
+      //// @ts-expect-error
+      // .then(() => sh(e2eTests_Firefox, shOptions))
+      //// @ts-expect-error
+      // .then(() => sh(integrationAndUnitTests, shOptions))
       .catch(noop)
       .finally(_ =>
         // @ts-expect-error
         sh(`fkill :8080 --silent`, { silent: true, ...shOptions })
+          .then(removeTempTestFiles)
           .catch(noop)
           .finally(() => process.exit(0))
       )
