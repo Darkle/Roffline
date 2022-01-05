@@ -158,6 +158,7 @@ const tests = {
   codecoverage() {
     sh(`TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true nyc mocha tests`, shellOptions)
   },
+  // eslint-disable-next-line max-lines-per-function
   mocha() {
     const shOptions = { ...shellOptions, async: true }
     // download video tests can take 5-10 mins, so can skip them if want
@@ -167,10 +168,20 @@ const tests = {
 
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
-    sh(`TESTING=true node -r ./env-checker.cjs ./boot.js &`, { ...shellOptions, silent: true })
+    sh(`TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`, {
+      ...shellOptions,
+      silent: true,
+    })
 
     // @ts-expect-error
-    sh(`sleep 1 && TESTING=true cypress run`, shOptions)
+    sh(`sleep 1 && TESTING=true cypress run --browser chromium`, shOptions)
+      .then(() =>
+        sh(
+          `TESTING=true cypress run --browser firefox`,
+          // @ts-expect-error
+          shOptions
+        )
+      )
       // .then(() =>
       //   sh(
       //     `TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true mocha tests ${ignoreVideoTests}`,

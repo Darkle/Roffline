@@ -111,7 +111,8 @@ function scheduleUpdates(): void {
 
         adminSettingsCache = adminSettings
 
-        if (weAreOffline || !updateIsWithinAllowedTimeFrame()) return
+        // The ROFFLINE_NO_UPDATE env var is mostly used when testing, as we dont want to download stuff when testing.
+        if (weAreOffline || !updateIsWithinAllowedTimeFrame() || process.env['ROFFLINE_NO_UPDATE']) return
 
         mainLogger.trace(`New update. Starting at: ${new Date().toString()}`)
 
