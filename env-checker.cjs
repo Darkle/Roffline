@@ -21,8 +21,6 @@ const checkendEnvVars = envVarChecker(process.env, {
   OFFLINE_CHECK_URL: url({ default: 'https://www.google.com/' }),
 })
 
-/* eslint-disable functional/immutable-data */
-
 process.env.PORT = checkendEnvVars.PORT.toString()
 process.env.PUBLIC_FOLDER = checkendEnvVars.PUBLIC_FOLDER
 process.env.LOGDIR = checkendEnvVars.LOGDIR
@@ -33,5 +31,3 @@ process.env.NODE_ENV = checkendEnvVars.NODE_ENV
 process.env.LOGGING_LEVEL = checkendEnvVars.LOGGING_LEVEL
 process.env.ADMIN_PASS = checkendEnvVars.ADMIN_PASS
 process.env.OFFLINE_CHECK_URL = checkendEnvVars.OFFLINE_CHECK_URL
-
-/* eslint-enable functional/immutable-data */

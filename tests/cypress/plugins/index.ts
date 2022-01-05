@@ -1,4 +1,9 @@
 /// <reference types="cypress" />
+
+const path = require('path')
+
+const testingDotEnv = require('dotenv').config({ path: path.join(process.cwd(), 'tests', '.testing.env') })
+
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -15,8 +20,17 @@
 /**
  * @type {Cypress.PluginConfig}
  */
-// eslint-disable-next-line no-unused-vars
 module.exports = (on, config) => {
-  // `on` is used to hook into various events Cypress emits
-  // `config` is the resolved Cypress config
+  // https://stackoverflow.com/a/57819466/2785644
+  config.env = { ...config.env, ...testingDotEnv.parsed }
+
+  // https://stackoverflow.com/a/52077306/2785644
+  on('task', {
+    log(message) {
+      console.log(message)
+      return null
+    },
+  })
+
+  return config
 }
