@@ -3,12 +3,17 @@
   "check-coverage": true,
   "clean": true,
   "include": [
-    "**/*.ts",
-    "logging/file-logging-transport.cjs"
+    "db/**/*.js",
+    "downloads/**/*.js",
+    "frontend/js/**/*.js",
+    "logging/**/*.js",
+    "logging/file-logging-transport.cjs",
+    "server/**/*.js",
+    "./boot.js"
   ],
   "exclude": [
-    "db/db-dev.ts",
-    "**/*.d.ts"
+    "db/db-dev.js",
+    "tests"
   ],
   "reporter": [
     "text",
