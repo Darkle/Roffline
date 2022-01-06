@@ -24,8 +24,6 @@ module.exports = (on, config) => {
   // https://stackoverflow.com/a/57819466/2785644
   config.env = { ...config.env, ...testingDotEnv.parsed }
 
-  require('@cypress/code-coverage/task')(on, config)
-
   // https://stackoverflow.com/a/52077306/2785644
   on('task', {
     log(message) {

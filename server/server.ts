@@ -89,17 +89,6 @@ fastify.setSchemaErrorFormatter((errors): Error => {
 fastify.setErrorHandler(fastifyErrorHandler)
 fastify.setNotFoundHandler(notFoundHandler)
 
-/* eslint-disable @typescript-eslint/no-unsafe-assignment,functional/no-conditional-statement */
-// This is for code coverage when testing
-// @ts-expect-error testing
-const testing_coverage = global.__coverage__
-if (testing_coverage) {
-  fastify.get('/__coverage__', (_, reply) => {
-    reply.send({ coverage: testing_coverage })
-  })
-}
-/* eslint-enable @typescript-eslint/no-unsafe-assignment,functional/no-conditional-statement */
-
 fastify.register(pageRoutes)
 fastify.register(apiRoutes, { prefix: '/api' })
 fastify.register(adminRoutes, { prefix: '/admin' })

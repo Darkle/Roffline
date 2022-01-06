@@ -115,9 +115,10 @@ const build = {
       outdir: path.join(process.cwd(), 'frontend-build', 'js'),
       target: ['firefox78', 'chrome90', 'safari14', 'ios14'],
       metafile: true,
+      bundle: true,
       ...(runningMochaTests
-        ? { bundle: false, minify: false, sourcemap: true, treeShaking: false }
-        : { bundle: true, minify: true, sourcemap: false, treeShaking: true }),
+        ? { minify: false, sourcemap: true, treeShaking: false }
+        : { minify: true, sourcemap: false, treeShaking: true }),
     })
     // https://esbuild.github.io/api/#metafile
     require('fs').writeFileSync('esbuild-meta.json', JSON.stringify(result.metafile))
@@ -188,18 +189,13 @@ const tests = {
 
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
-    //DO instrument here AFTER build
-    sh(`nyc instrument --compact=false --in-place . .`, shellOptions)
-
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
     const e2eTests_Chromium = `TESTING=true cypress run --browser chromium`
     const e2eTests_Firefox = `TESTING=true cypress run --browser firefox`
     const integrationAndUnitTests = `TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true nyc mocha tests ${ignoreVideoTests}`
 
-    // sh(startServer, { ...shellOptions, silent: true })
-    sh(startServer, shellOptions)
+    sh(startServer, { ...shellOptions, silent: true })
 
-    // it takes a long while for n
     // @ts-expect-error
     sh(`sleep 2 && ${e2eTests_Chromium}`, shOptions)
       //// @ts-expect-error

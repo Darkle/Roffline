@@ -10,10 +10,5 @@
   "screenshotOnRunFailure": false,
   "baseUrl": "http://0.0.0.0:8080",
   "experimentalInteractiveRunEvents": true,
-  "testFiles": ["empty-db-tests/**/*.test.ts", "tests-with-db-seeded/**/*.test.ts", "*.test.ts"],
-  "env": {
-    "codeCoverage": {
-      "url": "http://0.0.0.0:8080/__coverage__"
-    }
-  }
+  "testFiles": ["empty-db-tests/**/*.test.ts", "tests-with-db-seeded/**/*.test.ts", "*.test.ts"]
 }
