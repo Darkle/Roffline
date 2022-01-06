@@ -1,15 +1,13 @@
 {
-  "extends": "@istanbuljs/nyc-config-typescript",
-  "check-coverage": true,
   "all": true,
+  "check-coverage": true,
+  "clean": true,
   "include": [
     "**/*.ts",
     "logging/file-logging-transport.cjs"
   ],
   "exclude": [
-    "node_modules",
     "db/db-dev.ts",
-    "tests/**/*.ts",
     "**/*.d.ts"
   ],
   "reporter": [

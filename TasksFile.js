@@ -78,6 +78,8 @@ const dev = {
   },
 }
 
+let runningMochaTests = false
+
 const build = {
   prepareBuildDir() {
     prepareAndCleanDir('./frontend-build')
@@ -95,9 +97,7 @@ const build = {
   frontendJS() {
     const result = esbuild.buildSync({
       entryPoints: tsFilesFrontend,
-      bundle: true,
       format: 'esm',
-      minify: true,
       /*****
         We need to set __VUE_OPTIONS_API__ and __VUE_PROD_DEVTOOLS__ as we are using the bundler build https://github.com/vuejs/vue-next/tree/master/packages/vue#bundler-build-feature-flags
       *****/
@@ -111,11 +111,12 @@ const build = {
         '.svg': 'text',
       },
       platform: 'browser',
-      treeShaking: true,
-      sourcemap: false,
       outdir: path.join(process.cwd(), 'frontend-build', 'js'),
       target: ['firefox78', 'chrome90', 'safari14', 'ios14'],
       metafile: true,
+      ...(runningMochaTests
+        ? { bundle: false, minify: false, sourcemap: true, treeShaking: false }
+        : { bundle: true, minify: true, sourcemap: false, treeShaking: true }),
     })
     // https://esbuild.github.io/api/#metafile
     require('fs').writeFileSync('esbuild-meta.json', JSON.stringify(result.metafile))
@@ -131,9 +132,8 @@ const build = {
       format: 'cjs',
       platform: 'node',
       target: ['node14.18'],
-      treeShaking: true,
-      sourcemap: false,
       outdir: path.join(process.cwd()),
+      ...(runningMochaTests ? { treeShaking: false, sourcemap: true } : { treeShaking: true, sourcemap: false }),
     })
   },
 }
@@ -178,6 +178,7 @@ const tests = {
   },
   // eslint-disable-next-line max-lines-per-function
   mocha() {
+    runningMochaTests = true
     const shOptions = { ...shellOptions, async: true }
     // download video tests can take 5-10 mins, so can skip them if want
     const ignoreVideoTests = process.env.SKIP_VIDEO_TESTS
@@ -186,15 +187,15 @@ const tests = {
 
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
-    const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
+    const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true nyc --silent node -r ./env-checker.cjs ./boot.js &`
     const e2eTests_Chromium = `TESTING=true cypress run --browser chromium`
     const e2eTests_Firefox = `TESTING=true cypress run --browser firefox`
-    const integrationAndUnitTests = `TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true mocha tests ${ignoreVideoTests}`
+    const integrationAndUnitTests = `TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true nyc mocha tests ${ignoreVideoTests}`
 
     sh(startServer, { ...shellOptions, silent: true })
 
     // @ts-expect-error
-    sh(e2eTests_Chromium, shOptions)
+    sh(`sleep 2 && ${e2eTests_Chromium}`, shOptions)
       //// @ts-expect-error
       // .then(() => sh(e2eTests_Firefox, shOptions))
       //// @ts-expect-error
