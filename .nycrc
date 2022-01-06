@@ -7,13 +7,14 @@
     "downloads/**/*.js",
     "frontend/js/**/*.js",
     "logging/**/*.js",
-    "logging/file-logging-transport.cjs",
     "server/**/*.js",
     "./boot.js"
   ],
   "exclude": [
     "db/db-dev.js",
-    "tests"
+    "logging/file-logging-transport.cjs",
+    "tests",
+    "node_modules"
   ],
   "reporter": [
     "text",
