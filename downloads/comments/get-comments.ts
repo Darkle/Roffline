@@ -38,6 +38,8 @@ const commentsObjKeysToKeep = [
   Even though lmdb can automatically convert to messagepack, we want to manually
   convert here as when we do it all at once when saving all the comments to the db
   it takes a long time. Doing it here manually one at a time breaks this up.
+  We are also ommitting anything that we dont need in the comments as there is a
+  lot of excess data we dont need in the comments.
 *****/
 const formatCommentsForDB = (comments: FetchedCommentContainer[]): Buffer =>
   msgpackPacker.pack(comments.map(comment => recursiveObjFilter(comment, commentsObjKeysToKeep)))
