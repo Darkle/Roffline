@@ -5,10 +5,10 @@
   "include": [
     "db/**/*.js",
     "downloads/**/*.js",
-    "frontend/js/**/*.js",
+    "frontend-build/js/**/*.js",
     "logging/**/*.js",
     "server/**/*.js",
-    "./boot.js"
+    "boot.js"
   ],
   "exclude": [
     "db/db-dev.js",

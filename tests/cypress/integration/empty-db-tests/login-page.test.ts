@@ -6,7 +6,7 @@ describe('Login Page', function () {
   })
 
   it('Not logged in redirects to login page', function () {
-    cy.task('log', Cypress.env().TESTING_DEFAULT_USER)
+    // cy.task('log', Cypress.env().TESTING_DEFAULT_USER)
     cy.visit('/')
     cy.location('pathname').should('eq', '/login')
   })

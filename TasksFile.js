@@ -30,6 +30,7 @@ const removeTempTestFiles = () =>
     pDeleteFileOrFolder(testingEnvVars.POSTS_MEDIA_DOWNLOAD_DIR, true),
     pDeleteFileOrFolder(testingEnvVars.SQLITE_DBPATH),
     pDeleteFileOrFolder(testingEnvVars.COMMENTS_DBPATH),
+    pDeleteFileOrFolder(`${testingEnvVars.COMMENTS_DBPATH}-lock`),
   ])
 
 const noop = _ => {}
@@ -187,13 +188,18 @@ const tests = {
 
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
-    const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true nyc --silent node -r ./env-checker.cjs ./boot.js &`
+    //DO instrument here AFTER build
+    sh(`nyc instrument --compact=false --in-place . .`, shellOptions)
+
+    const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
     const e2eTests_Chromium = `TESTING=true cypress run --browser chromium`
     const e2eTests_Firefox = `TESTING=true cypress run --browser firefox`
     const integrationAndUnitTests = `TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true nyc mocha tests ${ignoreVideoTests}`
 
-    sh(startServer, { ...shellOptions, silent: true })
+    // sh(startServer, { ...shellOptions, silent: true })
+    sh(startServer, shellOptions)
 
+    // it takes a long while for n
     // @ts-expect-error
     sh(`sleep 2 && ${e2eTests_Chromium}`, shOptions)
       //// @ts-expect-error
