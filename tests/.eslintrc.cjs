@@ -52,6 +52,7 @@ module.exports = {
     '@typescript-eslint/no-use-before-define': ['error'],
     '@typescript-eslint/no-useless-constructor': ['error'],
     '@typescript-eslint/prefer-readonly-parameter-types': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/prefer-readonly': ['error'],
     '@typescript-eslint/prefer-reduce-type-parameter': ['error'],
     '@typescript-eslint/require-await': 'error',
