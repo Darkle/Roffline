@@ -58,6 +58,11 @@ body.login-page {
   font-size: 1rem;
 }
 
+.login-page main .login-form #loginUsernameButton,
+.login-page main .signup-form #signupUsernameButton {
+  background-color: var(--color-primary);
+}
+
 .login-page main .login-form #loginUsernameInput {
   margin-bottom: 1rem;
 }
