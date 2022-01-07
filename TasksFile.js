@@ -17,13 +17,32 @@ const prepareAndCleanDir = dir => {
 }
 
 async function pDeleteFileOrFolder(fileOrFolderPath, isFolder) {
-  const p = fileOrFolderPath.replaceAll(`'`, '')
-  const exists = await fs.promises.stat(p).catch(noop)
+  const exists = await fs.promises.stat(fileOrFolderPath).catch(noop)
   if (!exists) return Promise.resolve()
-  return isFolder ? fs.promises.rm(p, { recursive: true }) : fs.promises.rm(p)
+  return isFolder ? fs.promises.rm(fileOrFolderPath, { recursive: true }) : fs.promises.rm(fileOrFolderPath)
 }
 
-const testingEnvVars = parse(fs.readFileSync('./tests/.testing.env', { encoding: 'utf8' }))
+const removeQuotesFromEnvFileValue = val => val.replaceAll(`'`, '').replaceAll(`"`, '')
+
+/** @typedef {object} TestingEnvVars
+ * @property {string} PORT
+ * @property {string} PUBLIC_FOLDER
+ * @property {string} LOGDIR
+ * @property {string} POSTS_MEDIA_DOWNLOAD_DIR
+ * @property {string} SQLITE_DBPATH
+ * @property {string} COMMENTS_DBPATH
+ * @property {string} ADMIN_PASS
+ * @property {string} OFFLINE_CHECK_URL
+ * @property {string} LOGGING_LEVEL
+ * @property {string} TESTING_DEFAULT_USER
+ */
+/**
+ * @type {TestingEnvVars}
+ */
+// @ts-expect-error
+const testingEnvVars = Object.entries(
+  parse(fs.readFileSync('./tests/.testing.env', { encoding: 'utf8' }))
+).reduce((acc, [envName, envVal]) => ({ ...acc, [envName]: removeQuotesFromEnvFileValue(envVal) }), {})
 
 const removeTempTestFiles = () =>
   Promise.all([
@@ -188,8 +207,8 @@ const tests = {
     Then for the integration and unit tests, we then need to re-run esbuild for frontend with esbuild NOT bundling
     the node_module imports for the frontend .js. We dont want them imported as we need to run `nyc instrument`,
     which parses all the js code and adds instrumentation code to see if functions are called. If we left all
-    the node_module imports in there we would get code coverage reports for node_module library functions - which
-    we obviously dont want.
+    the node_module imports in there we would get code coverage reports for node_module library functions (e.g. vue)
+    - which we obviously dont want.
 
     There's prolly a better way to do this, but i have NFI how.
 
@@ -197,7 +216,6 @@ const tests = {
   *****/
   mocha() {
     runningMochaTests = true
-    // const shOptions = { ...shellOptions, async: true }
     // download video tests can take 5-10 mins, so can skip them if want
     const ignoreVideoTests = process.env.SKIP_VIDEO_TESTS
       ? '--ignore tests/unit/server/updates/download-video.test.js'
@@ -209,20 +227,28 @@ const tests = {
     const e2eTests_Chromium = `TESTING=true cypress run --browser chromium`
     const e2eTests_Firefox = `TESTING=true cypress run --browser firefox`
     const integrationAndUnitTests = `TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true c8 mocha tests ${ignoreVideoTests}`
+
     try {
       sh(startServer, { ...shellOptions, silent: true })
 
-      sh(`sleep 2 && ${e2eTests_Chromium}`, shellOptions)
+      sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_Chromium}`, shellOptions)
 
       //  sh(e2eTests_Firefox, shOptions)
 
-      bundleFrontend = false
-      build.frontendJS()
-      sh(`nyc instrument --compact=false --in-place . .`, shellOptions)
-      sh(integrationAndUnitTests, shellOptions)
+      // Rebuild with no bundling so can do instrument for code coverage.
+      // bundleFrontend = false
+      // build.frontendJS()
+
+      // sh(`nyc instrument --compact=false --in-place . .`, shellOptions)
+
+      // sh(integrationAndUnitTests, shellOptions)
     } catch (error) {
+      console.error(error)
+
       sh(`fkill :8080 --silent`, shellOptions)
+
       removeTempTestFiles()
+
       // We wanna exit the test when it errors out due to not enough coverage.
       return process.exit(1)
     }
