@@ -1,4 +1,5 @@
-/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable import/no-extraneous-dependencies, max-lines-per-function,consistent-return
+ */
 const fs = require('fs')
 const path = require('path')
 
@@ -15,11 +16,11 @@ const prepareAndCleanDir = dir => {
   fs.writeFileSync(path.join(dir, '.gitkeep'), '')
 }
 
-async function pDeleteFileOrFolder(folderPath, isFolder) {
-  const exists = await fs.promises.stat(folderPath).catch(noop)
+async function pDeleteFileOrFolder(fileOrFolderPath, isFolder) {
+  const p = fileOrFolderPath.replaceAll(`'`, '')
+  const exists = await fs.promises.stat(p).catch(noop)
   if (!exists) return Promise.resolve()
-
-  return isFolder ? fs.promises.rm(folderPath, { recursive: true }) : fs.promises.rm(folderPath)
+  return isFolder ? fs.promises.rm(p, { recursive: true }) : fs.promises.rm(p)
 }
 
 const testingEnvVars = parse(fs.readFileSync('./tests/.testing.env', { encoding: 'utf8' }))
@@ -80,6 +81,7 @@ const dev = {
 }
 
 let runningMochaTests = false
+let bundleFrontend = true
 
 const build = {
   prepareBuildDir() {
@@ -115,7 +117,7 @@ const build = {
       outdir: path.join(process.cwd(), 'frontend-build', 'js'),
       target: ['firefox78', 'chrome90', 'safari14', 'ios14'],
       metafile: true,
-      bundle: true,
+      bundle: bundleFrontend,
       ...(runningMochaTests
         ? { minify: false, sourcemap: true, treeShaking: false }
         : { minify: true, sourcemap: false, treeShaking: true }),
@@ -178,10 +180,24 @@ const tests = {
   codecoverage() {
     sh(`TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true nyc mocha tests`, shellOptions)
   },
-  // eslint-disable-next-line max-lines-per-function
+  /*****
+    The e2e cypress tests actually run the frontend-build .js files in a browser, so we need to have esbuild
+    bundle the frontend .js files, so that node_module imports (e.g. vue) will be bundled into the frontend
+    .js file for cypress to run.
+
+    Then for the integration and unit tests, we then need to re-run esbuild for frontend with esbuild NOT bundling
+    the node_module imports for the frontend .js. We dont want them imported as we need to run `nyc instrument`,
+    which parses all the js code and adds instrumentation code to see if functions are called. If we left all
+    the node_module imports in there we would get code coverage reports for node_module library functions - which
+    we obviously dont want.
+
+    There's prolly a better way to do this, but i have NFI how.
+
+    Note: I was unable to get code coverage to work for cypress.
+  *****/
   mocha() {
     runningMochaTests = true
-    const shOptions = { ...shellOptions, async: true }
+    // const shOptions = { ...shellOptions, async: true }
     // download video tests can take 5-10 mins, so can skip them if want
     const ignoreVideoTests = process.env.SKIP_VIDEO_TESTS
       ? '--ignore tests/unit/server/updates/download-video.test.js'
@@ -192,24 +208,27 @@ const tests = {
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
     const e2eTests_Chromium = `TESTING=true cypress run --browser chromium`
     const e2eTests_Firefox = `TESTING=true cypress run --browser firefox`
-    const integrationAndUnitTests = `TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true nyc mocha tests ${ignoreVideoTests}`
+    const integrationAndUnitTests = `TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true c8 mocha tests ${ignoreVideoTests}`
+    try {
+      sh(startServer, { ...shellOptions, silent: true })
 
-    sh(startServer, { ...shellOptions, silent: true })
+      sh(`sleep 2 && ${e2eTests_Chromium}`, shellOptions)
 
-    // @ts-expect-error
-    sh(`sleep 2 && ${e2eTests_Chromium}`, shOptions)
-      //// @ts-expect-error
-      // .then(() => sh(e2eTests_Firefox, shOptions))
-      //// @ts-expect-error
-      // .then(() => sh(integrationAndUnitTests, shOptions))
-      .catch(noop)
-      .finally(_ =>
-        // @ts-expect-error
-        sh(`fkill :8080 --silent`, { silent: true, ...shOptions })
-          .then(removeTempTestFiles)
-          .catch(noop)
-          .finally(() => process.exit(0))
-      )
+      //  sh(e2eTests_Firefox, shOptions)
+
+      bundleFrontend = false
+      build.frontendJS()
+      sh(`nyc instrument --compact=false --in-place . .`, shellOptions)
+      sh(integrationAndUnitTests, shellOptions)
+    } catch (error) {
+      sh(`fkill :8080 --silent`, shellOptions)
+      removeTempTestFiles()
+      // We wanna exit the test when it errors out due to not enough coverage.
+      return process.exit(1)
+    }
+
+    sh(`fkill :8080 --silent`, shellOptions)
+    removeTempTestFiles()
   },
 }
 
