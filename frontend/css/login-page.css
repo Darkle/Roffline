@@ -83,6 +83,11 @@ body.login-page {
   white-space: pre-wrap;
 }
 
+.login-page main .signup-form #unique-username:focus,
+.login-page main .signup-form #unique-username:focus-visible {
+  outline: 2px solid black;
+}
+
 .login-page main .signup-form .copy-to-clipboard-button {
   height: 2.1rem;
   margin-left: 0.6rem;
