@@ -28,5 +28,5 @@
     "types": ["cypress"]
   },
   "exclude": ["node_modules", "cypress/plugins/index.ts"],
-  "include": ["./**/*.ts", "*.ts", "*.js"]
+  "include": ["./**/*.ts", "*.ts", "*.js", "testing-typings.d.ts"]
 }

@@ -26,15 +26,6 @@
 
 import * as RA from 'ramda-adjunct'
 
-declare global {
-  namespace Cypress {
-    interface Chainable {
-      login(): Chainable<Cookie | null> | Chainable<Cookie | Chainable<Cookie> | null>
-      logout(): Cypress.Chainable<null>
-    }
-  }
-}
-
 const testingDefaultUser = Cypress.env('TESTING_DEFAULT_USER') as string
 
 Cypress.Commands.add('login', () =>
