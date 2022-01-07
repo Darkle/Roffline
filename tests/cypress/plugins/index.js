@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 const path = require('path')
 
 const testingDotEnv = require('dotenv').config({ path: path.join(process.cwd(), 'tests', '.testing.env') })

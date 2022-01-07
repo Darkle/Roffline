@@ -25,9 +25,6 @@ module.exports = {
     'plugin:mocha/recommended',
     'plugin:cypress/recommended',
   ],
-  settings: {
-    'html/html-extensions': ['.html', '.njk'],
-  },
   ignorePatterns: ['.eslintrc.cjs'],
   plugins: ['extra-rules', 'no-secrets', 'disable', 'html', 'mocha'],
   rules: {

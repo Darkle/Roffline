@@ -1,6 +1,3 @@
-/// <reference types="cypress" />
-/// <reference types="node" />
-
 import { isDev } from '../../../../server/utils'
 
 console.log(isDev)

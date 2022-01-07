@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 describe('Login Page', function () {
   before(function () {
     cy.logout()
