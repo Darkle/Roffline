@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 /// <reference types="node" />
 
-import path from 'path'
+// import path from 'path'
 
 import { isDev } from '../../../../server/utils'
 
@@ -9,12 +9,19 @@ console.log(isDev)
 
 describe('Home Page', function () {
   before(function () {
-    cy.task('log', path.join(process.cwd(), 'hello'))
-    // Get the login name via shell cy.exec or other means
-    //login here if cant set cookie whith cy.visit()
+    cy.login()
   })
 
-  xit('it should show welcome screen when user has no subs', function () {})
+  // it('validates login page look and html', function () {
+  //   cy.get('form').contains(` usernames.`)
+  //   cy.get('form').contains(``)
 
-  xit('it should show the downloading posts message when user has 1 or more subs', function () {})
+  //   cy.title().should('eq', 'Roffline - Login')
+  // })
+
+  // it('show welcome screen when user has no subs', function () {})
+
+  // it('show the downloading posts message when user has 1 or more subs', function () {
+  //   //TODO: remember to delete the sub at end of this test
+  // })
 })

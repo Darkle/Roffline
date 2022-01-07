@@ -23,3 +23,29 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+import * as RA from 'ramda-adjunct'
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      login(): Chainable<Cookie | null> | Chainable<Cookie | Chainable<Cookie> | null>
+      logout(): Cypress.Chainable<null>
+    }
+  }
+}
+
+const testingDefaultUser = Cypress.env('TESTING_DEFAULT_USER') as string
+
+Cypress.Commands.add('login', () =>
+  cy.getCookie('loggedInUser').then(cookie =>
+    cookie
+      ? RA.noop()
+      : cy.setCookie('loggedInUser', testingDefaultUser, {
+          httpOnly: true,
+          sameSite: 'strict',
+        })
+  )
+)
+
+Cypress.Commands.add('logout', () => cy.clearCookie('loggedInUser'))
