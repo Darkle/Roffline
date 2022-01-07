@@ -40,6 +40,7 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': ['error'],
     '@typescript-eslint/no-floating-promises': 'off',
     '@typescript-eslint/unbound-method': 'off',
+    '@typescript-eslint/no-namespace': 'off',
     '@typescript-eslint/no-duplicate-imports': ['error'],
     '@typescript-eslint/no-magic-numbers': 'off',
     '@typescript-eslint/no-shadow': ['error'],

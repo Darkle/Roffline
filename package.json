@@ -149,7 +149,8 @@
     "stylelint-config-standard": "^24.0.0",
     "tasksfile": "^5.1.1",
     "ts-node": "^10.4.0",
-    "typescript": "^4.5.4"
+    "typescript": "^4.5.4",
+    "wait-for-server": "^0.1.1"
   },
   "repository": {
     "type": "git",

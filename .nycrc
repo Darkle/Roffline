@@ -2,6 +2,10 @@
   "all": true,
   "check-coverage": true,
   "clean": true,
+  "branches": 97,
+  "lines": 97,
+  "functions": 97,
+  "statements": 97,
   "include": [
     "db/**/*.js",
     "downloads/**/*.js",
@@ -18,6 +22,7 @@
   ],
   "reporter": [
     "text",
-    "text-summary"
+    "text-summary",
+    "html"
   ]
 }
