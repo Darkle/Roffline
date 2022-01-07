@@ -15,14 +15,3 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
-
-/// <reference types="cypress" />
-
-declare global {
-  namespace Cypress {
-    interface Chainable {
-      login(): Chainable<Cookie | null> | Chainable<Cookie | Chainable<Cookie> | null>
-      logout(): Cypress.Chainable<null>
-    }
-  }
-}

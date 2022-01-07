@@ -22,6 +22,7 @@ const testingDotEnv = require('dotenv').config({ path: path.join(process.cwd(), 
  */
 module.exports = (on, config) => {
   // https://stackoverflow.com/a/57819466/2785644
+  // eslint-disable-next-line no-param-reassign
   config.env = { ...config.env, ...testingDotEnv.parsed }
 
   // https://stackoverflow.com/a/52077306/2785644

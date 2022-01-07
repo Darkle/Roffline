@@ -1,12 +1,11 @@
 module.exports = {
   bail: true,
   diff: false,
-  extension: ['.test.ts'],
+  extension: ['.test.mjs'],
   'no-exit': true,
   'fail-zero': true,
   recursive: true,
   reporter: ['list'],
-  loader: 'ts-node/esm',
-  require: ['source-map-support', './env-checker.cjs', 'tests/hooks.test.ts'],
+  require: ['./env-checker.cjs', 'tests/hooks.test.mjs'],
   ignore: ['tests/__mocks/**/*', 'tests/cypress/**/*', 'tests/seed-data/**/*'],
 }

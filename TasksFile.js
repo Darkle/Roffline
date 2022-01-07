@@ -226,25 +226,23 @@ const tests = {
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
     const e2eTests_Chromium = `TESTING=true cypress run --browser chromium`
     const e2eTests_Firefox = `TESTING=true cypress run --browser firefox`
-    const integrationAndUnitTests = `TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true c8 mocha tests ${ignoreVideoTests}`
+    const integrationAndUnitTests = `TESTING=true c8 mocha tests ${ignoreVideoTests}`
 
     try {
       sh(startServer, { ...shellOptions, silent: true })
 
-      sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_Chromium}`, shellOptions)
+      // sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_Chromium}`, shellOptions)
 
       //  sh(e2eTests_Firefox, shOptions)
 
       // Rebuild with no bundling so can do instrument for code coverage.
-      // bundleFrontend = false
-      // build.frontendJS()
+      bundleFrontend = false
+      build.frontendJS()
 
-      // sh(`nyc instrument --compact=false --in-place . .`, shellOptions)
+      sh(`nyc instrument --compact=false --in-place . .`, shellOptions)
 
-      // sh(integrationAndUnitTests, shellOptions)
+      sh(integrationAndUnitTests, shellOptions)
     } catch (error) {
-      console.error(error)
-
       sh(`fkill :8080 --silent`, shellOptions)
 
       removeTempTestFiles()

@@ -26,7 +26,7 @@
 
 import * as RA from 'ramda-adjunct'
 
-const testingDefaultUser = Cypress.env('TESTING_DEFAULT_USER') as string
+const testingDefaultUser = Cypress.env('TESTING_DEFAULT_USER')
 
 Cypress.Commands.add('login', () =>
   cy.getCookie('loggedInUser').then(cookie =>

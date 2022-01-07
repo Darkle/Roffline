@@ -1,7 +1,6 @@
 module.exports = {
   root: true,
   parserOptions: {
-    project: ['tests/.testing.tsconfig.json'],
     ecmaVersion: 2020,
     ecmaFeatures: {
       globalReturn: true,
@@ -11,7 +10,6 @@ module.exports = {
   },
   processor: 'disable/disable',
   globals: {},
-  parser: '@typescript-eslint/parser',
   env: {
     commonjs: true,
     browser: true,
@@ -22,8 +20,6 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'plugin:import/errors',
     'plugin:import/typescript',
     'plugin:mocha/recommended',
@@ -32,39 +28,9 @@ module.exports = {
   settings: {
     'html/html-extensions': ['.html', '.njk'],
   },
-  ignorePatterns: ['.eslintrc.cjs', 'cypress/plugins/index.ts'],
-  plugins: ['@typescript-eslint', 'extra-rules', 'no-secrets', 'disable', 'html', 'mocha'],
+  ignorePatterns: ['.eslintrc.cjs'],
+  plugins: ['extra-rules', 'no-secrets', 'disable', 'html', 'mocha'],
   rules: {
-    '@typescript-eslint/consistent-type-imports': 'error',
-    '@typescript-eslint/default-param-last': ['error'],
-    '@typescript-eslint/explicit-function-return-type': ['error'],
-    '@typescript-eslint/no-floating-promises': 'off',
-    '@typescript-eslint/unbound-method': 'off',
-    '@typescript-eslint/no-namespace': 'off',
-    '@typescript-eslint/no-duplicate-imports': ['error'],
-    '@typescript-eslint/no-magic-numbers': 'off',
-    '@typescript-eslint/no-shadow': ['error'],
-    '@typescript-eslint/no-unnecessary-type-assertion': 'off',
-    '@typescript-eslint/no-unused-expressions': [
-      'error',
-      { allowTernary: true, allowTaggedTemplates: true, allowShortCircuit: true },
-    ],
-    '@typescript-eslint/no-unused-vars': ['error', { args: 'after-used', argsIgnorePattern: '_' }],
-    '@typescript-eslint/no-use-before-define': ['error'],
-    '@typescript-eslint/no-useless-constructor': ['error'],
-    '@typescript-eslint/prefer-readonly-parameter-types': 'off',
-    '@typescript-eslint/no-empty-function': 'off',
-    '@typescript-eslint/prefer-readonly': ['error'],
-    '@typescript-eslint/prefer-reduce-type-parameter': ['error'],
-    '@typescript-eslint/require-await': 'error',
-    '@typescript-eslint/semi': [
-      'error',
-      'never',
-      {
-        beforeStatementContinuationChars: 'always',
-      },
-    ],
-    '@typescript-eslint/space-infix-ops': ['error', { int32Hint: false }],
     'import/extensions': 'off',
     'import/newline-after-import': 'off',
     'import/prefer-default-export': 'off',
