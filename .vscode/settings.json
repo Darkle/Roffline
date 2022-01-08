@@ -4,6 +4,7 @@
     "tsconfig.tsbuildinfo": true,
     "lighthouse-report.html": true,
     "roffline-logs": true,
+    "coverage": true,
     ".scannerwork": true,
     "posts-media": true,
     "frontend-build": true,
@@ -42,6 +43,7 @@
   "search.exclude": {
     "tsconfig.tsbuildinfo": true,
     "**/node_modules": true,
+    "coverage": true,
     "**/bower_components": true,
     "**/*.code-search": true,
     "package-lock.json": true,

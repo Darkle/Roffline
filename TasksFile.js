@@ -224,7 +224,7 @@ const tests = {
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
-    const e2eTests_Chromium = `TESTING=true cypress run --browser chromium`
+    const e2eTests_Chromium = `TESTING=true cypress run --spec tests/cypress/integration/empty-db-tests/login-page.test.mjs --browser chromium`
     const e2eTests_Firefox = `TESTING=true cypress run --browser firefox`
     const integrationAndUnitTests = `TESTING=true c8 mocha tests ${ignoreVideoTests}`
 
