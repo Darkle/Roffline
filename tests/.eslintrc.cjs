@@ -1,6 +1,7 @@
 module.exports = {
   root: true,
   parserOptions: {
+    sourceType: 'module',
     ecmaVersion: 2020,
     ecmaFeatures: {
       globalReturn: true,
@@ -16,17 +17,16 @@ module.exports = {
     node: true,
     es2020: true,
     mocha: true,
-    'cypress/globals': true,
   },
   extends: [
     'eslint:recommended',
     'plugin:import/errors',
     'plugin:import/typescript',
     'plugin:mocha/recommended',
-    'plugin:cypress/recommended',
+    'plugin:testcafe/recommended',
   ],
   ignorePatterns: ['.eslintrc.cjs'],
-  plugins: ['extra-rules', 'no-secrets', 'disable', 'html', 'mocha'],
+  plugins: ['extra-rules', 'no-secrets', 'disable', 'mocha', 'testcafe'],
   rules: {
     'import/extensions': 'off',
     'import/newline-after-import': 'off',
