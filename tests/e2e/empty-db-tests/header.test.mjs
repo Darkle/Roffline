@@ -1,6 +1,6 @@
 describe('Header', function () {
   before(function () {
-    cy.login()
+    // cy.login()
   })
 
   // it('should asd', function () {})

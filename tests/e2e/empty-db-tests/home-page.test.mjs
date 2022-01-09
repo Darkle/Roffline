@@ -1,10 +1,10 @@
-import { isDev } from '../../../../server/utils'
+import { isDev } from '../../../server/utils'
 
 console.log(isDev)
 
 describe('Home Page', function () {
   before(function () {
-    cy.login()
+    // cy.login()
   })
 
   // it('validates login page look and html', function () {

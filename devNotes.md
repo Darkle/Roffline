@@ -1,1 +1,0 @@
-- I wasnt able to get code coverage working properly for the cypress end to end tests, so theres only code coverage reports for the integration and unit tests.

@@ -7,8 +7,6 @@
     "mikestead.dotenv",
     "dbaeumer.vscode-eslint",
     "eseom.nunjucks-template",
-    "josefbiehler.cypress-fixture-intellisense",
-    "andrew-codes.cypress-snippets",
     "esbenp.prettier-vscode"
   ]
 }
