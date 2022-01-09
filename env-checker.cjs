@@ -4,11 +4,11 @@ const dontEnvPath = process.env.TESTING
   ? path.join(process.cwd(), 'tests', '.testing.env')
   : path.join(process.cwd(), '.env')
 
-require('dotenv').config({ path: dontEnvPath })
+const dotEnv = require('dotenv').config({ path: dontEnvPath })
 
 const { cleanEnv: envVarChecker, str, port, url } = require('envalid')
 
-const checkendEnvVars = envVarChecker(process.env, {
+const checkendEnvVars = envVarChecker(dotEnv.parsed, {
   PORT: port({ default: 8080 }),
   PUBLIC_FOLDER: str({ default: './frontend-build' }),
   LOGDIR: str({ default: './roffline-logs' }),
