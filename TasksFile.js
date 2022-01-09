@@ -245,14 +245,14 @@ const tests = {
     } catch (error) {
       sh(`fkill :8080 --silent`, shellOptions)
 
-      removeTempTestFiles()
+      // removeTempTestFiles()
 
       // We wanna exit the test when it errors out due to not enough coverage.
       return process.exit(1)
     }
 
     sh(`fkill :8080 --silent`, shellOptions)
-    removeTempTestFiles()
+    // removeTempTestFiles()
   },
 }
 

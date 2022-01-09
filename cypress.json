@@ -10,5 +10,6 @@
   "screenshotOnRunFailure": false,
   "baseUrl": "http://0.0.0.0:8080",
   "experimentalInteractiveRunEvents": true,
-  "testFiles": ["empty-db-tests/**/*.test.mjs", "tests-with-db-seeded/**/*.test.mjs", "./*.test.mjs"]
+  "testFiles": ["empty-db-tests/**/*.test.mjs", "tests-with-db-seeded/**/*.test.mjs", "./*.test.mjs"],
+  "chromeWebSecurity": false
 }

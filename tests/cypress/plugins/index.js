@@ -27,8 +27,8 @@ module.exports = (on, config) => {
 
   // https://stackoverflow.com/a/52077306/2785644
   on('task', {
-    log(message) {
-      console.log(message)
+    log(...args) {
+      console.log(...args)
       return null
     },
   })

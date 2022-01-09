@@ -25,6 +25,7 @@
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
 import * as RA from 'ramda-adjunct'
+import SqlString from 'sqlstring-sqlite'
 
 const testingDefaultUser = Cypress.env('TESTING_DEFAULT_USER')
 
@@ -40,3 +41,15 @@ Cypress.Commands.add('login', () =>
 )
 
 Cypress.Commands.add('logout', () => cy.clearCookie('loggedInUser'))
+
+Cypress.Commands.add('DB', (sqlStatement, params) =>
+  cy.exec(
+    'sqlite3 -batch' +
+      " '" +
+      Cypress.env('SQLITE_DBPATH') +
+      "' " +
+      '"' +
+      SqlString.format(sqlStatement, params) +
+      '"'
+  )
+)
