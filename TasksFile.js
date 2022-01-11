@@ -177,7 +177,7 @@ const tests = {
   },
   tslint() {
     sh(`tsc --noEmit`, shellOptions)
-    sh(`tsc --noEmit --project ./tests/.testing.tsconfig.json`, shellOptions)
+    sh(`tsc --noEmit --project ./tests/tsconfig.testing.json`, shellOptions)
   },
   sonarqube() {
     /*****
@@ -197,7 +197,7 @@ const tests = {
     sh(`xdg-open esbuild-stats.html &`, { ...shellOptions, silent: true })
   },
   codecoverage() {
-    sh(`TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true nyc mocha tests`, shellOptions)
+    sh(`TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true nyc mocha tests`, shellOptions)
   },
   /*****
     The e2e cypress tests actually run the frontend-build .js files in a browser, so we need to have esbuild
@@ -214,19 +214,17 @@ const tests = {
 
     Note: I was unable to get code coverage to work for cypress.
   *****/
-  mocha() {
+  e2eUnitAndIntegration() {
     runningMochaTests = true
-    // download video tests can take 5-10 mins, so can skip them if want
-    const ignoreVideoTests = process.env.SKIP_VIDEO_TESTS
-      ? '--ignore tests/unit/server/updates/download-video.test.js'
-      : ''
+    // Some tests are really slow (e.g. the download video tests can take 5-10 mins), so can skip them if want.
+    const skipSlowTests = process.env.SKIP_SLOW_TESTS ? '--tags not:@slow' : ''
 
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
-    const e2eTests_Chromium = `TESTING=true testcafe --config-file ./.testcaferc.json chrome tests/e2e/empty-db-tests/login-page.test.ts`
+    const e2eTests_Chromium = `TESTING=true playwright test`
     const e2eTests_Firefox = `TESTING=true cypress run --browser firefox`
-    const integrationAndUnitTests = `TS_NODE_PROJECT='tests/.testing.tsconfig.json' TESTING=true c8 mocha tests ${ignoreVideoTests}`
+    const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests`
 
     try {
       sh(startServer, { ...shellOptions, silent: true })
@@ -234,7 +232,6 @@ const tests = {
       sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_Chromium}`, shellOptions)
 
       //  sh(e2eTests_Firefox, shOptions)
-
       // Rebuild with no bundling so can do instrument for code coverage.
       // bundleFrontend = false
       // build.frontendJS()

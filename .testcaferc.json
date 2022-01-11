@@ -1,7 +1,0 @@
-{
-  "compilerOptions": {
-    "typescript": {
-      "configPath": "tests/.testing.tsconfig.json"
-    }
-  }
-}
