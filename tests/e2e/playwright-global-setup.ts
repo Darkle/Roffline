@@ -1,3 +1,3 @@
-export default async function (): Promise<void> {
+export default function (): void {
   require('../../env-checker.cjs')
 }
