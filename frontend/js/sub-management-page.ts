@@ -8,7 +8,10 @@ declare const window: SubManagementPagePageWindowWithProps
 function addSubToSubMenuInPageHeader(sub: string): void {
   const menuSpacerElement = $('.subs-dropdown .menu-spacer') as HTMLHRElement
 
-  menuSpacerElement.insertAdjacentHTML('afterend', `<p><a href="/sub/${sub}"><span>${sub}</span></a></p>`)
+  menuSpacerElement.insertAdjacentHTML(
+    'afterend',
+    `<p data-menu-subreddit="${sub}"><a href="/sub/${sub}"><span>${sub}</span></a></p>`
+  )
 }
 
 function removeSubFromSubMenuInPageHeader(sub: string): void {
@@ -19,15 +22,17 @@ function removeSubFromSubMenuInPageHeader(sub: string): void {
 
 const threeSeconds = 3000
 
+const state = Vue.reactive({
+  // eslint-disable-next-line functional/immutable-data
+  userSubreddits: [...window.userSettings.subreddits.sort()],
+  subredditThatWasAddedOrRemoved: '',
+  subredditWasAdded: false,
+  subredditWasRemoved: false,
+})
+
 const PostPage = Vue.defineComponent({
   data() {
-    return {
-      // eslint-disable-next-line functional/immutable-data
-      userSubreddits: window.userSettings.subreddits.sort(),
-      subredditThatWasAddedOrRemoved: '',
-      subredditWasAdded: false,
-      subredditWasRemoved: false,
-    }
+    return state
   },
   methods: {
     // eslint-disable-next-line max-lines-per-function
