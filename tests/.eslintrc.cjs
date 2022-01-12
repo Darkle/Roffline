@@ -26,9 +26,10 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'plugin:playwright/playwright-test',
+    'plugin:ui-testing/playwright',
   ],
   ignorePatterns: ['.eslintrc.cjs', 'tests/__mocks/**/*', 'tests/snapshots/**/*', 'tests/seed-data/**/*'],
-  plugins: ['@typescript-eslint', 'extra-rules', 'no-secrets', 'disable', 'chai-friendly'],
+  plugins: ['@typescript-eslint', 'extra-rules', 'no-secrets', 'disable', 'chai-friendly', 'ui-testing'],
   overrides: [
     {
       extends: [
@@ -36,7 +37,6 @@ module.exports = {
         'plugin:import/errors',
         'plugin:@typescript-eslint/recommended',
         'plugin:@typescript-eslint/recommended-requiring-type-checking',
-        'plugin:playwright/playwright-test',
         'plugin:mocha/recommended',
       ],
       plugins: ['@typescript-eslint', 'extra-rules', 'no-secrets', 'disable', 'mocha'],
@@ -189,6 +189,9 @@ module.exports = {
     'chai-friendly/no-unused-expressions': 'error',
     'security/detect-non-literal-fs-filename': 'off',
     'security/detect-object-injection': 'off',
+    'ui-testing/missing-assertion-in-test': 'off',
+    'ui-testing/no-browser-commands-in-tests': 'off',
+    'ui-testing/no-wait-in-tests': 'off',
     camelcase: 'off',
     'consistent-return': 'off',
     'comma-dangle': 'off',
