@@ -1,5 +1,5 @@
 import { expect as pwExpect } from '@playwright/test'
-import type { Locator, BrowserContext } from '@playwright/test'
+import type { Locator, BrowserContext, Page } from '@playwright/test'
 import execa from 'execa'
 import SqlString from 'sqlstring'
 
@@ -42,4 +42,33 @@ const deleteTestUser = async (): Promise<void> => {
   await RUNDB('DELETE FROM users WHERE name = ?', testingDefaultUser)
 }
 
-export { checkElementExists, RUNDB, createLoginCookie, createTestUser, deleteTestUser }
+const showWebPageErrorsInTerminal = (page: Page): void => {
+  page.on('pageerror', (...args) => {
+    console.error('🚨⚠️ Error Occured In Webpage ⚠️🚨')
+    console.error(...args)
+  })
+
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  page.on('console', async msg => {
+    if (msg.type() !== 'error') return
+
+    console.error('🚨⚠️ Error Occured In Webpage ⚠️🚨')
+
+    const values: any[] = []
+
+    // eslint-disable-next-line no-await-in-loop
+    for (const arg of msg.args()) values.push(await arg.jsonValue())
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    console.error(...values)
+  })
+}
+
+export {
+  checkElementExists,
+  RUNDB,
+  createLoginCookie,
+  createTestUser,
+  deleteTestUser,
+  showWebPageErrorsInTerminal,
+}
