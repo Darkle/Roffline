@@ -1,14 +1,5 @@
 const path = require('path')
 
-/*****
-  I dont know why, but when this file is called with nodemon, something sets NODE_ENV
-  to production (which we dont want in dev), so just added an ISDEV env var, set when
-  call nodemon.
-*****/
-if (process.env.ISDEV) {
-  process.env.NODE_ENV = 'development'
-}
-
 const dontEnvPath = process.env.TESTING
   ? path.join(process.cwd(), 'tests', '.testing.env')
   : path.join(process.cwd(), '.env')
@@ -40,3 +31,12 @@ process.env.NODE_ENV = checkendEnvVars.NODE_ENV
 process.env.LOGGING_LEVEL = checkendEnvVars.LOGGING_LEVEL
 process.env.ADMIN_PASS = checkendEnvVars.ADMIN_PASS
 process.env.OFFLINE_CHECK_URL = checkendEnvVars.OFFLINE_CHECK_URL
+
+/*****
+  I dont know why, but when this file is called with nodemon, something sets NODE_ENV
+  to production (which we dont want in dev), so just added an ISDEV env var, set when
+  call nodemon.
+*****/
+if (process.env.ISDEV) {
+  process.env.NODE_ENV = 'development'
+}
