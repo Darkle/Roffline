@@ -44,16 +44,13 @@ const deleteTestUser = async (): Promise<void> => {
 
 const showWebPageErrorsInTerminal = (page: Page): void => {
   page.on('pageerror', (...args) => {
-    console.error('🚨⚠️ Error Occured In Webpage ⚠️🚨')
     console.error(...args)
-    process.exit(1)
+    throw new Error('🚨⚠️ Uncaught Error Occured In Webpage ⚠️🚨')
   })
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   page.on('console', async msg => {
     if (msg.type() !== 'error') return
-
-    console.error('🚨⚠️ Error Occured In Webpage ⚠️🚨')
 
     const values: any[] = []
 
@@ -62,7 +59,7 @@ const showWebPageErrorsInTerminal = (page: Page): void => {
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     console.error(...values)
-    process.exit(1)
+    throw new Error('🚨⚠️ console.error called In Webpage ⚠️🚨')
   })
 }
 
