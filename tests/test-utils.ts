@@ -46,6 +46,7 @@ const showWebPageErrorsInTerminal = (page: Page): void => {
   page.on('pageerror', (...args) => {
     console.error('🚨⚠️ Error Occured In Webpage ⚠️🚨')
     console.error(...args)
+    process.exit(1)
   })
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -61,6 +62,7 @@ const showWebPageErrorsInTerminal = (page: Page): void => {
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     console.error(...values)
+    process.exit(1)
   })
 }
 
