@@ -1,10 +1,11 @@
 import { test, expect as pwExpect } from '@playwright/test'
 import { expect } from 'chai'
 
-import { checkElementExists, RUNDB } from '../../test-utils'
+import { checkElementExists, RUNDB, showWebPageErrorsInTerminal } from '../../test-utils'
 
 test.describe('Login Page', () => {
   test.beforeEach(async ({ page, context }) => {
+    showWebPageErrorsInTerminal(page)
     await context.clearCookies()
     await page.goto('/login')
   })

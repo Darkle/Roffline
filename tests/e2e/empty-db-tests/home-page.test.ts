@@ -2,7 +2,13 @@ import { test, expect as pwExpect } from '@playwright/test'
 import { expect } from 'chai'
 import Prray from 'prray'
 
-import { createLoginCookie, createTestUser, deleteTestUser, checkElementExists } from '../../test-utils'
+import {
+  createLoginCookie,
+  createTestUser,
+  deleteTestUser,
+  checkElementExists,
+  showWebPageErrorsInTerminal,
+} from '../../test-utils'
 
 test.describe('Home Page', () => {
   test.beforeAll(async () => {
@@ -10,6 +16,7 @@ test.describe('Home Page', () => {
   })
 
   test.beforeEach(async ({ context, page }) => {
+    showWebPageErrorsInTerminal(page)
     await createLoginCookie(context)
     await page.goto('/')
   })
