@@ -1,7 +1,9 @@
 import { expect as pwExpect } from '@playwright/test'
+import type { Locator, BrowserContext } from '@playwright/test'
 import execa from 'execa'
-import type { Locator } from '@playwright/test'
 import SqlString from 'sqlstring'
+
+const testingDefaultUser = process.env.TESTING_DEFAULT_USER as string
 
 const checkElementExists = (locator: Locator): Promise<Locator> => pwExpect(locator).toHaveCount(1)
 
@@ -17,4 +19,27 @@ const RUNDB = (sql: string, params: any | any[] | Record<string, unknown>): exec
     }
   )
 
-export { checkElementExists, RUNDB }
+const createLoginCookie = (browserContext: BrowserContext): Promise<void> =>
+  browserContext.addCookies([
+    {
+      name: 'loggedInUser',
+      value: process.env.TESTING_DEFAULT_USER as string,
+      httpOnly: true,
+      sameSite: 'Strict',
+      domain: `0.0.0.0`,
+      path: '/',
+    },
+  ])
+
+const createTestUser = async (): Promise<void> => {
+  await RUNDB(
+    'INSERT OR IGNORE INTO users (name,subreddits,hideStickiedPosts,onlyShowTitlesInFeed,infiniteScroll,darkModeTheme) VALUES (?,?,?,?,?,?);',
+    [testingDefaultUser, '[]', 1, 0, 0, 0]
+  )
+}
+
+const deleteTestUser = async (): Promise<void> => {
+  await RUNDB('DELETE FROM users WHERE name = ?', testingDefaultUser)
+}
+
+export { checkElementExists, RUNDB, createLoginCookie, createTestUser, deleteTestUser }

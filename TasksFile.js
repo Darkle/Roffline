@@ -222,7 +222,7 @@ const tests = {
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
-    const e2eTests_Chromium = `TESTING=true playwright test`
+    const e2eTests_Chromium = `TESTING=true playwright test tests/e2e/empty-db-tests/home-page.test.ts`
     const e2eTests_Firefox = `TESTING=true cypress run --browser firefox`
     const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests`
 
