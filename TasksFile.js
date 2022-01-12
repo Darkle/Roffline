@@ -87,7 +87,7 @@ const dev = {
 
     const tsLint = `tsc --noEmit --watch --preserveWatchOutput --incremental`
 
-    const nodemon = `nodemon --delay 1.5 --watch db --watch downloads --watch logging --watch server --ext js,njk ./boot.js`
+    const nodemon = `ISDEV=true nodemon --require ./env-checker.cjs --delay 1.5 --watch db --watch downloads --watch logging --watch server --ext js,njk ./boot.js`
 
     sh(
       `concurrently --raw --prefix=none "${tsWatchFrontend}" "${tsWatchBackend}" "${browserync}" "${nodemon}" "${tsLint}"`,
@@ -173,7 +173,10 @@ const tests = {
       `eslint './boot.ts' './server/**/*.ts' './logging/**/*.ts' './downloads/**/*.ts' './db/**/*.ts' './frontend/js/**/*.ts' --report-unused-disable-directives --quiet --rule 'no-console: ["error", { allow: ["error", "info", "warn"] }]' --rule "no-warning-comments: ['error', { terms: ['todo', 'fixme', 'hack', 'bug', 'xxx'], location: 'anywhere' }]" --rule "no-debugger: 'error'"  --ignore-pattern 'db-dev.ts'`,
       shellOptions
     )
-    sh(`eslint './tests/*.ts' './tests/**/*.ts' --quiet --config ./tests/.eslintrc.cjs`, shellOptions)
+    sh(
+      `eslint './tests/*.ts' './tests/**/*.ts' --rule 'ui-testing/no-focused-tests: "error"' --quiet --config ./tests/.eslintrc.cjs`,
+      shellOptions
+    )
   },
   tslint() {
     sh(`tsc --noEmit`, shellOptions)
@@ -222,7 +225,7 @@ const tests = {
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
-    const e2eTests_Chromium = `TESTING=true playwright test tests/e2e/empty-db-tests/home-page.test.ts`
+    const e2eTests_Chromium = `TESTING=true playwright test tests/e2e/empty-db-tests/sub-management-page.test.ts`
     const e2eTests_Firefox = `TESTING=true cypress run --browser firefox`
     const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests`
 

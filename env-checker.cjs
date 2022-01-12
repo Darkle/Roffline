@@ -1,5 +1,14 @@
 const path = require('path')
 
+/*****
+  I dont know why, but when this file is called with nodemon, something sets NODE_ENV
+  to production (which we dont want in dev), so just added an ISDEV env var, set when
+  call nodemon.
+*****/
+if (process.env.ISDEV) {
+  process.env.NODE_ENV = 'development'
+}
+
 const dontEnvPath = process.env.TESTING
   ? path.join(process.cwd(), 'tests', '.testing.env')
   : path.join(process.cwd(), '.env')
