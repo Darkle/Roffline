@@ -95,13 +95,22 @@ const SettingsPage = Vue.defineComponent({
 
       inputElement.checked ? body.classList.add('dark-theme') : body.classList.remove('dark-theme')
     },
+    // eslint-disable-next-line max-lines-per-function
     importSubs() {
+      const bulkImportTextArea = this.$refs['bulkImporterTextArea'] as HTMLTextAreaElement
+
+      // eslint-disable-next-line functional/no-conditional-statement
+      if (bulkImportTextArea.value.trim().length === 0) {
+        bulkImportTextArea.value = ''
+        return
+      }
+
       resetImportMessageState()
       toggleDisableBulkImport()
 
-      const bulkImportTextArea = this.$refs['bulkImporterTextArea'] as HTMLTextAreaElement
       const bulkSubImportErrorMessageElem = this.$refs['bulkSubImportErrorMessage'] as HTMLSpanElement
       const subsToImport = parseSubs(bulkImportTextArea.value)
+
       const existingSubreddits = this.subreddits
 
       Fetcher.postJSON('/api/bulk-import-user-subs', { subsToImport })
