@@ -9,10 +9,19 @@ const checkElementExists = (locator: Locator): Promise<Locator> => pwExpect(loca
 
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 
-const RUNDB = (sql: string, params: any | any[] | Record<string, unknown>): execa.ExecaChildProcess<string> =>
+const RUNDB = (sql: string, params?: any | any[] | Record<string, unknown>): execa.ExecaChildProcess<string> =>
   execa.command(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    'sqlite3 -batch' + " '" + process.env.SQLITE_DBPATH + "' " + '"' + SqlString.format(sql, params) + '"',
+    'sqlite3 -batch' +
+      " '" +
+      process.env.SQLITE_DBPATH +
+      "' " +
+      '"' +
+      (params
+        ? // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          SqlString.format(sql, params)
+        : sql) +
+      '"',
     {
       cleanup: true,
       shell: true,
@@ -63,6 +72,19 @@ const showWebPageErrorsInTerminal = (page: Page): void => {
   })
 }
 
+const removeAllSubreddits = async (): Promise<void> => {
+  await RUNDB(`DELETE FROM 'subreddits_master_list';`)
+
+  const { stdout } = await RUNDB(`SELECT name FROM sqlite_master WHERE name LIKE 'subreddit_table_%'`)
+
+  if (stdout.trim().length > 0) {
+    const subTablesToDelete = stdout.split('\n')
+    await RUNDB(subTablesToDelete.reduce((acc, subTableName) => `${acc}DROP TABLE ${subTableName};`, ''))
+  }
+
+  await RUNDB(`UPDATE users SET subreddits = '[]'`)
+}
+
 export {
   checkElementExists,
   RUNDB,
@@ -70,4 +92,5 @@ export {
   createTestUser,
   deleteTestUser,
   showWebPageErrorsInTerminal,
+  removeAllSubreddits,
 }
