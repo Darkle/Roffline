@@ -1,3 +1,3 @@
-export default function (): void {
-  require('../../env-checker.cjs')
-}
+require('../../env-checker.cjs')
+
+export default function (): void {}

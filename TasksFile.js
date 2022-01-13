@@ -225,16 +225,14 @@ const tests = {
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
-    const e2eTests_Chromium = `TESTING=true playwright test tests/e2e/empty-db-tests/sub-management-page.test.ts`
-    const e2eTests_Firefox = `TESTING=true cypress run --browser firefox`
+    const e2eTests = `TESTING=true playwright test tests/e2e/empty-db-tests/help-page.test.ts`
     const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests`
 
     try {
       sh(startServer, { ...shellOptions, silent: true })
 
-      sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_Chromium}`, shellOptions)
+      sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests}`, shellOptions)
 
-      //  sh(e2eTests_Firefox, shOptions)
       // Rebuild with no bundling so can do instrument for code coverage.
       // bundleFrontend = false
       // build.frontendJS()

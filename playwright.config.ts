@@ -15,6 +15,10 @@ const config: PlaywrightTestConfig = {
     trace: 'retain-on-failure',
     screenshot: 'off',
     video: 'off',
+    launchOptions: {
+      slowMo: 1500,
+    },
+    acceptDownloads: true,
   },
   projects: [
     {

@@ -21,7 +21,7 @@ test.describe('Home Page', () => {
     await page.goto('/')
   })
 
-  test('validates home page look and html', async ({ page }) => {
+  test('validates home page html and text', async ({ page }) => {
     await pwExpect(page).toHaveTitle('Roffline Home Page')
     await checkElementExists(page.locator('a:has-text("Home")'))
     await checkElementExists(page.locator('a:has-text("Search")'))
