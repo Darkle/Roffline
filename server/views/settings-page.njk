@@ -67,7 +67,7 @@
         </fieldset>
         <fieldset class="subreddits">
           <legend>Subs</legend>
-          <p>
+          <div>
             <label for="bulk-importer-textarea">Bulk Subreddit Importer</label>
             <div class="importing-subs-result" v-show="successfullyBulkImportedSubs || errorBulkImportingSubs">
               <div class="importing-subs-success text-primary" v-show="successfullyBulkImportedSubs">
@@ -116,7 +116,7 @@
               v-bind:disabled="disableBulkImport" @click.prevent="importSubs()">
               Import Subs
             </button>
-          </p>
+          </div>
           <p class="bulk-howto-link-container">
             <a href="/help#bulk-import-reddit-subs">How Do I Bulk Import My Reddit Subscriptions?</a>
           </p>

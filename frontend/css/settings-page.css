@@ -71,6 +71,12 @@
   width: 100%;
 }
 
+.settings-page .subreddits label[for='bulk-importer-textarea'] {
+  margin-top: 1rem;
+  margin-bottom: 1.2rem;
+  display: block;
+}
+
 .settings-page .subreddits .importing-subs-result {
   margin-bottom: 2rem;
   margin-top: 1rem;
