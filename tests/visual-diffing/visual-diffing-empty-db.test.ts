@@ -47,7 +47,6 @@ test.describe('Visual Diffing All Pages', () => {
     await page.click('.subs-dropdown summary')
     await page.click('.top-filter summary')
 
-    // Dunno why but this keeps changing a bit
     pwExpect(await page.screenshot()).toMatchSnapshot('home-page-dropdowns.png')
   })
 
@@ -60,7 +59,6 @@ test.describe('Visual Diffing All Pages', () => {
   test('Search Page', async ({ page }) => {
     await page.goto('/search')
 
-    // Dunno why but this keeps changing a bit
     pwExpect(await page.screenshot()).toMatchSnapshot('search-page.png')
 
     await page.fill('#search-input', 'asd')
