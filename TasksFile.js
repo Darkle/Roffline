@@ -203,19 +203,17 @@ const tests = {
     sh(`TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true nyc mocha tests`, shellOptions)
   },
   /*****
-    The e2e cypress tests actually run the frontend-build .js files in a browser, so we need to have esbuild
-    bundle the frontend .js files, so that node_module imports (e.g. vue) will be bundled into the frontend
-    .js file for cypress to run.
+    The e2e tests actually run the frontend-build .js files in a browser, so we need to have esbuild
+    bundle the frontend .js files, so that node_module imports (e.g. vue) will be bundled into the
+    frontend .js file for playwright to run.
 
-    Then for the integration and unit tests, we then need to re-run esbuild for frontend with esbuild NOT bundling
-    the node_module imports for the frontend .js. We dont want them imported as we need to run `nyc instrument`,
-    which parses all the js code and adds instrumentation code to see if functions are called. If we left all
-    the node_module imports in there we would get code coverage reports for node_module library functions (e.g. vue)
-    - which we obviously dont want.
+    Then for the integration and unit tests, we then need to re-run esbuild for frontend with esbuild
+    NOT bundling the node_module imports for the frontend .js. We dont want them imported as we need
+    to run `nyc instrument`, which parses all the js code and adds instrumentation code to see if
+    functions are called. If we left all the node_module imports in there we would get code coverage
+    reports for node_module library functions (e.g. vue) - which we obviously dont want.
 
     There's prolly a better way to do this, but i have NFI how.
-
-    Note: I was unable to get code coverage to work for cypress.
   *****/
   e2eUnitAndIntegration() {
     runningMochaTests = true
@@ -225,13 +223,19 @@ const tests = {
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
-    const e2eTests = `TESTING=true playwright test tests/e2e/empty-db-tests/help-page.test.ts`
+
+    // const e2eTests = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db-tests/help-page.test.ts`
+
+    const visualDiffingTests = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/visual-diffing-empty-db.test.ts`
+
     const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests`
 
     try {
       sh(startServer, { ...shellOptions, silent: true })
 
-      sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests}`, shellOptions)
+      // sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests}`, shellOptions)
+
+      sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests}`, shellOptions)
 
       // Rebuild with no bundling so can do instrument for code coverage.
       // bundleFrontend = false

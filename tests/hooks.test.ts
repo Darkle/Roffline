@@ -1,5 +1,5 @@
 // TODO:
-// I need to do all of this before the cypress tests instead of here right? Or should i re-setup it there as well??
+// I need to do all of this before the e2e tests instead of here right? Or should i re-setup it there as well??
 // Create user - set it to the one set in the .testing.env file.
 // Populate db with posts
 // Populate comments db with comments.

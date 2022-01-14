@@ -1,13 +1,14 @@
-import { PlaywrightTestConfig, devices } from '@playwright/test'
+import { devices } from '@playwright/test'
+import type { PlaywrightTestConfig } from '@playwright/test'
 
 const config: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  testDir: 'tests/e2e',
+  testDir: 'e2e',
   testIgnore: 'playwright-global-setup.ts',
   workers: 1,
-  snapshotDir: 'tests/snapshots',
-  globalSetup: 'tests/e2e/playwright-global-setup.ts',
+  snapshotDir: 'snapshots',
+  globalSetup: 'playwright-global-setup.ts',
   maxFailures: 1, // exit on first failed test
   use: {
     baseURL: 'http://0.0.0.0:8080',
@@ -15,9 +16,9 @@ const config: PlaywrightTestConfig = {
     trace: 'retain-on-failure',
     screenshot: 'off',
     video: 'off',
-    launchOptions: {
-      slowMo: 1500,
-    },
+    // launchOptions: {
+    //   slowMo: 1500,
+    // },
     acceptDownloads: true,
   },
   projects: [
