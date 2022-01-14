@@ -1,0 +1,1 @@
+- When testing, you may need to run `sudo npx playwright install-deps` to install the playwright deps. https://playwright.dev/docs/cli#install-system-dependencies
