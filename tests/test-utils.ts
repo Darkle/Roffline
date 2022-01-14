@@ -82,7 +82,7 @@ const removeAllSubreddits = async (): Promise<void> => {
     await RUNDB(subTablesToDelete.reduce((acc, subTableName) => `${acc}DROP TABLE ${subTableName};`, ''))
   }
 
-  await RUNDB(`UPDATE users SET subreddits = '[]'`)
+  await RUNDB(`UPDATE users SET subreddits = '[]' where name = '${process.env.TESTING_DEFAULT_USER as string}'`)
 }
 
 export {
