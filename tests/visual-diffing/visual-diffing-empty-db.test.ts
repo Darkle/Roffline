@@ -2,7 +2,7 @@ import { test, expect as pwExpect } from '@playwright/test'
 
 import { createLoginCookie, createTestUser, deleteTestUser, showWebPageErrorsInTerminal } from '../test-utils'
 
-test.describe('Visual Diffing All Pages', () => {
+test.describe('Visual Diffing All Pages (empty db)', () => {
   test.beforeAll(async () => {
     await createTestUser()
   })

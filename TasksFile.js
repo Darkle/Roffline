@@ -226,7 +226,7 @@ const tests = {
 
     // const e2eTests = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db-tests/help-page.test.ts`
 
-    const visualDiffingTests = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/visual-diffing-empty-db.test.ts`
+    const visualDiffingTests = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts`
 
     const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests`
 
