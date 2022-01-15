@@ -12,7 +12,9 @@ test.describe('Visual Diffing Admin Pages', () => {
 
   test.beforeEach(async ({ page, browser }) => {
     showWebPageErrorsInTerminal(page)
-    const context = await browser.newContext({ httpCredentials: { username: 'admin', password: 'foo' } })
+    const context = await browser.newContext({
+      httpCredentials: { username: 'admin', password: process.env.ADMIN_PASS as string },
+    })
     p = await context.newPage()
   })
 
