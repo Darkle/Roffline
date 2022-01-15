@@ -88,7 +88,6 @@ test.describe('Help Page', () => {
     await checkElementExists(page.locator('.faq ol>li:has-text("Log in to reddit in a browser")'))
 
     const content2 = (await page.textContent('.faq ol>li:nth-of-type(2)')) as string
-    // @ts-expect-error replaceAll should be there if they are following engines in package.json
     expect(content2.trim().replaceAll(/\s\s+/gu, ' ').replaceAll('\n', ' ')).to.equal(
       'Go to the https://www.reddit.com/subreddits/mine page'
     )
