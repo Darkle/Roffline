@@ -100,7 +100,7 @@ test.describe('Settings Page', () => {
     await checkElementExists(page.locator('body>script[src^="/js/settings-page.js"]'))
   })
 
-  test('importing subs works and shows success error messages', async ({ page, context }) => {
+  test('importing subs works and shows success error messages', async ({ page }) => {
     await page.fill('#bulk-importer-textarea', 'aww dogs\ncats')
 
     await page.click('button:has-text("Import Subs")')
@@ -143,7 +143,7 @@ test.describe('Settings Page', () => {
 
     await page.locator('.importing-subs-success-message').waitFor({ state: 'hidden' })
 
-    await context.route('/api/bulk-import-user-subs', route => {
+    await page.route('/api/bulk-import-user-subs', route => {
       route.fulfill({
         status: 500,
         contentType: 'text/plain',
@@ -201,7 +201,7 @@ test.describe('Settings Page', () => {
     expect(fileText).to.contain('abruptchaos accidentalwesanderson adviceanimals alphaandbetausers alpinejs')
   })
 
-  test('should send the correct form data on importing subs and changing settings', async ({ page, context }) => {
+  test('should send the correct form data on importing subs and changing settings', async ({ page }) => {
     /*****
     We are purposely erroring in one of our tests below, so we need to manually inlcude
     showWebPageErrorsInTerminal for each test instead of in beforeEach. That way we can
@@ -210,7 +210,7 @@ test.describe('Settings Page', () => {
     showWebPageErrorsInTerminal(page)
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    await context.route('/api/bulk-import-user-subs', async route => {
+    await page.route('/api/bulk-import-user-subs', async route => {
       const postJSON = route.request().postDataJSON() as { subToAdd: string }
       const csrfHeader = (await route.request().headerValue('csrf-token')) as string
 
@@ -227,7 +227,7 @@ test.describe('Settings Page', () => {
     await page.click('button:has-text("Import Subs")')
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    await context.route('/api/update-user-setting', async route => {
+    await page.route('/api/update-user-setting', async route => {
       const { settingName, settingValue } = route.request().postDataJSON() as {
         settingName: string
         settingValue: boolean

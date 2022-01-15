@@ -139,9 +139,9 @@ test.describe('Sub Management Page', () => {
     await page.click('div[data-sub-to-remove="aww"]')
   })
 
-  test('should send the correct form data on submit', async ({ page, context }) => {
+  test('should send the correct form data on submit', async ({ page }) => {
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    await context.route('/api/add-user-subreddit', async route => {
+    await page.route('/api/add-user-subreddit', async route => {
       const postJSON = route.request().postDataJSON() as { subToAdd: string }
       const csrfHeader = (await route.request().headerValue('csrf-token')) as string
 
@@ -158,7 +158,7 @@ test.describe('Sub Management Page', () => {
     await page.waitForLoadState('networkidle')
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    await context.route('/api/remove-user-subreddit', async route => {
+    await page.route('/api/remove-user-subreddit', async route => {
       const postJSON = route.request().postDataJSON() as { subToAdd: string }
       const csrfHeader = (await route.request().headerValue('csrf-token')) as string
 

@@ -216,7 +216,7 @@ test.describe('Login Page', () => {
 
     const csrfToken1 = (await page.getAttribute('input[name="csrfToken"]', 'value'))?.trim() as string
 
-    await context.route('/api/create-user', route => {
+    await page.route('/api/create-user', route => {
       const postJSON = route.request().postDataJSON() as { signupUsername: string; csrfToken: string }
 
       expect(postJSON).to.have.all.keys('signupUsername', 'csrfToken')
@@ -230,7 +230,7 @@ test.describe('Login Page', () => {
 
     await page.click('button:has-text("Sign Up")')
 
-    await context.unroute('/api/create-user')
+    await page.unroute('/api/create-user')
 
     await context.clearCookies()
 
@@ -240,7 +240,7 @@ test.describe('Login Page', () => {
 
     const csrfToken2 = (await page.getAttribute('input[name="csrfToken"]', 'value'))?.trim() as string
 
-    await context.route('/api/create-user', route => {
+    await page.route('/api/create-user', route => {
       const postJSON = route.request().postDataJSON() as { signupUsername: string; csrfToken: string }
 
       expect(postJSON).to.have.all.keys('signupUsername', 'csrfToken')
