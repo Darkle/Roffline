@@ -9,6 +9,7 @@ const checkElementExists = (locator: Locator): Promise<Locator> => pwExpect(loca
 
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const RUNDB = (sql: string, params?: any | any[] | Record<string, unknown>): execa.ExecaChildProcess<string> =>
   execa.command(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -61,6 +62,7 @@ const showWebPageErrorsInTerminal = (page: Page): void => {
   page.on('console', async msg => {
     if (msg.type() !== 'error') return
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const values: any[] = []
 
     // eslint-disable-next-line no-await-in-loop
@@ -85,6 +87,12 @@ const removeAllSubreddits = async (): Promise<void> => {
   await RUNDB(`UPDATE users SET subreddits = '[]' where name = '${process.env.TESTING_DEFAULT_USER as string}'`)
 }
 
+const resetAdminSettingsBackToDefault = async (): Promise<void> => {
+  await RUNDB(
+    `UPDATE admin_settings SET downloadComments = true, numberFeedsOrPostsDownloadsAtOnce = 4, numberMediaDownloadsAtOnce = 2, downloadVideos = false, videoDownloadMaxFileSize = '300', videoDownloadResolution = '480p', updateAllDay = true, updateStartingHour = 1, updateEndingHour = 5;`
+  )
+}
+
 export {
   checkElementExists,
   RUNDB,
@@ -93,4 +101,5 @@ export {
   deleteTestUser,
   showWebPageErrorsInTerminal,
   removeAllSubreddits,
+  resetAdminSettingsBackToDefault,
 }
