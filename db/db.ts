@@ -99,8 +99,7 @@ type PostIds = string[]
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: sqliteDBPath,
-  logging: (msg): void => dbLogger.trace(msg),
-  // logging: true,
+  logging: process.env['EXCESSIVE_DB_LOGGING'] ? true : (msg): void => dbLogger.trace(msg),
 })
 
 /*****
