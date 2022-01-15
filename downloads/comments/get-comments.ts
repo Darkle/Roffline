@@ -2,7 +2,7 @@ import fetch from 'node-fetch-commonjs'
 import Prray from 'prray'
 import { Packr } from 'msgpackr'
 import type { Response } from 'node-fetch-commonjs'
-import recursiveObjFilter from 'deep-filter-object'
+import recursiveObjFilter from 'deep-filter'
 
 import type { AdminSettings } from '../../db/entities/AdminSettings'
 import { db } from '../../db/db'
@@ -34,6 +34,21 @@ const commentsObjKeysToKeep = [
   'body_html',
 ]
 
+const objFilter = (_: unknown, prop: string | number): boolean => {
+  // eslint-disable-next-line functional/no-conditional-statement
+  if (typeof prop === 'string' && commentsObjKeysToKeep.includes(prop)) {
+    return true
+  }
+
+  // number means its an item in an array
+  // eslint-disable-next-line functional/no-conditional-statement
+  if (typeof prop === 'number') {
+    return true
+  }
+
+  return false
+}
+
 /*****
   Even though lmdb can automatically convert to messagepack, we want to manually
   convert here as when we do it all at once when saving all the comments to the db
@@ -42,7 +57,7 @@ const commentsObjKeysToKeep = [
   lot of excess data we dont need in the comments.
 *****/
 const formatCommentsForDB = (comments: FetchedCommentContainer[]): Buffer =>
-  msgpackPacker.pack(comments.map(comment => recursiveObjFilter(comment, commentsObjKeysToKeep)))
+  msgpackPacker.pack(comments.map(comment => recursiveObjFilter(comment, objFilter)))
 
 const assocCommentsWithPostId = (postId: PostId, comments: UnformattedCommentsData): CommentsWithPostId => ({
   id: postId,

@@ -37,7 +37,7 @@
     "compress-tag": "^2.0.1",
     "cpu-stat": "^2.0.1",
     "csrf": "^3.1.0",
-    "deep-filter-object": "^1.0.0",
+    "deep-filter": "^1.0.2",
     "diceware": "^0.0.1",
     "dns-cache": "^2.0.0",
     "dotenv": "^10.0.0",

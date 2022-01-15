@@ -46,8 +46,11 @@ declare module 'dns-cache' {
   export default function (ttl: number): void
 }
 
-declare module 'deep-filter-object' {
-  function recursiveObjFilter(obj: Record<string, unknown>, arr: string[]): Record<string, unknown>
+declare module 'deep-filter' {
+  function recursiveObjFilter(
+    obj: Record<string, unknown>,
+    callback: (value: any, prop: number | string) => boolean
+  ): Record<string, unknown>
   export default recursiveObjFilter
 }
 
