@@ -163,7 +163,7 @@ const build = {
 
 const tests = {
   npmaudit() {
-    sh('snyk test --production  --severity-threshold=high', shellOptions)
+    sh('snyk test --production  --severity-threshold=medium', shellOptions)
   },
   csslint() {
     sh(`stylelint "frontend/css/**/*.css"`, shellOptions)
@@ -226,7 +226,7 @@ const tests = {
 
     // const e2eTests = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db-tests/help-page.test.ts`
 
-    const visualDiffingTests = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts`
+    const visualDiffingTests = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/visual-diffing-admin-pages.test.ts`
 
     const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests`
 
