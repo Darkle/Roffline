@@ -112,6 +112,8 @@ test.describe('Settings Page', () => {
 
     expect(errorMessage1).to.be.false
 
+    await checkElementExists(page.locator('.subs-dropdown a[href="/sub/aww"]:has-text("aww")'))
+
     await page.locator('.importing-subs-success-message').waitFor({ state: 'hidden' })
 
     await page.fill(
@@ -127,6 +129,35 @@ test.describe('Settings Page', () => {
     const errorMessage2 = await page.isVisible('.importing-subs-error')
 
     expect(errorMessage2).to.be.false
+
+    await checkElementExists(
+      page.locator('.subs-dropdown a[href="/sub/90saltrockrevival"]:has-text("90saltrockrevival")')
+    )
+    await checkElementExists(page.locator('.subs-dropdown a[href="/sub/abruptchaos"]:has-text("abruptchaos")'))
+    await checkElementExists(
+      page.locator('.subs-dropdown a[href="/sub/accidentalwesanderson"]:has-text("accidentalwesanderson")')
+    )
+    await checkElementExists(
+      page.locator('.subs-dropdown a[href="/sub/adviceanimals"]:has-text("adviceanimals")')
+    )
+    await checkElementExists(
+      page.locator('.subs-dropdown a[href="/sub/alphaandbetausers"]:has-text("alphaandbetausers")')
+    )
+    await checkElementExists(page.locator('.subs-dropdown a[href="/sub/alpinejs"]:has-text("alpinejs")'))
+    await checkElementExists(page.locator('.subs-dropdown a[href="/sub/americandad"]:has-text("americandad")'))
+    await checkElementExists(
+      page.locator('.subs-dropdown a[href="/sub/androidafterlife"]:has-text("androidafterlife")')
+    )
+    await checkElementExists(page.locator('.subs-dropdown a[href="/sub/androidapps"]:has-text("androidapps")'))
+    await checkElementExists(
+      page.locator('.subs-dropdown a[href="/sub/animalsbeingderps"]:has-text("animalsbeingderps")')
+    )
+    await checkElementExists(
+      page.locator('.subs-dropdown a[href="/sub/animalsbeingfunny"]:has-text("animalsbeingfunny")')
+    )
+    await checkElementExists(
+      page.locator('.subs-dropdown a[href="/sub/animalsbeinghappy"]:has-text("animalsbeinghappy")')
+    )
 
     await page.locator('.importing-subs-success-message').waitFor({ state: 'hidden' })
 
