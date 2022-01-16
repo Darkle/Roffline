@@ -10,50 +10,50 @@ const { parse } = require('envfile')
 
 const shellOptions = { nopipe: true, async: undefined }
 
-const prepareAndCleanDir = dir => {
+const prepareAndCleanDir = (dir: string) => {
   if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true })
   fs.mkdirSync(dir)
   fs.writeFileSync(path.join(dir, '.gitkeep'), '')
 }
 
-async function pDeleteFileOrFolder(fileOrFolderPath, isFolder) {
+async function pDeleteFileOrFolder(fileOrFolderPath: string, isFolder = false) {
   const exists = await fs.promises.stat(fileOrFolderPath).catch(noop)
   if (!exists) return Promise.resolve()
   return isFolder ? fs.promises.rm(fileOrFolderPath, { recursive: true }) : fs.promises.rm(fileOrFolderPath)
 }
 
-const removeQuotesFromEnvFileValue = val => val.replaceAll(`'`, '').replaceAll(`"`, '')
+const removeQuotesFromEnvFileValue = (val: string) => val.replaceAll(`'`, '').replaceAll(`"`, '')
 
-/** @typedef {object} TestingEnvVars
- * @property {string} PORT
- * @property {string} PUBLIC_FOLDER
- * @property {string} LOGDIR
- * @property {string} POSTS_MEDIA_DOWNLOAD_DIR
- * @property {string} SQLITE_DBPATH
- * @property {string} COMMENTS_DBPATH
- * @property {string} ADMIN_PASS
- * @property {string} OFFLINE_CHECK_URL
- * @property {string} LOGGING_LEVEL
- * @property {string} TESTING_DEFAULT_USER
- */
-/**
- * @type {TestingEnvVars}
- */
-// @ts-expect-error
+type TestingEnvVars = {
+  PORT: string
+  PUBLIC_FOLDER: string
+  LOGDIR: string
+  POSTS_MEDIA_DOWNLOAD_DIR: string
+  SQLITE_DBPATH: string
+  COMMENTS_DBPATH: string
+  ADMIN_PASS: string
+  OFFLINE_CHECK_URL: string
+  LOGGING_LEVEL: string
+  TESTING_DEFAULT_USER: string
+}
+
 const testingEnvVars = Object.entries(
   parse(fs.readFileSync('./tests/.testing.env', { encoding: 'utf8' }))
-).reduce((acc, [envName, envVal]) => ({ ...acc, [envName]: removeQuotesFromEnvFileValue(envVal) }), {})
+).reduce(
+  (acc, [envName, envVal]) => ({ ...acc, [envName]: removeQuotesFromEnvFileValue(envVal as string) }),
+  {}
+) as TestingEnvVars
 
 const removeTempTestFiles = () =>
   Promise.all([
-    pDeleteFileOrFolder(testingEnvVars.LOGDIR, true),
-    pDeleteFileOrFolder(testingEnvVars.POSTS_MEDIA_DOWNLOAD_DIR, true),
-    pDeleteFileOrFolder(testingEnvVars.SQLITE_DBPATH),
-    pDeleteFileOrFolder(testingEnvVars.COMMENTS_DBPATH),
-    pDeleteFileOrFolder(`${testingEnvVars.COMMENTS_DBPATH}-lock`),
+    pDeleteFileOrFolder(testingEnvVars['LOGDIR'], true),
+    pDeleteFileOrFolder(testingEnvVars['POSTS_MEDIA_DOWNLOAD_DIR'], true),
+    pDeleteFileOrFolder(testingEnvVars['SQLITE_DBPATH']),
+    pDeleteFileOrFolder(testingEnvVars['COMMENTS_DBPATH']),
+    pDeleteFileOrFolder(`${testingEnvVars['COMMENTS_DBPATH']}-lock`),
   ])
 
-const noop = _ => {}
+const noop = (_: unknown) => {}
 
 const tsFilesBackend = glob.sync(
   ['db/**/*.ts', 'downloads/**/*.ts', 'logging/**/*.ts', 'server/**/*.ts', './boot.ts'],
@@ -215,58 +215,72 @@ const tests = {
 
     There's prolly a better way to do this, but i have NFI how.
   *****/
-  e2eUnitAndIntegration() {
+  async e2eUnitAndIntegration() {
     runningMochaTests = true
+    const shOptions = { ...shellOptions, async: true }
     // Some tests are really slow (e.g. the download video tests can take 5-10 mins), so can skip them if want.
-    const skipSlowTests = process.env.SKIP_SLOW_TESTS ? '--tags not:@slow' : ''
+    // const skipSlowTests = process.env['SKIP_SLOW_TESTS'] ? '--tags not:@slow' : ''
 
+    // @ts-expect-error
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
 
-    const e2eTests = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db-tests/sub-management-page.test.ts`
+    const e2eTests_EmptyDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db-tests/*.test.ts`
+
+    // const e2eTests_SeededDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/seeded-db-tests/*.test.ts`
 
     // const visualDiffingTests = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/visual-diffing-admin-pages.test.ts`
 
-    const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests`
+    // const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests`
 
     try {
-      sh(startServer, { ...shellOptions, silent: true })
+      await sh(startServer, { ...shellOptions, silent: true, async: true })
 
-      sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests}`, shellOptions)
+      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_EmptyDB}`, shOptions)
 
-      sh(`fkill :8080 --silent`, shellOptions)
+      sh(`fkill :8080 --silent`, shOptions)
 
-      removeTempTestFiles()
+      await removeTempTestFiles()
 
-      // sh(startServer, { ...shellOptions, silent: true })
+      // await seedDB()
 
-      // sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests}`, shellOptions)
+      // await sh(startServer, { ...shOptions, silent: true })
 
-      // sh(`fkill :8080 --silent`, shellOptions)
+      // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_SeededDB}`, shOptions)
 
-      // removeTempTestFiles()
+      // await sh(`fkill :8080 --silent`, shOptions)
+
+      // await removeTempTestFiles()
+
+      // await sh(startServer, { ...shOptions, silent: true })
+
+      // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests}`, shOptions)
+
+      // await sh(`fkill :8080 --silent`, shOptions)
+
+      // await removeTempTestFiles()
 
       // Rebuild with no bundling so can do instrument for code coverage.
       // bundleFrontend = false
       // build.frontendJS()
 
-      // sh(`nyc instrument --compact=false --in-place . .`, shellOptions)
+      // await sh(`nyc instrument --compact=false --in-place . .`, shOptions)
 
-      // sh(startServer, { ...shellOptions, silent: true })
+      // await sh(startServer, { ...shOptions, silent: true })
 
-      // sh(integrationAndUnitTests, shellOptions)
+      // await sh(integrationAndUnitTests, shOptions)
 
-      // sh(`fkill :8080 --silent`, shellOptions)
+      // await sh(`fkill :8080 --silent`, shOptions)
 
-      // removeTempTestFiles()
+      // await removeTempTestFiles()
     } catch (error) {
       sh(`fkill :8080 --silent`, shellOptions)
 
       removeTempTestFiles()
 
       // We wanna exit the test when it errors out due to not enough coverage.
-      return process.exit(1)
+      process.exit(1)
     }
   },
 }
@@ -277,10 +291,12 @@ const db = {
   },
 }
 
+// @ts-expect-error
 const buildProd = () => Object.keys(build).forEach(key => build[key]())
 
 const testAll = () => {
   buildProd()
+  // @ts-expect-error
   Object.keys(tests).forEach(key => tests[key]())
 }
 
@@ -292,3 +308,6 @@ cli({
   buildProd,
   db,
 })
+function seedDB() {
+  throw new Error('Function not implemented.')
+}

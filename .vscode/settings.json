@@ -38,7 +38,8 @@
     "testing-roffline-sqlite.db": true,
     "testing-roffline-comments-lmdb.db": true,
     "testing-roffline-comments-lmdb.db-lock": true,
-    "testing-posts-media": true
+    "testing-posts-media": true,
+    "test-results": true
   },
   "search.exclude": {
     "tsconfig.tsbuildinfo": true,
@@ -59,6 +60,7 @@
     "testing-roffline-sqlite.db": true,
     "testing-roffline-comments-lmdb.db": true,
     "testing-roffline-comments-lmdb.db-lock": true,
-    "testing-posts-media": true
+    "testing-posts-media": true,
+    "test-results": true
   }
 }

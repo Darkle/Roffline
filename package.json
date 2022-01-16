@@ -5,13 +5,13 @@
   "main": "index.js",
   "scripts": {
     "update": "ncu --interactive --target minor",
-    "task": "node -r ./env-checker.cjs ./TasksFile.js",
-    "dev": "NODE_ENV=development node -r ./env-checker.cjs ./TasksFile.js dev:start",
-    "inspect": "NODE_ENV=development node -r ./env-checker.cjs ./TasksFile.js dev:inspect",
-    "test": "NODE_ENV=production node ./TasksFile.js testAll",
-    "test-no-slow": "SKIP_SLOW_TESTS=true node ./TasksFile.js testAll",
-    "build": "NODE_ENV=production node ./TasksFile.js buildProd",
-    "eslint": "node ./TasksFile.js tests:eslint",
+    "task": "ts-node -r ./env-checker.cjs ./TasksFile.ts",
+    "dev": "NODE_ENV=development ts-node -r ./env-checker.cjs ./TasksFile.ts dev:start",
+    "inspect": "NODE_ENV=development ts-node -r ./env-checker.cjs ./TasksFile.ts dev:inspect",
+    "test": "NODE_ENV=production ts-node ./TasksFile.ts testAll",
+    "test-no-slow": "SKIP_SLOW_TESTS=true ts-node ./TasksFile.ts testAll",
+    "build": "NODE_ENV=production ts-node ./TasksFile.ts buildProd",
+    "eslint": "ts-node ./TasksFile.ts tests:eslint",
     "start": "npm run build && NODE_ENV=production node -r ./env-checker.cjs ./boot.js"
   },
   "browser": {
