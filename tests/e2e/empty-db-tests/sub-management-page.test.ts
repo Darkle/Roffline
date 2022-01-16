@@ -89,6 +89,8 @@ test.describe('Sub Management Page', () => {
 
     await checkElementExists(page.locator('p[data-menu-subreddit="aww"] > a[href="/sub/aww"]'))
 
+    await checkElementExists(page.locator('.subs-dropdown a[href="/sub/aww"]:has-text("aww")'))
+
     await page.locator('.success-adding-subreddit-message').waitFor({ state: 'hidden' })
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -97,6 +99,8 @@ test.describe('Sub Management Page', () => {
     await page.click('.sub-removal-container .sub-container:has-text("aww")')
 
     await page.waitForLoadState('networkidle')
+
+    await pwExpect(page.locator('.subs-dropdown a[href="/sub/aww"]:has-text("aww")')).toHaveCount(0)
 
     await page.locator('.success-removing-subreddit-message').waitFor({ state: 'visible' })
 
