@@ -224,7 +224,7 @@ const tests = {
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
 
-    const e2eTests = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db-tests/admin-settings-page.test.ts`
+    const e2eTests = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db-tests/sub-management-page.test.ts`
 
     // const visualDiffingTests = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/visual-diffing-admin-pages.test.ts`
 
@@ -235,7 +235,17 @@ const tests = {
 
       sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests}`, shellOptions)
 
+      sh(`fkill :8080 --silent`, shellOptions)
+
+      removeTempTestFiles()
+
+      // sh(startServer, { ...shellOptions, silent: true })
+
       // sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests}`, shellOptions)
+
+      // sh(`fkill :8080 --silent`, shellOptions)
+
+      // removeTempTestFiles()
 
       // Rebuild with no bundling so can do instrument for code coverage.
       // bundleFrontend = false
@@ -243,18 +253,21 @@ const tests = {
 
       // sh(`nyc instrument --compact=false --in-place . .`, shellOptions)
 
+      // sh(startServer, { ...shellOptions, silent: true })
+
       // sh(integrationAndUnitTests, shellOptions)
+
+      // sh(`fkill :8080 --silent`, shellOptions)
+
+      // removeTempTestFiles()
     } catch (error) {
       sh(`fkill :8080 --silent`, shellOptions)
 
-      // removeTempTestFiles()
+      removeTempTestFiles()
 
       // We wanna exit the test when it errors out due to not enough coverage.
       return process.exit(1)
     }
-
-    sh(`fkill :8080 --silent`, shellOptions)
-    // removeTempTestFiles()
   },
 }
 
