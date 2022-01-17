@@ -1,0 +1,17 @@
+{
+	"id": "rp4sy3",
+	"subreddit": "functionalprogramming",
+	"author": "cmeslo",
+	"title": "How would look like a FP version or alternative to the repository pattern?",
+	"selftext": "Hi there, when following TDD you'd avoid testing code which directly touch a DB as you don't need to test the DB functionality, you are testing some specific logic that may or may not involve using data from a DB or that in certain point could write data to a DB so in OOP you'd use the repository pattern which works well abstracting db operations for testing.\n\nMy question is what's the alternative to this pattern in FP? it could be an example in any FP language, I just need to have an idea if in FP are other patterns or techniques to achieve this or maybe you are using the same pattern?\n\nPD: If you could refer me to existing codebases as example it'd be great.\n\nCheers!",
+	"selftext_html": "&lt;!-- SC_OFF --&gt;&lt;div class=\"md\"&gt;&lt;p&gt;Hi there, when following TDD you&amp;#39;d avoid testing code which directly touch a DB as you don&amp;#39;t need to test the DB functionality, you are testing some specific logic that may or may not involve using data from a DB or that in certain point could write data to a DB so in OOP you&amp;#39;d use the repository pattern which works well abstracting db operations for testing.&lt;/p&gt;\n\n&lt;p&gt;My question is what&amp;#39;s the alternative to this pattern in FP? it could be an example in any FP language, I just need to have an idea if in FP are other patterns or techniques to achieve this or maybe you are using the same pattern?&lt;/p&gt;\n\n&lt;p&gt;PD: If you could refer me to existing codebases as example it&amp;#39;d be great.&lt;/p&gt;\n\n&lt;p&gt;Cheers!&lt;/p&gt;\n&lt;/div&gt;&lt;!-- SC_ON --&gt;",
+	"score": 18,
+	"is_self": true,
+	"stickied": false,
+	"created_utc": 1640549752,
+	"domain": "self.functionalprogramming",
+	"is_video": false,
+	"permalink": "/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/",
+	"url": "https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/",
+	"media": null
+}

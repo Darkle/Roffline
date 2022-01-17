@@ -1,7 +1,7 @@
 import { expect as pwExpect } from '@playwright/test'
 import type { Locator, BrowserContext, Page } from '@playwright/test'
 import execa from 'execa'
-import SqlString from 'sqlstring'
+import SqlString from 'sqlstring-sqlite'
 
 const testingDefaultUser = process.env['TESTING_DEFAULT_USER'] as string
 
@@ -18,7 +18,7 @@ const RUNDB = (sql: string, params?: any | any[] | Record<string, unknown>): exe
       "' " +
       '"' +
       (params
-        ? // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        ? // eslint-disable-next-line
           SqlString.format(sql, params)
         : sql) +
       '"',
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS subreddit_table_aww (id INTEGER PRIMARY KEY AUTOINCRE
 INSERT OR IGNORE INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('aww', 1642383761179);
 CREATE TABLE IF NOT EXISTS subreddit_table_askreddit (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);
 INSERT OR IGNORE INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('askreddit', 1642383761179);
-UPDATE users SET subreddits='["aww","askreddit"]' WHERE name = 'shine-9000-shack-today-6';    
+UPDATE users SET subreddits='"[\\"aww\\",\\"askreddit\\"]"' WHERE name = 'shine-9000-shack-today-6';    
     `
   )
 }

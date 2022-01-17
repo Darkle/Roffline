@@ -1,0 +1,18 @@
+{
+	"id": "rzmtfo",
+	"subreddit": "functionalprogramming",
+	"author": "MeowBlogger",
+	"title": "FUML - Functional data serialization language",
+	"selftext": "Hello all! I've been developing specs for FUML - a new data serialization language inspired from functional programming languages like F# and OCaml. I would request you all to review the specs and let  me know your thoughts on it.\n\nSpecs link: [https://github.com/sumeetdas/fuml](https://github.com/sumeetdas/fuml)\n\nEdit: Additional notes:\n\n*  Data serialization language is a language which can be used to represent  data and then can be translated into multiple programming languages.  Think of FUML as combination of protobuf by Google and YAML. It  prescribes how the data would look like and how to describe the data  using type theory. ",
+	"selftext_html": "&lt;!-- SC_OFF --&gt;&lt;div class=\"md\"&gt;&lt;p&gt;Hello all! I&amp;#39;ve been developing specs for FUML - a new data serialization language inspired from functional programming languages like F# and OCaml. I would request you all to review the specs and let  me know your thoughts on it.&lt;/p&gt;\n\n&lt;p&gt;Specs link: &lt;a href=\"https://github.com/sumeetdas/fuml\"&gt;https://github.com/sumeetdas/fuml&lt;/a&gt;&lt;/p&gt;\n\n&lt;p&gt;Edit: Additional notes:&lt;/p&gt;\n\n&lt;ul&gt;\n&lt;li&gt; Data serialization language is a language which can be used to represent  data and then can be translated into multiple programming languages.  Think of FUML as combination of protobuf by Google and YAML. It  prescribes how the data would look like and how to describe the data  using type theory. &lt;/li&gt;\n&lt;/ul&gt;\n&lt;/div&gt;&lt;!-- SC_ON --&gt;",
+	"score": 15,
+	"is_self": true,
+	"stickied": false,
+	"created_utc": 1641715618,
+	"domain": "self.functionalprogramming",
+	"is_video": false,
+	"post_hint": "self",
+	"permalink": "/r/functionalprogramming/comments/rzmtfo/fuml_functional_data_serialization_language/",
+	"url": "https://www.reddit.com/r/functionalprogramming/comments/rzmtfo/fuml_functional_data_serialization_language/",
+	"media": null
+}

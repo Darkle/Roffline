@@ -226,7 +226,7 @@ const tests = {
     // @ts-expect-error
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
-    // const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
+    const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
 
     // const e2eTests_EmptyDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db-tests/*.test.ts`
 
@@ -237,11 +237,11 @@ const tests = {
     // const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests`
 
     try {
-      // await sh(startServer, { ...shellOptions, silent: true, async: true })
+      await sh(startServer, { ...shellOptions, silent: true, async: true })
       // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_EmptyDB}`, shOptions)
       // sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
-      await seedDB()
+      await seedDB(testingEnvVars)
       // await sh(startServer, { ...shOptions, silent: true })
       // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_SeededDB}`, shOptions)
       // await sh(`fkill :8080 --silent`, shOptions)
