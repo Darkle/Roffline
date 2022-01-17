@@ -28,7 +28,13 @@ module.exports = {
     'plugin:playwright/playwright-test',
     'plugin:ui-testing/playwright',
   ],
-  ignorePatterns: ['.eslintrc.cjs', 'tests/__mocks/**/*', 'tests/snapshots/**/*', 'tests/seed-data/**/*'],
+  ignorePatterns: [
+    '.eslintrc.cjs',
+    'db-seeder.cjs',
+    'tests/__mocks/**/*',
+    'tests/snapshots/**/*',
+    'tests/seed-data/**/*',
+  ],
   plugins: ['@typescript-eslint', 'extra-rules', 'no-secrets', 'disable', 'chai-friendly', 'ui-testing'],
   overrides: [
     {

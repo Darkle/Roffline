@@ -8,6 +8,8 @@ const esbuild = require('esbuild')
 const glob = require('fast-glob')
 const { parse } = require('envfile')
 
+const { seedDB } = require('./tests/db-seeder.cjs')
+
 const shellOptions = { nopipe: true, async: undefined }
 
 const prepareAndCleanDir = (dir: string) => {
@@ -187,7 +189,7 @@ const tests = {
       When we call this via `npm run test` we dont preload the .env data (cause mocha needs to do that on its own),
       so we manually load it here.
     *****/
-    const sonarToken = fs.readFileSync('./.env').toString().split('SONAR_TOKEN=')[1].split('\n')[0].trim()
+    const sonarToken = fs.readFileSync('./.env').toString().split('SONAR_TOKEN=')[1]?.split('\n')[0]?.trim()
     // You need a SONAR_TOKEN .env varible set for this to work. You can get one from https://sonarcloud.io/
     sh(
       `SONAR_TOKEN=${sonarToken} sonar-scanner -Dsonar.organization=darkle -Dsonar.projectKey=Roffline -Dsonar.sources=. -Dsonar.host.url=https://sonarcloud.io -Dsonar.exclusions=frontend/static/**/*`,
@@ -217,16 +219,16 @@ const tests = {
   *****/
   async e2eUnitAndIntegration() {
     runningMochaTests = true
-    const shOptions = { ...shellOptions, async: true }
+    // const shOptions = { ...shellOptions, async: true }
     // Some tests are really slow (e.g. the download video tests can take 5-10 mins), so can skip them if want.
     // const skipSlowTests = process.env['SKIP_SLOW_TESTS'] ? '--tags not:@slow' : ''
 
     // @ts-expect-error
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
-    const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
+    // const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
 
-    const e2eTests_EmptyDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db-tests/*.test.ts`
+    // const e2eTests_EmptyDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db-tests/*.test.ts`
 
     // const e2eTests_SeededDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/seeded-db-tests/*.test.ts`
 
@@ -235,44 +237,26 @@ const tests = {
     // const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests`
 
     try {
-      await sh(startServer, { ...shellOptions, silent: true, async: true })
-
-      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_EmptyDB}`, shOptions)
-
-      sh(`fkill :8080 --silent`, shOptions)
-
-      await removeTempTestFiles()
-
-      // await seedDB()
-
+      // await sh(startServer, { ...shellOptions, silent: true, async: true })
+      // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_EmptyDB}`, shOptions)
+      // sh(`fkill :8080 --silent`, shOptions)
+      // await removeTempTestFiles()
+      await seedDB()
       // await sh(startServer, { ...shOptions, silent: true })
-
       // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_SeededDB}`, shOptions)
-
       // await sh(`fkill :8080 --silent`, shOptions)
-
       // await removeTempTestFiles()
-
       // await sh(startServer, { ...shOptions, silent: true })
-
       // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests}`, shOptions)
-
       // await sh(`fkill :8080 --silent`, shOptions)
-
       // await removeTempTestFiles()
-
       // Rebuild with no bundling so can do instrument for code coverage.
       // bundleFrontend = false
       // build.frontendJS()
-
       // await sh(`nyc instrument --compact=false --in-place . .`, shOptions)
-
       // await sh(startServer, { ...shOptions, silent: true })
-
       // await sh(integrationAndUnitTests, shOptions)
-
       // await sh(`fkill :8080 --silent`, shOptions)
-
       // await removeTempTestFiles()
     } catch (error) {
       sh(`fkill :8080 --silent`, shellOptions)
@@ -308,6 +292,3 @@ cli({
   buildProd,
   db,
 })
-function seedDB() {
-  throw new Error('Function not implemented.')
-}
