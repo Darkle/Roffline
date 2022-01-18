@@ -1,8 +1,7 @@
 // Note: this file is commonjs as it is used in TasksFile.ts
 const { setTimeout } = require('timers/promises')
 
-const execa = require('execa')
-const SqlString = require('sqlstring-sqlite')
+const sqlite3 = require('sqlite3')
 const Prray = require('prray').default
 
 // TODO:
@@ -14,49 +13,26 @@ const Prray = require('prray').default
 //  Perhaps instead of copying the data from seed (eg images/videos), i could just do symlinks
 // Check for anything else to do in DB/Media Seeding section in evernote
 
-let sqliteDBPath = null
+let db = null
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const RUNDB = (sql, params) =>
-  execa
-    .command(
-      'sqlite3 -batch' +
-        " '" +
-        sqliteDBPath +
-        "' " +
-        '"' +
-        (params
-          ? // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            SqlString.format(sql, params)
-          : sql) +
-        '"',
-      {
-        cleanup: true,
-        shell: true,
-      }
-    )
-    .catch(err => {
-      console.error(err)
-      process.exit(1)
-    })
-
-const createTestUser = async username => {
-  await RUNDB(
+const createTestUser = username =>
+  db.run(
     'INSERT OR IGNORE INTO users (name,subreddits,hideStickiedPosts,onlyShowTitlesInFeed,infiniteScroll,darkModeTheme) VALUES (?,?,?,?,?,?);',
     [username, '[]', 1, 0, 0, 0]
   )
-}
 
-const createTestSubs = async () => {
-  await RUNDB(
-    `
-CREATE TABLE IF NOT EXISTS subreddit_table_aww (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);
-INSERT OR IGNORE INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('aww', 1642383761179);
-CREATE TABLE IF NOT EXISTS subreddit_table_askreddit (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);
-INSERT OR IGNORE INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('askreddit', 1642383761179);
-UPDATE users SET subreddits='"[\\"aww\\",\\"askreddit\\"]"' WHERE name = 'shine-9000-shack-today-6';    
-    `
+const createTestSubs = () => {
+  db.run(
+    `CREATE TABLE IF NOT EXISTS subreddit_table_aww (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);`
   )
+  db.run(`INSERT OR IGNORE INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('aww', ${Date.now()});    `)
+  db.run(
+    `CREATE TABLE IF NOT EXISTS subreddit_table_askreddit (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);`
+  )
+  db.run(
+    `INSERT OR IGNORE INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('askreddit', ${Date.now()});`
+  )
+  db.run(`UPDATE users SET subreddits=json('["aww", "askreddit"]') WHERE name = 'shine-9000-shack-today-6';`)
 }
 
 let created_utc_starter = Date.now()
@@ -127,7 +103,7 @@ function convertBooleanValsToIntegers(postData) {
  */
 
 async function generatePosts() {
-  const seedPostsData = Array.from({ length: 100 }, (v, i) => i).map(index => {
+  const seedPostsData = Array.from({ length: 100 }, (v, i) => i).flatMap(index => {
     return [
       articleLinkPostData,
       imagePostData,
@@ -152,12 +128,6 @@ async function generatePosts() {
       postData.media_has_been_downloaded = false
       postData.mediaDownloadTries = 0
       postData.commentsDownloaded = false
-      postData.media =
-        typeof postData.media === 'object'
-          ? JSON.stringify(postData.media)
-          : typeof postData.media === 'string'
-          ? postData.media
-          : null
       postData.post_hint = postData.post_hint ? postData.post_hint : null
       postData.crosspost_parent = postData.crosspost_parent ? postData.crosspost_parent : null
 
@@ -165,124 +135,70 @@ async function generatePosts() {
     })
   })
 
-  // await RUNDB(
-  //   'INSERT INTO posts (id,subreddit,author,title,selftext,selftext_html,score,is_self,stickied,created_utc,domain,is_video,media_has_been_downloaded,mediaDownloadTries,post_hint,permalink,url,crosspost_parent,commentsDownloaded, media) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);',
-  //   [
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].id,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].subreddit,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].author,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].title,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].selftext,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].selftext_html,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].score,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].is_self,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].stickied,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].created_utc,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].domain,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].is_video,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].media_has_been_downloaded,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].mediaDownloadTries,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].post_hint,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].permalink,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].url,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].crosspost_parent,
-  //     // @ts-expect-error
-  //     seedPostsData[0][0].commentsDownloaded,
-  //     null,
-  //   ]
-  // )
+  db.serialize(function () {
+    db.parallelize(function () {
+      seedPostsData.forEach(pData => {
+        /**
+         * @type {PostData}
+         */
+        // @ts-expect-error
+        const postData = pData
 
-  // await RUNDB(
-  //   `
-  // UPDATE posts SET media=json('${JSON.stringify(videoPostData.media)
-  //   .replaceAll('(', '\\(')
-  //   .replaceAll(')', '\\)')
-  //   .replaceAll('&', '\\&')}');
-  // `
-  // )
-  console.log(JSON.stringify(videoPostData.media))
-  // await RUNDB(
-  //   `
-  // UPDATE posts SET media='{"oembed":{"provider_url":"https://www.youtube.com/","title":"Volcanic Eruption May Be Biggest Ever Seen From Space","html":"&lt;iframe width=\"356\" height=\"200\" src=\"https://www.youtube.com/embed/zoMRwyNhqJ4?feature=oembed&amp;enablejsapi=1\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen&gt;&lt;/iframe&gt;","thumbnail_width":480,"height":200,"width":356,"version":"1.0","author_name":"Scott Manley","provider_name":"YouTube","thumbnail_url":"https://i.ytimg.com/vi/zoMRwyNhqJ4/hqdefault.jpg","type":"video","thumbnail_height":360,"author_url":"https://www.youtube.com/c/szyzyg"},"type":"youtube.com"}';
-  // `
-  // )
+        db.run(
+          'INSERT OR IGNORE INTO posts (id,subreddit,author,title,selftext,selftext_html,score,is_self,stickied,created_utc,domain,is_video,media,media_has_been_downloaded,mediaDownloadTries,post_hint,permalink,url,crosspost_parent,commentsDownloaded) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?);'.repeat(
+            7
+          ),
+          [
+            postData.id,
+            postData.subreddit,
+            postData.author,
+            postData.title,
+            postData.selftext,
+            postData.selftext_html,
+            postData.score,
+            postData.is_self,
+            postData.stickied,
+            postData.created_utc,
+            postData.domain,
+            postData.is_video,
+            postData.media_has_been_downloaded,
+            postData.mediaDownloadTries,
+            postData.post_hint,
+            postData.permalink,
+            postData.url,
+            postData.crosspost_parent,
+            postData.commentsDownloaded,
+          ]
+        )
+      })
+    })
+  })
 
-  // return Prray.from(seedPostsData).forEachAsync(
-  //   postsDataChunkArr =>
-  //     RUNDB(
-  //       'INSERT INTO posts (id,subreddit,author,title,selftext,selftext_html,score,is_self,stickied,created_utc,domain,is_video,media_has_been_downloaded,mediaDownloadTries,post_hint,permalink,url,crosspost_parent,commentsDownloaded) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);'.repeat(
-  //         7
-  //       ),
-  //       postsDataChunkArr.flatMap(pData => {
-  //         /**
-  //          * @type {PostData}
-  //          */
-  //         // @ts-expect-error
-  //         const postData = pData
-
-  //         return [
-  //           postData.id,
-  //           postData.subreddit,
-  //           postData.author,
-  //           postData.title,
-  //           postData.selftext,
-  //           postData.selftext_html,
-  //           postData.score,
-  //           postData.is_self,
-  //           postData.stickied,
-  //           postData.created_utc,
-  //           postData.domain,
-  //           postData.is_video,
-  //           postData.media_has_been_downloaded,
-  //           postData.mediaDownloadTries,
-  //           postData.post_hint,
-  //           postData.permalink,
-  //           postData.url,
-  //           postData.crosspost_parent,
-  //           postData.commentsDownloaded,
-  //           postData.id,
-  //           postData.media,
-  //         ]
-  //       })
-  //     ),
-  //   { concurrency: 1 }
-  // )
+  db.run(
+    `UPDATE posts SET media=json('${JSON.stringify(
+      videoPostData.media
+    )}') WHERE permalink = '/r/videos/comments/mldjlx/a_17_year_old_biggie_smalls_killing_it_in_a/';`
+  )
 }
 
 async function seedDB(testingEnvVars) {
-  await setTimeout(2500)
-  sqliteDBPath = testingEnvVars.SQLITE_DBPATH
   console.log('Seeding DB with data')
 
+  await setTimeout(2500)
+
+  if (!db) {
+    db = new sqlite3.Database(testingEnvVars.SQLITE_DBPATH)
+  }
+
   console.log('Creating test user')
-  await createTestUser(testingEnvVars.TESTING_DEFAULT_USER)
+  createTestUser(testingEnvVars.TESTING_DEFAULT_USER)
 
   console.log('Creating test subs')
-  await createTestSubs()
+  createTestSubs()
 
   console.log('Generating and seeding posts in db')
-  await generatePosts()
+  generatePosts()
   console.log('Finished generating and seeding posts in db')
-
-  //TODO: make sure to set the sub of each post to be either 'aww' or 'askreddit'
 }
 
 module.exports = {
