@@ -219,7 +219,7 @@ const tests = {
   *****/
   async e2eUnitAndIntegration() {
     runningMochaTests = true
-    // const shOptions = { ...shellOptions, async: true }
+    const shOptions = { ...shellOptions, async: true }
     // Some tests are really slow (e.g. the download video tests can take 5-10 mins), so can skip them if want.
     // const skipSlowTests = process.env['SKIP_SLOW_TESTS'] ? '--tags not:@slow' : ''
 
@@ -228,28 +228,39 @@ const tests = {
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
 
-    // const e2eTests_EmptyDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db-tests/*.test.ts`
+    // const e2eTests_EmptyDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db/*.test.ts`
 
-    // const e2eTests_SeededDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/seeded-db-tests/*.test.ts`
+    // const e2eTests_SeededDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/seeded-db/*.test.ts`
 
-    // const visualDiffingTests = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/visual-diffing-admin-pages.test.ts`
+    const visualDiffingTests_EmptyDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/empty-db/*.test.ts`
+
+    // const visualDiffingTests_SeededDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/seeded-db/*.test.ts`
 
     // const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests`
 
     try {
-      await sh(startServer, { ...shellOptions, silent: true, async: true })
+      // await sh(startServer, { ...shellOptions, silent: true, async: true })
       // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_EmptyDB}`, shOptions)
       // sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
-      await seedDB(testingEnvVars)
+
+      // await seedDB(testingEnvVars)
+
       // await sh(startServer, { ...shOptions, silent: true })
       // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_SeededDB}`, shOptions)
       // await sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
+
+      await sh(startServer, { ...shOptions, silent: true })
+      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests_EmptyDB}`, shOptions)
+      await sh(`fkill :8080 --silent`, shOptions)
+      await removeTempTestFiles()
+
       // await sh(startServer, { ...shOptions, silent: true })
-      // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests}`, shOptions)
+      // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests_SeededDB}`, shOptions)
       // await sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
+
       // Rebuild with no bundling so can do instrument for code coverage.
       // bundleFrontend = false
       // build.frontendJS()
