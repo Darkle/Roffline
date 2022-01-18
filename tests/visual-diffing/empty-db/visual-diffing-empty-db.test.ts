@@ -1,6 +1,12 @@
 import { test, expect as pwExpect } from '@playwright/test'
 
-import { createLoginCookie, createTestUser, deleteTestUser, showWebPageErrorsInTerminal } from '../test-utils'
+import {
+  createLoginCookie,
+  createTestUser,
+  deleteTestUser,
+  showWebPageErrorsInTerminal,
+  waitForTextRendering,
+} from '../../test-utils'
 
 test.describe('Visual Diffing All Pages (empty db)', () => {
   test.beforeAll(async () => {
@@ -14,7 +20,9 @@ test.describe('Visual Diffing All Pages (empty db)', () => {
 
   test('Login Page', async ({ page, context }) => {
     await context.clearCookies()
-    await page.goto('/login')
+    await page.goto('/login', { waitUntil: 'networkidle' })
+
+    await waitForTextRendering(page)
     pwExpect(await page.screenshot()).toMatchSnapshot('login-page-login.png')
 
     /*****
@@ -32,7 +40,9 @@ test.describe('Visual Diffing All Pages (empty db)', () => {
   })
 
   test('Home Page', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/', { waitUntil: 'networkidle' })
+
+    await waitForTextRendering(page)
 
     pwExpect(await page.screenshot()).toMatchSnapshot('home-page.png')
 
@@ -40,24 +50,37 @@ test.describe('Visual Diffing All Pages (empty db)', () => {
     await page.fill('input[name="subToAdd"]', 'aww')
     await page.click('input[type="submit"]')
     await page.waitForLoadState('networkidle')
-    await page.goto('/')
+
+    // Gotta wait for the db to catch up for some reason
+    // eslint-disable-next-line ui-testing/no-hard-wait
+    await page.waitForTimeout(500)
+
+    await page.goto('/', { waitUntil: 'networkidle' })
+
+    await waitForTextRendering(page)
 
     pwExpect(await page.screenshot()).toMatchSnapshot('home-page-subs-added-but-not-yet-retrieved.png')
 
     await page.click('.subs-dropdown summary')
     await page.click('.top-filter summary')
 
+    await waitForTextRendering(page)
+
     pwExpect(await page.screenshot()).toMatchSnapshot('home-page-dropdowns.png')
   })
 
   test('Settings Page', async ({ page }) => {
-    await page.goto('/settings')
+    await page.goto('/settings', { waitUntil: 'networkidle' })
+
+    await waitForTextRendering(page)
 
     pwExpect(await page.screenshot()).toMatchSnapshot('settings-page.png')
   })
 
   test('Search Page', async ({ page }) => {
-    await page.goto('/search')
+    await page.goto('/search', { waitUntil: 'networkidle' })
+
+    await waitForTextRendering(page)
 
     pwExpect(await page.screenshot()).toMatchSnapshot('search-page.png')
 
@@ -69,7 +92,9 @@ test.describe('Visual Diffing All Pages (empty db)', () => {
   })
 
   test('Help Page', async ({ page }) => {
-    await page.goto('/help')
+    await page.goto('/help', { waitUntil: 'networkidle' })
+
+    await waitForTextRendering(page)
 
     pwExpect(await page.screenshot()).toMatchSnapshot('help-page.png')
   })

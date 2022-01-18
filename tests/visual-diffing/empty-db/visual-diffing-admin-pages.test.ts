@@ -1,12 +1,18 @@
 import { test, expect as pwExpect } from '@playwright/test'
 import type { Page } from '@playwright/test'
 
-import { createTestUser, deleteTestUser, showWebPageErrorsInTerminal } from '../test-utils'
+import {
+  createTestUser,
+  deleteTestUser,
+  showWebPageErrorsInTerminal,
+  waitForTextRendering,
+} from '../../test-utils'
 
 let p = null as null | Page
 
 test.describe('Visual Diffing Admin Pages', () => {
   test.beforeAll(async () => {
+    await deleteTestUser()
     await createTestUser()
   })
 
@@ -22,6 +28,8 @@ test.describe('Visual Diffing Admin Pages', () => {
     const page = p as Page
 
     await page.goto('/admin/', { waitUntil: 'networkidle' })
+
+    await waitForTextRendering(page)
 
     // Need to manually set all the stats as they are dynamic each time and will cause test to fail
     await page.evaluate(() => {
@@ -49,6 +57,8 @@ test.describe('Visual Diffing Admin Pages', () => {
 
     await page.goto('/admin/settings', { waitUntil: 'networkidle' })
 
+    await waitForTextRendering(page)
+
     pwExpect(await page.screenshot()).toMatchSnapshot('settings-page.png')
   })
 
@@ -58,12 +68,14 @@ test.describe('Visual Diffing Admin Pages', () => {
     await page.goto('/admin/users', { waitUntil: 'networkidle' })
 
     /*****
-      The users page db table needs a fair bit of width, so increase for desktop. The db
-      table auto shrinks when in mobile view.
-    *****/
+     The users page db table needs a fair bit of width, so increase for desktop. The db
+     table auto shrinks when in mobile view.
+     *****/
     if (!isMobile) {
       await page.setViewportSize({ width: 1600, height: 1480 })
     }
+
+    await waitForTextRendering(page)
 
     pwExpect(await page.screenshot()).toMatchSnapshot('users-page.png')
   })
@@ -119,6 +131,8 @@ test.describe('Visual Diffing Admin Pages', () => {
     })
 
     await page.goto('/admin/logs-viewer', { waitUntil: 'networkidle' })
+
+    await waitForTextRendering(page)
 
     pwExpect(await page.screenshot()).toMatchSnapshot('logs-page.png')
   })
@@ -232,6 +246,8 @@ test.describe('Visual Diffing Admin Pages', () => {
     })
 
     await page.goto('/admin/db-viewer', { waitUntil: 'networkidle' })
+
+    await waitForTextRendering(page)
 
     pwExpect(await page.screenshot()).toMatchSnapshot('db-viewer-page.png')
   })
@@ -399,10 +415,13 @@ test.describe('Visual Diffing Admin Pages', () => {
      The downloads viewer page is fairly tall, so increase viewport height. 
      *****/
     const pageWidth = page.viewportSize()?.width as number
+
     await page.setViewportSize({ width: pageWidth, height: 3500 })
 
     // Dont use network idle here as this page is never network idle cause of SSE
-    await page.goto('/admin/downloads-viewer')
+    await page.goto('/admin/downloads-viewer', { waitUntil: 'networkidle' })
+
+    await waitForTextRendering(page)
 
     pwExpect(await page.screenshot()).toMatchSnapshot('downloads-viewer-page.png')
   })

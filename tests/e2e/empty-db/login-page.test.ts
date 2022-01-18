@@ -1,13 +1,13 @@
 import { test, expect as pwExpect } from '@playwright/test'
 import { expect } from 'chai'
 
-import { checkElementExists, RUNDB, showWebPageErrorsInTerminal } from '../../test-utils'
+import { checkElementExists, DB, showWebPageErrorsInTerminal } from '../../test-utils'
 
 test.describe('Login Page', () => {
   test.beforeEach(async ({ page, context }) => {
     showWebPageErrorsInTerminal(page)
     await context.clearCookies()
-    await page.goto('/login')
+    await page.goto('/login', { waitUntil: 'networkidle' })
   })
 
   test('Not logged in redirects to login page', async ({ page }) => {
@@ -161,7 +161,7 @@ test.describe('Login Page', () => {
     expect(cookies4[0].value).to.equal(newUserUsername)
 
     // Remove user we just created
-    await RUNDB('DELETE FROM users WHERE name = ?', newUserUsername)
+    await DB.run('DELETE FROM users WHERE name = ?', newUserUsername)
   })
 
   test('should login with new or existing user when press enter', async ({ page, context }) => {
@@ -182,8 +182,8 @@ test.describe('Login Page', () => {
     const cookies2 = await context.cookies()
 
     expect(cookies2[0]).to.include({ name: 'loggedInUser', httpOnly: true, secure: false, sameSite: 'Strict' })
-    expect(cookies2[0].value).to.have.lengthOf.above(5)
-    expect(cookies2[0].value).to.equal(newUserUsername)
+    expect(decodeURIComponent(cookies2[0].value)).to.have.lengthOf.above(5)
+    expect(decodeURIComponent(cookies2[0].value)).to.equal(newUserUsername)
 
     await context.clearCookies()
 
@@ -208,7 +208,7 @@ test.describe('Login Page', () => {
     expect(cookies4[0].value).to.equal(newUserUsername)
 
     // Remove user we just created
-    await RUNDB('DELETE FROM users WHERE name = ?', newUserUsername)
+    await DB.run('DELETE FROM users WHERE name = ?', newUserUsername)
   })
 
   test('should send the correct form data on submit', async ({ page, context }) => {
@@ -253,7 +253,7 @@ test.describe('Login Page', () => {
     await page.press('button:has-text("Login")', 'Enter')
 
     // Remove user we just created
-    await RUNDB('DELETE FROM users WHERE name = ?', newUserUsername)
+    await DB.run('DELETE FROM users WHERE name = ?', newUserUsername)
   })
 
   test('should show an error message if user not found when trying to log in', async ({ page }) => {
@@ -292,6 +292,6 @@ test.describe('Login Page', () => {
     expect(cookies2).to.be.empty
 
     // Remove user we just created
-    await RUNDB('DELETE FROM users WHERE name = ?', newUserUsername)
+    await DB.run('DELETE FROM users WHERE name = ?', newUserUsername)
   })
 })
