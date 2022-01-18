@@ -1,16 +1,16 @@
-// Note: this file is commonjs as it is used in TasksFile.ts
+// Note: this file is commonjs as it is used in TasksFile.ts. Couldnt get it to load as typescript file.
 const { setTimeout } = require('timers/promises')
 
 const sqlite3 = require('sqlite3')
-const Prray = require('prray').default
 
 // TODO:
-// I also need to add the generated posts to the each subs table (ie the feeds data)
+// I also need to add the generated posts to the each subs table (ie the feeds data) - can be repeatably random
 // Populate comments db with comments.
-// For the image posts, have some that have more than one image
-// So will also need some posts to have empty comments, some to have some comments, and some to have null for comments so we can say still getting comments.
+//      So use the comments from the posts i got
+//      So will also need some posts to have empty comments, some to have some comments, and some to have null for comments so we can say still getting comments.
 // Populate testing-posts-media folder with subfolders of each post with media
-//  Perhaps instead of copying the data from seed (eg images/videos), i could just do symlinks
+//    Perhaps instead of copying the data from seed (eg images/videos), i could just do symlinks
+//    For the image posts, have some that have more than one image
 // Check for anything else to do in DB/Media Seeding section in evernote
 
 let db = null
@@ -102,7 +102,7 @@ function convertBooleanValsToIntegers(postData) {
  * @property {string} media.type
  */
 
-async function generatePosts() {
+function generatePosts() {
   const seedPostsData = Array.from({ length: 100 }, (v, i) => i).flatMap(index => {
     return [
       articleLinkPostData,
@@ -184,7 +184,8 @@ async function generatePosts() {
 async function seedDB(testingEnvVars) {
   console.log('Seeding DB with data')
 
-  await setTimeout(2500)
+  // Need to wait for the server to be ready
+  await setTimeout(2000)
 
   if (!db) {
     db = new sqlite3.Database(testingEnvVars.SQLITE_DBPATH)

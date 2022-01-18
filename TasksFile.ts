@@ -232,7 +232,7 @@ const tests = {
 
     // const e2eTests_SeededDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/seeded-db/*.test.ts`
 
-    const visualDiffingTests_EmptyDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/empty-db/*.test.ts`
+    // const visualDiffingTests_EmptyDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/empty-db/*.test.ts`
 
     // const visualDiffingTests_SeededDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/seeded-db/*.test.ts`
 
@@ -244,20 +244,20 @@ const tests = {
       // sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
 
-      // await seedDB(testingEnvVars)
-
       // await sh(startServer, { ...shOptions, silent: true })
-      // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_SeededDB}`, shOptions)
+      // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests_EmptyDB}`, shOptions)
       // await sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
 
       await sh(startServer, { ...shOptions, silent: true })
-      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests_EmptyDB}`, shOptions)
+      await seedDB(testingEnvVars)
+      // await sh(e2eTests_SeededDB, shOptions)
       await sh(`fkill :8080 --silent`, shOptions)
-      await removeTempTestFiles()
+      // await removeTempTestFiles()
 
       // await sh(startServer, { ...shOptions, silent: true })
-      // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests_SeededDB}`, shOptions)
+      // await seedDB(testingEnvVars)
+      // await sh(visualDiffingTests_SeededDB, shOptions)
       // await sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
 
