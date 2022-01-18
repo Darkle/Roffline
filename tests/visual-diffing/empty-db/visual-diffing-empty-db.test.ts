@@ -23,6 +23,7 @@ test.describe('Visual Diffing All Pages (empty db)', () => {
     await page.goto('/login', { waitUntil: 'networkidle' })
 
     await waitForTextRendering(page)
+
     pwExpect(await page.screenshot()).toMatchSnapshot('login-page-login.png')
 
     /*****
