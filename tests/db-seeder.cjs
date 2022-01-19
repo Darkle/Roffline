@@ -4,9 +4,10 @@ const { setTimeout } = require('timers/promises')
 const sqlite3 = require('sqlite3')
 const lmdb = require('lmdb')
 const { Packr } = require('msgpackr')
+const { DateTime } = require('luxon')
 
 // TODO:
-// I also need to add the generated posts to the each subs table (ie the feeds data) - can be repeatably random
+// Theres a thing in geany to do first.
 // Populate testing-posts-media folder with subfolders of each post with media
 //    Perhaps instead of copying the data from seed (eg images/videos), i could just do symlinks
 //    For the image posts, have some that have more than one image
@@ -35,7 +36,7 @@ const createTestSubs = () => {
   })
 }
 
-let created_utc_starter = Date.now()
+const now = DateTime.now()
 
 const articleLinkPostData = require('./seed-data/article-link-only-post.json')
 const imagePostData = require('./seed-data/image-post.json')
@@ -120,10 +121,32 @@ function generatePosts() {
       const postData = pData
 
       const sub = index % 2 === 0 ? 'aww' : 'askreddit'
-      created_utc_starter = created_utc_starter + 1
+
       postData.subreddit = sub
       postData.id = `${atoz[index]}${index}${atoz[index2]}${index2}`
-      postData.created_utc = created_utc_starter
+      if (index < 2) {
+        postData.created_utc = Number(now.toSeconds().toFixed())
+      }
+      if (index > 2 && index < 10) {
+        postData.created_utc = Number(now.minus({ hours: index2 }).toSeconds().toFixed())
+      }
+      if (index > 10 && index < 20) {
+        postData.created_utc = Number(now.minus({ days: index2 }).toSeconds().toFixed())
+      }
+      if (index > 20 && index < 40) {
+        postData.created_utc = Number(now.minus({ months: index2 }).toSeconds().toFixed())
+      }
+      if (index > 40 && index < 60) {
+        postData.created_utc = Number(
+          now
+            .minus({ months: index2 + 12 })
+            .toSeconds()
+            .toFixed()
+        )
+      }
+      if (index > 60) {
+        postData.created_utc = Number(now.toSeconds().toFixed())
+      }
       postData.score = index * index2
       postData.media_has_been_downloaded = false
       postData.mediaDownloadTries = 0
