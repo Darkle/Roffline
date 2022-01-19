@@ -2,6 +2,8 @@
 const { setTimeout } = require('timers/promises')
 
 const sqlite3 = require('sqlite3')
+const lmdb = require('lmdb')
+const { Packr } = require('msgpackr')
 
 // TODO:
 // I also need to add the generated posts to the each subs table (ie the feeds data) - can be repeatably random
@@ -14,24 +16,23 @@ const sqlite3 = require('sqlite3')
 // Check for anything else to do in DB/Media Seeding section in evernote
 
 let db = null
+let commentsDB = null
 
 const createTestUser = username =>
   db.run(
-    'INSERT OR IGNORE INTO users (name,subreddits,hideStickiedPosts,onlyShowTitlesInFeed,infiniteScroll,darkModeTheme) VALUES (?,?,?,?,?,?);',
+    'INSERT INTO users (name,subreddits,hideStickiedPosts,onlyShowTitlesInFeed,infiniteScroll,darkModeTheme) VALUES (?,?,?,?,?,?);',
     [username, '[]', 1, 0, 0, 0]
   )
 
 const createTestSubs = () => {
   db.run(
-    `CREATE TABLE IF NOT EXISTS subreddit_table_aww (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);`
+    `CREATE TABLE subreddit_table_aww (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);`
   )
-  db.run(`INSERT OR IGNORE INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('aww', ${Date.now()});    `)
+  db.run(`INSERT INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('aww', ${Date.now()});    `)
   db.run(
-    `CREATE TABLE IF NOT EXISTS subreddit_table_askreddit (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);`
+    `CREATE TABLE subreddit_table_askreddit (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);`
   )
-  db.run(
-    `INSERT OR IGNORE INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('askreddit', ${Date.now()});`
-  )
+  db.run(`INSERT INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('askreddit', ${Date.now()});`)
   db.run(`UPDATE users SET subreddits=json('["aww", "askreddit"]') WHERE name = 'shine-9000-shack-today-6';`)
 }
 
@@ -127,7 +128,8 @@ function generatePosts() {
       postData.score = index * index2
       postData.media_has_been_downloaded = false
       postData.mediaDownloadTries = 0
-      postData.commentsDownloaded = false
+      // set a couple to have commentsDownloaded false
+      postData.commentsDownloaded = index !== 0 && index % 10 === 0 ? false : true
       postData.post_hint = postData.post_hint ? postData.post_hint : null
       postData.crosspost_parent = postData.crosspost_parent ? postData.crosspost_parent : null
 
@@ -145,7 +147,7 @@ function generatePosts() {
         const postData = pData
 
         db.run(
-          'INSERT OR IGNORE INTO posts (id,subreddit,author,title,selftext,selftext_html,score,is_self,stickied,created_utc,domain,is_video,media,media_has_been_downloaded,mediaDownloadTries,post_hint,permalink,url,crosspost_parent,commentsDownloaded) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?);'.repeat(
+          'INSERT INTO posts (id,subreddit,author,title,selftext,selftext_html,score,is_self,stickied,created_utc,domain,is_video,media,media_has_been_downloaded,mediaDownloadTries,post_hint,permalink,url,crosspost_parent,commentsDownloaded) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?);'.repeat(
             7
           ),
           [
@@ -172,13 +174,38 @@ function generatePosts() {
         )
       })
     })
-  })
 
-  db.run(
-    `UPDATE posts SET media=json('${JSON.stringify(
-      videoPostData.media
-    )}') WHERE permalink = '/r/videos/comments/mldjlx/a_17_year_old_biggie_smalls_killing_it_in_a/';`
-  )
+    db.run(
+      `UPDATE posts SET media=json('${JSON.stringify(
+        videoPostData.media
+      )}') WHERE permalink = '/r/videos/comments/mldjlx/a_17_year_old_biggie_smalls_killing_it_in_a/';`
+    )
+  })
+}
+
+const commentsSeed = require('./seed-data/comments.json')
+
+const getRandomComment = () => commentsSeed[Math.round(0 + Math.random() * (commentsSeed.length - 1))]
+
+const msgpackPacker = new Packr()
+
+function generateComments() {
+  db.all(`SELECT id from posts where commentsDownloaded = true`, (err, results) => {
+    if (err) {
+      console.error(err)
+      throw err
+    }
+    const postIdsInDB = results.map(({ id }) => id)
+
+    commentsDB.transaction(() => {
+      postIdsInDB.forEach((id, index) => {
+        // have empty comments every once in a while
+        const comments = index % 30 === 0 ? [] : getRandomComment()
+
+        commentsDB.put(id, msgpackPacker.pack(comments))
+      })
+    })
+  })
 }
 
 async function seedDB(testingEnvVars) {
@@ -191,6 +218,10 @@ async function seedDB(testingEnvVars) {
     db = new sqlite3.Database(testingEnvVars.SQLITE_DBPATH)
   }
 
+  if (!commentsDB) {
+    commentsDB = lmdb.open({ path: testingEnvVars.COMMENTS_DBPATH, encoding: 'binary' })
+  }
+
   console.log('Creating test user')
   createTestUser(testingEnvVars.TESTING_DEFAULT_USER)
 
@@ -200,6 +231,10 @@ async function seedDB(testingEnvVars) {
   console.log('Generating and seeding posts in db')
   generatePosts()
   console.log('Finished generating and seeding posts in db')
+
+  console.log('Generating comments in db')
+  generateComments()
+  console.log('Finished generating commentsin db')
 }
 
 module.exports = {
