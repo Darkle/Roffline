@@ -29,7 +29,7 @@ type Post = {
   selftext_html: string
   score: number
   is_self: boolean
-  //  created_utc is a unix timestamp (ie the number of seconds since the epoch)
+  //  created_utc is a unix timestamp (ie the number of _seconds_ since the epoch)
   created_utc: number
   domain: string
   is_video: boolean
