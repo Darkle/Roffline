@@ -7,9 +7,6 @@ const { Packr } = require('msgpackr')
 
 // TODO:
 // I also need to add the generated posts to the each subs table (ie the feeds data) - can be repeatably random
-// Populate comments db with comments.
-//      So use the comments from the posts i got
-//      So will also need some posts to have empty comments, some to have some comments, and some to have null for comments so we can say still getting comments.
 // Populate testing-posts-media folder with subfolders of each post with media
 //    Perhaps instead of copying the data from seed (eg images/videos), i could just do symlinks
 //    For the image posts, have some that have more than one image
@@ -25,15 +22,17 @@ const createTestUser = username =>
   )
 
 const createTestSubs = () => {
-  db.run(
-    `CREATE TABLE subreddit_table_aww (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);`
-  )
-  db.run(`INSERT INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('aww', ${Date.now()});    `)
-  db.run(
-    `CREATE TABLE subreddit_table_askreddit (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);`
-  )
-  db.run(`INSERT INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('askreddit', ${Date.now()});`)
-  db.run(`UPDATE users SET subreddits=json('["aww", "askreddit"]') WHERE name = 'shine-9000-shack-today-6';`)
+  db.serialize(function () {
+    db.run(
+      `CREATE TABLE subreddit_table_aww (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);`
+    )
+    db.run(`INSERT INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('aww', ${Date.now()});    `)
+    db.run(
+      `CREATE TABLE subreddit_table_askreddit (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);`
+    )
+    db.run(`INSERT INTO subreddits_master_list (subreddit,lastUpdate) VALUES ('askreddit', ${Date.now()});`)
+    db.run(`UPDATE users SET subreddits=json('["aww", "askreddit"]') WHERE name = 'shine-9000-shack-today-6';`)
+  })
 }
 
 let created_utc_starter = Date.now()
@@ -208,6 +207,110 @@ function generateComments() {
   })
 }
 
+function generateSubFeedData() {
+  db.all(`SELECT id from posts where commentsDownloaded = true`, (err, results) => {
+    if (err) {
+      console.error(err)
+      throw err
+    }
+
+    const postIdsInDB = results.map(({ id }) => id)
+
+    const getRandomPostId = () => postIdsInDB[Math.round(0 + Math.random() * (postIdsInDB.length - 1))]
+
+    const genFeedRowData = () =>
+      Array.from({ length: 200 }, (v, i) => i).map(index => {
+        if (index < 51) {
+          return [
+            getRandomPostId(),
+            getRandomPostId(),
+            getRandomPostId(),
+            getRandomPostId(),
+            getRandomPostId(),
+            getRandomPostId(),
+          ]
+        }
+        if (index > 50 && index < 101) {
+          return [getRandomPostId(), getRandomPostId(), getRandomPostId(), getRandomPostId(), getRandomPostId()]
+        }
+        if (index > 100 && index < 121) {
+          return [getRandomPostId(), getRandomPostId(), getRandomPostId(), getRandomPostId()]
+        }
+        if (index > 120 && index < 161) {
+          return [getRandomPostId(), getRandomPostId(), getRandomPostId()]
+        }
+        if (index > 160) {
+          return [getRandomPostId(), getRandomPostId()]
+        }
+      })
+
+    const feedDataAwwSub = genFeedRowData()
+    const feedDataAskRedditSub = genFeedRowData()
+
+    // If parellalize they go out of order
+    db.serialize(function () {
+      feedDataAwwSub.forEach((rowData, index) => {
+        if (index < 51) {
+          db.run(
+            `INSERT INTO subreddit_table_askreddit (posts_Default,topPosts_Day,topPosts_Week,topPosts_Month,topPosts_Year,topPosts_All) VALUES(?,?,?,?,?,?)`,
+            rowData
+          )
+        }
+        if (index > 50 && index < 101) {
+          db.run(
+            `INSERT INTO subreddit_table_askreddit (posts_Default,topPosts_Week,topPosts_Month,topPosts_Year,topPosts_All) VALUES(?,?,?,?,?)`,
+            rowData
+          )
+        }
+        if (index > 100 && index < 121) {
+          db.run(
+            `INSERT INTO subreddit_table_askreddit (posts_Default,topPosts_Month,topPosts_Year,topPosts_All) VALUES(?,?,?,?)`,
+            rowData
+          )
+        }
+        if (index > 120 && index < 161) {
+          db.run(
+            `INSERT INTO subreddit_table_askreddit (posts_Default,topPosts_Year,topPosts_All) VALUES(?,?,?)`,
+            rowData
+          )
+        }
+        if (index > 160) {
+          db.run(`INSERT INTO subreddit_table_askreddit (posts_Default,topPosts_All) VALUES(?,?)`, rowData)
+        }
+      })
+      feedDataAskRedditSub.forEach((rowData, index) => {
+        if (index < 51) {
+          db.run(
+            `INSERT INTO subreddit_table_aww (posts_Default,topPosts_Day,topPosts_Week,topPosts_Month,topPosts_Year,topPosts_All) VALUES(?,?,?,?,?,?)`,
+            rowData
+          )
+        }
+        if (index > 50 && index < 101) {
+          db.run(
+            `INSERT INTO subreddit_table_aww (posts_Default,topPosts_Week,topPosts_Month,topPosts_Year,topPosts_All) VALUES(?,?,?,?,?)`,
+            rowData
+          )
+        }
+        if (index > 100 && index < 121) {
+          db.run(
+            `INSERT INTO subreddit_table_aww (posts_Default,topPosts_Month,topPosts_Year,topPosts_All) VALUES(?,?,?,?)`,
+            rowData
+          )
+        }
+        if (index > 120 && index < 161) {
+          db.run(
+            `INSERT INTO subreddit_table_aww (posts_Default,topPosts_Year,topPosts_All) VALUES(?,?,?)`,
+            rowData
+          )
+        }
+        if (index > 160) {
+          db.run(`INSERT INTO subreddit_table_aww (posts_Default,topPosts_All) VALUES(?,?)`, rowData)
+        }
+      })
+    })
+  })
+}
+
 async function seedDB(testingEnvVars) {
   console.log('Seeding DB with data')
 
@@ -235,6 +338,10 @@ async function seedDB(testingEnvVars) {
   console.log('Generating comments in db')
   generateComments()
   console.log('Finished generating commentsin db')
+
+  console.log('Generating feed data in db')
+  generateSubFeedData()
+  console.log('Finished generating feed data in db')
 }
 
 module.exports = {
