@@ -1,5 +1,7 @@
 // Note: this file is commonjs as it is used in TasksFile.ts. Couldnt get it to load as typescript file.
 const { setTimeout } = require('timers/promises')
+const fs = require('fs')
+const path = require('path')
 
 const sqlite3 = require('sqlite3')
 const lmdb = require('lmdb')
@@ -7,9 +9,8 @@ const { Packr } = require('msgpackr')
 const { DateTime } = require('luxon')
 
 // TODO:
-// Theres a thing in geany to do first.
 // Populate testing-posts-media folder with subfolders of each post with media
-//    Perhaps instead of copying the data from seed (eg images/videos), i could just do symlinks
+//    The image and video media need to line up with their righ post type
 //    For the image posts, have some that have more than one image
 // Check for anything else to do in DB/Media Seeding section in evernote
 
@@ -124,32 +125,38 @@ function generatePosts() {
 
       postData.subreddit = sub
       postData.id = `${atoz[index]}${index}${atoz[index2]}${index2}`
-      if (index < 2) {
-        postData.created_utc = Number(now.toSeconds().toFixed())
-      }
-      if (index > 2 && index < 10) {
-        postData.created_utc = Number(now.minus({ hours: index2 }).toSeconds().toFixed())
-      }
-      if (index > 10 && index < 20) {
-        postData.created_utc = Number(now.minus({ days: index2 }).toSeconds().toFixed())
-      }
-      if (index > 20 && index < 40) {
-        postData.created_utc = Number(now.minus({ months: index2 }).toSeconds().toFixed())
-      }
-      if (index > 40 && index < 60) {
-        postData.created_utc = Number(
-          now
-            .minus({ months: index2 + 12 })
-            .toSeconds()
-            .toFixed()
-        )
-      }
-      if (index > 60) {
-        postData.created_utc = Number(now.toSeconds().toFixed())
-      }
+      console.log('postData.created_utc', postData.created_utc)
+      postData.created_utc = Number(now.minus({ seconds: index2 }).toSeconds().toFixed())
+      // console.log(Number(now.toSeconds().toFixed()))
+      // if (index < 1) {
+      //   // console.log(Number(now.toSeconds().toFixed()))
+      //   // postData.created_utc = Number(now.toSeconds().toFixed())
+      //   postData.created_utc = Number(now.minus({ seconds: index2 }).toSeconds().toFixed())
+      // }
+      // if (index > 1 && index < 10) {
+      //   postData.created_utc = Number(now.minus({ hours: index2 }).toSeconds().toFixed())
+      // }
+      // if (index > 10 && index < 20) {
+      //   postData.created_utc = Number(now.minus({ days: index2 }).toSeconds().toFixed())
+      // }
+      // if (index > 20 && index < 40) {
+      //   postData.created_utc = Number(now.minus({ months: index2 }).toSeconds().toFixed())
+      // }
+      // if (index > 40 && index < 60) {
+      //   postData.created_utc = Number(
+      //     now
+      //       .minus({ months: index2 + 12 })
+      //       .toSeconds()
+      //       .toFixed()
+      //   )
+      // }
+      // if (index > 60) {
+      //   postData.created_utc = Number(now.toSeconds().toFixed())
+      // }
+
       postData.score = index * index2
-      postData.media_has_been_downloaded = false
-      postData.mediaDownloadTries = 0
+      postData.media_has_been_downloaded = true
+      postData.mediaDownloadTries = 1
       // set a couple to have commentsDownloaded false
       postData.commentsDownloaded = index !== 0 && index % 10 === 0 ? false : true
       postData.post_hint = postData.post_hint ? postData.post_hint : null
@@ -207,7 +214,12 @@ function generatePosts() {
 
 const commentsSeed = require('./seed-data/comments.json')
 
-const getRandomComment = () => commentsSeed[Math.round(0 + Math.random() * (commentsSeed.length - 1))]
+let comments = commentsSeed
+
+// make more comments
+Array.from({ length: 7 }).forEach(() => {
+  comments = [...comments, ...comments]
+})
 
 const msgpackPacker = new Packr()
 
@@ -222,9 +234,9 @@ function generateComments() {
     commentsDB.transaction(() => {
       postIdsInDB.forEach((id, index) => {
         // have empty comments every once in a while
-        const comments = index % 30 === 0 ? [] : getRandomComment()
+        const com = index % 30 === 0 ? [] : comments[index].comments
 
-        commentsDB.put(id, msgpackPacker.pack(comments))
+        commentsDB.put(id, msgpackPacker.pack(com))
       })
     })
   })
@@ -239,31 +251,35 @@ function generateSubFeedData() {
 
     const postIdsInDB = results.map(({ id }) => id)
 
-    const getRandomPostId = () => postIdsInDB[Math.round(0 + Math.random() * (postIdsInDB.length - 1))]
-
     const genFeedRowData = () =>
       Array.from({ length: 200 }, (v, i) => i).map(index => {
         if (index < 51) {
           return [
-            getRandomPostId(),
-            getRandomPostId(),
-            getRandomPostId(),
-            getRandomPostId(),
-            getRandomPostId(),
-            getRandomPostId(),
+            postIdsInDB[index],
+            postIdsInDB[index + 1],
+            postIdsInDB[index + 2],
+            postIdsInDB[index + 3],
+            postIdsInDB[index + 4],
+            postIdsInDB[index + 5],
           ]
         }
         if (index > 50 && index < 101) {
-          return [getRandomPostId(), getRandomPostId(), getRandomPostId(), getRandomPostId(), getRandomPostId()]
+          return [
+            postIdsInDB[index],
+            postIdsInDB[index + 1],
+            postIdsInDB[index + 2],
+            postIdsInDB[index + 3],
+            postIdsInDB[index + 4],
+          ]
         }
         if (index > 100 && index < 121) {
-          return [getRandomPostId(), getRandomPostId(), getRandomPostId(), getRandomPostId()]
+          return [postIdsInDB[index], postIdsInDB[index + 1], postIdsInDB[index + 2], postIdsInDB[index + 3]]
         }
         if (index > 120 && index < 161) {
-          return [getRandomPostId(), getRandomPostId(), getRandomPostId()]
+          return [postIdsInDB[index], postIdsInDB[index + 1], postIdsInDB[index + 2]]
         }
         if (index > 160) {
-          return [getRandomPostId(), getRandomPostId()]
+          return [postIdsInDB[index], postIdsInDB[index + 1]]
         }
       })
 
@@ -334,6 +350,81 @@ function generateSubFeedData() {
   })
 }
 
+function populateMediaFolders(mediaRootFolder) {
+  db.all(`SELECT * from posts`, (err, posts) => {
+    if (err) {
+      console.error(err)
+      throw err
+    }
+
+    posts.forEach((post, index) => {
+      fs.mkdirSync(path.join(mediaRootFolder, post.id))
+
+      // video post
+      if (post.url === 'https://www.youtube.com/watch?v=l8oDTv_rrbI') {
+        fs.symlinkSync(
+          path.join(process.cwd(), 'tests', 'seed-data', 'media', 'video1.mp4'),
+          path.join(mediaRootFolder, post.id, 'video1.mp4')
+        )
+      }
+      // image post
+      if (post.url === 'https://i.redd.it/131n79wzm2c81.jpg') {
+        if (index % 2 === 0) {
+          fs.symlinkSync(
+            path.join(process.cwd(), 'tests', 'seed-data', 'media', '237-536x354.jpg'),
+            path.join(mediaRootFolder, post.id, '237-536x354.jpg')
+          )
+          fs.symlinkSync(
+            path.join(process.cwd(), 'tests', 'seed-data', 'media', '719-200x300.jpg'),
+            path.join(mediaRootFolder, post.id, '719-200x300.jpg')
+          )
+          fs.symlinkSync(
+            path.join(process.cwd(), 'tests', 'seed-data', 'media', '1084-536x354-grayscale.jpg'),
+            path.join(mediaRootFolder, post.id, '1084-536x354-grayscale.jpg')
+          )
+        } else {
+          fs.symlinkSync(
+            path.join(process.cwd(), 'tests', 'seed-data', 'media', 'cat1.jpg'),
+            path.join(mediaRootFolder, post.id, 'cat1.jpg')
+          )
+        }
+      }
+      // article link post
+      if (
+        post.url ===
+        'https://www.theguardian.com/technology/2022/jan/16/panic-as-kosovo-pulls-the-plug-on-its-energy-guzzling-bitcoin-miners'
+      ) {
+        fs.symlinkSync(
+          path.join(
+            process.cwd(),
+            'tests',
+            'seed-data',
+            'media',
+            'Panic as Kosovo pulls the plug on its energy-guzzling bitcoin miners _ Cryptocurrencies _ The Guardian.pdf'
+          ),
+          path.join(mediaRootFolder, post.id, 'article.pdf')
+        )
+      }
+      // article link in text post
+      if (
+        post.url ===
+        'https://www.reddit.com/r/functionalprogramming/comments/rzmtfo/fuml_functional_data_serialization_language/'
+      ) {
+        fs.symlinkSync(
+          path.join(
+            process.cwd(),
+            'tests',
+            'seed-data',
+            'media',
+            'sumeetdas_fuml_ Functional Minimal Language.pdf'
+          ),
+          path.join(mediaRootFolder, post.id, 'article.pdf')
+        )
+      }
+    })
+  })
+}
+
 async function seedDB(testingEnvVars) {
   console.log('Seeding DB with data')
 
@@ -365,6 +456,14 @@ async function seedDB(testingEnvVars) {
   console.log('Generating feed data in db')
   generateSubFeedData()
   console.log('Finished generating feed data in db')
+
+  console.log('Generating post media')
+  populateMediaFolders(testingEnvVars.POSTS_MEDIA_DOWNLOAD_DIR)
+
+  // None of the db calls are promise-based, so waiting arbitrary amount till they are finished. Yes this is lazy.
+  await setTimeout(8000)
+
+  console.log('Finished generating post media')
 }
 
 module.exports = {

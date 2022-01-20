@@ -226,7 +226,7 @@ const tests = {
     // @ts-expect-error
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
-    const startServer = `EXCESSIVE_DB_LOGGING=true TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
+    const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
 
     // const e2eTests_EmptyDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db/*.test.ts`
 
