@@ -4,6 +4,45 @@
   * We want most of this to be deterministic and not totally random as the visual tests
   will need posts in the same place and have the same data.
 *****/
+
+/** @typedef {object} PostData
+ * @property {string} id
+ * @property {string} subreddit
+ * @property {string} author
+ * @property {string} title
+ * @property {string} selftext
+ * @property {null} selftext_html
+ * @property {number} score
+ * @property {boolean} is_self
+ * @property {boolean} media_has_been_downloaded
+ * @property {boolean} stickied
+ * @property {number} created_utc
+ * @property {number} mediaDownloadTries
+ * @property {string} domain
+ * @property {boolean} is_video
+ * @property {boolean} commentsDownloaded
+ * @property {string|null} post_hint
+ * @property {string} permalink
+ * @property {string|null} crosspost_parent
+ * @property {string} url
+ * @property {object|null} media
+ * @property {object} media.oembed
+ * @property {string} media.oembed.provider_url
+ * @property {string} media.oembed.title
+ * @property {string} media.oembed.html
+ * @property {number} media.oembed.thumbnail_width
+ * @property {number} media.oembed.height
+ * @property {number} media.oembed.width
+ * @property {string} media.oembed.version
+ * @property {string} media.oembed.author_name
+ * @property {string} media.oembed.provider_name
+ * @property {string} media.oembed.thumbnail_url
+ * @property {string} media.oembed.type
+ * @property {number} media.oembed.thumbnail_height
+ * @property {string} media.oembed.author_url
+ * @property {string} media.type
+ */
+
 const { setTimeout } = require('timers/promises')
 const fs = require('fs')
 const path = require('path')
@@ -66,44 +105,6 @@ function convertBooleanValsToIntegers(postData) {
     return { ...acc, [key]: val }
   }, {})
 }
-
-/** @typedef {object} PostData
- * @property {string} id
- * @property {string} subreddit
- * @property {string} author
- * @property {string} title
- * @property {string} selftext
- * @property {null} selftext_html
- * @property {number} score
- * @property {boolean} is_self
- * @property {boolean} media_has_been_downloaded
- * @property {boolean} stickied
- * @property {number} created_utc
- * @property {number} mediaDownloadTries
- * @property {string} domain
- * @property {boolean} is_video
- * @property {boolean} commentsDownloaded
- * @property {string|null} post_hint
- * @property {string} permalink
- * @property {string|null} crosspost_parent
- * @property {string} url
- * @property {object|null} media
- * @property {object} media.oembed
- * @property {string} media.oembed.provider_url
- * @property {string} media.oembed.title
- * @property {string} media.oembed.html
- * @property {number} media.oembed.thumbnail_width
- * @property {number} media.oembed.height
- * @property {number} media.oembed.width
- * @property {string} media.oembed.version
- * @property {string} media.oembed.author_name
- * @property {string} media.oembed.provider_name
- * @property {string} media.oembed.thumbnail_url
- * @property {string} media.oembed.type
- * @property {number} media.oembed.thumbnail_height
- * @property {string} media.oembed.author_url
- * @property {string} media.type
- */
 
 function generatePosts() {
   const seedPostsData = Array.from({ length: 100 }, (v, i) => i).flatMap(outerIndex => {
