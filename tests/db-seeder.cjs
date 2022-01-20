@@ -37,8 +37,6 @@ const createTestSubs = () => {
   })
 }
 
-const now = DateTime.now()
-
 const articleLinkPostData = require('./seed-data/article-link-only-post.json')
 const imagePostData = require('./seed-data/image-post.json')
 const selfQuestionPostData = require('./seed-data/self-post-question-in-title-no-text-no-link.json')
@@ -46,6 +44,14 @@ const textPostLinkPostData = require('./seed-data/text-post-link-in-text.json')
 const textPostNoLinkPostData = require('./seed-data/text-post-no-link.json')
 const videoPostData = require('./seed-data/video-post.json')
 const crossPostData = require('./seed-data/cross-post.json')
+
+const articleLinkPostData1 = articleLinkPostData
+const imagePostData1 = imagePostData
+const selfQuestionPostData1 = selfQuestionPostData
+const textPostLinkPostData1 = textPostLinkPostData
+const textPostNoLinkPostData1 = textPostNoLinkPostData
+const videoPostData1 = videoPostData
+const crossPostData1 = crossPostData
 
 /*****
   We want most of this to be deterministic and not totally random as the visual tests
@@ -65,6 +71,9 @@ function convertBooleanValsToIntegers(postData) {
     return { ...acc, [key]: val }
   }, {})
 }
+
+// We need to use { zone: 'Etc/UTC' } as that is where created_utc is set.
+const now = DateTime.fromMillis(Date.now(), { zone: 'Etc/UTC' })
 
 /** @typedef {object} PostData
  * @property {string} id
@@ -105,60 +114,76 @@ function convertBooleanValsToIntegers(postData) {
  */
 
 function generatePosts() {
-  const seedPostsData = Array.from({ length: 100 }, (v, i) => i).flatMap(index => {
+  const seedPostsData = Array.from({ length: 100 }, (v, i) => i).flatMap(outerIndex => {
     return [
-      articleLinkPostData,
-      imagePostData,
-      selfQuestionPostData,
-      textPostLinkPostData,
-      textPostNoLinkPostData,
-      videoPostData,
-      crossPostData,
-    ].map((pData, index2) => {
+      articleLinkPostData1,
+      imagePostData1,
+      selfQuestionPostData1,
+      textPostLinkPostData1,
+      textPostNoLinkPostData1,
+      videoPostData1,
+      crossPostData1,
+    ].map((pData, innerIndex) => {
       /**
        * @type {PostData}
        */
       // @ts-expect-error
       const postData = pData
 
-      const sub = index % 2 === 0 ? 'aww' : 'askreddit'
+      const sub = outerIndex % 2 === 0 ? 'aww' : 'askreddit'
 
       postData.subreddit = sub
-      postData.id = `${atoz[index]}${index}${atoz[index2]}${index2}`
-      console.log('postData.created_utc', postData.created_utc)
-      postData.created_utc = Number(now.minus({ seconds: index2 }).toSeconds().toFixed())
-      // console.log(Number(now.toSeconds().toFixed()))
-      // if (index < 1) {
-      //   // console.log(Number(now.toSeconds().toFixed()))
-      //   // postData.created_utc = Number(now.toSeconds().toFixed())
-      //   postData.created_utc = Number(now.minus({ seconds: index2 }).toSeconds().toFixed())
-      // }
-      // if (index > 1 && index < 10) {
-      //   postData.created_utc = Number(now.minus({ hours: index2 }).toSeconds().toFixed())
-      // }
-      // if (index > 10 && index < 20) {
-      //   postData.created_utc = Number(now.minus({ days: index2 }).toSeconds().toFixed())
-      // }
-      // if (index > 20 && index < 40) {
-      //   postData.created_utc = Number(now.minus({ months: index2 }).toSeconds().toFixed())
-      // }
-      // if (index > 40 && index < 60) {
-      //   postData.created_utc = Number(
-      //     now
-      //       .minus({ months: index2 + 12 })
-      //       .toSeconds()
-      //       .toFixed()
-      //   )
-      // }
-      // if (index > 60) {
-      //   postData.created_utc = Number(now.toSeconds().toFixed())
-      // }
+      postData.id = `${atoz[outerIndex]}${outerIndex}${atoz[innerIndex]}${innerIndex}`
 
-      postData.score = index * index2
+      if (outerIndex < 1) {
+        postData.created_utc = Number(
+          now
+            .minus({ seconds: outerIndex + innerIndex })
+            .toSeconds()
+            .toFixed()
+        )
+      }
+      if (outerIndex > 0 && outerIndex < 10) {
+        postData.created_utc = Number(
+          now
+            .minus({ hours: outerIndex + innerIndex })
+            .toSeconds()
+            .toFixed()
+        )
+      }
+      if (outerIndex > 10 && outerIndex < 20) {
+        postData.created_utc = Number(
+          now
+            .minus({ days: outerIndex + innerIndex })
+            .toSeconds()
+            .toFixed()
+        )
+      }
+      if (outerIndex > 20 && outerIndex < 40) {
+        postData.created_utc = Number(
+          now
+            .minus({ days: outerIndex + innerIndex })
+            .toSeconds()
+            .toFixed()
+        )
+      }
+      if (outerIndex > 40 && outerIndex < 60) {
+        postData.created_utc = Number(now.minus({ months: innerIndex, days: outerIndex }).toSeconds().toFixed())
+      }
+      if (outerIndex > 60) {
+        postData.created_utc = Number(
+          now
+            .minus({ months: outerIndex + innerIndex })
+            .toSeconds()
+            .toFixed()
+        )
+      }
+
+      postData.score = outerIndex * innerIndex
       postData.media_has_been_downloaded = true
       postData.mediaDownloadTries = 1
       // set a couple to have commentsDownloaded false
-      postData.commentsDownloaded = index !== 0 && index % 10 === 0 ? false : true
+      postData.commentsDownloaded = outerIndex !== 0 && outerIndex % 10 === 0 ? false : true
       postData.post_hint = postData.post_hint ? postData.post_hint : null
       postData.crosspost_parent = postData.crosspost_parent ? postData.crosspost_parent : null
 
