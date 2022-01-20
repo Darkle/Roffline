@@ -194,8 +194,7 @@ function generatePosts() {
         const postData = pData
 
         db.run(
-          'INSERT INTO posts (id,subreddit,author,title,selftext,selftext_html,score,is_self,stickied,created_utc,domain,is_video,media,media_has_been_downloaded,mediaDownloadTries,post_hint,permalink,url,crosspost_parent,commentsDownloaded) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?);'
-          ),
+          'INSERT INTO posts (id,subreddit,author,title,selftext,selftext_html,score,is_self,stickied,created_utc,domain,is_video,media,media_has_been_downloaded,mediaDownloadTries,post_hint,permalink,url,crosspost_parent,commentsDownloaded) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?);',
           [
             postData.id,
             postData.subreddit,
