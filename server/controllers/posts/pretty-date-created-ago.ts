@@ -23,11 +23,11 @@ function genPrettyDateCreatedAgoFromUTC(unixTimestamp: number): string {
     .toObject() as DateDiff
 
   if (dateDiff.years > 0) {
-    return `${dateDiff.years} year${dateDiff.years > 1 ? 's' : ''} ago`
+    return `${dateDiff.years.toFixed()} year${dateDiff.years > 1 ? 's' : ''} ago`
   }
 
   if (dateDiff.months > 0) {
-    return `${dateDiff.months} month${dateDiff.months > 1 ? 's' : ''} ago`
+    return `${dateDiff.months.toFixed()} month${dateDiff.months > 1 ? 's' : ''} ago`
   }
 
   /*****
@@ -36,27 +36,27 @@ function genPrettyDateCreatedAgoFromUTC(unixTimestamp: number): string {
   if (dateDiff.weeks === 1) {
     // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     const days = dateDiff.days + 7
-    return `${days} days ago`
+    return `${days.toFixed()} days ago`
   }
 
   if (dateDiff.weeks > 1) {
-    return `${dateDiff.weeks} week${dateDiff.weeks > 1 ? 's' : ''} ago`
+    return `${dateDiff.weeks.toFixed()} week${dateDiff.weeks > 1 ? 's' : ''} ago`
   }
 
   if (dateDiff.days > 0) {
-    return `${dateDiff.days} day${dateDiff.days > 1 ? 's' : ''} ago`
+    return `${dateDiff.days.toFixed()} day${dateDiff.days > 1 ? 's' : ''} ago`
   }
 
   if (dateDiff.hours > 0) {
-    return `${dateDiff.hours} hour${dateDiff.hours > 1 ? 's' : ''} ago`
+    return `${dateDiff.hours.toFixed()} hour${dateDiff.hours > 1 ? 's' : ''} ago`
   }
 
   if (dateDiff.minutes > 0) {
-    return `${dateDiff.minutes} minute${dateDiff.minutes > 1 ? 's' : ''} ago`
+    return `${dateDiff.minutes.toFixed()} minute${dateDiff.minutes > 1 ? 's' : ''} ago`
   }
 
   if (dateDiff.seconds > 0) {
-    return `${dateDiff.seconds} second${dateDiff.seconds > 1 ? 's' : ''} ago`
+    return `${dateDiff.seconds.toFixed()} second${dateDiff.seconds > 1 ? 's' : ''} ago`
   }
 
   return ''
