@@ -1,4 +1,10 @@
-// Note: this file is commonjs as it is used in TasksFile.ts. Couldnt get it to load as typescript file.
+/*****
+  Notes: 
+  * This file is commonjs as it is used in TasksFile.ts. Couldnt get it to load as typescript file.
+  * We want most of this to be deterministic and not totally random as the visual tests
+  will need posts in the same place and have the same data.
+
+*****/
 const { setTimeout } = require('timers/promises')
 const fs = require('fs')
 const path = require('path')
@@ -38,11 +44,6 @@ const textPostLinkPostData = require('./seed-data/text-post-link-in-text.json')
 const textPostNoLinkPostData = require('./seed-data/text-post-no-link.json')
 const videoPostData = require('./seed-data/video-post.json')
 const crossPostData = require('./seed-data/cross-post.json')
-
-/*****
-  We want most of this to be deterministic and not totally random as the visual tests
-  will need posts in the same place and have the same data.
-*****/
 
 const atoz = 'abcdefghijklmnopqrstuvwqyz'.repeat(99)
 
