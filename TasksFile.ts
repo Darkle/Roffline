@@ -249,11 +249,11 @@ const tests = {
       // await sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
 
-      await sh(startServer, { ...shOptions })
+      await sh(startServer, { ...shOptions, silent: true })
       await seedDB(testingEnvVars)
       // await sh(e2eTests_SeededDB, shOptions)
-      // await sh(`fkill :8080 --silent`, shOptions)
-      // await removeTempTestFiles()
+      await sh(`fkill :8080 --silent`, shOptions)
+      await removeTempTestFiles()
 
       // await sh(startServer, { ...shOptions, silent: true })
       // await seedDB(testingEnvVars)

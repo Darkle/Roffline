@@ -8,12 +8,6 @@ const lmdb = require('lmdb')
 const { Packr } = require('msgpackr')
 const { DateTime } = require('luxon')
 
-// TODO:
-// Populate testing-posts-media folder with subfolders of each post with media
-//    The image and video media need to line up with their righ post type
-//    For the image posts, have some that have more than one image
-// Check for anything else to do in DB/Media Seeding section in evernote
-
 let db = null
 let commentsDB = null
 
@@ -394,6 +388,7 @@ function populateMediaFolders(mediaRootFolder) {
       }
       // image post
       if (post.url === 'https://i.redd.it/131n79wzm2c81.jpg') {
+        // want some image posts to show gallery
         if (index % 2 === 0) {
           fs.symlinkSync(
             path.join(process.cwd(), 'tests', 'seed-data', 'media', '237-536x354.jpg'),
