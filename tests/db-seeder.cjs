@@ -3,7 +3,6 @@
   * This file is commonjs as it is used in TasksFile.ts. Couldnt get it to load as typescript file.
   * We want most of this to be deterministic and not totally random as the visual tests
   will need posts in the same place and have the same data.
-
 *****/
 const { setTimeout } = require('timers/promises')
 const fs = require('fs')
@@ -14,8 +13,27 @@ const lmdb = require('lmdb')
 const { Packr } = require('msgpackr')
 const { DateTime } = require('luxon')
 
+const articleLinkPostData = require('./seed-data/article-link-only-post.json')
+const imagePostData = require('./seed-data/image-post.json')
+const selfQuestionPostData = require('./seed-data/self-post-question-in-title-no-text-no-link.json')
+const textPostLinkPostData = require('./seed-data/text-post-link-in-text.json')
+const textPostNoLinkPostData = require('./seed-data/text-post-no-link.json')
+const videoPostData = require('./seed-data/video-post.json')
+const crossPostData = require('./seed-data/cross-post.json')
+const commentsSeed = require('./seed-data/comments.json')
+
 let db = null
 let commentsDB = null
+const atoz = 'abcdefghijklmnopqrstuvwqyz'.repeat(99)
+// We need to use { zone: 'Etc/UTC' } as that is where created_utc is set.
+const now = DateTime.fromMillis(Date.now(), { zone: 'Etc/UTC' })
+const msgpackPacker = new Packr()
+let comments = commentsSeed
+
+// make more comments
+Array.from({ length: 7 }).forEach(() => {
+  comments = [...comments, ...comments]
+})
 
 const createTestUser = username =>
   db.run(
@@ -37,16 +55,6 @@ const createTestSubs = () => {
   })
 }
 
-const articleLinkPostData = require('./seed-data/article-link-only-post.json')
-const imagePostData = require('./seed-data/image-post.json')
-const selfQuestionPostData = require('./seed-data/self-post-question-in-title-no-text-no-link.json')
-const textPostLinkPostData = require('./seed-data/text-post-link-in-text.json')
-const textPostNoLinkPostData = require('./seed-data/text-post-no-link.json')
-const videoPostData = require('./seed-data/video-post.json')
-const crossPostData = require('./seed-data/cross-post.json')
-
-const atoz = 'abcdefghijklmnopqrstuvwqyz'.repeat(99)
-
 function convertBooleanValsToIntegers(postData) {
   return Object.entries(postData).reduce((acc, [key, val]) => {
     if (val === true) {
@@ -58,9 +66,6 @@ function convertBooleanValsToIntegers(postData) {
     return { ...acc, [key]: val }
   }, {})
 }
-
-// We need to use { zone: 'Etc/UTC' } as that is where created_utc is set.
-const now = DateTime.fromMillis(Date.now(), { zone: 'Etc/UTC' })
 
 /** @typedef {object} PostData
  * @property {string} id
@@ -223,17 +228,6 @@ function generatePosts() {
     )
   })
 }
-
-const commentsSeed = require('./seed-data/comments.json')
-
-let comments = commentsSeed
-
-// make more comments
-Array.from({ length: 7 }).forEach(() => {
-  comments = [...comments, ...comments]
-})
-
-const msgpackPacker = new Packr()
 
 function generateComments() {
   db.all(`SELECT id from posts where commentsDownloaded = true`, (err, results) => {
