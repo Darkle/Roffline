@@ -39,14 +39,6 @@ const textPostNoLinkPostData = require('./seed-data/text-post-no-link.json')
 const videoPostData = require('./seed-data/video-post.json')
 const crossPostData = require('./seed-data/cross-post.json')
 
-const articleLinkPostData1 = articleLinkPostData
-const imagePostData1 = imagePostData
-const selfQuestionPostData1 = selfQuestionPostData
-const textPostLinkPostData1 = textPostLinkPostData
-const textPostNoLinkPostData1 = textPostNoLinkPostData
-const videoPostData1 = videoPostData
-const crossPostData1 = crossPostData
-
 /*****
   We want most of this to be deterministic and not totally random as the visual tests
   will need posts in the same place and have the same data.
@@ -110,13 +102,13 @@ const now = DateTime.fromMillis(Date.now(), { zone: 'Etc/UTC' })
 function generatePosts() {
   const seedPostsData = Array.from({ length: 100 }, (v, i) => i).flatMap(outerIndex => {
     return [
-      articleLinkPostData1,
-      imagePostData1,
-      selfQuestionPostData1,
-      textPostLinkPostData1,
-      textPostNoLinkPostData1,
-      videoPostData1,
-      crossPostData1,
+      articleLinkPostData,
+      imagePostData,
+      selfQuestionPostData,
+      textPostLinkPostData,
+      textPostNoLinkPostData,
+      videoPostData,
+      crossPostData,
     ].map((pData, innerIndex) => {
       /**
        * @type {PostData}
