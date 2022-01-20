@@ -128,18 +128,15 @@ function generatePosts() {
       postData.subreddit = sub
       postData.id = `${atoz[outerIndex]}${outerIndex}${atoz[innerIndex]}${innerIndex}`
 
+      const seconds = outerIndex + innerIndex
+
       if (outerIndex < 1) {
-        postData.created_utc = Number(
-          now
-            .minus({ seconds: outerIndex + innerIndex })
-            .toSeconds()
-            .toFixed()
-        )
+        postData.created_utc = Number(now.minus({ seconds }).toSeconds().toFixed())
       }
       if (outerIndex > 0 && outerIndex < 10) {
         postData.created_utc = Number(
           now
-            .minus({ hours: outerIndex + innerIndex })
+            .minus({ minutes: outerIndex + innerIndex, seconds })
             .toSeconds()
             .toFixed()
         )
@@ -147,7 +144,7 @@ function generatePosts() {
       if (outerIndex > 10 && outerIndex < 20) {
         postData.created_utc = Number(
           now
-            .minus({ days: outerIndex + innerIndex })
+            .minus({ hours: outerIndex + innerIndex, seconds })
             .toSeconds()
             .toFixed()
         )
@@ -155,18 +152,20 @@ function generatePosts() {
       if (outerIndex > 20 && outerIndex < 40) {
         postData.created_utc = Number(
           now
-            .minus({ days: outerIndex + innerIndex })
+            .minus({ days: outerIndex + innerIndex, seconds })
             .toSeconds()
             .toFixed()
         )
       }
       if (outerIndex > 40 && outerIndex < 60) {
-        postData.created_utc = Number(now.minus({ months: innerIndex, days: outerIndex }).toSeconds().toFixed())
+        postData.created_utc = Number(
+          now.minus({ months: innerIndex, days: outerIndex, seconds }).toSeconds().toFixed()
+        )
       }
       if (outerIndex > 60) {
         postData.created_utc = Number(
           now
-            .minus({ months: outerIndex + innerIndex })
+            .minus({ months: outerIndex + innerIndex, seconds })
             .toSeconds()
             .toFixed()
         )
@@ -185,39 +184,37 @@ function generatePosts() {
   })
 
   db.serialize(function () {
-    db.parallelize(function () {
-      seedPostsData.forEach(pData => {
-        /**
-         * @type {PostData}
-         */
-        // @ts-expect-error
-        const postData = pData
+    seedPostsData.forEach(pData => {
+      /**
+       * @type {PostData}
+       */
+      // @ts-expect-error
+      const postData = pData
 
-        db.run(
-          'INSERT INTO posts (id,subreddit,author,title,selftext,selftext_html,score,is_self,stickied,created_utc,domain,is_video,media,media_has_been_downloaded,mediaDownloadTries,post_hint,permalink,url,crosspost_parent,commentsDownloaded) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?);',
-          [
-            postData.id,
-            postData.subreddit,
-            postData.author,
-            postData.title,
-            postData.selftext,
-            postData.selftext_html,
-            postData.score,
-            postData.is_self,
-            postData.stickied,
-            postData.created_utc,
-            postData.domain,
-            postData.is_video,
-            postData.media_has_been_downloaded,
-            postData.mediaDownloadTries,
-            postData.post_hint,
-            postData.permalink,
-            postData.url,
-            postData.crosspost_parent,
-            postData.commentsDownloaded,
-          ]
-        )
-      })
+      db.run(
+        'INSERT INTO posts (id,subreddit,author,title,selftext,selftext_html,score,is_self,stickied,created_utc,domain,is_video,media,media_has_been_downloaded,mediaDownloadTries,post_hint,permalink,url,crosspost_parent,commentsDownloaded) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,NULL,?,?,?,?,?,?,?);',
+        [
+          postData.id,
+          postData.subreddit,
+          postData.author,
+          postData.title,
+          postData.selftext,
+          postData.selftext_html,
+          postData.score,
+          postData.is_self,
+          postData.stickied,
+          postData.created_utc,
+          postData.domain,
+          postData.is_video,
+          postData.media_has_been_downloaded,
+          postData.mediaDownloadTries,
+          postData.post_hint,
+          postData.permalink,
+          postData.url,
+          postData.crosspost_parent,
+          postData.commentsDownloaded,
+        ]
+      )
     })
 
     db.run(
@@ -229,7 +226,7 @@ function generatePosts() {
 }
 
 function generateComments() {
-  db.all(`SELECT id from posts where commentsDownloaded = true`, (err, results) => {
+  db.all(`SELECT id from posts where commentsDownloaded = true ORDER BY created_utc DESC`, (err, results) => {
     if (err) {
       console.error(err)
       throw err
@@ -356,7 +353,7 @@ function generateSubFeedData() {
 }
 
 function populateMediaFolders(mediaRootFolder) {
-  db.all(`SELECT * from posts`, (err, posts) => {
+  db.all(`SELECT * from posts ORDER BY created_utc DESC`, (err, posts) => {
     if (err) {
       console.error(err)
       throw err
@@ -432,7 +429,7 @@ function populateMediaFolders(mediaRootFolder) {
 }
 
 async function seedDB(testingEnvVars) {
-  console.log('Seeding DB with data')
+  console.log('💽 Seeding DB with data 💽')
 
   // Need to wait for the server to be ready
   await setTimeout(2000)
@@ -465,11 +462,13 @@ async function seedDB(testingEnvVars) {
 
   console.log('Generating post media')
   populateMediaFolders(testingEnvVars.POSTS_MEDIA_DOWNLOAD_DIR)
+  console.log('Finished generating post media')
 
+  console.log('💽 Almost finished seeding, please wait... 💽')
   // None of the db calls are promise-based, so waiting arbitrary amount till they are finished. Yes this is lazy.
   await setTimeout(8000)
 
-  console.log('Finished generating post media')
+  console.log('💽 Finished seeding. 💽')
 }
 
 module.exports = {
