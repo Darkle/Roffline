@@ -1,9 +1,19 @@
 import { test, expect as pwExpect } from '@playwright/test'
 import { expect } from 'chai'
 
-import { createLoginCookie, checkElementExists, showWebPageErrorsInTerminal } from '../../test-utils'
+import {
+  createLoginCookie,
+  resetTestUserSettings,
+  checkElementExists,
+  showWebPageErrorsInTerminal,
+  DB,
+} from '../../test-utils'
 
 test.describe('Home Page', () => {
+  test.beforeAll(async () => {
+    await resetTestUserSettings()
+  })
+
   test.beforeEach(async ({ context, page }) => {
     showWebPageErrorsInTerminal(page)
     await createLoginCookie(context)
@@ -52,7 +62,7 @@ test.describe('Home Page', () => {
     await checkElementExists(page.locator('body>script[src^="/js/index-page.js"]'))
   })
 
-  test.only('infinite scroll works and loads more posts', async ({ page }) => {
+  test('infinite scroll works and loads more posts', async ({ page }) => {
     await page.goto('/settings')
 
     const infiniteScrollEnabled = await page.locator('input[data-setting-name="infiniteScroll"]').isChecked()
@@ -101,5 +111,63 @@ test.describe('Home Page', () => {
     expect(numOfPostInitial).to.not.equal(numOfPostAfterScroll3)
     expect(numOfPostAfterScroll1).to.not.equal(numOfPostAfterScroll3)
     expect(numOfPostAfterScroll2).to.not.equal(numOfPostAfterScroll3)
+  })
+
+  test('only show titles in feed', async ({ page }) => {
+    await page.goto('/settings')
+
+    const onlyTitlesEnabled = await page.locator('input[data-setting-name="onlyShowTitlesInFeed"]').isChecked()
+
+    if (!onlyTitlesEnabled) {
+      await page.click('input[data-setting-name="onlyShowTitlesInFeed"]')
+    }
+
+    // eslint-disable-next-line ui-testing/no-hard-wait
+    page.waitForTimeout(1000)
+
+    await page.goto('/')
+
+    await pwExpect(page.locator('.post-content')).toHaveCount(0)
+
+    const firstSevenPostsHTML = await page.evaluate(() => {
+      const firstSevenPosts = document.querySelectorAll('main>#posts>.post-container:nth-child(-n+7)')
+      return Array.from(firstSevenPosts).map(elem => {
+        // remove the time elem as that will change so cant snapshot it.
+        elem.querySelector('time')?.remove()
+        return elem.outerHTML
+      })
+    })
+
+    firstSevenPostsHTML.forEach((postHTML, index) =>
+      pwExpect(postHTML).toMatchSnapshot(`home-page-post-titles-only-${index + 1}-html.txt`)
+    )
+  })
+
+  test('hide stickied posts', async ({ page }) => {
+    await page.goto('/')
+
+    await checkElementExists(page.locator('#posts>.post-container>article>h2>a[href="/post/a0a0"]'))
+
+    // Set the first post to be stickied
+    await DB.run(`UPDATE posts SET stickied=1 WHERE id='a0a0'`)
+
+    await page.goto('/settings')
+
+    const hideStickiedPostsEnabled = await page
+      .locator('input[data-setting-name="hideStickiedPosts"]')
+      .isChecked()
+
+    if (!hideStickiedPostsEnabled) {
+      await page.click('input[data-setting-name="hideStickiedPosts"]')
+    }
+
+    // eslint-disable-next-line ui-testing/no-hard-wait
+    page.waitForTimeout(1000)
+
+    await page.goto('/')
+
+    await pwExpect(page.locator('#posts>.post-container>article>h2>a[href="/post/a0a0"]')).toHaveCount(0)
+
+    await DB.run(`UPDATE posts SET stickied=0 WHERE id='a0a0'`)
   })
 })
