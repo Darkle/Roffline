@@ -65,6 +65,12 @@ const createTestUser = async (): Promise<void> => {
   )
 }
 
+const resetTestUserSettings = async (): Promise<void> => {
+  await DB.run(
+    `UPDATE users SET subreddits=json('["aww", "askreddit"]'),hideStickiedPosts=1,onlyShowTitlesInFeed=0,infiniteScroll=0,darkModeTheme=0 WHERE name='${testingDefaultUser}';`
+  )
+}
+
 const createTestSubs = async (): Promise<void> => {
   await DB.run(
     `CREATE TABLE IF NOT EXISTS subreddit_table_aww (id INTEGER PRIMARY KEY AUTOINCREMENT, posts_Default TEXT DEFAULT NULL, topPosts_Day TEXT DEFAULT NULL, topPosts_Week TEXT DEFAULT NULL, topPosts_Month TEXT DEFAULT NULL, topPosts_Year TEXT DEFAULT NULL, topPosts_All TEXT DEFAULT NULL);`
@@ -167,4 +173,5 @@ export {
   resetAdminSettingsBackToDefault,
   createTestSubs,
   waitForTextRendering,
+  resetTestUserSettings,
 }
