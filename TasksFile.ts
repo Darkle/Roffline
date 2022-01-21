@@ -230,7 +230,7 @@ const tests = {
 
     // const e2eTests_EmptyDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db/*.test.ts`
 
-    // const e2eTests_SeededDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/seeded-db/*.test.ts`
+    const e2eTests_SeededDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/seeded-db/home-page.test.ts`
 
     // const visualDiffingTests_EmptyDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/empty-db/*.test.ts`
 
@@ -250,9 +250,9 @@ const tests = {
       // await removeTempTestFiles()
 
       await sh(startServer, { ...shOptions, silent: true })
-      await seedDB(testingEnvVars)
-      // await sh(e2eTests_SeededDB, shOptions)
-      // await sh(`fkill :8080 --silent`, shOptions)
+      // await seedDB(testingEnvVars)
+      await sh(e2eTests_SeededDB, shOptions)
+      await sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
 
       // await sh(startServer, { ...shOptions, silent: true })
