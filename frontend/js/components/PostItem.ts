@@ -85,6 +85,9 @@ const PostItem = Vue.defineComponent({
 
       observer.observe(postItemElement)
     },
+    showIfNotStickiedPostAndHideStickiedPostsNotEnabled() {
+      return !(this.post?.stickied && this.userSettings?.hideStickiedPosts)
+    },
   },
   components: {
     PostContentItem,
@@ -132,7 +135,7 @@ const PostItem = Vue.defineComponent({
     }
   },
   template: /* html */ `
-    <div class="post-container" v-bind:ref="'post-container-' + post.id">
+    <div v-if="showIfNotStickiedPostAndHideStickiedPostsNotEnabled()" class="post-container" v-bind:ref="'post-container-' + post.id">
       <article>
         <h2>
           <a v-bind:href="postHref">{{ postTitle }}</a>
