@@ -1,0 +1,50 @@
+<nav aria-label="primary-navigation">
+    <ul>
+      <li>
+        <a href="/">Home</a>
+        
+      </li>
+      <li>
+        <details class="subs-dropdown">
+          <summary class="button outline">Subreddits</summary>
+          <div class="card">
+            <p><a href="/">All</a></p>
+            <p>
+              <a href="/sub-management">Manage</a>
+            </p>
+            <hr class="menu-spacer">
+            
+            <p data-menu-subreddit="askreddit">
+              <a href="/sub/askreddit">
+                
+                <span>askreddit</span>
+              </a>
+            </p>
+            
+            <p data-menu-subreddit="aww">
+              <a href="/sub/aww">
+                
+                <span>aww</span>
+              </a>
+            </p>
+            
+          </div>
+        </details>
+      </li>
+      
+      <li>
+        <a href="/search">Search</a>
+        
+        <hr>
+        
+      </li>
+      <li>
+        <a href="/settings">Settings</a>
+        
+      </li>
+      <li>
+        <a href="/help">Help</a>
+        
+      </li>
+    </ul>
+  </nav>
