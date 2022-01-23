@@ -39,7 +39,7 @@ const DB = {
     })
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  all(sql: string, params?: any | any[]): Promise<void | any> {
+  all(sql: string, params?: any | any[]): Promise<void | any[]> {
     return new Promise((resolve, reject) => {
       db.all(sql, params, (err, results) => sqlite3Handler(sql, params, resolve, reject, err, results))
     })
