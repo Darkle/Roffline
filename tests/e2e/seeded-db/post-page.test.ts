@@ -423,7 +423,7 @@ test.describe('Post Pages', () => {
     )
   })
 
-  test.only('shows message when comments are still being downloaded for a post', async ({ page }) => {
+  test('shows message when comments are still being downloaded for a post', async ({ page }) => {
     await commentsDB.remove('a0a0')
 
     await page.goto('/post/a0a0')
@@ -433,5 +433,41 @@ test.describe('Post Pages', () => {
     pwExpect(commentsHTML).toMatchSnapshot('post-comments-waiting-for-download.txt')
 
     await commentsDB.put('a0a0', msgpackPacker.pack([]))
+  })
+
+  test('check post comments collapse/uncollapse works', async ({ page }) => {
+    await page.goto('/post/a0b1')
+
+    const moreCommentsToggleVisible = await page.isVisible('.comments>ul>li:nth-of-type(2)>.more-comments-toggle')
+
+    pwExpect(moreCommentsToggleVisible).toBeFalsy()
+
+    const commentContentVisible1 = await page.isVisible('.comments>ul>li:nth-of-type(2)>.comment-content')
+
+    pwExpect(commentContentVisible1).toBeTruthy()
+
+    const commentChildContentsVisible1 = await page.isVisible('.comments>ul>li:nth-of-type(2)>.child-comments')
+
+    pwExpect(commentChildContentsVisible1).toBeTruthy()
+
+    await page.click('.comments>ul>li:nth-of-type(2) .collapse-comment')
+
+    const commentContentVisible2 = await page.isVisible('.comments>ul>li:nth-of-type(2)>.comment-content')
+
+    pwExpect(commentContentVisible2).toBeFalsy()
+
+    const commentChildContentsVisible2 = await page.isVisible('.comments>ul>li:nth-of-type(2)>.child-comments')
+
+    pwExpect(commentChildContentsVisible2).toBeFalsy()
+
+    await page.click('.comments>ul>li:nth-of-type(2)>.more-comments-toggle')
+
+    const commentContentVisible3 = await page.isVisible('.comments>ul>li:nth-of-type(2)>.comment-content')
+
+    pwExpect(commentContentVisible3).toBeTruthy()
+
+    const commentChildContentsVisible4 = await page.isVisible('.comments>ul>li:nth-of-type(2)>.child-comments')
+
+    pwExpect(commentChildContentsVisible4).toBeTruthy()
   })
 })
