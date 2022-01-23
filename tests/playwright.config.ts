@@ -23,7 +23,11 @@ const config: PlaywrightTestConfig = {
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        //Some of the tests require video to be played, so need to use chrome instead of chromium for the codecs
+        channel: 'chrome',
+        ...devices['Desktop Chrome'],
+      },
     },
     {
       name: 'firefox',
