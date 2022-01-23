@@ -57,6 +57,151 @@ test.describe('Home Page', () => {
     pwExpect(paginationHTML).toMatchSnapshot('home-page-pagination-html.txt')
 
     await checkElementExists(page.locator('body>script[src^="/js/index-page.js"]'))
+
+    // Check page 2
+    await Promise.all([page.waitForNavigation(), page.click('nav.pagination>a:nth-of-type(2)')])
+
+    await pwExpect(page.locator('.post-container')).toHaveCount(30)
+    await pwExpect(page.locator('.post-container>article>h2>a[href^="/post/"]')).toHaveCount(30)
+
+    const paginationHTML2 = await page.evaluate(() => document.querySelector('nav.pagination')?.outerHTML)
+
+    pwExpect(paginationHTML2).toMatchSnapshot('home-page-pagination-next-page-html.txt')
+  })
+
+  test('validates top filter html and text', async ({ page }) => {
+    await page.goto('/?topFilter=day')
+
+    const filterHeaderHTML1 = await page.evaluate(() => document.querySelector('main>.filter-header')?.outerHTML)
+
+    pwExpect(filterHeaderHTML1).toMatchSnapshot('home-page-filter-day-header-html.txt')
+
+    await pwExpect(page.locator('.post-container')).toHaveCount(30)
+    await pwExpect(page.locator('.post-container>article>h2>a[href^="/post/"]')).toHaveCount(30)
+
+    const paginationHTML1 = await page.evaluate(() => document.querySelector('nav.pagination')?.outerHTML)
+
+    pwExpect(paginationHTML1).toMatchSnapshot('home-page-filter-day-pagination-html.txt')
+
+    await checkElementExists(page.locator('body>script[src^="/js/index-page.js"]'))
+
+    // Check page 2
+    await Promise.all([page.waitForNavigation(), page.click('nav.pagination>a:nth-of-type(2)')])
+
+    await pwExpect(page.locator('.post-container')).toHaveCount(30)
+    await pwExpect(page.locator('.post-container>article>h2>a[href^="/post/"]')).toHaveCount(30)
+
+    const paginationHTML2 = await page.evaluate(() => document.querySelector('nav.pagination')?.outerHTML)
+
+    pwExpect(paginationHTML2).toMatchSnapshot('home-page-filter-day-next-page-html.txt')
+
+    // =============================
+
+    await page.goto('/?topFilter=week')
+
+    const filterHeaderHTML2 = await page.evaluate(() => document.querySelector('main>.filter-header')?.outerHTML)
+
+    pwExpect(filterHeaderHTML2).toMatchSnapshot('home-page-filter-week-header-html.txt')
+
+    await pwExpect(page.locator('.post-container')).toHaveCount(30)
+    await pwExpect(page.locator('.post-container>article>h2>a[href^="/post/"]')).toHaveCount(30)
+
+    const paginationHTML3 = await page.evaluate(() => document.querySelector('nav.pagination')?.outerHTML)
+
+    pwExpect(paginationHTML3).toMatchSnapshot('home-page-filter-week-pagination-html.txt')
+
+    await checkElementExists(page.locator('body>script[src^="/js/index-page.js"]'))
+
+    // Check page 2
+    await Promise.all([page.waitForNavigation(), page.click('nav.pagination>a:nth-of-type(2)')])
+
+    await pwExpect(page.locator('.post-container')).toHaveCount(30)
+    await pwExpect(page.locator('.post-container>article>h2>a[href^="/post/"]')).toHaveCount(30)
+
+    const paginationHTML4 = await page.evaluate(() => document.querySelector('nav.pagination')?.outerHTML)
+
+    pwExpect(paginationHTML4).toMatchSnapshot('home-page-filter-week-next-page-html.txt')
+
+    // =============================
+
+    await page.goto('/?topFilter=month')
+
+    const filterHeaderHTML3 = await page.evaluate(() => document.querySelector('main>.filter-header')?.outerHTML)
+
+    pwExpect(filterHeaderHTML3).toMatchSnapshot('home-page-filter-month-header-html.txt')
+
+    await pwExpect(page.locator('.post-container')).toHaveCount(30)
+    await pwExpect(page.locator('.post-container>article>h2>a[href^="/post/"]')).toHaveCount(30)
+
+    const paginationHTML5 = await page.evaluate(() => document.querySelector('nav.pagination')?.outerHTML)
+
+    pwExpect(paginationHTML5).toMatchSnapshot('home-page-filter-month-pagination-html.txt')
+
+    await checkElementExists(page.locator('body>script[src^="/js/index-page.js"]'))
+
+    // Check page 2
+    await Promise.all([page.waitForNavigation(), page.click('nav.pagination>a:nth-of-type(2)')])
+
+    await pwExpect(page.locator('.post-container')).toHaveCount(30)
+    await pwExpect(page.locator('.post-container>article>h2>a[href^="/post/"]')).toHaveCount(30)
+
+    const paginationHTML6 = await page.evaluate(() => document.querySelector('nav.pagination')?.outerHTML)
+
+    pwExpect(paginationHTML6).toMatchSnapshot('home-page-filter-month-next-page-html.txt')
+
+    // =============================
+
+    await page.goto('/?topFilter=year')
+
+    const filterHeaderHTML4 = await page.evaluate(() => document.querySelector('main>.filter-header')?.outerHTML)
+
+    pwExpect(filterHeaderHTML4).toMatchSnapshot('home-page-filter-year-header-html.txt')
+
+    await pwExpect(page.locator('.post-container')).toHaveCount(30)
+    await pwExpect(page.locator('.post-container>article>h2>a[href^="/post/"]')).toHaveCount(30)
+
+    const paginationHTML7 = await page.evaluate(() => document.querySelector('nav.pagination')?.outerHTML)
+
+    pwExpect(paginationHTML7).toMatchSnapshot('home-page-filter-year-pagination-html.txt')
+
+    await checkElementExists(page.locator('body>script[src^="/js/index-page.js"]'))
+
+    // Check page 2
+    await Promise.all([page.waitForNavigation(), page.click('nav.pagination>a:nth-of-type(2)')])
+
+    await pwExpect(page.locator('.post-container')).toHaveCount(30)
+    await pwExpect(page.locator('.post-container>article>h2>a[href^="/post/"]')).toHaveCount(30)
+
+    const paginationHTML8 = await page.evaluate(() => document.querySelector('nav.pagination')?.outerHTML)
+
+    pwExpect(paginationHTML8).toMatchSnapshot('home-page-filter-year-next-page-html.txt')
+
+    // =============================
+
+    await page.goto('/?topFilter=all')
+
+    const filterHeaderHTML5 = await page.evaluate(() => document.querySelector('main>.filter-header')?.outerHTML)
+
+    pwExpect(filterHeaderHTML5).toMatchSnapshot('home-page-filter-all-header-html.txt')
+
+    await pwExpect(page.locator('.post-container')).toHaveCount(30)
+    await pwExpect(page.locator('.post-container>article>h2>a[href^="/post/"]')).toHaveCount(30)
+
+    const paginationHTML9 = await page.evaluate(() => document.querySelector('nav.pagination')?.outerHTML)
+
+    pwExpect(paginationHTML9).toMatchSnapshot('home-page-filter-all-pagination-html.txt')
+
+    await checkElementExists(page.locator('body>script[src^="/js/index-page.js"]'))
+
+    // Check page 2
+    await Promise.all([page.waitForNavigation(), page.click('nav.pagination>a:nth-of-type(2)')])
+
+    await pwExpect(page.locator('.post-container')).toHaveCount(30)
+    await pwExpect(page.locator('.post-container>article>h2>a[href^="/post/"]')).toHaveCount(30)
+
+    const paginationHTML10 = await page.evaluate(() => document.querySelector('nav.pagination')?.outerHTML)
+
+    pwExpect(paginationHTML10).toMatchSnapshot('home-page-filter-all-next-page-html.txt')
   })
 
   test('infinite scroll works and loads more posts', async ({ page }) => {
