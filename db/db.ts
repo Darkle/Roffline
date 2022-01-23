@@ -4,7 +4,7 @@ import { Op, QueryTypes, Sequelize } from 'sequelize'
 import { Timer } from 'timer-node'
 import lmdb from 'lmdb'
 import { DateTime } from 'luxon'
-import { nullable as MaybeNullable, encase as Try } from 'pratica'
+import { encase as Try } from 'pratica'
 import { unpack } from 'msgpackr'
 
 import { SubredditsMasterListModel } from './entities/SubredditsMasterList'
@@ -299,14 +299,12 @@ const db = {
     const postComments = commentsDB.get(postId) as Buffer | undefined
 
     return Promise.resolve(
-      MaybeNullable(postComments).cata({
-        Just: (postCommentsDBData: Buffer): Comments =>
-          Try(() => unpack(postCommentsDBData) as Comments).cata({
+      postComments
+        ? Try(() => unpack(postComments as Buffer) as Comments).cata({
             Just: R.identity,
             Nothing: () => [],
-          }),
-        Nothing: () => null,
-      })
+          })
+        : null
     )
   },
   getAdminSettings,
