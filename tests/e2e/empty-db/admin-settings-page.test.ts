@@ -40,6 +40,7 @@ test.describe('Admin Settings Page', () => {
 
     const navHTML = await page.evaluate(() => {
       const navContainer = document.querySelector('nav.admin-menu') as HTMLSpanElement
+      // @ts-expect-error replaceAll is available
       return navContainer.outerHTML.replaceAll(/\s\s+/gu, '').replaceAll('\n', ' ')
     })
 
@@ -48,6 +49,7 @@ test.describe('Admin Settings Page', () => {
     const mainElemHTML = await page.evaluate(() => {
       document.querySelector('input[name="csrfToken"]')?.remove()
       const main = document.querySelector('main') as HTMLDivElement
+      // @ts-expect-error replaceAll is available
       return main.outerHTML.replaceAll(/\s\s+/gu, '').replaceAll('\n', ' ')
     })
 
