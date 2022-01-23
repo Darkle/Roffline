@@ -10,13 +10,10 @@ import {
 } from '../../test-utils'
 
 test.describe('Home Page', () => {
-  test.beforeAll(async () => {
-    await resetTestUserSettings()
-  })
-
   test.beforeEach(async ({ context, page }) => {
     showWebPageErrorsInTerminal(page)
     await createLoginCookie(context)
+    await resetTestUserSettings()
     await page.goto('/')
   })
 
@@ -72,7 +69,7 @@ test.describe('Home Page', () => {
     }
 
     // eslint-disable-next-line ui-testing/no-hard-wait
-    page.waitForTimeout(1000)
+    await page.waitForTimeout(1000)
 
     await page.goto('/')
 
@@ -83,7 +80,9 @@ test.describe('Home Page', () => {
     // Scroll to bottom
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
 
-    await page.waitForResponse('/api/infinite-scroll-load-more-posts*')
+    // I dunno why but Firefox stalls on this one so make it a waitForTimeout
+    // eslint-disable-next-line ui-testing/no-hard-wait
+    await page.waitForTimeout(500)
 
     const numOfPostAfterScroll1 = await page.locator(`main>#posts>.post-container`).count()
 
@@ -104,7 +103,8 @@ test.describe('Home Page', () => {
     // Scroll to bottom
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
 
-    await page.waitForResponse('/api/infinite-scroll-load-more-posts*')
+    // eslint-disable-next-line ui-testing/no-hard-wait
+    await page.waitForTimeout(500)
 
     const numOfPostAfterScroll3 = await page.locator(`main>#posts>.post-container`).count()
 
@@ -123,7 +123,7 @@ test.describe('Home Page', () => {
     }
 
     // eslint-disable-next-line ui-testing/no-hard-wait
-    page.waitForTimeout(1000)
+    await page.waitForTimeout(1000)
 
     await page.goto('/')
 
@@ -144,8 +144,6 @@ test.describe('Home Page', () => {
   })
 
   test('hide stickied posts', async ({ page }) => {
-    await page.goto('/')
-
     await checkElementExists(page.locator('#posts>.post-container>article>h2>a[href="/post/a0a0"]'))
 
     // Set the first post to be stickied
@@ -162,12 +160,201 @@ test.describe('Home Page', () => {
     }
 
     // eslint-disable-next-line ui-testing/no-hard-wait
-    page.waitForTimeout(1000)
+    await page.waitForTimeout(1000)
 
     await page.goto('/')
 
     await pwExpect(page.locator('#posts>.post-container>article>h2>a[href="/post/a0a0"]')).toHaveCount(0)
 
     await DB.run(`UPDATE posts SET stickied=0 WHERE id='a0a0'`)
+  })
+
+  test('video player plays/pauses on click', async ({ page }) => {
+    const pausedStatusOfallVideosOnThePage = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('video')).map(elem => elem.paused)
+    )
+
+    pausedStatusOfallVideosOnThePage.forEach(elemPausedStatus => {
+      expect(elemPausedStatus).to.be.true
+    })
+
+    await page.click('video')
+
+    // eslint-disable-next-line ui-testing/no-hard-wait
+    await page.waitForTimeout(500)
+
+    const pausedStatusOfallVideosOnThePage2 = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('video')).map(elem => elem.paused)
+    )
+
+    pausedStatusOfallVideosOnThePage2.forEach((elemPausedStatus, index) => {
+      if (index === 0) {
+        expect(elemPausedStatus).to.be.false
+      } else {
+        expect(elemPausedStatus).to.be.true
+      }
+    })
+
+    await page.click('video')
+
+    // eslint-disable-next-line ui-testing/no-hard-wait
+    await page.waitForTimeout(500)
+
+    const pausedStatusOfallVideosOnThePage3 = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('video')).map(elem => elem.paused)
+    )
+
+    pausedStatusOfallVideosOnThePage3.forEach(elemPausedStatus => {
+      expect(elemPausedStatus).to.be.true
+    })
+
+    await page.click(':nth-match(video, 2)')
+
+    // eslint-disable-next-line ui-testing/no-hard-wait
+    await page.waitForTimeout(500)
+
+    const pausedStatusOfallVideosOnThePage4 = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('video')).map(elem => elem.paused)
+    )
+
+    pausedStatusOfallVideosOnThePage4.forEach((elemPausedStatus, index) => {
+      if (index === 1) {
+        expect(elemPausedStatus).to.be.false
+      } else {
+        expect(elemPausedStatus).to.be.true
+      }
+    })
+
+    await page.click(':nth-match(video, 2)')
+
+    // eslint-disable-next-line ui-testing/no-hard-wait
+    await page.waitForTimeout(500)
+
+    const pausedStatusOfallVideosOnThePage5 = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('video')).map(elem => elem.paused)
+    )
+
+    pausedStatusOfallVideosOnThePage5.forEach(elemPausedStatus => {
+      expect(elemPausedStatus).to.be.true
+    })
+  })
+
+  test('video audio works and syncs with all video elems', async ({ page }) => {
+    const mutedStatusOfallVideosOnThePage = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('video')).map(elem => elem.muted)
+    )
+
+    mutedStatusOfallVideosOnThePage.forEach(elemPausedStatus => {
+      expect(elemPausedStatus).to.be.false
+    })
+
+    await page.evaluate(() => {
+      const firstVideoElem = document.querySelector('video') as HTMLVideoElement
+      firstVideoElem.muted = true
+    })
+
+    const mutedStatusOfallVideosOnThePage2 = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('video')).map(elem => elem.muted)
+    )
+
+    mutedStatusOfallVideosOnThePage2.forEach(elemPausedStatus => {
+      expect(elemPausedStatus).to.be.true
+    })
+
+    await page.evaluate(() => {
+      const firstVideoElem = document.querySelector('video') as HTMLVideoElement
+      firstVideoElem.muted = false
+    })
+
+    const volumeStatusOfallVideosOnThePage = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('video')).map(elem => elem.volume)
+    )
+
+    volumeStatusOfallVideosOnThePage.forEach(elemVolume => {
+      expect(elemVolume).to.equal(volumeStatusOfallVideosOnThePage[0])
+    })
+
+    await page.evaluate(() => {
+      const firstVideoElem = document.querySelector('video') as HTMLVideoElement
+      firstVideoElem.volume = 0.8
+    })
+
+    const volumeStatusOfallVideosOnThePage2 = await page.evaluate(() =>
+      Array.from(document.querySelectorAll('video')).map(elem => elem.volume)
+    )
+
+    volumeStatusOfallVideosOnThePage2.forEach(elemVolume => {
+      expect(elemVolume).to.equal(volumeStatusOfallVideosOnThePage2[0])
+    })
+  })
+
+  test('gallery works', async ({ page }) => {
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:first-of-type').first()
+    ).toHaveClass('splide__slide is-active is-visible')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:nth-of-type(2)').first()
+    ).toHaveClass('splide__slide is-next')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:nth-of-type(3)').first()
+    ).toHaveClass('splide__slide')
+
+    await page.click('button.splide__arrow.splide__arrow--next')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:first-of-type').first()
+    ).toHaveClass('splide__slide is-prev')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:nth-of-type(2)').first()
+    ).toHaveClass('splide__slide is-active is-visible')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:nth-of-type(3)').first()
+    ).toHaveClass('splide__slide is-next')
+
+    await page.click('button.splide__arrow.splide__arrow--next')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:first-of-type').first()
+    ).toHaveClass('splide__slide')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:nth-of-type(2)').first()
+    ).toHaveClass('splide__slide is-prev')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:nth-of-type(3)').first()
+    ).toHaveClass('splide__slide is-active is-visible')
+
+    await page.click('button.splide__arrow.splide__arrow--prev')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:first-of-type').first()
+    ).toHaveClass('splide__slide is-prev')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:nth-of-type(2)').first()
+    ).toHaveClass('splide__slide is-active is-visible')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:nth-of-type(3)').first()
+    ).toHaveClass('splide__slide is-next')
+
+    await page.click('button.splide__arrow.splide__arrow--prev')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:first-of-type').first()
+    ).toHaveClass('splide__slide is-active is-visible')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:nth-of-type(2)').first()
+    ).toHaveClass('splide__slide is-next')
+
+    await pwExpect(
+      page.locator('.gallery-container .splide__track .splide__list li:nth-of-type(3)').first()
+    ).toHaveClass('splide__slide')
   })
 })
