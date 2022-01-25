@@ -1,0 +1,20 @@
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="referrer" content="no-referrer">
+  <title>aww - Roffline</title>
+  <link rel="icon" href="/static/images/favicon.png">
+  <link rel="stylesheet" href="/static/vendor/css/modern-normalize@v1.1.0.min.css?cachebust=0.1.0">
+  
+  <link rel="stylesheet" href="/static/vendor/css/chota@0.8.0.min.css?cachebust=0.1.0">
+  
+  <link rel="stylesheet" href="/static/vendor/css/splide@3.1.6.min.css?cachebust=0.1.0">
+  
+  
+  
+  
+  <link rel="stylesheet" href="/css/index.css?cachebust=0.1.0">
+  
+  
+  
+</head>

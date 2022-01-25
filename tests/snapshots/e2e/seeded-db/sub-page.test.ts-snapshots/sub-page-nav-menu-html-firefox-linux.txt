@@ -1,0 +1,78 @@
+<nav aria-label="primary-navigation">
+    <ul>
+      <li>
+        <a href="/">Home</a>
+        
+      </li>
+      <li>
+        <details class="subs-dropdown">
+          <summary class="button outline">Subreddits</summary>
+          <div class="card">
+            <p><a href="/">All</a></p>
+            <p>
+              <a href="/sub-management">Manage</a>
+            </p>
+            <hr class="menu-spacer">
+            
+            <p data-menu-subreddit="askreddit">
+              <a href="/sub/askreddit">
+                
+                <span>askreddit</span>
+              </a>
+            </p>
+            
+            <p data-menu-subreddit="aww">
+              <a href="/sub/aww">
+                
+                <svg height="12px" version="1.1" viewBox="0 0 9 12" width="9px" xmlns="http://www.w3.org/2000/svg" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns" xmlns:xlink="http://www.w3.org/1999/xlink"><title></title><desc></desc><defs></defs><g fill="none" fill-rule="evenodd" id="Page-1" stroke="none" stroke-width="1"><g fill="#14854f" id="Core" transform="translate(-260.000000, -90.000000)"><g id="chevron-right" transform="translate(260.500000, 90.000000)"><path d="M1,0 L-0.4,1.4 L4.2,6 L-0.4,10.6 L1,12 L7,6 L1,0 Z" id="Shape"></path></g></g></g></svg>
+                
+                <span>aww</span>
+              </a>
+            </p>
+            
+          </div>
+        </details>
+      </li>
+      
+      <li>
+        <details class="top-filter">
+          <summary class="button outline">Top</summary>
+          <div class="card">
+            <p><a href="?topFilter=day">
+                
+                <span>Today</span>
+              </a></p>
+            <p><a href="?topFilter=week">
+                
+                <span>Week</span>
+            </a></p>
+            <p><a href="?topFilter=month">
+                
+                <span>Month</span>
+            </a></p>
+            <p><a href="?topFilter=year">
+                
+                <span>Year</span>
+            </a></p>
+            <p><a href="?topFilter=all">
+                
+                <span>All Time</span>
+            </a></p>
+          </div>
+        </details>
+      </li>
+      
+      <li>
+        <a href="/search">Search</a>
+        
+      </li>
+      <li>
+        <a href="/settings">Settings</a>
+        
+      </li>
+      <li>
+        <a href="/help">Help</a>
+        
+      </li>
+    </ul>
+  </nav>
