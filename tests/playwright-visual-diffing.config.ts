@@ -22,23 +22,12 @@ const config: PlaywrightTestConfig = {
       name: 'Desktop Chromium',
       use: {
         ...devices['Desktop Chrome'],
-        viewport: {
-          width: 1280,
-          // cause the settings page is taller than the default height
-          // https://github.com/microsoft/playwright/blob/main/packages/playwright-core/src/server/deviceDescriptorsSource.json
-          height: 1480,
-        },
       },
     },
     {
       name: 'Galaxy S8',
       use: {
         ...devices['Galaxy S8'],
-        viewport: {
-          width: 360,
-          // cause the settings page is taller than the default height
-          height: 1480,
-        },
       },
     },
     /*****
@@ -50,22 +39,14 @@ const config: PlaywrightTestConfig = {
     //   name: 'Desktop Firefox',
     //   use: {
     //     ...devices['Desktop Firefox'],
-    //     viewport: {
-    //       width: 1280,
-    //       // cause the settings page is taller than the default height
-    //       height: 1480,
-    //     },
+
     //   },
     // },
     // {
     //   name: 'Desktop Safari (webkit)',
     //   use: {
     //     ...devices['Desktop Safari'],
-    //     viewport: {
-    //       width: 1280,
-    //       // cause the settings page is taller than the default height
-    //       height: 1480,
-    //     },
+
     //   },
     // },
     // {
@@ -76,10 +57,7 @@ const config: PlaywrightTestConfig = {
     //   name: 'iPhone 7',
     //   use: {
     //     ...devices['iPhone 7'],
-    //     viewport: {
-    //       width: 375,
-    //       height: 1480,
-    //     },
+
     //   },
     // },
   ],

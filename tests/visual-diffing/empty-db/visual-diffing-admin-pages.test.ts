@@ -24,7 +24,7 @@ test.describe('Visual Diffing Admin Pages', () => {
     p = await context.newPage()
   })
 
-  test('Stats Page', async () => {
+  test('Stats Page', async ({ viewport }) => {
     const page = p as Page
 
     await page.goto('/admin/', { waitUntil: 'networkidle' })
@@ -49,20 +49,24 @@ test.describe('Visual Diffing Admin Pages', () => {
       ulElem.children[9].textContent = 'Comments DB Size: 562 MB'
     })
 
+    await page.setViewportSize({ width: viewport?.width as number, height: 1200 })
+
     pwExpect(await page.screenshot()).toMatchSnapshot('stats-page.png')
   })
 
-  test('Settings Page', async () => {
+  test('Settings Page', async ({ viewport, isMobile }) => {
     const page = p as Page
 
     await page.goto('/admin/settings', { waitUntil: 'networkidle' })
 
     await waitForTextRendering(page)
 
+    await page.setViewportSize({ width: viewport?.width as number, height: isMobile ? 1600 : 1400 })
+
     pwExpect(await page.screenshot()).toMatchSnapshot('settings-page.png')
   })
 
-  test('Users Page', async ({ isMobile }) => {
+  test('Users Page', async ({ isMobile, viewport }) => {
     const page = p as Page
 
     await page.goto('/admin/users', { waitUntil: 'networkidle' })
@@ -71,16 +75,14 @@ test.describe('Visual Diffing Admin Pages', () => {
      The users page db table needs a fair bit of width, so increase for desktop. The db
      table auto shrinks when in mobile view.
      *****/
-    if (!isMobile) {
-      await page.setViewportSize({ width: 1600, height: 1480 })
-    }
+    await page.setViewportSize({ width: isMobile ? (viewport?.width as number) : 1600, height: 1400 })
 
     await waitForTextRendering(page)
 
     pwExpect(await page.screenshot()).toMatchSnapshot('users-page.png')
   })
 
-  test('Logs Page', async () => {
+  test('Logs Page', async ({ viewport, isMobile }) => {
     const page = p as Page
 
     // Need to manually set the log data as its dynamic
@@ -134,10 +136,12 @@ test.describe('Visual Diffing Admin Pages', () => {
 
     await waitForTextRendering(page)
 
+    await page.setViewportSize({ width: viewport?.width as number, height: isMobile ? 1600 : 1400 })
+
     pwExpect(await page.screenshot()).toMatchSnapshot('logs-page.png')
   })
 
-  test('DB Viewer Page', async () => {
+  test('DB Viewer Page', async ({ viewport, isMobile }) => {
     const page = p as Page
 
     // Need to manually set the db data as its dynamic
@@ -247,12 +251,14 @@ test.describe('Visual Diffing Admin Pages', () => {
 
     await page.goto('/admin/db-viewer', { waitUntil: 'networkidle' })
 
+    await page.setViewportSize({ width: viewport?.width as number, height: isMobile ? 1600 : 1400 })
+
     await waitForTextRendering(page)
 
     pwExpect(await page.screenshot()).toMatchSnapshot('db-viewer-page.png')
   })
 
-  test('Downloads Viewer Page', async () => {
+  test('Downloads Viewer Page', async ({ viewport }) => {
     const page = p as Page
 
     const downloadsSeedData = [
@@ -411,15 +417,13 @@ test.describe('Visual Diffing Admin Pages', () => {
       })
     })
 
-    /*****
-     The downloads viewer page is fairly tall, so increase viewport height. 
-     *****/
-    const pageWidth = page.viewportSize()?.width as number
-
-    await page.setViewportSize({ width: pageWidth, height: 3500 })
-
     // Dont use network idle here as this page is never network idle cause of SSE
-    await page.goto('/admin/downloads-viewer', { waitUntil: 'networkidle' })
+    await page.goto('/admin/downloads-viewer')
+
+    // /*****
+    //  The downloads viewer page is fairly tall, so increase viewport height.
+    //  *****/
+    await page.setViewportSize({ width: viewport?.width as number, height: 3800 })
 
     await waitForTextRendering(page)
 

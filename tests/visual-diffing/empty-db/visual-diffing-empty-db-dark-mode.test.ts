@@ -54,8 +54,10 @@ test.describe('Visual Diffing All Pages (empty db)(dark mode enabled)', () => {
     pwExpect(await page.screenshot()).toMatchSnapshot('home-page-dropdowns-dark-mode.png')
   })
 
-  test('Settings Page', async ({ page }) => {
+  test('Settings Page', async ({ page, viewport }) => {
     await page.goto('/settings', { waitUntil: 'networkidle' })
+
+    await page.setViewportSize({ width: viewport?.width as number, height: 1400 })
 
     await waitForTextRendering(page)
 
@@ -76,8 +78,10 @@ test.describe('Visual Diffing All Pages (empty db)(dark mode enabled)', () => {
     pwExpect(await page.screenshot()).toMatchSnapshot('search-page-0-results-dark-mode.png')
   })
 
-  test('Help Page', async ({ page }) => {
+  test('Help Page', async ({ page, viewport }) => {
     await page.goto('/help', { waitUntil: 'networkidle' })
+
+    await page.setViewportSize({ width: viewport?.width as number, height: 1800 })
 
     await waitForTextRendering(page)
 

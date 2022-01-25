@@ -37,6 +37,8 @@ test.describe('Visual Diffing All Pages (empty db)', () => {
 
     await page.click('a:has-text("Sign Up")')
 
+    await waitForTextRendering(page)
+
     pwExpect(await page.screenshot()).toMatchSnapshot('login-page-signup.png')
   })
 
@@ -70,8 +72,10 @@ test.describe('Visual Diffing All Pages (empty db)', () => {
     pwExpect(await page.screenshot()).toMatchSnapshot('home-page-dropdowns.png')
   })
 
-  test('Settings Page', async ({ page }) => {
+  test('Settings Page', async ({ page, viewport }) => {
     await page.goto('/settings', { waitUntil: 'networkidle' })
+
+    await page.setViewportSize({ width: viewport?.width as number, height: 1400 })
 
     await waitForTextRendering(page)
 
@@ -92,8 +96,10 @@ test.describe('Visual Diffing All Pages (empty db)', () => {
     pwExpect(await page.screenshot()).toMatchSnapshot('search-page-0-results.png')
   })
 
-  test('Help Page', async ({ page }) => {
+  test('Help Page', async ({ page, viewport }) => {
     await page.goto('/help', { waitUntil: 'networkidle' })
+
+    await page.setViewportSize({ width: viewport?.width as number, height: 1800 })
 
     await waitForTextRendering(page)
 
