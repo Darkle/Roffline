@@ -6,8 +6,9 @@ import type { FastifyInstance } from 'fastify'
 import { basicAuth } from '../controllers/admin/basic-auth'
 import { createCsrfToken } from '../controllers/csrf'
 import { getAdminSettingsForAnAdminPage } from '../controllers/admin/admin-settings'
+import { setDefaultTemplateProps } from '../controllers/default-template-props'
 
-const mainPreHandlers = [basicAuth]
+const mainPreHandlers = [basicAuth, setDefaultTemplateProps]
 
 // eslint-disable-next-line max-lines-per-function
 const adminRoutes = (fastify: FastifyInstance, __: unknown, done: (err?: Error) => void): void => {
