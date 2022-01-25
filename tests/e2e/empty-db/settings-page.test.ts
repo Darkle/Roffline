@@ -1,5 +1,4 @@
 import fs from 'fs'
-import path from 'path'
 
 import { test, expect as pwExpect } from '@playwright/test'
 import { expect } from 'chai'
@@ -227,7 +226,7 @@ test.describe('Settings Page', () => {
 
     const downloadPath = (await download.path()) as string
 
-    const fileText = await fs.promises.readFile(path.join(downloadPath), { encoding: 'utf8' })
+    const fileText = await fs.promises.readFile(downloadPath, { encoding: 'utf8' })
 
     expect(fileText).to.contain('abruptchaos accidentalwesanderson adviceanimals alphaandbetausers alpinejs')
   })
