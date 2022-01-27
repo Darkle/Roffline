@@ -60,7 +60,7 @@ test.describe('Admin Logs Page', () => {
     return !!exists
   }
 
-  test('download admin logs', async () => {
+  test.only('download admin logs', async () => {
     const page = p as Page
 
     const destLogFile1Path = path.join(process.cwd(), 'testing-roffline-logs', '20220115-1021-0-roffline.log')
@@ -85,7 +85,7 @@ test.describe('Admin Logs Page', () => {
     const logFiles = (
       await Promise.all(
         ['20220115-1021-0-roffline.log', '20220115-1116-0-roffline.log'].map(logFileName =>
-          fs.promises.readFile(path.join(path.join(process.cwd(), 'tests', 'seed-data', 'logs', logFileName)), {
+          fs.promises.readFile(path.join(process.cwd(), 'tests', 'seed-data', 'logs', logFileName), {
             encoding: 'utf8',
           })
         )
@@ -105,8 +105,10 @@ test.describe('Admin Logs Page', () => {
 
     const downloadPath = (await download.path()) as string
 
-    const fileText = await fs.promises.readFile(path.join(downloadPath), { encoding: 'utf8' })
+    const fileText = await fs.promises.readFile(downloadPath, { encoding: 'utf8' })
 
-    expect(fileText).to.equal(logFiles)
+    expect(fileText.length).to.equal(logFiles.length)
+    expect(fileText.length).to.equal(25714)
+    expect(logFiles.length).to.equal(25714)
   })
 })
