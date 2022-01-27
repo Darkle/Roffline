@@ -232,9 +232,9 @@ const tests = {
 
     // const e2eTests_SeededDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/seeded-db/*.ts`
 
-    const visualDiffingTests_EmptyDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/empty-db/*.test.ts`
+    // const visualDiffingTests_EmptyDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/empty-db/*.test.ts`
 
-    // const visualDiffingTests_SeededDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/seeded-db/visual-diffing-seeded-db.test.ts`
+    const visualDiffingTests_SeededDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/seeded-db/*.test.ts`
 
     // const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests`
 
@@ -244,21 +244,21 @@ const tests = {
       // sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
 
-      await sh(startServer, { ...shOptions, silent: true })
-      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests_EmptyDB}`, shOptions)
-      await sh(`fkill :8080 --silent`, shOptions)
-      await removeTempTestFiles()
-
       // await sh(startServer, { ...shOptions, silent: true })
-      // await seedDB(testingEnvVars)
-      // await sh(wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_SeededDB}, shOptions)
+      // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests_EmptyDB}`, shOptions)
       // await sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
 
       // await sh(startServer, { ...shOptions, silent: true })
       // await seedDB(testingEnvVars)
-      // await sh(wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests_SeededDB}, shOptions)
+      // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_SeededDB}`, shOptions)
       // await sh(`fkill :8080 --silent`, shOptions)
+      // await removeTempTestFiles()
+
+      await sh(startServer, { ...shOptions, silent: true })
+      // await seedDB(testingEnvVars)
+      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests_SeededDB}`, shOptions)
+      await sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
 
       // Rebuild with no bundling so can do instrument for code coverage.

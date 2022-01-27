@@ -42,6 +42,9 @@ const config: PlaywrightTestConfig = {
 
     //   },
     // },
+    /*****
+      I was unable to get webkit to work on debian.
+    *****/
     // {
     //   name: 'Desktop Safari (webkit)',
     //   use: {

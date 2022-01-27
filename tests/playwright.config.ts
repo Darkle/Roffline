@@ -33,6 +33,9 @@ const config: PlaywrightTestConfig = {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
+    /*****
+      I was unable to get webkit to work on debian.
+    *****/
     // {
     //   name: 'webkit',
     //   use: { ...devices['Desktop Safari'] },
