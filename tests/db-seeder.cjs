@@ -434,13 +434,9 @@ async function seedDB(testingEnvVars) {
   // Need to wait for the server to be ready
   await setTimeout(2000)
 
-  if (!db) {
-    db = new sqlite3.Database(testingEnvVars.SQLITE_DBPATH)
-  }
+  db = new sqlite3.Database(testingEnvVars.SQLITE_DBPATH)
 
-  if (!commentsDB) {
-    commentsDB = lmdb.open({ path: testingEnvVars.COMMENTS_DBPATH, encoding: 'binary' })
-  }
+  commentsDB = lmdb.open({ path: testingEnvVars.COMMENTS_DBPATH, encoding: 'binary' })
 
   console.log('Creating test user')
   createTestUser(testingEnvVars.TESTING_DEFAULT_USER)
@@ -467,6 +463,8 @@ async function seedDB(testingEnvVars) {
   console.log('💽 Almost finished seeding, please wait... 💽')
   // None of the db calls are promise-based, so waiting arbitrary amount till they are finished. Yes this is lazy.
   await setTimeout(8000)
+
+  await commentsDB.close()
 
   console.log('💽 Finished seeding. 💽')
 }

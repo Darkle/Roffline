@@ -12,9 +12,6 @@ import {
   DB,
 } from '../../test-utils'
 
-const commentsDB = lmdb.open({ path: process.env['COMMENTS_DBPATH'] as string, encoding: 'binary' })
-const msgpackPacker = new Packr()
-
 test.describe('Post Pages', () => {
   test.beforeAll(async () => {
     await resetTestUserSettings()
@@ -424,6 +421,9 @@ test.describe('Post Pages', () => {
   })
 
   test('shows message when comments are still being downloaded for a post', async ({ page }) => {
+    const commentsDB = lmdb.open({ path: process.env['COMMENTS_DBPATH'] as string, encoding: 'binary' })
+    const msgpackPacker = new Packr()
+
     await commentsDB.remove('a0a0')
 
     await page.goto('/post/a0a0')
@@ -433,6 +433,12 @@ test.describe('Post Pages', () => {
     pwExpect(commentsHTML).toMatchSnapshot('post-comments-waiting-for-download.txt')
 
     await commentsDB.put('a0a0', msgpackPacker.pack([]))
+
+    const a0a0Comment = msgpackPacker.unpack(commentsDB.get('a0a0') as Buffer) as []
+
+    expect(a0a0Comment).to.deep.equal([])
+
+    await commentsDB.close()
   })
 
   test('check post comments collapse/uncollapse works', async ({ page }) => {
