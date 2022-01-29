@@ -337,31 +337,31 @@ test.describe('Post Pages', () => {
     await Promise.all([
       DB.run(`UPDATE posts SET created_utc=? WHERE id=?`, [
         Number(now.minus({ seconds: 3 }).toSeconds().toFixed()),
-        first7Posts[0].id,
+        first7Posts[0]?.id,
       ]),
       DB.run(`UPDATE posts SET created_utc=? WHERE id=?`, [
         Number(now.minus({ minutes: 13 }).toSeconds().toFixed()),
-        first7Posts[1].id,
+        first7Posts[1]?.id,
       ]),
       DB.run(`UPDATE posts SET created_utc=? WHERE id=?`, [
         Number(now.minus({ hours: 3 }).toSeconds().toFixed()),
-        first7Posts[2].id,
+        first7Posts[2]?.id,
       ]),
       DB.run(`UPDATE posts SET created_utc=? WHERE id=?`, [
         Number(now.minus({ days: 5 }).toSeconds().toFixed()),
-        first7Posts[3].id,
+        first7Posts[3]?.id,
       ]),
       DB.run(`UPDATE posts SET created_utc=? WHERE id=?`, [
         Number(now.minus({ weeks: 3 }).toSeconds().toFixed()),
-        first7Posts[4].id,
+        first7Posts[4]?.id,
       ]),
       DB.run(`UPDATE posts SET created_utc=? WHERE id=?`, [
         Number(now.minus({ months: 8 }).toSeconds().toFixed()),
-        first7Posts[5].id,
+        first7Posts[5]?.id,
       ]),
       DB.run(`UPDATE posts SET created_utc=? WHERE id=?`, [
         Number(now.minus({ years: 3 }).toSeconds().toFixed()),
-        first7Posts[6].id,
+        first7Posts[6]?.id,
       ]),
     ])
 

@@ -10,18 +10,27 @@ const db = new sqlite3.Database(process.env['SQLITE_DBPATH'] as string)
 
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
 
-// eslint-disable-next-line max-params
-const sqlite3Handler = (sql, params, resolve, reject, err, results): void => {
+const sqlite3Handler = (
+  sql: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  params: any | any[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  resolve: (value: any | PromiseLike<any>) => any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  reject: (reason?: any) => void,
+  err: Error,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  results: any | any[]
+  // eslint-disable-next-line max-params
+): void => {
   if (err) {
     console.log('Error running sql: ' + sql)
     if (params) {
       console.log('Params: ' + params)
     }
     console.error(err)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    reject(err)
+    reject(err as Error)
   } else {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     resolve(results)
   }
 }
@@ -29,19 +38,28 @@ const DB = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   run(sql: string, params?: any | any[]): Promise<void> {
     return new Promise((resolve, reject) => {
-      db.run(sql, params, (err, results) => sqlite3Handler(sql, params, resolve, reject, err, results))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      db.run(sql, params, (err: Error, results: any | any[]) =>
+        sqlite3Handler(sql, params, resolve, reject, err, results)
+      )
     })
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get(sql: string, params?: any | any[]): Promise<void | any> {
     return new Promise((resolve, reject) => {
-      db.get(sql, params, (err, results) => sqlite3Handler(sql, params, resolve, reject, err, results))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      db.get(sql, params, (err: Error, results: any | any[]) =>
+        sqlite3Handler(sql, params, resolve, reject, err, results)
+      )
     })
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   all(sql: string, params?: any | any[]): Promise<void | any[]> {
     return new Promise((resolve, reject) => {
-      db.all(sql, params, (err, results) => sqlite3Handler(sql, params, resolve, reject, err, results))
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      db.all(sql, params, (err: Error, results: any | any[]) =>
+        sqlite3Handler(sql, params, resolve, reject, err, results)
+      )
     })
   },
 }

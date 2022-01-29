@@ -15,7 +15,7 @@ test.describe('Admin DB Viewer Page', () => {
     showWebPageErrorsInTerminal(page)
 
     const context = await browser.newContext({
-      httpCredentials: { username: 'admin', password: process.env.ADMIN_PASS as string },
+      httpCredentials: { username: 'admin', password: process.env['ADMIN_PASS'] as string },
     })
 
     p = await context.newPage()
@@ -36,7 +36,6 @@ test.describe('Admin DB Viewer Page', () => {
 
     const navHTML = await page.evaluate(() => {
       const navContainer = document.querySelector('nav.admin-menu') as HTMLSpanElement
-      // @ts-expect-error replaceAll is available
       return navContainer.outerHTML.replaceAll(/\s\s+/gu, '').replaceAll('\n', ' ')
     })
 

@@ -13,7 +13,7 @@ test.describe('Visual Diffing All Pages (empty db)(dark mode enabled)', () => {
   test.beforeAll(async () => {
     await createTestUser()
     await DB.run(
-      `UPDATE users SET darkModeTheme = true where name = '${process.env.TESTING_DEFAULT_USER as string}'`
+      `UPDATE users SET darkModeTheme = true where name = '${process.env['TESTING_DEFAULT_USER'] as string}'`
     )
   })
 

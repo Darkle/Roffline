@@ -89,7 +89,6 @@ test.describe('Help Page', () => {
 
     const content2 = (await page.textContent('.faq ol>li:nth-of-type(2)')) as string
 
-    // @ts-expect-error replaceAll is available
     expect(content2.trim().replaceAll(/\s\s+/gu, ' ').replaceAll('\n', ' ')).to.equal(
       'Go to the https://www.reddit.com/subreddits/mine page'
     )

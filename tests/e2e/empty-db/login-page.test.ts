@@ -1,4 +1,5 @@
 import { test, expect as pwExpect } from '@playwright/test'
+import type { Cookie } from '@playwright/test'
 import { expect } from 'chai'
 
 import { checkElementExists, DB, showWebPageErrorsInTerminal } from '../../test-utils'
@@ -134,9 +135,11 @@ test.describe('Login Page', () => {
 
     const cookies2 = await context.cookies()
 
-    expect(cookies2[0]).to.include({ name: 'loggedInUser', httpOnly: true, secure: false, sameSite: 'Strict' })
-    expect(cookies2[0].value).to.have.lengthOf.above(5)
-    expect(cookies2[0].value).to.equal(newUserUsername)
+    const loginCookie1 = cookies2[0] as Cookie
+
+    expect(loginCookie1).to.include({ name: 'loggedInUser', httpOnly: true, secure: false, sameSite: 'Strict' })
+    expect(loginCookie1.value).to.have.lengthOf.above(5)
+    expect(loginCookie1.value).to.equal(newUserUsername)
 
     await context.clearCookies()
 
@@ -156,9 +159,11 @@ test.describe('Login Page', () => {
 
     const cookies4 = await context.cookies()
 
-    expect(cookies4[0]).to.include({ name: 'loggedInUser', httpOnly: true, secure: false, sameSite: 'Strict' })
-    expect(cookies4[0].value).to.have.lengthOf.above(5)
-    expect(cookies4[0].value).to.equal(newUserUsername)
+    const loginCookie2 = cookies4[0] as Cookie
+
+    expect(loginCookie2).to.include({ name: 'loggedInUser', httpOnly: true, secure: false, sameSite: 'Strict' })
+    expect(loginCookie2.value).to.have.lengthOf.above(5)
+    expect(loginCookie2.value).to.equal(newUserUsername)
 
     // Remove user we just created
     await DB.run('DELETE FROM users WHERE name = ?', newUserUsername)
@@ -181,9 +186,11 @@ test.describe('Login Page', () => {
 
     const cookies2 = await context.cookies()
 
-    expect(cookies2[0]).to.include({ name: 'loggedInUser', httpOnly: true, secure: false, sameSite: 'Strict' })
-    expect(decodeURIComponent(cookies2[0].value)).to.have.lengthOf.above(5)
-    expect(decodeURIComponent(cookies2[0].value)).to.equal(newUserUsername)
+    const loginCookie1 = cookies2[0] as Cookie
+
+    expect(loginCookie1).to.include({ name: 'loggedInUser', httpOnly: true, secure: false, sameSite: 'Strict' })
+    expect(decodeURIComponent(loginCookie1.value)).to.have.lengthOf.above(5)
+    expect(decodeURIComponent(loginCookie1.value)).to.equal(newUserUsername)
 
     await context.clearCookies()
 
@@ -203,9 +210,11 @@ test.describe('Login Page', () => {
 
     const cookies4 = await context.cookies()
 
-    expect(cookies4[0]).to.include({ name: 'loggedInUser', httpOnly: true, secure: false, sameSite: 'Strict' })
-    expect(cookies4[0].value).to.have.lengthOf.above(5)
-    expect(cookies4[0].value).to.equal(newUserUsername)
+    const loginCookie2 = cookies4[0] as Cookie
+
+    expect(loginCookie2).to.include({ name: 'loggedInUser', httpOnly: true, secure: false, sameSite: 'Strict' })
+    expect(loginCookie2.value).to.have.lengthOf.above(5)
+    expect(loginCookie2.value).to.equal(newUserUsername)
 
     // Remove user we just created
     await DB.run('DELETE FROM users WHERE name = ?', newUserUsername)
@@ -279,9 +288,11 @@ test.describe('Login Page', () => {
 
     const cookies1 = await context.cookies()
 
-    expect(cookies1[0]).to.include({ name: 'loggedInUser', httpOnly: true, secure: false, sameSite: 'Strict' })
-    expect(cookies1[0].value).to.have.lengthOf.above(5)
-    expect(cookies1[0].value).to.equal(newUserUsername)
+    const loginCookie = cookies1[0] as Cookie
+
+    expect(loginCookie).to.include({ name: 'loggedInUser', httpOnly: true, secure: false, sameSite: 'Strict' })
+    expect(loginCookie.value).to.have.lengthOf.above(5)
+    expect(loginCookie.value).to.equal(newUserUsername)
 
     await page.goto('/logout')
 

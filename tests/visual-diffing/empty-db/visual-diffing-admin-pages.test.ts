@@ -19,7 +19,7 @@ test.describe('Visual Diffing Admin Pages', () => {
   test.beforeEach(async ({ page, browser }) => {
     showWebPageErrorsInTerminal(page)
     const context = await browser.newContext({
-      httpCredentials: { username: 'admin', password: process.env.ADMIN_PASS as string },
+      httpCredentials: { username: 'admin', password: process.env['ADMIN_PASS'] as string },
     })
     p = await context.newPage()
   })
@@ -37,16 +37,15 @@ test.describe('Visual Diffing Admin Pages', () => {
       const spanElem = document.querySelector('main ul li span') as HTMLSpanElement
 
       spanElem.textContent = 'Memory Usage: 148 MB'
-
-      ulElem.children[1].textContent = 'CPU Usage: 37%'
-      ulElem.children[2].textContent = 'Uptime: 6s'
-      ulElem.children[3].textContent = 'Subreddits Tracked: 2'
-      ulElem.children[4].textContent = 'Posts: 9247'
-      ulElem.children[5].textContent = 'Users: 1'
-      ulElem.children[6].textContent = 'Posts With Media Still To Download: 9247'
-      ulElem.children[7].textContent = 'Media Folder Size: 1.94 GB'
-      ulElem.children[8].textContent = 'DB Size: 4.38 MB'
-      ulElem.children[9].textContent = 'Comments DB Size: 562 MB'
+      ;(ulElem.children[1] as HTMLUListElement).textContent = 'CPU Usage: 37%'
+      ;(ulElem.children[2] as HTMLUListElement).textContent = 'Uptime: 6s'
+      ;(ulElem.children[3] as HTMLUListElement).textContent = 'Subreddits Tracked: 2'
+      ;(ulElem.children[4] as HTMLUListElement).textContent = 'Posts: 9247'
+      ;(ulElem.children[5] as HTMLUListElement).textContent = 'Users: 1'
+      ;(ulElem.children[6] as HTMLUListElement).textContent = 'Posts With Media Still To Download: 9247'
+      ;(ulElem.children[7] as HTMLUListElement).textContent = 'Media Folder Size: 1.94 GB'
+      ;(ulElem.children[8] as HTMLUListElement).textContent = 'DB Size: 4.38 MB'
+      ;(ulElem.children[9] as HTMLUListElement).textContent = 'Comments DB Size: 562 MB'
     })
 
     await page.setViewportSize({ width: viewport?.width as number, height: 1200 })

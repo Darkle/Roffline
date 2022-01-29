@@ -60,7 +60,7 @@ test.describe('Settings Page', () => {
     expect(manageSubsNavLink).to.equal('/sub-management')
 
     await checkElementExists(
-      page.locator(`h1:has-text("${process.env.TESTING_DEFAULT_USER as string}'s settings")`)
+      page.locator(`h1:has-text("${process.env['TESTING_DEFAULT_USER'] as string}'s settings")`)
     )
 
     await checkElementExists(page.locator(`form[method="post"]`))

@@ -221,7 +221,7 @@ const tests = {
     runningMochaTests = true
     const shOptions = { ...shellOptions, async: true }
     // Some tests are really slow (e.g. the download video tests can take 5-10 mins), so can skip them if want.
-    // const skipSlowTests = process.env['SKIP_SLOW_TESTS'] ? '--tags not:@slow' : ''
+    const skipSlowTests = process.env['SKIP_SLOW_TESTS'] ? '--tags not:@slow' : ''
 
     // @ts-expect-error
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
@@ -240,7 +240,7 @@ const tests = {
 
     const accessibility = `TESTING=true playwright test --config tests/playwright-accessibility.config.ts tests/accessibility/*.test.ts`
 
-    // const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests/integration tests/unit`
+    const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests/integration tests/unit`
 
     try {
       await removeTempTestFiles()
@@ -280,13 +280,14 @@ const tests = {
       await removeTempTestFiles()
 
       // Rebuild with no bundling so can do instrument for code coverage.
-      // bundleFrontend = false
-      // build.frontendJS()
-      // await sh(`nyc instrument --compact=false --in-place . .`, shOptions)
-      // await sh(startServer, { ...shOptions, silent: true })
-      // await sh(integrationAndUnitTests, shOptions)
-      // await sh(`fkill :8080 --silent`, shOptions)
-      // await removeTempTestFiles()
+      bundleFrontend = false
+      build.frontendJS()
+
+      await sh(`nyc instrument --compact=false --in-place . .`, shOptions)
+      await sh(startServer, { ...shOptions, silent: true })
+      await sh(integrationAndUnitTests, shOptions)
+      await sh(`fkill :8080 --silent`, shOptions)
+      await removeTempTestFiles()
     } catch (error) {
       sh(`fkill :8080 --silent`, shellOptions)
 

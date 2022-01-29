@@ -18,7 +18,7 @@ test.describe('Visual Diffing All Pages (seeded db)', () => {
     showWebPageErrorsInTerminal(page)
     await resetTestUserSettings()
     await DB.run(
-      `UPDATE users SET darkModeTheme = true where name = '${process.env.TESTING_DEFAULT_USER as string}'`
+      `UPDATE users SET darkModeTheme = true where name = '${process.env['TESTING_DEFAULT_USER'] as string}'`
     )
     await createLoginCookie(context)
   })
