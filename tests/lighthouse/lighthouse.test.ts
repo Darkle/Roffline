@@ -182,11 +182,6 @@ lighthouseTest.describe('Lighthouse checks', () => {
       await playAudit({
         page,
         port,
-        reports: {
-          formats: {
-            html: true,
-          },
-        },
         thresholds,
       })
     }
@@ -218,6 +213,17 @@ lighthouseTest.describe('Lighthouse checks', () => {
 
   lighthouseTest('(video) post page', async ({ port, authenticatedPage: page }) => {
     await page.goto('/post/a0f5')
+
+    await playAudit({
+      page,
+      port,
+      thresholds,
+    })
+  })
+
+  lighthouseTest('login page', async ({ port, authenticatedPage: page }) => {
+    await page.goto('/logout', { waitUntil: 'networkidle' })
+    await page.goto('/login', { waitUntil: 'networkidle' })
 
     await playAudit({
       page,

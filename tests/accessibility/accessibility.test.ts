@@ -127,4 +127,11 @@ test.describe('Accessibility check', () => {
     await injectAxe(page)
     await checkA11y(page)
   })
+
+  test('login page', async ({ page }) => {
+    await page.goto('/logout', { waitUntil: 'networkidle' })
+    await page.goto('/login', { waitUntil: 'networkidle' })
+    await injectAxe(page)
+    await checkA11y(page)
+  })
 })
