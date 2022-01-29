@@ -1,0 +1,168 @@
+<section class="comments"><h2>Comments:</h2><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/brandonchinn178" class="comment-username">brandonchinn178</a><data value="7">7 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq2kc85/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>I would say you do the same kinds of stuff in both FP and OOP. In both cases, you break out as much code as possible to not involve the database and test that. And in both cases, you should have integration tests that test the entire system that actually hits the database.</p>
+
+<p>I'm assuming the bulk of your question is about unit testing effectful code (e.g. database code, code that makes network requests). The benefit of languages like python or javascript is that because theyre loosely typed, you can mock out functions in a monkey-patching fashion. But you could use the repository pattern in FP as well, e.g. in Haskell, define a data type like</p>
+
+<pre><code>data DBRepository a = DBRepository
+  { insert :: a -&gt; IO ()
+  , get :: Int -&gt; IO (Maybe a)
+  , getAll :: IO [a]
+  }
+</code></pre>
+
+<p>and then a function could take in a <code>DBRepository Person</code> to do database operations on a Person. Then the test would just provide hardcoded/mocked versions of these functions, while the live version would implement via querying the database.</p>
+</div></div><div class="child-comments"><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/ClutchHunter" class="comment-username">ClutchHunter</a><data value="2">2 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq2vcff/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>I think you could abstract <code>IO</code> out to a more general monad <code>m</code> for the sake of testing, but I'm unsure whether that'd be considered best practice.</p>
+</div></div><div class="child-comments"><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/brandonchinn178" class="comment-username">brandonchinn178</a><data value="7">7 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq2ycx9/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>Sure, you could do that. Personally, I think it makes for a cleaner codebase by concretizing it as IO; otherwise, youd have to add MonadIO and other constraints everytime you want to do something else. Also, my team onboards people of various Haskell experience, and keeping things concrete is simpler and more straightforward.</p>
+
+<p>IMO, the repository pattern already solves the problem monads solve here (e.g. mtl-style effects) so you should just choose one or the other. I like the repository pattern better than mtl because tests could define the mock implementation per test, whereas using type classes means either making a separate datatype + instance per test or making a single instance that works for all tests.</p>
+</div></div><div class="child-comments"><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/cmeslo" class="comment-username">cmeslo</a><data value="2">2 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq31kzn/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>curious about if in your team they apply TDD and these kinds of patterns to abstract IO (db on this case).</p>
+</div></div><div class="child-comments"><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/brandonchinn178" class="comment-username">brandonchinn178</a><data value="3">3 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq32b16/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>We dont do strict TDD, but we place very high value in writing tests and maintaining high test coverage (in a general sense, not tracking numbers right now).</p>
+
+<p>This is actually a new effort I'm spearheading at my company to replace our current mtl stack with the repository pattern (we call it "services" pattern internally), which makes unit testing MUCH easier. Like I mentioned earlier, theres still the usual considerations of breaking out pure functions and testing those and whatnot. But we have complicated logic that interleave database and Spark operations that we'd like to test, and using the repository/services pattern is super helpful in explicitly defining all side-effectful actions needed by a particular function.</p>
+</div></div><!----><!----></li></ul></div><a href="#" class="more-comments-toggle" style="display: none;">☰</a></li></ul></div><a href="#" class="more-comments-toggle" style="display: none;">☰</a></li></ul></div><a href="#" class="more-comments-toggle" style="display: none;">☰</a></li><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/ragnese" class="comment-username">ragnese</a><data value="2">2 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hqafpxo/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>I always wonder about the Repository pattern, both in OOP and FP.</p>
+
+<p>In OOP we often talk about SOLID. The "I" in SOLID is the interface segregation principle. AFAIU, the point is that a "client" should not be forced to take input or depend on functionality that it doesn't need. So your interfaces need to be tailored to exactly what the calling code needs- nothing more and nothing less. Yet, we have things like Repository, which always have at least 4-5 methods (e.g. get-single, get-multiple, insert, replace, delete, etc). Many times the calling code doesn't need to do all of the operations available on a Repository. In fact, quite often we only need the read operations. I've almost never seen code split Repository interfaces into ReadRepository, WriteRepository, and ReadWriteRepository, but I can imagine someone, somewhere, does that. But even then, you might not need all of the read functionality or all of the write functionality.</p>
+
+<p>A big part of the problem for many statically typed languages is twofold:</p>
+
+<ol>
+<li>Objects/classes/types/values are nominally typed</li>
+<li>You must declare adherence to an interface at the definition/instantiation of the class/type/value</li>
+</ol>
+
+<p>I feel like this almost <em>forces</em> developers to violate the interface segregation principle. How can the caller/client be the one in charge of declaring what it needs when your implementation of the dependency is the one that has to declare, upfront, everything that it does? What you end up doing is declaring an interface for the calling code and then going back and touching the implementation code to declare and implement that interface, which feels a little backwards when the implementation already exists (it actually makes perfect sense when you're writing the impl from scratch).</p>
+
+<p>It's certainly much easier for the lazy dev to just think: "Well, I already have a FooRepository, and one of its methods is <em>almost</em> the API I want. I'll just have this BarService take a FooRepository dependency."</p>
+
+<p>The logical conclusion is to break up <em>most</em> of your interfaces into single method interfaces. However, that sucks, too, because most languages don't allow you to declare ad-hoc intersection types for parameters (some do, like Swift and TypeScript, but TypeScript is garbage so it doesn't count ;) ). So you have to accept two parameters: <code>class BarService(getFoo: GetFooById, deleteFoo: DeleteFooById) {...}</code>, which are likely to be the same instance being passed twice at construction, which also feels stupid.</p>
+
+<p>Basically all of that concern also applies to the FP realm. But I'm extra surprised that I keep seeing Repository interfaces show up in tutorials and blog posts about FP. That's literally OOP, which is not necessarily <em>bad</em> per se, but it's just not FP. I concluded above that most interfaces should have a single method, but the obvious translation of that to FP is that your "interfaces" should just be functions. So, most of the time, I'd think you should just be passing exactly whatever functions you need as dependencies, rather than an object holding a bunch of functions as fields.</p>
+</div></div><div class="child-comments"><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/brandonchinn178" class="comment-username">brandonchinn178</a><data value="2">2 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hqaia7g/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>Sure, it's a trade-off between purity and convenience. You could pass each side-effectful function as a separate parameter, thus allowing a function to communicate exactly what it needs (no more, no less). The downside is you can end up with a function with 12 arguments. It also breaks abstraction, where function A suddenly decides it needs to do some new DB operation, and then functions B and C (where B calls A and C calls B) needs to add that function to their signatures as well. The repository pattern helps abstraction in this case by consolidating all functions A needs into a black box that B and C can take in and pass along.</p>
+
+<p>Then you could go even further to say instead of B directly importing and calling A, it should take in its own Repository object with an implementation of A. And you end up with never calling functions directly, you just always declare exactly what other functions are needed by this function. Which can be helpful for testing, but would be absolutely indirection hell when hooking things together. (Exceptions are a whole 'nother thing that I'm figuring out with this pattern)</p>
+
+<p>I'm not sure what you mean when you say "which feels a little backwards when the implementation already exists". The implementation could, of course, share code:</p>
+
+<pre><code>myService = MyService
+  { getFoos = runQuery (getFoosWith [])
+  , getFooById = \id -&gt; runQuery (getFooWith (FooId ==. id))
+  , getFooByName = \name -&gt; runQuery (getFooWith (FooName ==. name))
+  }
+
+getFoosWith :: [Filter a] -&gt; SqlQuery [a]
+
+getFooWith :: Filter a -&gt; SqlQuery (Maybe a)
+getFooWith f = one &lt;$&gt; getFoosWith f
+  where
+    one = \case
+      [] -&gt; Nothing
+      [x] -&gt; Just x
+      xs -&gt; error ("Expected one or zero results, got: " ++ show xs)
+</code></pre>
+
+<p>Your phrase "going back and touching the implementation" seems backwards to me, since function A says "implement this service however you want and i'll do the thing" (making function A self-contained and at the bottom of the dependency graph) and the production implementation is defined at the very top-level of the dependency graph (the entrypoint/the main function).</p>
+</div></div><!----><!----></li></ul></div><a href="#" class="more-comments-toggle" style="display: none;">☰</a></li></ul></div><a href="#" class="more-comments-toggle" style="display: none;">☰</a></li><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/AlexCoventry" class="comment-username">AlexCoventry</a><data value="5">5 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq38t71/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><blockquote>
+<p>so in POO</p>
+</blockquote>
+
+<p>Now, that's playing to the crowd.</p>
+</div></div><!----><!----></li><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/yawaramin" class="comment-username">yawaramin</a><data value="4">4 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq4dmz7/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>Note: when you say 'TDD' I assume you mean unit testing. The point of unit testing is to test isolated units of code hence wanting to isolate the data access logic from the actual database calls.</p>
+
+<p>Anyway, I don't think FP has a specific corresponding pattern for the repository pattern. It's actually like that in a lot of cases. E.g. most of SOLID carries over pretty directly to FP. If you have a good module system e.g. OCaml you can create the equivalent of the repository pattern pretty easily in any language.</p>
+</div></div><div class="child-comments"><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/cmeslo" class="comment-username">cmeslo</a><data value="2">2 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq6rps2/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>are you aware of any example about how to do testing abstracting the DB away in Ocaml? would you use modules for that?</p>
+</div></div><div class="child-comments"><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/yawaramin" class="comment-username">yawaramin</a><data value="3">3 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq7udjc/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>Yeah, you'd use modules and functors, similar to e.g. <a href="https://mcclurmc.wordpress.com/2012/12/18/ocaml-pattern-easy-functor/">https://mcclurmc.wordpress.com/2012/12/18/ocaml-pattern-easy-functor/</a> (this one is not specifically about DBs but same technique applies)</p>
+</div></div><!----><!----></li></ul></div><a href="#" class="more-comments-toggle" style="display: none;">☰</a></li></ul></div><a href="#" class="more-comments-toggle" style="display: none;">☰</a></li><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/decapo01" class="comment-username">decapo01</a><data value="5">5 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq6cbjd/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>In OO the repository pattern requires dependency injection.  So something like this
+```
+class Person {
+  int id
+  string name
+}</p>
+
+<p>interface PersonRepo {
+  void insert(Person p)
+}</p>
+
+<p>class PersonRepoSql implements PersonRepo {
+  void insert(Person p) {
+    // implementation here
+  }
+}</p>
+
+<p>class PersonService {</p>
+
+<p>PersonRepo personRepo
+  PersonLogger personLogger</p>
+
+<p>// injecting repo and what ever else here
+  PersonService(PersonRepo pRepo, PersonLogger pLogger) {
+    this.personRepo = pRepo
+    this.personLogger = pLogger
+  }</p>
+
+<p>void createPerson(Person p) {
+    personLogger.log("creating person")
+    // ... any other operations
+    personRepo.insert(p) // &lt;- calling your person repo that's injected in
+  }
+```</p>
+
+<p>since FP languages can accept functions as parameter you don't need an interface to inject into a class you can simply do</p>
+
+<p>```</p>
+
+<p>createPerson :: Person -&gt; IO () -- repo
+             -&gt; String -&gt; IO () -- logger
+             -&gt; Person
+             -&gt; IO ()
+createPerson insert log person = do
+  log "inserting person"
+  -- ... any other operations
+  insert person
+<code>
+if this seems like it messes up your function signature you can also put it into it's own record
+</code>
+data CreatePersonDeps
+  = CreatePersonDeps
+  { insert :: Person -&gt; IO ()
+  , log :: String -&gt; IO ()
+  }</p>
+
+<p>createPerson :: CreatePersonDeps -&gt; Person -&gt; IO ()
+createPerson deps person = do
+  log deps "inserting person"
+  -- ... any other operations
+  insert deps person
+<code>
+finally there is also the reader monad which can clean up the signature more
+(keep in mind this is sudo code I may need to comeback and fix this)
+</code>
+createPerson :: Person -&gt; ReaderT CreatePersonDeps (IO ())
+createPerson person = runReaderT $ do
+  deps &lt;- ask
+  log deps "inserting person"
+  -- ... any other operations
+  insert deps person
+```
+this is a haskell example so in languages that I'm not sure can support the reader monad you could use the 2nd method to inject your dependencies in.  To test these you'll just need to create mocks of them and inject them in as if you would with your implementation.  In haskell you can use IORefs to get the count of how many times a function was called.  In languages that support FP and OO, I usually create a class that exposes the call counts and increment them when they are called then assert in the test that they were called the number of times that was desired.</p>
+</div></div><!----><!----></li><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/mtgommes" class="comment-username">mtgommes</a><data value="3">3 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq3yqh3/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>I don't know about others languages, but on clojure or elixir you can rely on protocols.</p>
+
+<p>You just need to define an interface and pass different implementations for each scenario. For real prod code you use an implementation that touches the database, but for tests you can use an in-memory database or mocked responses for function calls.</p>
+</div></div><div class="child-comments"><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/cmeslo" class="comment-username">cmeslo</a><data value="2">2 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq6sdhf/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>yeah, in Python it's the same (you can use a memory db or mocking things) but in my experience it's ugly and it doesn't help decoupling things so do have any example in Clojure or Elixir using protocols which could replace using the repository pattern?</p>
+</div></div><!----><!----></li></ul></div><a href="#" class="more-comments-toggle" style="display: none;">☰</a></li><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/TheWix" class="comment-username">TheWix</a><data value="3">3 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq4ylv2/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>On my phone so this will be short.</p>
+
+<p>The thing about the architectural patterns like the Reposition is it is less about the exact abstraction (class interface) and more about the semantics of the pattern. So, the respiratory is about 2 things: persistence ignorance and retrieving and saving aggregate roots.</p>
+
+<p>In FP it is nice because you don't need to pass around a class with a bunch of methods that may not be needed. So if you only need to get a Customer by the ID you only need something like </p>
+
+<p><code>(id: CustomerId) =&gt; Either&lt;DomainError, Customer&gt;</code>
+ Remember to abstract the error into something domain specific or you could break Liskov and persistence ignorance.</p>
+</div></div><!----><!----></li><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/qqwy" class="comment-username">qqwy</a><data value="2">2 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq4pdkj/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>One common approach (useful both in OOP and FP worlds) is to lean into 'Domain-Driven Design' where entities (domain objects defined by their identity) and their logic are separated from persistence, allowing the large majority of unit tests to not use the DB at all.</p>
+
+<p>Only parts depending on persistence, uniqueness constraints or transaction guarantees need the DB in their tests. For this, indeed the repository pattern icw dependency inversion is used. This is again as applicable in FP as it is in OOP, by using protocols/traits/typeclasses/witnesses or your particular language's variant of these.</p>
+</div></div><div class="child-comments"><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/cmeslo" class="comment-username">cmeslo</a><data value="2">2 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq6tpyf/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>I see, I'd really like to see examples of this in any FP language, dunno why there's not enough info about these matters tbh, almost all books I've read about FP tend to forget real world applications.</p>
+</div></div><div class="child-comments"><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/qqwy" class="comment-username">qqwy</a><data value="2">2 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq7caqn/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>What FP language are you working in?</p>
+
+<p>You could for instance look at the <a href="https://hexdocs.pm/phoenix/ecto.html">Phoenix/Ecto guide</a> which is about doing this in the language Elixir. There are also many more tutorials and full books written on the same. 
+For e. g. Haskell there are guides available for each of the common webframeworks too, although most in slightly less depth.</p>
+</div></div><!----><!----></li></ul></div><a href="#" class="more-comments-toggle" style="display: none;">☰</a></li><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/kinow" class="comment-username">kinow</a><data value="2">2 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hq8vb8j/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>Great answer, and happy cake day!</p>
+</div></div><div class="child-comments"><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/qqwy" class="comment-username">qqwy</a><data value="2">2 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/hqat9be/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>Thank you very much! 💚</p>
+</div></div><!----><!----></li></ul></div><a href="#" class="more-comments-toggle" style="display: none;">☰</a></li></ul></div><a href="#" class="more-comments-toggle" style="display: none;">☰</a></li></ul></section>

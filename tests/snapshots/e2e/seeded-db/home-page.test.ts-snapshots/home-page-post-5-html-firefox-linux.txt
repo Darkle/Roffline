@@ -1,0 +1,8 @@
+<div class="post-container"><article><h2><a href="/post/a0e4" aria-label="Read more about How would look like a FP version or alternative to the repository pattern?">How would look like a FP version or alternative to the repository pattern?</a></h2><div class="post-content justify-column"><!-- SC_OFF --><div class="md"><p>Hi there, when following TDD you'd avoid testing code which directly touch a DB as you don't need to test the DB functionality, you are testing some specific logic that may or may not involve using data from a DB or that in certain point could write data to a DB so in OOP you'd use the repository pattern which works well abstracting db operations for testing.</p>
+
+<p>My question is what's the alternative to this pattern in FP? it could be an example in any FP language, I just need to have an idea if in FP are other patterns or techniques to achieve this or maybe you are using the same pattern?</p>
+
+<p>PD: If you could refer me to existing codebases as example it'd be great.</p>
+
+<p>Cheers!</p>
+</div><!-- SC_ON --><!----></div><small class="post-meta-container"><ul><li><data value="0">0 points</data></li><li><span>from <a href="/sub/aww">/sub/aww</a></span></li><li class="submission-data"><span>submitted</span><span>by</span><a href="https://www.reddit.com/u/cmeslo" target="_blank" rel="noopener">cmeslo</a></li><li><a href="https://www.reddit.com/r/functionalprogramming/comments/rp4sy3/how_would_look_like_a_fp_version_or_alternative/" aria-label="Go to the original reddit url of this post" title="Go to the original reddit url of this post" target="_blank" rel="noopener">original url</a></li></ul></small></article><!----></div>
