@@ -1,6 +1,8 @@
 import { test, expect as pwExpect } from '@playwright/test'
 import type { Dialog } from '@playwright/test'
 import { expect } from 'chai'
+import Prray from 'prray'
+import { DateTime } from 'luxon'
 import type { Post } from '../../../db/entities/Posts/Post.d'
 
 import {
@@ -24,6 +26,14 @@ test.describe('Sub Page', () => {
 
   test('validates sub page html and text', async ({ page }) => {
     await pwExpect(page).toHaveTitle('aww - Roffline')
+
+    await page.evaluate(() => {
+      Array.from(document.querySelectorAll('time')).forEach(timeElem => {
+        // eslint-disable-next-line no-param-reassign
+        timeElem.textContent = `27 minutes ago`
+        timeElem.setAttribute('datetime', '2022 Jan 29, 4:53 AM')
+      })
+    })
 
     const [navHTML, headHTML, mainHTML] = await page.evaluate(() => [
       document.querySelector('header>nav')?.outerHTML,
@@ -58,6 +68,23 @@ test.describe('Sub Page', () => {
   })
 
   test('validates top filter html and text', async ({ page }) => {
+    const oneDayAgo = Math.round(
+      DateTime.now()
+        .minus({ ['day']: 1 })
+        .toSeconds()
+    )
+    const twoDaysAgo = Math.round(
+      DateTime.now()
+        .minus({ ['day']: 2 })
+        .toSeconds()
+    )
+    // gonna make it empty to check the html for when its empty
+    const postsForDayFilter = (await DB.all(`SELECT * FROM posts WHERE created_utc>${oneDayAgo}`)) as Post[]
+
+    await Prray.from(postsForDayFilter).forEachAsync(post =>
+      DB.run(`UPDATE posts SET created_utc=? WHERE id=?`, [twoDaysAgo, post.id])
+    )
+
     await page.goto('/sub/aww?topFilter=day')
 
     await checkElementExists(page.locator('main>h4.filter-header:has-text("Sub: Aww")'))
@@ -72,6 +99,10 @@ test.describe('Sub Page', () => {
     await pwExpect(page.locator('nav.pagination')).toHaveCount(0)
 
     await checkElementExists(page.locator('body>script[src^="/js/index-page.js"]'))
+
+    await Prray.from(postsForDayFilter).forEachAsync(post =>
+      DB.run(`UPDATE posts SET created_utc=? WHERE id=?`, [post.created_utc, post.id])
+    )
 
     // =============================
 

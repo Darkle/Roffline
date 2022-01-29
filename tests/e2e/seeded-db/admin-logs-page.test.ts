@@ -60,7 +60,7 @@ test.describe('Admin Logs Page', () => {
     return !!exists
   }
 
-  test.only('download admin logs', async () => {
+  test('download admin logs', async () => {
     const page = p as Page
 
     const destLogFile1Path = path.join(process.cwd(), 'testing-roffline-logs', '20220115-1021-0-roffline.log')

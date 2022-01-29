@@ -1,4 +1,4 @@
-<section class="comments"><h5>Comments:</h5><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/qqwy" class="comment-username">qqwy</a><data value="3">3 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rzmtfo/fuml_functional_data_serialization_language/hrwf2vg/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>Interesting idea :-).</p>
+<section class="comments"><h2>Comments:</h2><ul><li data-comment-open="true"><small class="comment-metadata"><a href="#" title="hide/show comment tree" class="collapse-comment">▽</a><a href="https://www.reddit.com/u/qqwy" class="comment-username">qqwy</a><data value="3">3 points</data><a href="https://www.reddit.com/r/functionalprogramming/comments/rzmtfo/fuml_functional_data_serialization_language/hrwf2vg/" title="Comment permalink"></a></small><div class="comment-content"><div class="md"><p>Interesting idea :-).</p>
 
 <p>Two questions regarding the syntax:</p>
 

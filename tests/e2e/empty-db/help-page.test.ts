@@ -83,11 +83,13 @@ test.describe('Help Page', () => {
     const content = (await page.textContent('.bitcoin-donation>pre')) as string
     expect(content.trim().length).to.equal(34)
 
-    await checkElementExists(page.locator('h3:has-text("FAQ")'))
-    await checkElementExists(page.locator('.faq h4:has-text("How To Bulk Import Your Reddit Subscriptions")'))
+    await checkElementExists(page.locator('h2:has-text("FAQ")'))
+    await checkElementExists(page.locator('.faq h3:has-text("How To Bulk Import Your Reddit Subscriptions")'))
     await checkElementExists(page.locator('.faq ol>li:has-text("Log in to reddit in a browser")'))
 
     const content2 = (await page.textContent('.faq ol>li:nth-of-type(2)')) as string
+
+    // @ts-expect-error replaceAll is available
     expect(content2.trim().replaceAll(/\s\s+/gu, ' ').replaceAll('\n', ' ')).to.equal(
       'Go to the https://www.reddit.com/subreddits/mine page'
     )

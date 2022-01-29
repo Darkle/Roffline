@@ -227,10 +227,9 @@ const tests = {
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
-
     // const e2eTests_EmptyDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/empty-db/*.test.ts`
 
-    // const e2eTests_SeededDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/seeded-db/*.test.ts`
+    const e2eTests_SeededDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/seeded-db/*.test.ts`
 
     // const visualDiffingTests_EmptyDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/empty-db/*.test.ts`
 
@@ -238,11 +237,13 @@ const tests = {
 
     // const lighthouse = `TESTING=true playwright test --config tests/playwright-lighthouse.config.ts tests/lighthouse/*.test.ts`
 
-    const accessibility = `TESTING=true playwright test --config tests/playwright-accessibility.config.ts tests/accessibility/*.test.ts`
+    // const accessibility = `TESTING=true playwright test --config tests/playwright-accessibility.config.ts tests/accessibility/*.test.ts`
 
     // const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests/integration tests/unit`
 
     try {
+      await removeTempTestFiles()
+
       // await sh(startServer, { ...shellOptions, silent: true, async: true })
       // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_EmptyDB}`, shOptions)
       // await sh(`fkill :8080 --silent`, shOptions)
@@ -253,11 +254,11 @@ const tests = {
       // await sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
 
-      // await sh(startServer, { ...shOptions, silent: true })
-      // await seedDB(testingEnvVars)
-      // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_SeededDB}`, shOptions)
-      // await sh(`fkill :8080 --silent`, shOptions)
-      // await removeTempTestFiles()
+      await sh(startServer, { ...shOptions, silent: true })
+      await seedDB(testingEnvVars)
+      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_SeededDB}`, shOptions)
+      await sh(`fkill :8080 --silent`, shOptions)
+      await removeTempTestFiles()
 
       // await sh(startServer, { ...shOptions, silent: true })
       // await seedDB(testingEnvVars)
@@ -269,13 +270,13 @@ const tests = {
       // await seedDB(testingEnvVars)
       // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${lighthouse}`, shOptions)
       // await sh(`fkill :8080 --silent`, shOptions)
-      await removeTempTestFiles()
+      // await removeTempTestFiles()
 
-      await sh(startServer, { ...shOptions, silent: true })
-      await seedDB(testingEnvVars)
-      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${accessibility}`, shOptions)
-      await sh(`fkill :8080 --silent`, shOptions)
-      await removeTempTestFiles()
+      // await sh(startServer, { ...shOptions, silent: true })
+      // await seedDB(testingEnvVars)
+      // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${accessibility}`, shOptions)
+      // await sh(`fkill :8080 --silent`, shOptions)
+      // await removeTempTestFiles()
 
       // Rebuild with no bundling so can do instrument for code coverage.
       // bundleFrontend = false

@@ -25,6 +25,13 @@ test.describe('Home Page', () => {
       document.querySelector('head')?.outerHTML,
     ])
 
+    await page.evaluate(() => {
+      Array.from(document.querySelectorAll('time')).forEach(timeElem => {
+        // eslint-disable-next-line no-param-reassign
+        timeElem.textContent = `27 minutes ago`
+      })
+    })
+
     pwExpect(headHTML).toMatchSnapshot('home-page-head-html.txt')
     pwExpect(navHTML).toMatchSnapshot('home-page-nav-menu-html.txt')
 
