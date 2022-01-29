@@ -2,8 +2,8 @@ import * as Vue from 'vue'
 
 const OfflineArticleIcon = Vue.defineComponent({
   template: /* html */ `
-<svg enable-background="new 0 0 512 512" id="Layer_1" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <pattern height="69" id="Polka_Dot_Pattern" overflow="visible" patternUnits="userSpaceOnUse" viewBox="2.125 -70.896 69 69" width="69" y="512">
+<svg enable-background="new 0 0 512 512" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <pattern height="69" overflow="visible" patternUnits="userSpaceOnUse" viewBox="2.125 -70.896 69 69" width="69" y="512">
         <g>
             <polygon fill="none" points="71.125,-1.896 2.125,-1.896 2.125,-70.896 71.125,-70.896   " />
             <polygon fill="#F2B760" points="71.125,-1.896 2.125,-1.896 2.125,-70.896 71.125,-70.896   " />

@@ -105,6 +105,9 @@ const PostItem = Vue.defineComponent({
       const resultsPerPage = 30
       return `${this.getNonZeroIndex() / resultsPerPage + 1}`
     },
+    postTitleAriaLabel() {
+      return `Read more about ${this.post?.title as string}`
+    },
   },
   // eslint-disable-next-line complexity
   mounted() {
@@ -138,7 +141,7 @@ const PostItem = Vue.defineComponent({
     <div v-if="showIfNotStickiedPostAndHideStickiedPostsNotEnabled()" class="post-container" v-bind:ref="'post-container-' + post.id">
       <article>
         <h2>
-          <a v-bind:href="postHref">{{ postTitle }}</a>
+          <a v-bind:href="postHref" v-bind:aria-label="postTitleAriaLabel">{{ postTitle }}</a>
         </h2>
         <post-content-item 
           v-bind:post="post"
