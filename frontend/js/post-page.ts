@@ -46,7 +46,7 @@ const PostPage = Vue.defineComponent({
     </article>
     <hr />
     <section class="comments">
-      <h5>Comments:</h5>
+      <h2>Comments:</h2>
       <small v-if="commentsNotYetDownloaded">Comments are currently being downloaded for this post.</small>
       <comments v-else-if="haveComments"
         v-bind:comments="post.comments"

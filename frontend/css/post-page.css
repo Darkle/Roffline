@@ -131,6 +131,10 @@
   overflow-wrap: break-word;
 }
 
+.post-page .comments > h2 {
+  font-size: 1.1rem;
+}
+
 .post-page .comments ul {
   padding: 0 2vw;
   border-left: 1px dotted #bcbecd;
