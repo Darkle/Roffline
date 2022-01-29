@@ -236,7 +236,9 @@ const tests = {
 
     // const visualDiffingTests_SeededDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/seeded-db/*.test.ts`
 
-    const lighthouse = `TESTING=true playwright test --config tests/playwright-lighthouse.config.ts tests/lighthouse/*.test.ts`
+    // const lighthouse = `TESTING=true playwright test --config tests/playwright-lighthouse.config.ts tests/lighthouse/*.test.ts`
+
+    const accessibility = `TESTING=true playwright test --config tests/playwright-accessibility.config.ts tests/accessibility/*.test.ts`
 
     // const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} tests/integration tests/unit`
 
@@ -263,9 +265,15 @@ const tests = {
       // await sh(`fkill :8080 --silent`, shOptions)
       // await removeTempTestFiles()
 
-      await sh(startServer, { ...shOptions, silent: true })
+      // await sh(startServer, { ...shOptions, silent: true })
       // await seedDB(testingEnvVars)
-      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${lighthouse}`, shOptions)
+      // await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${lighthouse}`, shOptions)
+      // await sh(`fkill :8080 --silent`, shOptions)
+      await removeTempTestFiles()
+
+      await sh(startServer, { ...shOptions, silent: true })
+      await seedDB(testingEnvVars)
+      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${accessibility}`, shOptions)
       await sh(`fkill :8080 --silent`, shOptions)
       await removeTempTestFiles()
 
