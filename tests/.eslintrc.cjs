@@ -46,7 +46,7 @@ module.exports = {
         'plugin:mocha/recommended',
       ],
       plugins: ['@typescript-eslint', 'extra-rules', 'no-secrets', 'disable', 'mocha'],
-      files: ['unit/**/*.ts', 'integration/**/*.test.ts'],
+      files: ['integration-unit/**/*.test.ts'],
       rules: {
         '@typescript-eslint/consistent-type-imports': 'error',
         '@typescript-eslint/default-param-last': ['error'],

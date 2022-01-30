@@ -103,4 +103,4 @@ const startServer = (): Promise<string | void> =>
     )
   })
 
-export { startServer }
+export { startServer, fastify }
