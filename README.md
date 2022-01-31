@@ -78,6 +78,7 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
 
 #### Things could possibly add later:
 
+- Add unit & integration tests
 - Add some e2e tests for admin pages interaction - e.g. filtering, changing db
 - Compress downloaded images with mozjpeg, optipng et.al.
   - https://web.dev/introducing-libsquoosh/
