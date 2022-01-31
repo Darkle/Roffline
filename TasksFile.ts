@@ -217,7 +217,7 @@ const tests = {
 
     There's prolly a better way to do this, but i have NFI how.
   *****/
-  async e2eUnitAndIntegration() {
+  async e2e() {
     runningMochaTests = true
     const shOptions = { ...shellOptions, async: true }
 
@@ -230,19 +230,6 @@ const tests = {
 
     const e2eTests_SeededDB = `TESTING=true playwright test --config tests/playwright.config.ts tests/e2e/seeded-db/*.test.ts`
 
-    const visualDiffingTests_EmptyDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/empty-db/*.test.ts`
-
-    const visualDiffingTests_SeededDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/seeded-db/*.test.ts`
-
-    const lighthouse = `TESTING=true playwright test --config tests/playwright-lighthouse.config.ts tests/lighthouse/*.test.ts`
-
-    const accessibility = `TESTING=true playwright test --config tests/playwright-accessibility.config.ts tests/accessibility/*.test.ts`
-
-    // Some tests are really slow (e.g. the download video tests can take 5-10 mins), so can skip them if want.
-    // const skipSlowTests = process.env['SKIP_SLOW_TESTS'] ? '--tags not:@slow' : ''
-
-    // const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} integration-unit`
-
     try {
       await removeTempTestFiles()
 
@@ -252,44 +239,10 @@ const tests = {
       await removeTempTestFiles()
 
       await sh(startServer, { ...shOptions, silent: true })
-      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests_EmptyDB}`, shOptions)
-      await sh(`fkill :8080 --silent`, shOptions)
-      await removeTempTestFiles()
-
-      await sh(startServer, { ...shOptions, silent: true })
       await seedDB(testingEnvVars)
       await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${e2eTests_SeededDB}`, shOptions)
       await sh(`fkill :8080 --silent`, shOptions)
       await removeTempTestFiles()
-
-      await sh(startServer, { ...shOptions, silent: true })
-      await seedDB(testingEnvVars)
-      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests_SeededDB}`, shOptions)
-      await sh(`fkill :8080 --silent`, shOptions)
-      await removeTempTestFiles()
-
-      await sh(startServer, { ...shOptions, silent: true })
-      await seedDB(testingEnvVars)
-      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${lighthouse}`, shOptions)
-      await sh(`fkill :8080 --silent`, shOptions)
-      await removeTempTestFiles()
-
-      await sh(startServer, { ...shOptions, silent: true })
-      await seedDB(testingEnvVars)
-      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${accessibility}`, shOptions)
-      await sh(`fkill :8080 --silent`, shOptions)
-      await removeTempTestFiles()
-
-      // Rebuild with no bundling so can do instrument for code coverage.
-      // bundleFrontend = false
-      // build.frontendJS()
-
-      // await sh(`nyc instrument --compact=false --in-place . .`, shOptions)
-      // await sh(startServer, { ...shOptions, silent: true })
-      // await seedDB(testingEnvVars)
-      // await sh(integrationAndUnitTests, shOptions)
-      // await sh(`fkill :8080 --silent`, shOptions)
-      // await removeTempTestFiles()
     } catch (error) {
       sh(`fkill :8080 --silent`, shellOptions)
 
@@ -299,6 +252,133 @@ const tests = {
       process.exit(1)
     }
   },
+  async visualDiffs() {
+    runningMochaTests = true
+    const shOptions = { ...shellOptions, async: true }
+
+    // @ts-expect-error
+    Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
+
+    const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
+
+    const visualDiffingTests_EmptyDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/empty-db/*.test.ts`
+
+    const visualDiffingTests_SeededDB = `TESTING=true playwright test --config tests/playwright-visual-diffing.config.ts tests/visual-diffing/seeded-db/*.test.ts`
+
+    try {
+      await removeTempTestFiles()
+
+      await sh(startServer, { ...shOptions, silent: true })
+      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests_EmptyDB}`, shOptions)
+      await sh(`fkill :8080 --silent`, shOptions)
+      await removeTempTestFiles()
+
+      await sh(startServer, { ...shOptions, silent: true })
+      await seedDB(testingEnvVars)
+      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${visualDiffingTests_SeededDB}`, shOptions)
+      await sh(`fkill :8080 --silent`, shOptions)
+      await removeTempTestFiles()
+    } catch (error) {
+      sh(`fkill :8080 --silent`, shellOptions)
+
+      removeTempTestFiles()
+
+      // We wanna exit the test when it errors out due to not enough coverage.
+      process.exit(1)
+    }
+  },
+  async lighthouse() {
+    runningMochaTests = true
+    const shOptions = { ...shellOptions, async: true }
+
+    // @ts-expect-error
+    Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
+
+    const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
+
+    const lighthouse = `TESTING=true playwright test --config tests/playwright-lighthouse.config.ts tests/lighthouse/*.test.ts`
+
+    try {
+      await removeTempTestFiles()
+
+      await sh(startServer, { ...shOptions, silent: true })
+      await seedDB(testingEnvVars)
+      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${lighthouse}`, shOptions)
+      await sh(`fkill :8080 --silent`, shOptions)
+      await removeTempTestFiles()
+    } catch (error) {
+      sh(`fkill :8080 --silent`, shellOptions)
+
+      removeTempTestFiles()
+
+      // We wanna exit the test when it errors out due to not enough coverage.
+      process.exit(1)
+    }
+  },
+  async accessibility() {
+    runningMochaTests = true
+    const shOptions = { ...shellOptions, async: true }
+
+    // @ts-expect-error
+    Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
+
+    const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
+
+    const accessibility = `TESTING=true playwright test --config tests/playwright-accessibility.config.ts tests/accessibility/*.test.ts`
+
+    try {
+      await removeTempTestFiles()
+
+      await sh(startServer, { ...shOptions, silent: true })
+      await seedDB(testingEnvVars)
+      await sh(`wait-for-server http://0.0.0.0:8080 --quiet && ${accessibility}`, shOptions)
+      await sh(`fkill :8080 --silent`, shOptions)
+      await removeTempTestFiles()
+    } catch (error) {
+      sh(`fkill :8080 --silent`, shellOptions)
+
+      removeTempTestFiles()
+
+      // We wanna exit the test when it errors out due to not enough coverage.
+      process.exit(1)
+    }
+  },
+  // async UnitAndIntegration() {
+  //   runningMochaTests = true
+  //   const shOptions = { ...shellOptions, async: true }
+
+  //   // @ts-expect-error
+  //   Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
+
+  //   const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
+
+  //   // Some tests are really slow (e.g. the download video tests can take 5-10 mins), so can skip them if want.
+  //   const skipSlowTests = process.env['SKIP_SLOW_TESTS'] ? '--tags not:@slow' : ''
+
+  //   const integrationAndUnitTests = `TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true c8 mocha ${skipSlowTests} integration-unit`
+
+  //   try {
+  //     await removeTempTestFiles()
+
+  //     // Rebuild with no bundling so can do instrument for code coverage.
+  //     bundleFrontend = false
+  //     build.frontendJS()
+
+  //     await sh(`nyc instrument --compact=false --in-place . .`, shOptions)
+  //     await sh(startServer, { ...shOptions, silent: true })
+  //     await seedDB(testingEnvVars)
+  //     await sh(integrationAndUnitTests, shOptions)
+  //     await sh(`fkill :8080 --silent`, shOptions)
+  //     await removeTempTestFiles()
+  //   } catch (error) {
+  //     sh(`fkill :8080 --silent`, shellOptions)
+
+  //     removeTempTestFiles()
+
+  //     // We wanna exit the test when it errors out due to not enough coverage.
+  //     process.exit(1)
+  //   }
+  // },
 }
 
 const db = {
