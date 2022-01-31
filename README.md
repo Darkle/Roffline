@@ -37,6 +37,7 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
 - Can specify to only show titles in feed page
 - Can specify the times at which Roffline updates
 - Can specify the max simultaneous media downloads at once
+- Keyboard friendly
 
 #### Screenshots: [screenshots](screenshots/screenshots.md)
 
@@ -52,6 +53,10 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
 - The default login for the admin page is:
   - Username: `admin`
   - Password: `foo`
+
+#### Misc Notes:
+
+- The video downloads are disabled by default. You can enable them in the admin settings page.
 
 #### Tech Stack:
 
