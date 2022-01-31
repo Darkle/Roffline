@@ -1,3 +1,4 @@
+- You can run the tasks in TaskFile.ts like this: `npx task tests:npmaudit`
 - When testing, you may need to run `sudo npx playwright install-deps` to install the playwright deps. https://playwright.dev/docs/cli#install-system-dependencies
 - You can set the db sql calls to be logged to terminal by either changing the logging level or setting the
   `EXCESSIVE_DB_LOGGING` env variable to be true

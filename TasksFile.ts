@@ -7,6 +7,7 @@ const { cli, sh } = require('tasksfile')
 const esbuild = require('esbuild')
 const glob = require('fast-glob')
 const { parse } = require('envfile')
+const Prray = require('prray')
 
 const { seedDB } = require('./tests/db-seeder.cjs')
 
@@ -201,9 +202,9 @@ const tests = {
     sh(`esbuild-visualizer --metadata ./esbuild-meta.json --filename esbuild-stats.html`, shellOptions)
     sh(`xdg-open esbuild-stats.html &`, { ...shellOptions, silent: true })
   },
-  codecoverage() {
-    sh(`TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true nyc mocha tests`, shellOptions)
-  },
+  // codecoverage() {
+  //   sh(`TS_NODE_PROJECT='tests/tsconfig.testing.json' TESTING=true nyc mocha tests`, shellOptions)
+  // },
   /*****
     The e2e tests actually run the frontend-build .js files in a browser, so we need to have esbuild
     bundle the frontend .js files, so that node_module imports (e.g. vue) will be bundled into the
@@ -218,7 +219,6 @@ const tests = {
     There's prolly a better way to do this, but i have NFI how.
   *****/
   async e2e() {
-    runningMochaTests = true
     const shOptions = { ...shellOptions, async: true }
 
     // @ts-expect-error
@@ -253,7 +253,6 @@ const tests = {
     }
   },
   async visualDiffs() {
-    runningMochaTests = true
     const shOptions = { ...shellOptions, async: true }
 
     // @ts-expect-error
@@ -288,7 +287,6 @@ const tests = {
     }
   },
   async lighthouse() {
-    runningMochaTests = true
     const shOptions = { ...shellOptions, async: true }
 
     // @ts-expect-error
@@ -316,7 +314,6 @@ const tests = {
     }
   },
   async accessibility() {
-    runningMochaTests = true
     const shOptions = { ...shellOptions, async: true }
 
     // @ts-expect-error
@@ -392,8 +389,9 @@ const buildProd = () => Object.keys(build).forEach(key => build[key]())
 
 const testAll = () => {
   buildProd()
+
   // @ts-expect-error
-  Object.keys(tests).forEach(key => tests[key]())
+  Prray.from(Object.keys(tests)).forEachAsync(key => tests[key](), { concurrency: 1 })
 }
 
 cli({
