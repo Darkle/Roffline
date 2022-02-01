@@ -39,7 +39,8 @@
     "testing-roffline-comments-lmdb.db": true,
     "testing-roffline-comments-lmdb.db-lock": true,
     "testing-posts-media": true,
-    "test-results": true
+    "test-results": true,
+    ".nyc_output": true
   },
   "search.exclude": {
     "tsconfig.tsbuildinfo": true,
@@ -62,6 +63,7 @@
     "testing-roffline-comments-lmdb.db-lock": true,
     "testing-posts-media": true,
     "tests/snapshots": true,
-    "test-results": true
+    "test-results": true,
+    ".nyc_output": true
   }
 }
