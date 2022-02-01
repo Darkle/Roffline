@@ -16,6 +16,7 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
   - The [gallery-dl](https://github.com/mikf/gallery-dl) python module installed and available in PATH
   - The [yt-dlp](https://github.com/yt-dlp/yt-dlp) python module installed and available in PATH
   - ffmpeg installed and available in PATH (needed for yt-dlp to merge audio and video)
+  - Chromium installed and available in PATH (needed for saving articles as pdf)
 - Installation:
   1. Run `git clone https://github.com/Darkle/Roffline.git`
   2. Create a `.env` file. You can see an example one here: [.example.env](.example.env)
