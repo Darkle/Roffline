@@ -42,6 +42,7 @@ module.exports = {
         'server/**/*.ts',
         './boot.ts',
         'frontend/**/*.ts',
+        './TasksFile.ts',
       ],
       parserOptions: {
         tsconfigRootDir: __dirname,

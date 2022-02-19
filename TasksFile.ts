@@ -1,4 +1,5 @@
-/* eslint-disable import/no-extraneous-dependencies, max-lines-per-function,consistent-return
+/* eslint-plugin-disable functional */
+/* eslint-disable import/no-extraneous-dependencies, max-lines-per-function,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-var-requires,@typescript-eslint/explicit-function-return-type,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-argument,@typescript-eslint/no-empty-function,@typescript-eslint/restrict-template-expressions,prefer-const
  */
 const fs = require('fs')
 const path = require('path')
@@ -12,6 +13,8 @@ const Prray = require('prray')
 const { seedDB } = require('./tests/db-seeder.cjs')
 
 const shellOptions = { nopipe: true, async: undefined }
+
+const noop = (_: unknown) => {}
 
 const prepareAndCleanDir = (dir: string) => {
   if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true })
@@ -55,8 +58,6 @@ const removeTempTestFiles = () =>
     pDeleteFileOrFolder(testingEnvVars['COMMENTS_DBPATH']),
     pDeleteFileOrFolder(`${testingEnvVars['COMMENTS_DBPATH']}-lock`),
   ])
-
-const noop = (_: unknown) => {}
 
 const tsFilesBackend = glob.sync(
   ['db/**/*.ts', 'downloads/**/*.ts', 'logging/**/*.ts', 'server/**/*.ts', './boot.ts'],
@@ -221,7 +222,7 @@ const tests = {
   async e2e() {
     const shOptions = { ...shellOptions, async: true }
 
-    // @ts-expect-error
+    // @ts-expect-error asd
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
@@ -255,7 +256,7 @@ const tests = {
   async visualDiffs() {
     const shOptions = { ...shellOptions, async: true }
 
-    // @ts-expect-error
+    // @ts-expect-error asd
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
@@ -289,7 +290,7 @@ const tests = {
   async lighthouse() {
     const shOptions = { ...shellOptions, async: true }
 
-    // @ts-expect-error
+    // @ts-expect-error asd
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
@@ -316,7 +317,7 @@ const tests = {
   async accessibility() {
     const shOptions = { ...shellOptions, async: true }
 
-    // @ts-expect-error
+    // @ts-expect-error asd
     Object.keys(build).forEach(key => build[key]()) //get frontend-build set up
 
     const startServer = `TESTING=true ROFFLINE_NO_UPDATE=true node -r ./env-checker.cjs ./boot.js &`
@@ -384,13 +385,13 @@ const db = {
   },
 }
 
-// @ts-expect-error
+// @ts-expect-error asd
 const buildProd = () => Object.keys(build).forEach(key => build[key]())
 
 const testAll = () => {
   buildProd()
 
-  // @ts-expect-error
+  // @ts-expect-error asd
   Prray.from(Object.keys(tests)).forEachAsync(key => tests[key](), { concurrency: 1 })
 }
 

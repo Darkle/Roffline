@@ -35,6 +35,6 @@
     "logging",
     "downloads",
     "db",
-    "TasksFile.ts"
+    "./TasksFile.ts"
   ]
 }
