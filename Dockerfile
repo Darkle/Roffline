@@ -5,13 +5,13 @@ RUN pip install gallery-dl
 RUN pip install yt-dlp
 RUN apt install -y ffmpeg
 
-COPY . .
-
 ENV NODE_ENV=production
 
-RUN npm install
-RUN npm run build
+COPY . .
 
+RUN npm install
+# ENV PATH="./node_modules/bin:${PATH}"
+RUN NODE_ENV=production ./node_modules/bin/ts-node ./TasksFile.ts buildProd
 
 # https://github.com/goldbergyoni/nodebestpractices/blob/master/sections/docker/bootstrap-using-node.md
 CMD ["node", "-r", "./env-checker.cjs", "./boot.js"]
