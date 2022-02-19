@@ -1,6 +1,7 @@
 version: '3.9'
 services:
   roffline:
+    container_name: roffline
     build: .
     ports:
       - '8080:8080'
