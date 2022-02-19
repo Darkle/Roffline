@@ -10,14 +10,14 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
 
 - Basic Docker:
 
-  1. `cp .example.env .env`.
+  1. Run: `cp .example.env .env`.
      - Note: for docker, _dont_ change these vars in the .env file: `LOGDIR, POSTS_MEDIA_DOWNLOAD_DIR, SQLITE_DBPATH, COMMENTS_DBPATH`
-  2. `docker run --env-file ./.env -v /somewhere/rl-data:./rl-data`
+  2. Run: `docker run --env-file ./.env -v /somewhere/rl-data:./rl-data`
 
 - Docker Compose:
-  1. `cp .example.env .env`
+  1. Run: `cp .example.env .env`
      - Note: for docker, _dont_ change these vars in the .env file: `LOGDIR, POSTS_MEDIA_DOWNLOAD_DIR, SQLITE_DBPATH, COMMENTS_DBPATH`
-  2. `docker-compose up`
+  2. Run: `docker-compose up`
 
 #### Setting Up Without Docker:
 
