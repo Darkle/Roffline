@@ -3,6 +3,6 @@ services:
   roffline:
     build: .
     ports:
-      - '8080:${PORT}'
+      - '8080:8080'
     volumes:
-      - .:/code
+      - /somewhere/rl-data:./rl-data

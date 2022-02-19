@@ -8,6 +8,15 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
 
 #### Setting Up With Docker:
 
+- Basic Docker:
+
+  1. `cp .example.env .env`. Note: for docker, _dont_ change these vars in the .env file: `LOGDIR, POSTS_MEDIA_DOWNLOAD_DIR, SQLITE_DBPATH, COMMENTS_DBPATH`
+  2. `docker run --env-file ./.env -v /somewhere/rl-data:./rl-data`
+
+- Docker Compose:
+  1. `cp .example.env .env` Note: for docker, _dont_ change these vars in the .env file: `LOGDIR, POSTS_MEDIA_DOWNLOAD_DIR, SQLITE_DBPATH, COMMENTS_DBPATH`
+  2. `docker-compose up`
+
 #### Setting Up Without Docker:
 
 - Requirements:
@@ -19,7 +28,7 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
   - Chromium installed and available in PATH (needed for saving articles as pdf)
 - Installation:
   1. Run `git clone https://github.com/Darkle/Roffline.git`
-  2. Create a `.env` file. You can see an example one here: [.example.env](.example.env)
+  2. Create a `.env` file with all the env variables. You can see an example one here: [.example.env](.example.env)
   3. Run `npm install`
   4. Run `npm start`
 
