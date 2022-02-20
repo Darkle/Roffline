@@ -9,8 +9,7 @@ ENV NODE_ENV=production
 
 COPY . .
 
-RUN npm install
-RUN npm run build
+RUN npm ci
 
 
 # https://github.com/goldbergyoni/nodebestpractices/blob/master/sections/docker/bootstrap-using-node.md
