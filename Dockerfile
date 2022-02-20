@@ -11,7 +11,8 @@ EXPOSE 8080
 
 COPY . .
 
-RUN npm ci
+RUN npm install
+RUN npm run build
 
 
 # https://github.com/goldbergyoni/nodebestpractices/blob/master/sections/docker/bootstrap-using-node.md

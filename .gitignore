@@ -1,3 +1,16 @@
+server/**/*.js
+server/**/*.js.map
+frontend/js/**/*.js
+frontend/js/**/*.js.map
+db/**/*.js
+db/**/*.js.map
+logging/**/*.js
+logging/**/*.js.map
+downloads/**/*.js
+downloads/**/*.js.map
+boot.js
+boot.js.map
+frontend-build/**/*
 roffline-logs
 testing-roffline-logs
 .scannerwork
@@ -10,6 +23,7 @@ lighthouse-reports
 lighthouse-report.html
 user-subs-export.txt
 !.vscode
+frontend-build
 tsconfig.tsbuildinfo
 tsconfig-frontend.tsbuildinfo
 roffline-comments-lmdb.db
