@@ -12,7 +12,7 @@
     "test-no-slow": "SKIP_SLOW_TESTS=true ts-node ./TasksFile.ts testAll",
     "build": "NODE_ENV=production ts-node ./TasksFile.ts buildProd",
     "eslint": "ts-node ./TasksFile.ts tests:eslint",
-    "start": "npm run build && NODE_ENV=production node -r ./env-checker.cjs ./boot.js"
+    "start": "NODE_ENV=production node -r ./env-checker.cjs ./boot.js"
   },
   "browser": {
     "vue": "vue/dist/vue.esm-bundler.js",

@@ -1,5 +1,11 @@
 # Dev Notes:
 
+#### IMPORTANT:
+
+- Make sure to `run npm build` for a new release
+
+### MISC:
+
 - We output to commonjs on the backend cause too many npm libraries for the backend have absolutely no esm support (requires instead of imports), so gotta output to commonjs, but we are coding in esm
 - We are using [lmdb](https://github.com/DoctorEvidence/lmdb-js) for the comments
 - You can run individual tasks in TaskFile.ts like this: `npx task tests:npmaudit`

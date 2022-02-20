@@ -1,0 +1,1 @@
+.pagination{margin-bottom:4rem;display:flex;flex-wrap:wrap;justify-content:center;width:100%}.pagination>span{width:100%;margin-top:1rem;margin-bottom:2rem;text-align:center}.pagination>a{padding:.4rem .8rem;margin-bottom:1.6rem}.pagination>a:hover{border-color:var(--bd-dark)}.pagination>a.current-page-nav-button{cursor:default;border-color:var(--color-lightGrey)}
