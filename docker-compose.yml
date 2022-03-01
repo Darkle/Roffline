@@ -6,4 +6,4 @@ services:
     ports:
       - '8080:8080'
     volumes:
-      - /somewhere/rl-data:./rl-data
+      - /somewhere/rl-data:/usr/src/app/rl-data
