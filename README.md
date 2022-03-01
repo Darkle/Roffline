@@ -69,7 +69,7 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
 #### Misc Notes:
 
 - The video downloads are disabled by default. You can enable them in the admin settings page.
-- After you add a subreddit, getting the posts and comments take a little whilte - maybe 5-10 mins depending on how many subreddits you added. The media downloading starts after the posts and comments have been downloaded.
+- After you add a subreddit, getting the posts and comments takes a little while - maybe 5-10 mins depending on how many subreddits you added. The media downloading starts after the posts and comments have been downloaded.
 
 #### Tech Stack:
 
