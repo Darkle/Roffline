@@ -20,7 +20,7 @@ ENV NODE_ENV=production
 
 RUN npm run build
 
-# this is just to make the dotenv module happy in the app. The .env file is passed into docker via the --env-file flag
+# This is just to make the node dotenv module happy in the app. The .env file variables are passed into docker via the --env-file flag
 RUN touch .env
 
 
