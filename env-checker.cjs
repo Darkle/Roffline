@@ -8,7 +8,13 @@ const dotEnv = require('dotenv').config({ path: dontEnvPath })
 
 const { cleanEnv: envVarChecker, str, port, url } = require('envalid')
 
-const checkendEnvVars = envVarChecker(dotEnv.parsed, {
+/*****
+  If dotEnv.parsed is empty then we are in docker and .env file is empty and the env vars have
+  allready been set with the --env-file flag.
+*****/
+const envVars = Object.keys(dotEnv.parsed).length === 0 ? process.env : dotEnv.parsed
+
+const checkendEnvVars = envVarChecker(envVars, {
   PORT: port({ default: 8080 }),
   PUBLIC_FOLDER: str({ default: './frontend-build' }),
   LOGDIR: str({ default: './roffline-logs' }),
