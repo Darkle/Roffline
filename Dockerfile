@@ -14,8 +14,8 @@ COPY . .
 # --loglevel=error for hiding the annoying NPM WARN messages
 RUN npm install --loglevel=error
 
-#IMPORTANT: `ENV NODE_ENV=production` needs to come AFTER `RUN npm install` as setting NODE_ENV to production means
-# npm wont install the dev-dependencies, which we need for the build task below (RUN npm run build)
+# IMPORTANT: `ENV NODE_ENV=production` needs to come AFTER `RUN npm install` as setting NODE_ENV to production means
+#   npm wont install the dev-dependencies, which we need for the build task below (RUN npm run build)
 ENV NODE_ENV=production
 
 RUN npm run build

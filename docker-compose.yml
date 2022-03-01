@@ -1,7 +1,13 @@
 version: '3.9'
 services:
   roffline:
-    container_name: roffline
+    environment:
+      # you can change all these env vars to whatever you want.
+      - ADMIN_PASS=foo
+      # This is the site that is used to check if you are offline.
+      - OFFLINE_CHECK_URL=https://www.google.com/
+      # Change LOGGING_LEVEL to debug to see more info in the cli
+      - LOGGING_LEVEL=error
     build: .
     ports:
       - '8080:8080'
