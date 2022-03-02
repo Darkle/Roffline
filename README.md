@@ -62,7 +62,7 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
 #### Security:
 
 - Roffline is not supposed to be exposed to the internet, it is intended to be hosted locally.
-- The default login for the admin page is:
+- The default login for the special admin page is:
   - Username: `admin`
   - Password: `foo`
   - Note: the admin login is not for the regular login page, but rather for a special admin section (found via your settings page).
