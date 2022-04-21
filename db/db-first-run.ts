@@ -16,6 +16,8 @@ const defaultAdminSettings = {
   updateAllDay: true,
   updateStartingHour: 1,
   updateEndingHour: 5, // eslint-disable-line @typescript-eslint/no-magic-numbers
+  downloadImages: true,
+  downloadArticles: true,
 }
 
 async function populateTablesOnFirstRun(): Promise<void> {

@@ -36,3 +36,4 @@ testing-roffline-sqlite.db
 testing-roffline-sqlite.db.db-journal
 esbuild-meta.json
 esbuild-stats.html
+node_modules

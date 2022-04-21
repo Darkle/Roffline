@@ -13,6 +13,8 @@ type AdminSettings = {
   updateAllDay: boolean
   updateStartingHour: number
   updateEndingHour: number
+  downloadImages: boolean
+  downloadArticles: boolean
 }
 
 type SubredditsMasterListRow = {

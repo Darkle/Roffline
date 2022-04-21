@@ -38,7 +38,9 @@ function downloadIndividualPostMedia({ post, adminSettings, postMediaFolder }: M
   }
 
   if (isImagePost(post)) {
-    return downloadImage(post, adminSettings, postMediaFolder)
+    return adminSettings.downloadImages
+    ? downloadImage(post, adminSettings, postMediaFolder)
+    : skipDownload('Image downloads disabled', post)
   }
 
   if (isVideoPost(post)) {
@@ -48,7 +50,9 @@ function downloadIndividualPostMedia({ post, adminSettings, postMediaFolder }: M
   }
 
   if (isArticleToSaveAsPdf(post)) {
-    return savePageAsPdf(post, postMediaFolder)
+    return adminSettings.downloadArticles
+    ? savePageAsPdf(post, postMediaFolder)
+      : skipDownload('Article downloads disabled', post)
   }
 
   if (isTextPostWithNoUrlInPost(post)) {

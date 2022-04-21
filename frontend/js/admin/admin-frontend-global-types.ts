@@ -8,6 +8,8 @@ type AdminSettingsForFrontend = {
   updateAllDay: boolean
   updateStartingHour: number
   updateEndingHour: number
+  downloadImages: boolean
+  downloadArticles: boolean
 }
 
 type AdminSettingsPageWindowWithProps = {

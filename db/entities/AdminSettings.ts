@@ -11,6 +11,8 @@ type AdminSettings = {
   updateAllDay: boolean
   updateStartingHour: number
   updateEndingHour: number
+  downloadImages: boolean
+  downloadArticles: boolean
 }
 
 class AdminSettingsModel extends Model {}
@@ -67,6 +69,16 @@ const tableSchema = {
     defaultValue: 5, // eslint-disable-line @typescript-eslint/no-magic-numbers
     validate: { min: 0, max: 23 }, // eslint-disable-line @typescript-eslint/no-magic-numbers
   },
+  downloadImages: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  },
+  downloadArticles: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  },
 }
 
 const initAdminSettingsModel = (sequelize: Sequelize): Promise<AdminSettingsModel> => {
@@ -81,7 +93,7 @@ const initAdminSettingsModel = (sequelize: Sequelize): Promise<AdminSettingsMode
       },
     },
   })
-  return AdminSettingsModel.sync()
+  return AdminSettingsModel.sync({ alter: true })
 }
 
 export { initAdminSettingsModel, AdminSettingsModel, AdminSettings }

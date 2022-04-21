@@ -23,7 +23,28 @@
               Enable Downloading Of Comments
             </label>
           </p>
-
+          <p>
+            <label for="enable-article-downloads" class="checkbox-label">
+              <input
+                id="enable-article-downloads"
+                name="checkbox"
+                type="checkbox"
+                v-model="downloadArticles"
+              />
+              Enable Downloading Of Articles (PDF)
+            </label>
+          </p>
+          <p>
+            <label for="enable-image-downloads" class="checkbox-label">
+              <input
+                id="enable-image-downloads"
+                name="checkbox"
+                type="checkbox"
+                v-model="downloadImages"
+              />
+              Enable Downloading Of Images
+            </label>
+          </p>
           <p>
             <label for="enable-video-downloads" class="checkbox-label">
               <input
