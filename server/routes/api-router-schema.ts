@@ -98,6 +98,8 @@ const updateAdminSettingsSchema = {
           'updateAllDay',
           'updateStartingHour',
           'updateEndingHour',
+          'downloadImages',
+          'downloadArticles',
         ],
       },
       settingValue: { type: ['boolean', 'number', 'string'] },

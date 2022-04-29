@@ -173,6 +173,18 @@ const tablesColumns = {
       formatFn: sqliteBoolToString,
     },
     {
+      label: 'downloadImages',
+      field: 'downloadImages',
+      type: 'boolean',
+      formatFn: sqliteBoolToString,
+    },
+    {
+      label: 'downloadArticles',
+      field: 'downloadArticles',
+      type: 'boolean',
+      formatFn: sqliteBoolToString,
+    },
+    {
       label: 'videoDownloadMaxFileSize',
       field: 'videoDownloadMaxFileSize',
     },

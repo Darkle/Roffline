@@ -75,6 +75,8 @@ test.describe('Admin Settings Page', () => {
         'updateAllDay',
         'updateStartingHour',
         'updateEndingHour',
+        'downloadImages',
+        'downloadArticles',
       ])
 
       expect(typeof settingValue).to.be.oneOf(['boolean', 'number', 'string'])
