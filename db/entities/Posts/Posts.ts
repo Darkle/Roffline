@@ -1,4 +1,4 @@
-import type { Sequelize } from 'sequelize'
+import type { ModelSetterOptions, Sequelize } from 'sequelize'
 import { DataTypes, Model } from 'sequelize'
 
 class PostModel extends Model {}
@@ -106,12 +106,39 @@ const tableSchema = {
   },
 }
 
+/*****
+  Ran into issue with a post (udn9jk) including unicode null character `\u0000` in the title, so
+  we have these setter methods to handle that.
+  https://stackoverflow.com/questions/22809401/
+*****/
+const setterMethods: ModelSetterOptions<PostModel> = {
+  title(string?: string): void {
+    // eslint-disable-next-line functional/no-conditional-statement
+    if (string) {
+      this.setDataValue('title', string.replace(/\0/gu, ''))
+    }
+  },
+  selftext(string?: string): void {
+    // eslint-disable-next-line functional/no-conditional-statement
+    if (string) {
+      this.setDataValue('selftext', string.replace(/\0/gu, ''))
+    }
+  },
+  selftext_html(string?: string): void {
+    // eslint-disable-next-line functional/no-conditional-statement
+    if (string) {
+      this.setDataValue('selftext_html', string.replace(/\0/gu, ''))
+    }
+  },
+}
+
 const initPostModel = (sequelize: Sequelize): Promise<PostModel> => {
   PostModel.init(tableSchema, {
     sequelize,
     modelName: 'PostModel',
     tableName: 'posts',
     timestamps: false,
+    setterMethods,
   })
   return PostModel.sync()
 }
