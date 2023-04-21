@@ -94,6 +94,7 @@ Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit 
 - https://github.com/MonkeyMaster64/Reddit-User-Media-Downloader-Public
 - https://github.com/shadowmoose/RedditDownloader
 - https://github.com/j9108c/eternity
+- https://github.com/Jackhammer9/RedDownloader
 
 #### Things could possibly add later:
 
