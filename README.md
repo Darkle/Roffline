@@ -1,4 +1,4 @@
-> [!NOTE]
+> [!IMPORTANT]  
 > Roffline has not been updated to work with the new reddit api limits.
 
 <p align="center">
