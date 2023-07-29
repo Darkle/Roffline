@@ -1,3 +1,6 @@
+> [!NOTE]
+> Roffline has not been updated to work with the new reddit api limits.
+
 <p align="center">
   <img height="256px" src="frontend/static/images/logo-default-grey.svg">
 </p>
