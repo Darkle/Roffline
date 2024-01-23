@@ -9,6 +9,8 @@
 
 Roffline is a self-hosted offline Reddit server. It allows you to browse Reddit posts (including any media in the post) while offline. It is targeted at people that have intermittent internet.
 
+Check out my other Reddit based project: [RIDO - Reddit Image Downloader & Organizer](https://github.com/Darkle/RIDO)
+
 #### Setting Up With Docker:
 
 - Basic Docker:
