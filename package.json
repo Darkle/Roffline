@@ -68,7 +68,7 @@
     "nunjucks": "^3.2.3",
     "pino": "^7.6.3",
     "pino-pretty": "^7.3.0",
-    "playwright": "^1.18.1",
+    "playwright": "^1.22.0",
     "point-of-view": "^4.16.0",
     "pratica": "^2.0.3",
     "prettify-time": "^3.1.0",
