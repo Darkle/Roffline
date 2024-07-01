@@ -60,7 +60,7 @@
     "lazy-object-view": "^1.2.1",
     "lmdb": "^2.1.4",
     "lodash.debounce": "^4.0.8",
-    "luxon": "^2.3.0",
+    "luxon": "^2.5.2",
     "msgpackr": "^1.5.2",
     "node-downloader-helper": "^1.0.19",
     "node-fetch-commonjs": "^3.1.1",
